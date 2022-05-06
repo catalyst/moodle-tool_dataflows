@@ -1,6 +1,6 @@
 # moodle-tool_dataflows
 
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/catalyst/moodle-tool_dataflows/ci/main)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/catalyst/moodle-tool_dataflows/ci/MOODLE_35_STABLE)
 
 ## Branches
 
