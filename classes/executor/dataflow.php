@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
+namespace tool_dataflows\executor;
 
 /**
  * A dataflow object, encompasing all steps and dependencies.
@@ -35,9 +35,13 @@ class dataflow {
         $this->steps[] = $step;
         $this->integritystatus = null;
     }
-    
+
     public function check_integrity() {
         $this->integritystatus = true;
+        foreach ($this->endpoints as $endpoint) {
+            $this->integritystatus = $this->integritystatus && $endpoint->get_step()->check_integrity([]);
+        }
+        return $this->integritystatus;
     }
 
     public function find_endpoints() {
@@ -58,7 +62,7 @@ class dataflow {
         }
         return $isempty;
     }
-    
+
     public function is_ready() {
         if ($this->integritystatus !== true) {
             return false;
@@ -91,4 +95,3 @@ class dataflow {
         ++$this->currentendpoint;
     }
 }
-

@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\sources;
+namespace tool_dataflows\executor;
 
 /**
- * Source that draws from a PHP Iterator.
+ * A linking class to connect steps in a way to simplify the interface. A link only needs to deal with a
+ * single iterator interface.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -25,29 +26,29 @@ namespace tool_dataflows\sources;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class php_iterator extends \tool_dataflows\source {
-    protected $source = null;
+class output_port implements iterator {
+    private $step;
+    public $id;
 
-    public function set_iterator(\Iterator $source) {
-        $this->source = $source;
+    public function __construct(step $step) {
+        $this->step = $step;
     }
-    
+
+    public function get_step(): step {
+        return $this->step;
+    }
+
     public function is_empty(): bool {
-        return !$this->source->valid();
-    }
-    
-    public function is_ready(): bool {
-        return ($this->source !== null);
+        return $this->step->is_empty();
     }
 
-    /**
-     * @return object|bool A JSON compatible object, or false if nothing returned.
-     */
+    public function is_ready(): bool {
+        return $this->step->is_ready($this->id);
+    }
+
     public function next() {
-        $value = $this->source->current();
-        $this->source->next();
-        return $value;
+        if ($this->step->is_ready($this->id)) {
+            return $this->step->next($this->id);
+        }
     }
 }
-
-

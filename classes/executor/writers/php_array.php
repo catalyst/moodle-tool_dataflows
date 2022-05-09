@@ -14,24 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
+namespace tool_dataflows\executor\writers;
 
 /**
- * Iterator interface for use within a dataflow structure.
+ * Loader that outputs to an array.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class php_array extends \tool_dataflows\executor\step {
+    public $output = [];
 
-interface iterator {
-    public function is_empty(): bool;
-    
-    public function is_ready(): bool;
+    public function __construct() {
+        $this->minoutputs = 0;
+    }
 
-    /**
-     * @return object|bool A JSON compatible object, or false if nothing returned.
-     */
-    public function next();
+    public function reset() {
+        $this->output = [];
+    }
+
+    public function next($id) {
+        if ($this->is_empty() || !$this->is_ready($id)) {
+            return false;
+        }
+        $value = $this->inputs[0]->next();
+        $this->output[] = $value;
+        return $value;
+    }
 }

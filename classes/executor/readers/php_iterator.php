@@ -14,18 +14,46 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\loaders;
+namespace tool_dataflows\executor\readers;
 
 /**
- * Loader to output a CSV format
+ * Source that draws from a PHP Iterator.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class csv extends \tool_dataflows\step {
 
-    public function next() {}
+class php_iterator extends \tool_dataflows\executor\step {
+    protected $source = null;
 
+    public function __construct() {
+        $this->mininputs = 0;
+    }
+
+    public function reset() {
+        $this->source->rewind();
+    }
+
+    public function set_iterator(\Iterator $source) {
+        $this->source = $source;
+    }
+
+    public function is_empty(): bool {
+        return !$this->source->valid();
+    }
+
+    public function is_ready($id): bool {
+        return ($this->source !== null);
+    }
+
+    /**
+     * @return object|bool A JSON compatible object, or false if nothing returned.
+     */
+    public function next($id) {
+        $value = $this->source->current();
+        $this->source->next();
+        return $value;
+    }
 }

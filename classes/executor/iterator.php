@@ -14,23 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\sources;
-use tool_dataflows\source;
+namespace tool_dataflows\executor;
 
 /**
- * Source that extracts data from the database.
+ * Iterator interface for use within a dataflow structure.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sql extends source {
 
-    public function set_query($sql) {
-        $this->sql = $sql;
-    }
+interface iterator {
+    /**
+     * True if the iterator has no more values to provide.
+     * @return bool
+     */
+    public function is_empty(): bool;
 
-    public function next() {
-    }
+    /**
+     * True if the iterator is capable (or allowed) of supplying a value.
+     * @return bool
+     */
+    public function is_ready(): bool;
+
+    /**
+     * @return object|bool A JSON compatible object, or false if nothing returned.
+     */
+    public function next();
 }

@@ -14,19 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
+namespace tool_dataflows\executor;
 
 /**
- * <insertdescription>
+ * Passes a value from each input to the output in round robin fashion.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class source extends step {
-    protected $usetestdata = false;
+class zipper extends step {
 
-    public final function add_input(iterator $iter) {
+    public function __construct() {
+        $this->maxinputs = null;
+    }
+
+    public function reset() {
+        reset($this->inputs);
+    }
+
+    public function is_ready($id): bool {
+        return $this->are_dependencies_satisfied() && current($this->inputs)->is_ready();
+    }
+
+    public function next($id) {
+        $val = current($this->inputs)->next();
+        if (next($this->inputs) === false) {
+            reset($this->inputs);
+        }
+        return $val;
     }
 }
