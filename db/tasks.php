@@ -15,19 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Language strings
+ * Tasks definitions.
  *
  * @package    tool_dataflows
- * @author     Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Dataflows tool';
-$string['dataflows'] = 'Dataflows';
-
-// Privacy.
-$string['privacy:metadata'] = 'No personal information is stored';
-$string['task:processworkflows'] = 'Process workflows scheduled task.';
+$tasks = array(
+    array(
+        'classname' => 'tool_dataflows\task\process_workflows',
+        'blocking' => 0,
+        'minute' => '*',
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    ),
+);
