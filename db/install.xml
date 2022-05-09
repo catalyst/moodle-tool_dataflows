@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220509" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="tool_dataflows" COMMENT="Dataflows workflow configuration">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false" COMMENT="The name of this workflow"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was created"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The user who created this record"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was modified."/>
+        <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Who last modified this record?"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="tool_dataflows_steps" COMMENT="Steps configuration which are mapped to a particular workflow">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="tool_dataflows_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" COMMENT="Fully Qualified Class Name of the step."/>
+        <FIELD NAME="name" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" COMMENT="Display name for the step, used in the UI and graph"/>
+        <FIELD NAME="config" TYPE="char" LENGTH="512" NOTNULL="false" SEQUENCE="false" COMMENT="JSON encoded configuration object, relevant for the step class defined"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="tool_dataflows_step_depends" COMMENT="Step dependencies, mapped out.">
+      <FIELDS>
+        <FIELD NAME="stepid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="dependson" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="References the step that the stepid depends on"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="stepid_dependson" TYPE="unique" FIELDS="stepid, dependson"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
