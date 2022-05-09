@@ -34,6 +34,7 @@ $type = optional_param('type', 'svg', PARAM_TEXT);
 // Generate DOT script based on the configured workflow.
 $dotscript = <<<EXAMPLE
     digraph G {
+      rankdir=LR;
       node [shape = record,height=.1];
       "read users" -> "write local csv";
       "read users" -> "count of users by department";
