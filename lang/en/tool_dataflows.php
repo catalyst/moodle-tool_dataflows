@@ -38,6 +38,12 @@ $string['enabled_help'] = '';
 // Manage flows
 $string['overview'] = 'Overview';
 
+// Dataflows (form)
+$string['field_name'] = 'Name';
+$string['update'] = 'Update Dataflow';
+$string['new'] = 'New Dataflow';
+
+
 // Privacy.
 $string['privacy:metadata'] = 'No personal information is stored';
 $string['task:processdataflows'] = 'Process dataflows scheduled task.';
