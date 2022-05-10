@@ -30,15 +30,12 @@ defined('MOODLE_INTERNAL') || die();
 
 require_login();
 
-admin_externalpage_setup('tool_dataflows_worfklowsettings', '', null, '', array('pagelayout' => 'report'));
+admin_externalpage_setup('tool_dataflows_dataflowsettings', '', null, '', ['pagelayout' => 'report']);
 
 $context = context_system::instance();
 
 // Check for caps.
-require_capability('tool/dataflows:managedataflow', $context);
-
-// Load the javascript.
-$PAGE->requires->js_call_amd('tool_dataflows/import_dataflow', 'init', array($context->id));
+require_capability('tool/dataflows:managedataflows', $context);
 
 // Build the page output.
 echo $OUTPUT->header();

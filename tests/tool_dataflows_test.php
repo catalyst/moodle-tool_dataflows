@@ -48,4 +48,28 @@ class tool_dataflows_test extends \advanced_testcase {
         // Debugging was called with the expected format.
         $this->assertDebuggingCalled(json_encode($input));
     }
+
+    /**
+     * @covers \tool_dataflows\dataflow
+     */
+    public function test_creating_empty_dataflow(): void {
+        $name = 'test dataflow';
+        $persistent = new \tool_dataflows\dataflow();
+        $persistent
+            ->set('name', $name)
+            ->create();
+
+        $this->assertEquals($name, $persistent->get('name'));
+        $this->assertEquals($name, $persistent->name);
+        $persistent->read();
+        $this->assertEquals($name, $persistent->get('name'));
+        $this->assertEquals($name, $persistent->name);
+        $this->assertTrue($persistent->is_valid());
+
+        // Get the id to confirm the record is stored and will load as expected.
+        $id = $persistent->get('id');
+
+        $anotherflow = new \tool_dataflows\dataflow($id);
+        $this->assertEquals($name, $anotherflow->name);
+    }
 }

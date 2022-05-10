@@ -14,26 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows;
+
 /**
- * Version
+ * Dataflow Form
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class dataflow_form extends \core\form\persistent {
 
-defined('MOODLE_INTERNAL') || die();
+    /** @var string Persistent class name. */
+    protected static $persistentclass = 'tool_dataflows\dataflow';
 
-$plugin->version = 2022050401;
-$plugin->release = 2022050401;
+    /**
+     * Define the form.
+     */
+    public function definition() {
+        $mform = $this->_form;
 
-$plugin->requires = 2017051500;    // Our lowest supported Moodle (3.3.0).
+        // User ID.
+        $mform->addElement('hidden', 'userid');
+        $mform->setConstant('userid', $this->_customdata['userid']);
 
-$plugin->supported = [35, 401];    // Available as of Moodle 3.9.0 or later.
-// TODO $plugin->incompatible = ;  // Available as of Moodle 3.9.0 or later.
+        // Location.
+        $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
 
-$plugin->component = 'tool_dataflows';
-$plugin->maturity = MATURITY_ALPHA;
+        $this->add_action_buttons();
+    }
 
-$plugin->dependencies = [];
+}
