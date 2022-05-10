@@ -35,14 +35,13 @@ $string['pluginsettings'] = 'General settings';
 $string['enabled'] = 'Enable/disable this plugin';
 $string['enabled_help'] = '';
 
-// Manage flows
+// Manage flows.
 $string['overview'] = 'Overview';
 
-// Dataflows (form)
+// Dataflows (form).
 $string['field_name'] = 'Name';
 $string['update'] = 'Update Dataflow';
 $string['new'] = 'New Dataflow';
-
 
 // Privacy.
 $string['privacy:metadata'] = 'No personal information is stored';
