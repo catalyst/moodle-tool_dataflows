@@ -33,7 +33,7 @@ require_capability('moodle/site:config', context_system::instance());
 // TODO: require an id to the dataflow so it can load and render the resulting graph/visual.
 $type = optional_param('type', 'svg', PARAM_TEXT);
 
-// Generate DOT script based on the configured workflow.
+// Generate DOT script based on the configured dataflow.
 $dotscript = <<<EXAMPLE
     digraph G {
       rankdir=LR;

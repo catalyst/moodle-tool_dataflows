@@ -35,6 +35,9 @@ $string['pluginsettings'] = 'General settings';
 $string['enabled'] = 'Enable/disable this plugin';
 $string['enabled_help'] = '';
 
+// Manage flows
+$string['overview'] = 'Overview';
+
 // Privacy.
 $string['privacy:metadata'] = 'No personal information is stored';
-$string['task:processworkflows'] = 'Process workflows scheduled task.';
+$string['task:processdataflows'] = 'Process dataflows scheduled task.';

@@ -14,25 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\task;
+
 /**
- * Tasks definitions.
+ * Process queued dataflows.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class process_dataflows extends \core\task\scheduled_task {
 
-defined('MOODLE_INTERNAL') || die();
+    /**
+     * Get a descriptive name for this task.
+     *
+     * @return string
+     */
+    public function get_name() {
+        return get_string('task:processdataflows', 'tool_dataflows');
+    }
 
-$tasks = array(
-    array(
-        'classname' => 'tool_dataflows\task\process_dataflows',
-        'blocking' => 0,
-        'minute' => '*',
-        'hour' => '*',
-        'day' => '*',
-        'dayofweek' => '*',
-        'month' => '*'
-    ),
-);
+    /**
+     * Processes dataflows.
+     */
+    public function execute() {
+        // TODO: Process dataflows.
+    }
+}

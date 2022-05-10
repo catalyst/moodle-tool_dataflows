@@ -4,10 +4,10 @@
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="tool_dataflows" COMMENT="Dataflows workflow configuration">
+    <TABLE NAME="tool_dataflows" COMMENT="Dataflows configuration">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="name" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false" COMMENT="The name of this workflow"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="200" NOTNULL="true" SEQUENCE="false" COMMENT="The name of this dataflow"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was created"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The user who created this record"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was modified."/>
@@ -17,7 +17,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="tool_dataflows_steps" COMMENT="Steps configuration which are mapped to a particular workflow">
+    <TABLE NAME="tool_dataflows_steps" COMMENT="Steps configuration which are mapped to a particular dataflow">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="tool_dataflows_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
