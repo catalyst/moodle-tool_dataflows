@@ -14,31 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\task;
-
 /**
- * Process queued workflows.
+ * Trigger dataflow settings.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class process_workflows extends \core\task\scheduled_task {
 
-    /**
-     * Get a descriptive name for this task.
-     *
-     * @return string
-     */
-    public function get_name() {
-        return get_string('task:processworkflows', 'tool_dataflows');
-    }
+require_once(dirname(__FILE__) . '/../../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
 
-    /**
-     * Processes workflows.
-     */
-    public function execute() {
-        // TODO: Process workflows.
-    }
-}
+defined('MOODLE_INTERNAL') || die();
+
+require_login();
+
+admin_externalpage_setup('tool_dataflows_worfklowsettings', '', null, '', array('pagelayout' => 'report'));
+
+$context = context_system::instance();
+
+// Check for caps.
+require_capability('tool/dataflows:managedataflow', $context);
+
+// Load the javascript.
+$PAGE->requires->js_call_amd('tool_dataflows/import_dataflow', 'init', array($context->id));
+
+// Build the page output.
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('overview', 'tool_dataflows'));
+
+// TODO: Render the list of dataflows available.
+
+echo $OUTPUT->footer();

@@ -15,7 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tasks definitions.
+ * Capabilities.
+ *
+ * This files lists capabilities related to tool_dataflows.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
@@ -25,14 +27,30 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
-    array(
-        'classname' => 'tool_dataflows\task\process_dataflows',
-        'blocking' => 0,
-        'minute' => '*',
-        'hour' => '*',
-        'day' => '*',
-        'dayofweek' => '*',
-        'month' => '*'
+$capabilities = array(
+
+    'tool/dataflows:managedataflows' => array(
+        'riskbitmask' => RISK_CONFIG | RISK_PERSONAL | RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        ),
+    ),
+    'tool/dataflows:exportdataflowhistory' => array(
+        'riskbitmask' => RISK_CONFIG | RISK_PERSONAL | RISK_SPAM,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        ),
+    ),
+    'tool/dataflows:exportrundetails' => array(
+        'riskbitmask' => RISK_CONFIG | RISK_PERSONAL | RISK_SPAM,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        ),
     ),
 );
