@@ -17,18 +17,31 @@
 /**
  * Settings
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2022, Catalyst IT
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    tool_dataflows
+ * @author     Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $settings = new admin_settingpage(
-        'tool_dataflows',
-        get_string('pluginname', 'tool_dataflows')
-    );
-}
+    $ADMIN->add('tools', new admin_category('tool_dataflows', get_string('pluginname', 'tool_dataflows')));
 
+    $settings = new admin_settingpage('tool_dataflows_settings',
+        get_string('pluginsettings', 'tool_dataflows'));
+
+    $settings->add(new admin_setting_configcheckbox('tool_dataflows/enabled',
+        get_string('enabled', 'tool_dataflows'),
+        get_string('enabled_help', 'tool_dataflows'), '0'));
+
+    $workflowsettings = new admin_externalpage('tool_dataflows_worfklowsettings',
+        get_string('pluginmanage', 'tool_dataflows'),
+        new moodle_url('/admin/tool/dataflows/manage.php'));
+
+    $ADMIN->add('tool_dataflows', $settings);
+    $ADMIN->add('tool_dataflows', $workflowsettings);
+
+    $settings = null;
+}
