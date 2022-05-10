@@ -19,14 +19,21 @@
  *
  * @package    tool_dataflows
  * @author     Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Dataflows tool';
+$string['pluginname'] = 'Dataflows';
+$string['pluginmanage'] = 'Manage flows';
 $string['dataflows'] = 'Dataflows';
+
+// General settings.
+$string['pluginsettings'] = 'General settings';
+$string['enabled'] = 'Enable/disable this plugin';
+$string['enabled_help'] = '';
 
 // Privacy.
 $string['privacy:metadata'] = 'No personal information is stored';
