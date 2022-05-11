@@ -151,20 +151,8 @@ class visualiser {
             echo $output->heading($dataflow->name);
 
             // Display the current dataflow visually
-
-            // Generate DOT script based on the configured dataflow.
-            // TODO: Create this based on the step info and any dependencies
-            $dotscript = <<<EXAMPLE
-            digraph G {
-                rankdir=LR;
-                node [shape = record,height=.1];
-                "read users" -> "write local csv";
-                "read users" -> "count of users by department";
-                "count of users by department" -> "write shared csv";
-            }
-            EXAMPLE;
             // Generate the image based on the DOT script.
-            $contents = self::generate($dotscript, 'svg');
+            $contents = self::generate($dataflow->get_dotscript(), 'svg');
 
             // Output the results to the client.
             echo \html_writer::div($contents, 'text-center p-4');

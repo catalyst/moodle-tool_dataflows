@@ -47,7 +47,7 @@ class dataflow extends persistent {
 
     public function __get($name) {
         // Check if it does not exist.
-        if (!isset($this->define_properties()[$name])) {
+        if ($name !== 'id' && !isset($this->define_properties()[$name])) {
             throw new moodle_exception('Undefined property: '.static::class."::\$$name", E_USER_NOTICE);
         }
 
@@ -63,5 +63,61 @@ class dataflow extends persistent {
 
         // Return the expected field.
         return $this->set($name, $value);
+    }
+
+    /**
+     * Returns a dotscript of the dataflow, false if no connections are available
+     *
+     * @return     string|false dotscript or false if not a valid flow
+     * @author     Kevin Pham <kevinpham@catalyst-au.net>
+     * @copyright  Catalyst IT, 2022
+     */
+    public function get_dotscript() {
+        global $DB;
+
+        // Generate DOT script based on the configured dataflow.
+        $sql = <<<SQL
+            -- Lists all the step dependencies (connections) related to this workflow
+            SELECT concat(sd.stepid, sd.dependson) as id,
+                   step.name AS stepname,
+                   dependsonstep.name AS dependsonstepname
+              FROM {tool_dataflows_step_depends} sd
+         LEFT JOIN {tool_dataflows_steps} step ON sd.stepid = step.id
+         LEFT JOIN {tool_dataflows_steps} dependsonstep ON sd.dependson = dependsonstep.id
+             WHERE step.dataflowid = :dataflowid
+
+             UNION ALL
+
+            -- Ensures steps with no dependencies on prior steps (e.g. entry steps) will be listed.
+            SELECT concat(step.id) as id,
+                   step.name AS stepname,
+                   '' AS dependsonstepname
+              FROM {tool_dataflows_steps} step
+             WHERE step.dataflowid = :dataflowid2
+        SQL;
+
+        $deps = $DB->get_records_sql($sql, [
+            'dataflowid' => $this->id,
+            'dataflowid2' => $this->id,
+        ]);
+        $connections = [];
+        foreach ($deps as $dep) {
+            $link = [];
+            $link[] = $dep->dependsonstepname;
+            $link[] = $dep->stepname;
+            // TODO: Ensure quoted names will appear okay.
+            $link = '"' . implode('" -> "', array_filter($link)) . '"';
+            $connections[] = $link;
+        }
+        $connections = implode(';' . PHP_EOL, $connections);
+        $dotscript = <<<EXAMPLE
+        digraph G {
+            rankdir=LR;
+            node [shape = record,height=.1];
+            {$connections}
+        }
+        EXAMPLE;
+
+        return $dotscript;
     }
 }
