@@ -35,13 +35,30 @@ $string['pluginsettings'] = 'General settings';
 $string['enabled'] = 'Enable/disable this plugin';
 $string['enabled_help'] = '';
 
-// Manage flows.
+// Manage flows / Overview.
 $string['overview'] = 'Overview';
+$string['field_preview'] = 'Preview';
+$string['field_userid'] = 'User';
+$string['field_manage'] = 'Manage';
+$string['field_stepcount'] = '# Steps';
+$string['import_dataflow'] = 'Import Dataflow';
 
 // Dataflows (form).
 $string['field_name'] = 'Name';
-$string['update'] = 'Update Dataflow';
-$string['new'] = 'New Dataflow';
+$string['update_dataflow'] = 'Update Dataflow';
+$string['new_dataflow'] = 'New Dataflow';
+
+// Dataflow steps (table)
+$string['steps'] = 'Steps';
+
+// Step (form).
+$string['field_config'] = 'Configuration';
+$string['field_type'] = 'Type of Step';
+$string['update_step'] = 'Update Step';
+$string['new_step'] = 'New Step';
+
+// Warnings / Errors
+$string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
 
 // Privacy.
 $string['privacy:metadata'] = 'No personal information is stored';

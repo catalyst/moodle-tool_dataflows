@@ -14,35 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
-
 /**
- * Dataflow Form
+ * Renderer class for the dataflows plugin.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class dataflow_form extends \core\form\persistent {
-
-    /** @var string Persistent class name. */
-    protected static $persistentclass = 'tool_dataflows\dataflow';
-
-    /**
-     * Define the form.
-     */
-    public function definition() {
-        $mform = $this->_form;
-
-        // User ID.
-        $mform->addElement('hidden', 'userid');
-        $mform->setConstant('userid', $this->_customdata['userid']);
-
-        // Name of the dataflow.
-        $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
-
-        $this->add_action_buttons();
-    }
-
+class tool_dataflows_renderer extends plugin_renderer_base {
 }

@@ -17,17 +17,17 @@
 namespace tool_dataflows;
 
 /**
- * Dataflow Form
+ * Dataflow Step Form
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class dataflow_form extends \core\form\persistent {
+class step_form extends \core\form\persistent {
 
     /** @var string Persistent class name. */
-    protected static $persistentclass = 'tool_dataflows\dataflow';
+    protected static $persistentclass = 'tool_dataflows\step';
 
     /**
      * Define the form.
@@ -39,8 +39,23 @@ class dataflow_form extends \core\form\persistent {
         $mform->addElement('hidden', 'userid');
         $mform->setConstant('userid', $this->_customdata['userid']);
 
-        // Name of the dataflow.
+        // Dataflow Id
+        $mform->addElement('hidden', 'dataflowid');
+        $mform->setConstant('dataflowid', $this->_customdata['dataflowid']);
+
+        // Name of the step.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
+
+        // Type of the step (should be a FQCN)
+        $mform->addElement('text', 'type', get_string('field_type', 'tool_dataflows'));
+
+        // Configuration - e.g. as JSON/YML (leaning towards the later)
+        $mform->addElement(
+            'textarea',
+            'config',
+            get_string('field_config', 'tool_dataflows'),
+            ['cols' => 50, 'rows' => 7]
+        );
 
         $this->add_action_buttons();
     }
