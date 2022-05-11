@@ -29,7 +29,7 @@
  * @param int $oldversion the version we are upgrading from
  * @return bool result
  */
-function xmldb_tool_cohortroles_upgrade($oldversion) {
+function xmldb_tool_dataflows_upgrade($oldversion) {
     global $DB;
 
     return true;

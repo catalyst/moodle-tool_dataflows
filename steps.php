@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use tool_dataflows\dataflows_table;
+use tool_dataflows\steps_table;
 use tool_dataflows\visualiser;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
@@ -33,6 +33,8 @@ defined('MOODLE_INTERNAL') || die();
 
 require_login();
 
+$dataflowid = required_param('dataflowid', PARAM_INT);
+
 admin_externalpage_setup('tool_dataflows_overview', '', null, '', ['pagelayout' => 'report']);
 
 $context = context_system::instance();
@@ -40,24 +42,19 @@ $context = context_system::instance();
 // Check for caps.
 require_capability('tool/dataflows:managedataflows', $context);
 
-$url = new moodle_url('/admin/tool/dataflows/overview.php');
+$url = new moodle_url('/admin/tool/dataflows/steps.php', ['dataflowid' => $dataflowid]);
 
 // Configure any table specifics
-$table = new dataflows_table('dataflows_table');
-$sqlfields = '{tool_dataflows}.id,
-              {user}.*,
-              {tool_dataflows}.*,
-              (
-                  SELECT count(*)
-                  FROM {tool_dataflows_steps}
-                  WHERE {tool_dataflows_steps}.dataflowid = {tool_dataflows}.id
-              ) as stepcount';
-$sqlfrom = '{tool_dataflows}
-  LEFT JOIN {user}
-         ON {user}.id = {tool_dataflows}.userid';
-$sqlwhere = '1=1';
-$sqlparams = [];
+$table = new steps_table('dataflows_table');
+$sqlfields = 'step.id,
+              usr.*,
+              step.*';
+$sqlfrom = '{tool_dataflows_steps} step
+  LEFT JOIN {user} usr
+         ON usr.id = step.userid';
+$sqlwhere = 'dataflowid = :dataflowid';
+$sqlparams = ['dataflowid' => $dataflowid];
 $table->set_sql($sqlfields, $sqlfrom, $sqlwhere, $sqlparams);
 $table->make_columns();
 
-visualiser::display_dataflows_table($table, $url, get_string('overview', 'tool_dataflows'));
+visualiser::display_steps_table($dataflowid, $table, $url, get_string('steps', 'tool_dataflows'));

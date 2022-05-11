@@ -81,5 +81,108 @@ class visualiser {
         print "failed to execute cmd \"$cmd\"";
         exit();
     }
+
+    public static function display_dataflows_table(dataflows_table $table, \moodle_url $url, string $pageheading) {
+        global $PAGE;
+
+        $download = optional_param('download', '', PARAM_ALPHA);
+
+        $context = \context_system::instance();
+
+        $PAGE->set_context($context);
+        $PAGE->set_url($url);
+
+        // Coding error detected, it must be fixed by a programmer: Request for an unknown renderer tool_dataflows, overview, general
+        $output = $PAGE->get_renderer('tool_dataflows');
+        $pluginname = get_string('pluginname', 'tool_dataflows');
+
+        $table->is_downloading($download, 'dataflows', 'flows');
+        $table->define_baseurl($url);
+
+        if (!$table->is_downloading()) {
+            $PAGE->set_title($pluginname . ': ' . $pageheading);
+            $PAGE->set_pagelayout('admin');
+            $PAGE->set_heading($pluginname);
+            echo $output->header();
+            echo $output->heading($pageheading);
+        }
+
+        // New Dataflow
+        $addbutton = \html_writer::tag('button', get_string('new_dataflow', 'tool_dataflows'), ['class' => 'btn btn-primary']);
+        $addurl = new \moodle_url('/admin/tool/dataflows/edit.php');
+        echo \html_writer::link($addurl, $addbutton);
+
+        // Import Dataflow
+        $importbutton = \html_writer::tag('button', get_string('import_dataflow', 'tool_dataflows'), ['class' => 'hidden btn btn-primary ml-2']);
+        $importurl = new \moodle_url('/admin/tool/dataflows/import.php');
+        echo \html_writer::link($importurl, $importbutton);
+
+        $table->out($table->pagesize, false);
+        $table->is_downloadable(false);
+
+        if (!$table->is_downloading()) {
+            echo $output->footer();
+        }
+    }
+
+    public static function display_steps_table(int $dataflowid, steps_table $table, \moodle_url $url, string $pageheading) {
+        global $PAGE;
+
+        $download = optional_param('download', '', PARAM_ALPHA);
+
+        $context = \context_system::instance();
+
+        $PAGE->set_context($context);
+        $PAGE->set_url($url);
+
+        // Coding error detected, it must be fixed by a programmer: Request for an unknown renderer tool_dataflows, overview, general
+        $output = $PAGE->get_renderer('tool_dataflows');
+        $pluginname = get_string('pluginname', 'tool_dataflows');
+
+        $table->is_downloading($download, 'dataflows', 'flows');
+        $table->define_baseurl($url);
+
+        if (!$table->is_downloading()) {
+            $dataflow = new dataflow($dataflowid);
+            $PAGE->set_title($pluginname . ': ' . $dataflow->name . ': ' . $pageheading);
+            $PAGE->set_pagelayout('admin');
+            $PAGE->set_heading($pluginname);
+            echo $output->header();
+            echo $output->heading($dataflow->name);
+
+            // Display the current dataflow visually
+
+            // Generate DOT script based on the configured dataflow.
+            // TODO: Create this based on the step info and any dependencies
+            $dotscript = <<<EXAMPLE
+            digraph G {
+                rankdir=LR;
+                node [shape = record,height=.1];
+                "read users" -> "write local csv";
+                "read users" -> "count of users by department";
+                "count of users by department" -> "write shared csv";
+            }
+            EXAMPLE;
+            // Generate the image based on the DOT script.
+            $contents = self::generate($dotscript, 'svg');
+
+            // Output the results to the client.
+            echo \html_writer::div($contents, 'text-center p-4');
+
+            echo $output->heading($pageheading);
+        }
+
+        // New Step
+        $addbutton = \html_writer::tag('button', get_string('new_step', 'tool_dataflows'), ['class' => 'btn btn-primary']);
+        $addurl = new \moodle_url('/admin/tool/dataflows/step.php', ['dataflowid' => $dataflowid]);
+        echo \html_writer::link($addurl, $addbutton);
+
+        $table->out($table->pagesize, false);
+        $table->is_downloadable(false);
+
+        if (!$table->is_downloading()) {
+            echo $output->footer();
+        }
+    }
 }
 

@@ -36,7 +36,7 @@ if ($hassiteconfig) {
         get_string('enabled', 'tool_dataflows'),
         get_string('enabled_help', 'tool_dataflows'), '0'));
 
-    $dataflowsettings = new admin_externalpage('tool_dataflows_dataflowsettings',
+    $dataflowsettings = new admin_externalpage('tool_dataflows_overview',
         get_string('pluginmanage', 'tool_dataflows'),
         new moodle_url('/admin/tool/dataflows/overview.php'));
 
