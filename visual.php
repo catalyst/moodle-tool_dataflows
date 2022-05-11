@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use tool_dataflows\dataflow;
+
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 
@@ -31,18 +33,12 @@ require_login(null, false);
 require_capability('moodle/site:config', context_system::instance());
 
 // TODO: require an id to the dataflow so it can load and render the resulting graph/visual.
+$id = required_param('id', PARAM_INT);
 $type = optional_param('type', 'svg', PARAM_TEXT);
 
 // Generate DOT script based on the configured dataflow.
-$dotscript = <<<EXAMPLE
-    digraph G {
-      rankdir=LR;
-      node [shape = record,height=.1];
-      "read users" -> "write local csv";
-      "read users" -> "count of users by department";
-      "count of users by department" -> "write shared csv";
-    }
-EXAMPLE;
+$dataflow = new dataflow($id);
+$dotscript = $dataflow->get_dotscript();
 
 // Generate the image based on the DOT script.
 $contents = \tool_dataflows\visualiser::generate($dotscript, $type);
