@@ -48,7 +48,7 @@ $string['field_name'] = 'Name';
 $string['update_dataflow'] = 'Update Dataflow';
 $string['new_dataflow'] = 'New Dataflow';
 
-// Dataflow steps (table)
+// Dataflow steps (table).
 $string['steps'] = 'Steps';
 
 // Step (form).
@@ -57,7 +57,7 @@ $string['field_type'] = 'Type of Step';
 $string['update_step'] = 'Update Step';
 $string['new_step'] = 'New Step';
 
-// Warnings / Errors
+// Warnings / Errors.
 $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
 
 // Privacy.
