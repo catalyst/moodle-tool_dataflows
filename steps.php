@@ -44,7 +44,7 @@ require_capability('tool/dataflows:managedataflows', $context);
 
 $url = new moodle_url('/admin/tool/dataflows/steps.php', ['dataflowid' => $dataflowid]);
 
-// Configure any table specifics
+// Configure any table specifics.
 $table = new steps_table('dataflows_table');
 $sqlfields = 'step.id,
               usr.*,

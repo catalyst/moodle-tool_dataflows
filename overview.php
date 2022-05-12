@@ -42,7 +42,7 @@ require_capability('tool/dataflows:managedataflows', $context);
 
 $url = new moodle_url('/admin/tool/dataflows/overview.php');
 
-// Configure any table specifics
+// Configure any table specifics.
 $table = new dataflows_table('dataflows_table');
 $sqlfields = '{tool_dataflows}.id,
               {user}.*,

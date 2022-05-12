@@ -92,7 +92,6 @@ class visualiser {
         $PAGE->set_context($context);
         $PAGE->set_url($url);
 
-        // Coding error detected, it must be fixed by a programmer: Request for an unknown renderer tool_dataflows, overview, general
         $output = $PAGE->get_renderer('tool_dataflows');
         $pluginname = get_string('pluginname', 'tool_dataflows');
 
@@ -107,13 +106,17 @@ class visualiser {
             echo $output->heading($pageheading);
         }
 
-        // New Dataflow
+        // New Dataflow.
         $addbutton = \html_writer::tag('button', get_string('new_dataflow', 'tool_dataflows'), ['class' => 'btn btn-primary']);
         $addurl = new \moodle_url('/admin/tool/dataflows/edit.php');
         echo \html_writer::link($addurl, $addbutton);
 
-        // Import Dataflow
-        $importbutton = \html_writer::tag('button', get_string('import_dataflow', 'tool_dataflows'), ['class' => 'hidden btn btn-primary ml-2']);
+        // Import Dataflow.
+        $importbutton = \html_writer::tag(
+            'button',
+            get_string('import_dataflow', 'tool_dataflows'),
+            ['class' => 'hidden btn btn-primary ml-2']
+        );
         $importurl = new \moodle_url('/admin/tool/dataflows/import.php');
         echo \html_writer::link($importurl, $importbutton);
 
@@ -135,7 +138,6 @@ class visualiser {
         $PAGE->set_context($context);
         $PAGE->set_url($url);
 
-        // Coding error detected, it must be fixed by a programmer: Request for an unknown renderer tool_dataflows, overview, general
         $output = $PAGE->get_renderer('tool_dataflows');
         $pluginname = get_string('pluginname', 'tool_dataflows');
 
@@ -150,17 +152,16 @@ class visualiser {
             echo $output->header();
             echo $output->heading($dataflow->name);
 
-            // Display the current dataflow visually
             // Generate the image based on the DOT script.
             $contents = self::generate($dataflow->get_dotscript(), 'svg');
 
-            // Output the results to the client.
+            // Display the current dataflow visually.
             echo \html_writer::div($contents, 'text-center p-4');
 
             echo $output->heading($pageheading);
         }
 
-        // New Step
+        // New Step.
         $addbutton = \html_writer::tag('button', get_string('new_step', 'tool_dataflows'), ['class' => 'btn btn-primary']);
         $addurl = new \moodle_url('/admin/tool/dataflows/step.php', ['dataflowid' => $dataflowid]);
         echo \html_writer::link($addurl, $addbutton);

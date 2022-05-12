@@ -39,17 +39,17 @@ class step_form extends \core\form\persistent {
         $mform->addElement('hidden', 'userid');
         $mform->setConstant('userid', $this->_customdata['userid']);
 
-        // Dataflow Id
+        // Dataflow Id.
         $mform->addElement('hidden', 'dataflowid');
         $mform->setConstant('dataflowid', $this->_customdata['dataflowid']);
 
         // Name of the step.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
 
-        // Type of the step (should be a FQCN)
+        // Type of the step (should be a FQCN).
         $mform->addElement('text', 'type', get_string('field_type', 'tool_dataflows'));
 
-        // Configuration - e.g. as JSON/YML (leaning towards the later)
+        // Configuration - e.g. as JSON/YML (leaning towards the later).
         $mform->addElement(
             'textarea',
             'config',
