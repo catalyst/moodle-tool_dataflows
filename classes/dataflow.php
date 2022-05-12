@@ -76,25 +76,23 @@ class dataflow extends persistent {
         global $DB;
 
         // Generate DOT script based on the configured dataflow.
-        $sql = <<<SQL
-            -- Lists all the step dependencies (connections) related to this workflow
-            SELECT concat(sd.stepid, sd.dependson) as id,
-                   step.name AS stepname,
-                   dependsonstep.name AS dependsonstepname
-              FROM {tool_dataflows_step_depends} sd
-         LEFT JOIN {tool_dataflows_steps} step ON sd.stepid = step.id
-         LEFT JOIN {tool_dataflows_steps} dependsonstep ON sd.dependson = dependsonstep.id
-             WHERE step.dataflowid = :dataflowid
+        // First block - Lists all the step dependencies (connections) related to this workflow.
+        // Second block - Ensures steps with no dependencies on prior steps (e.g. entry steps) will be listed.
+        $sql = "SELECT concat(sd.stepid, sd.dependson) as id,
+                       step.name AS stepname,
+                       dependsonstep.name AS dependsonstepname
+                  FROM {tool_dataflows_step_depends} sd
+             LEFT JOIN {tool_dataflows_steps} step ON sd.stepid = step.id
+             LEFT JOIN {tool_dataflows_steps} dependsonstep ON sd.dependson = dependsonstep.id
+                 WHERE step.dataflowid = :dataflowid
 
-             UNION ALL
+                 UNION ALL
 
-            -- Ensures steps with no dependencies on prior steps (e.g. entry steps) will be listed.
-            SELECT concat(step.id) as id,
-                   step.name AS stepname,
-                   '' AS dependsonstepname
-              FROM {tool_dataflows_steps} step
-             WHERE step.dataflowid = :dataflowid2
-        SQL;
+                SELECT concat(step.id) as id,
+                       step.name AS stepname,
+                       '' AS dependsonstepname
+                  FROM {tool_dataflows_steps} step
+                 WHERE step.dataflowid = :dataflowid2";
 
         $deps = $DB->get_records_sql($sql, [
             'dataflowid' => $this->id,
@@ -110,13 +108,11 @@ class dataflow extends persistent {
             $connections[] = $link;
         }
         $connections = implode(';' . PHP_EOL, $connections);
-        $dotscript = <<<EXAMPLE
-        digraph G {
-            rankdir=LR;
-            node [shape = record,height=.1];
-            {$connections}
-        }
-        EXAMPLE;
+        $dotscript = "digraph G {
+                          rankdir=LR;
+                          node [shape = record,height=.1];
+                          {$connections}
+                      }";
 
         return $dotscript;
     }
