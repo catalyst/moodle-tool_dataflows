@@ -50,6 +50,7 @@ $string['new_dataflow'] = 'New Dataflow';
 
 // Dataflow steps (table).
 $string['steps'] = 'Steps';
+$string['field_dependson'] = 'Depends On';
 
 // Step (form).
 $string['field_config'] = 'Configuration';

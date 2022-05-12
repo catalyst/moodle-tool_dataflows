@@ -72,4 +72,34 @@ class tool_dataflows_test extends \advanced_testcase {
         $anotherflow = new \tool_dataflows\dataflow($id);
         $this->assertEquals($name, $anotherflow->name);
     }
+
+    /**
+     * @covers \tool_dataflows\step
+     * @covers \tool_dataflows\dataflow::get_dotscript
+     */
+    public function test_dependent_steps_and_dot_script(): void {
+        $name = 'test dataflow';
+        $dataflow = new \tool_dataflows\dataflow();
+        $dataflow
+            ->set('name', $name)
+            ->create();
+
+        $stepone = new \tool_dataflows\step();
+        $stepone->name = 'step1';
+        $stepone->type = step\debugging::class;
+        $dataflow->add_step($stepone);
+
+        $steptwo = new \tool_dataflows\step();
+        $steptwo->name = 'step2';
+        $steptwo->type = step\debugging::class;
+        $steptwo->depends_on([$stepone]);
+        $dataflow->add_step($steptwo);
+
+        $dotscript = $dataflow->get_dotscript();
+        $this->assertStringContainsString($steptwo->name, $dotscript);
+        $this->assertStringContainsString($stepone->name, $dotscript);
+        // Ensure dependency chain exists.
+        $this->assertMatchesRegularExpression("/{$stepone->name}.*->.*{$steptwo->name}/", $dotscript);
+        $this->assertDoesNotMatchRegularExpression("/{$steptwo->name}.*->.*{$stepone->name}/", $dotscript);
+    }
 }
