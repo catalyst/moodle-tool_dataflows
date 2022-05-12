@@ -30,10 +30,12 @@ class steps_table extends \table_sql {
         'name',
         'type',
         'config',
+        'dependson',
     ];
 
     const NOSORT_COLUMNS = [
         'manage',
+        'dependson',
     ];
 
     /**
@@ -96,6 +98,26 @@ class steps_table extends \table_sql {
         $url = new \moodle_url('/user/profile.php', ['id' => $record->userid]);
         $fullname = fullname($record);
         return \html_writer::link($url, $fullname);
+    }
+
+    /**
+     * Display list of other step this one depends on
+     *
+     * @param \stdClass $record
+     * @return string
+     */
+    public function col_dependson(\stdClass $record): string {
+        // List all the dependencies.
+        $step = new step($record->id);
+        $deps = $step->dependencies();
+
+        // Make the list.
+        $out = \html_writer::start_tag('ul');
+        foreach ($deps as $dep) {
+            $out .= \html_writer::tag('li', $dep->name);
+        }
+        $out .= \html_writer::end_tag('ul');
+        return $out;
     }
 
     /**

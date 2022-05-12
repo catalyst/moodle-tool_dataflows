@@ -63,6 +63,7 @@ $PAGE->set_url($url);
 $persistent = null;
 if (!empty($id)) {
     $persistent = new step($id);
+    $dependencies = $persistent->dependencies();
 }
 
 // Render the specific dataflow form.
@@ -73,21 +74,28 @@ $customdata = [
 ];
 $form = new step_form($PAGE->url->out(false), $customdata);
 
-if (($data = $form->get_data())) {
+// Populate the foreign dependencies data if there was any.
+if (!empty($dependencies)) {
+    $form->set_data(['dependson' => array_column($dependencies, 'id')]);
+}
 
+if (($data = $form->get_data())) {
     try {
         if (empty($data->id)) {
             // If we don't have an ID, we know that we must create a new record.
             // Call your API to create a new persistent from this data.
             // Or, do the following if you don't want capability checks (discouraged).
             $persistent = new step(0, $data);
-            $persistent->create();
+            $persistent->upsert();
         } else {
             // We had an ID, this means that we are going to update a record.
             // Call your API to update the persistent from the data.
             // Or, do the following if you don't want capability checks (discouraged).
+            $dependson = $data->dependson;
+            unset($data->dependson);
             $persistent->from_record($data);
-            $persistent->update();
+            $persistent->depends_on($dependson);
+            $persistent->upsert();
         }
         \core\notification::success(get_string('changessaved'));
     } catch (Exception $e) {

@@ -46,22 +46,10 @@ class dataflow extends persistent {
     }
 
     public function __get($name) {
-        // Check if it does not exist.
-        if ($name !== 'id' && !isset($this->define_properties()[$name])) {
-            throw new moodle_exception('Undefined property: '.static::class."::\$$name", E_USER_NOTICE);
-        }
-
-        // Return the expected field.
         return $this->get($name);
     }
 
     public function __set($name, $value) {
-        // Check if it does not exist.
-        if (!isset($this->define_properties()[$name])) {
-            throw new moodle_exception('Undefined property: '.static::class."::\$$name", E_USER_NOTICE);
-        }
-
-        // Return the expected field.
         return $this->set($name, $value);
     }
 
@@ -115,5 +103,39 @@ class dataflow extends persistent {
                       }";
 
         return $dotscript;
+    }
+
+    /**
+     * Return a list of steps (raw DB records)
+     *
+     * @return     array
+     * @author     Kevin Pham <kevinpham@catalyst-au.net>
+     * @copyright  Catalyst IT, 2022
+     */
+    public function raw_steps(): array {
+        global $DB;
+        $sql = "SELECT step.*
+                  FROM {tool_dataflows_steps} step
+                 WHERE step.dataflowid = :dataflowid";
+
+        $steps = $DB->get_records_sql($sql, [
+            'dataflowid' => $this->id,
+        ]);
+        return $steps;
+    }
+
+
+    /**
+     * Method to link another step to this dataflow
+     *
+     * This will save the step if it has not been created in the database yet.
+     *
+     * @param $step
+     * @return $this
+     */
+    public function add_step(step $step) {
+        $step->dataflowid = $this->id;
+        $step->upsert();
+        return $this;
     }
 }

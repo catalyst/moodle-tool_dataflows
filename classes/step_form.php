@@ -29,11 +29,15 @@ class step_form extends \core\form\persistent {
     /** @var string Persistent class name. */
     protected static $persistentclass = 'tool_dataflows\step';
 
+    /** @var array Fields to remove from the persistent validation. */
+    protected static $foreignfields = ['dependson'];
+
     /**
      * Define the form.
      */
     public function definition() {
         $mform = $this->_form;
+        $dataflowid = $this->_customdata['dataflowid'];
 
         // User ID.
         $mform->addElement('hidden', 'userid');
@@ -41,10 +45,23 @@ class step_form extends \core\form\persistent {
 
         // Dataflow Id.
         $mform->addElement('hidden', 'dataflowid');
-        $mform->setConstant('dataflowid', $this->_customdata['dataflowid']);
+        $mform->setConstant('dataflowid', $dataflowid);
 
         // Name of the step.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
+
+        // Show a list of other steps as options for depends on.
+        $dataflow = new dataflow($dataflowid);
+        $steps = $dataflow->raw_steps();
+        $options = array_reduce($steps, function ($acc, $step) {
+            if ((int) $step->id !== $this->get_persistent()->id) {
+                $acc[$step->id] = $step->name;
+            }
+            return $acc;
+        }, []);
+
+        $select = $mform->addElement('select', 'dependson', get_string('field_dependson', 'tool_dataflows'), $options);
+        $select->setMultiple(true);
 
         // Type of the step (should be a FQCN).
         $mform->addElement('text', 'type', get_string('field_type', 'tool_dataflows'));

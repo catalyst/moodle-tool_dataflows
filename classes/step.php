@@ -30,6 +30,8 @@ use moodle_exception;
 class step extends persistent {
     const TABLE = 'tool_dataflows_steps';
 
+    private array $dependson = [];
+
     /**
      * Return the definition of the properties of this model.
      *
@@ -45,26 +47,96 @@ class step extends persistent {
             'userid' => ['type' => PARAM_INT, 'default' => 0],
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
             'usermodified' => ['type' => PARAM_INT, 'default' => 0],
+            // 'dependson' => [
+            //     'type' => PARAM_TEXT,
+            //     'null' => NULL_ALLOWED,
+            //     'message' => new \lang_string('invaliddata', 'error'),
+            // ],
         ];
     }
 
     public function __get($name) {
-        // Check if it does not exist.
-        if (!isset($this->define_properties()[$name])) {
-            throw new moodle_exception('Undefined property: '.static::class."::\$$name", E_USER_NOTICE);
-        }
-
-        // Return the expected field.
         return $this->get($name);
     }
 
     public function __set($name, $value) {
-        // Check if it does not exist.
-        if (!isset($this->define_properties()[$name])) {
-            throw new moodle_exception('Undefined property: '.static::class."::\$$name", E_USER_NOTICE);
+        return $this->set($name, $value);
+    }
+
+    /**
+     * Sets the dependencies for this step
+     *
+     * @param int[]|step[] $dependencies a collection of steps or step ids
+     */
+    public function depends_on(array $dependencies) {
+        $this->dependson = $dependencies;
+        return $this;
+    }
+
+    /**
+     * Persists the dependencies (dependson) for this step into the database.
+     */
+    private function update_depends_on() {
+        global $DB;
+
+        // Update records in database.
+        $dependencies = $this->dependson;
+        $dependencymap = [];
+        foreach ($dependencies as $dependency) {
+            $dependencymap[] = ['stepid' => $this->id, 'dependson' => $dependency->id ?? $dependency];
+        }
+        $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
+        $DB->insert_records('tool_dataflows_step_depends', $dependencymap);
+    }
+
+    /**
+     * Returns a list of steps that this step depends on before it can run.
+     *
+     * @return     array step dependencies
+     * @author     Kevin Pham <kevinpham@catalyst-au.net>
+     * @copyright  Catalyst IT, 2022
+     */
+    public function dependencies() {
+        global $DB;
+        $sql = "SELECT step.id AS id,
+                       step.name AS name
+                  FROM {tool_dataflows_step_depends} sd
+             LEFT JOIN {tool_dataflows_steps} step ON sd.dependson = step.id
+                 WHERE sd.stepid = :stepid";
+
+        $deps = $DB->get_records_sql($sql, [
+            'stepid' => $this->id,
+        ]);
+        return $deps;
+    }
+
+    /**
+     * Validate the dependencies
+     *
+     * @param array $dependencies steps that this step is dependent on
+     * @return true|lang_string
+     */
+    protected function validate_dependson($dependencies) {
+        // echo"<pre>";print_r(12223);die;
+        if (false) {
+            return get_string('invaliduserid', 'error');
         }
 
-        // Return the expected field.
-        return $this->set($name, $value);
+        return true;
+    }
+
+    /**
+     * Updates the persistent if the record exists, otherwise creates it
+     *
+     * @return  $this
+     */
+    public function upsert() {
+        // Internally this is handled by the persistent class. But we want to apply a few more things here.
+        $this->save();
+
+        // Update the local dependencies to the database.
+        $this->update_depends_on();
+
+        return $this;
     }
 }
