@@ -97,16 +97,37 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $dotscript = $dataflow->get_dotscript();
         // PHPUnit backwards compatibility check.
-        if (method_exists($this, 'assertStringContainsString')) {
-            $this->assertStringContainsString($steptwo->name, $dotscript);
-            $this->assertStringContainsString($stepone->name, $dotscript);
-        } else {
-            $this->assertContains($steptwo->name, $dotscript);
-            $this->assertContains($stepone->name, $dotscript);
-        }
+        $this->compatible_assertStringContainsString($steptwo->name, $dotscript);
+        $this->compatible_assertStringContainsString($stepone->name, $dotscript);
 
         // Ensure dependency chain exists.
-        $this->assertMatchesRegularExpression("/{$stepone->name}.*->.*{$steptwo->name}/", $dotscript);
-        $this->assertDoesNotMatchRegularExpression("/{$steptwo->name}.*->.*{$stepone->name}/", $dotscript);
+        $this->compatible_assertMatchesRegularExpression("/{$stepone->name}.*->.*{$steptwo->name}/", $dotscript);
+        $this->compatible_assertDoesNotMatchRegularExpression("/{$steptwo->name}.*->.*{$stepone->name}/", $dotscript);
+    }
+
+    // PHPUnit backwards compatible methods which handles the fallback to previous version calls.
+
+    public function compatible_assertStringContainsString(...$args): void { // phpcs:ignore
+        if (method_exists($this, 'assertStringContainsString')) {
+            $this->assertStringContainsString(...$args);
+        } else {
+            $this->assertContains(...$args);
+        }
+    }
+
+    public function compatible_assertMatchesRegularExpression(...$args): void { // phpcs:ignore
+        if (method_exists($this, 'assertMatchesRegularExpression')) {
+            $this->assertMatchesRegularExpression(...$args);
+        } else {
+            $this->assertRegExp(...$args);
+        }
+    }
+
+    public function compatible_assertDoesNotMatchRegularExpression(...$args): void { // phpcs:ignore
+        if (method_exists($this, 'assertDoesNotMatchRegularExpression')) {
+            $this->assertDoesNotMatchRegularExpression(...$args);
+        } else {
+            $this->assertNotRegExp(...$args);
+        }
     }
 }
