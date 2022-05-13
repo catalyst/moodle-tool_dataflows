@@ -69,7 +69,7 @@ class step_form extends \core\form\persistent {
             $classname = get_class($steptype);
             $basename = substr($classname, strrpos($classname, '\\') + 1);
             // For readability, opting to show the name of the type of step first, and FQCN afterwards.
-            // Example: debugging (tool_dataflows\step\debugging)
+            // Example: debugging (tool_dataflows\step\debugging).
             $acc[$classname] = "$basename ($classname)";
             return $acc;
         }, []);
