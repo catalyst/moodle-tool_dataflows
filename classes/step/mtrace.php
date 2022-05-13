@@ -14,39 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
+namespace tool_dataflows\step;
 
 /**
- * Dataflows Manager
+ * Step type: mtrace
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class manager {
+class mtrace extends \tool_dataflows\step\base_step {
 
     /**
-     * Return all dataflow steps available from other plugins and by default
+     * Executes the step
      *
-     * This is defined in lib.php for each plugin, and returned via a dataflow_steps function
+     * This will logs the input via mtrace and passes the input value as-is to the output.
      *
-     * @return array of step objects
+     * @param mixed $input
+     * @return mixed $output
      */
-    public static function get_steps_types(): array {
-        $steps = [
-            new step\debugging()
-        ];
-        $moresteps = get_plugins_with_function('dataflow_steps', 'lib.php');
-        foreach ($moresteps as $plugintype => $plugins) {
-            foreach ($plugins as $plugin => $pluginfunction) {
-                $result = $pluginfunction();
-                foreach ($result as $step) {
-                    $step->set_component($plugintype . '_' . $plugin);
-                    $steps[] = $step;
-                }
-            }
-        }
-        return $steps;
+    public function execute($input) {
+        $output = $input;
+        mtrace(json_encode($input));
+        return $output;
     }
 }
