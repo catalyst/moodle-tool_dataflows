@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220511" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
+<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220513" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -31,6 +31,8 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="stepname_dataflowid" TYPE="unique" FIELDS="name, dataflowid"/>
+        <KEY NAME="dataflowid" TYPE="foreign" FIELDS="dataflowid" REFTABLE="tool_dataflows" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="tool_dataflows_step_depends" COMMENT="Step dependencies, mapped out.">
@@ -40,6 +42,8 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="stepid_dependson" TYPE="unique" FIELDS="stepid, dependson"/>
+        <KEY NAME="stepid" TYPE="foreign" FIELDS="stepid" REFTABLE="tool_dataflows_steps" REFFIELDS="id"/>
+        <KEY NAME="dependson" TYPE="foreign" FIELDS="dependson" REFTABLE="tool_dataflows_steps" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>
