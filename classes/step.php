@@ -30,7 +30,8 @@ use moodle_exception;
 class step extends persistent {
     const TABLE = 'tool_dataflows_steps';
 
-    private array $dependson = [];
+    /** @var array $dependson */
+    private $dependson = [];
 
     /**
      * Return the definition of the properties of this model.
