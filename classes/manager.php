@@ -34,10 +34,8 @@ class manager {
      * @return array of step objects
      */
     public static function get_steps_types(): array {
-        $steps = [
-            new step\debugging()
-        ];
-        $moresteps = get_plugins_with_function('dataflow_steps', 'lib.php');
+        $steps = tool_dataflows_step_types();
+        $moresteps = get_plugins_with_function('dataflow_step_types', 'lib.php');
         foreach ($moresteps as $plugintype => $plugins) {
             foreach ($plugins as $plugin => $pluginfunction) {
                 $result = $pluginfunction();

@@ -17,12 +17,30 @@
 /**
  * Main file
  *
- * @package   tool_dataflows
+ * @package    tool_dataflows
  * @author     Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright  2022, Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use tool_dataflows\step;
+
 function tool_dataflows_after_config() {
 }
 
+/**
+ * Returns a list of step types available for this plugin.
+ *
+ * NOTE: For other plugins, the function name should be simply declared as dataflow_step_types.
+ *
+ * @return     array of step types
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ */
+function tool_dataflows_step_types() {
+    return [
+        new step\debugging(),
+        new step\mtrace(),
+        new step\void_step(),
+    ];
+}
