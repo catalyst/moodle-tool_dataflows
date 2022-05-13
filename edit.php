@@ -87,14 +87,22 @@ if (($data = $form->get_data())) {
 
 
 // Display the mandatory header and footer.
+$heading = get_string('new_dataflow', 'tool_dataflows');
+if (isset($persistent)) {
+    $heading = get_string('update_dataflow', 'tool_dataflows');
+}
+
+$title = implode(': ', array_filter([
+    get_string('pluginname', 'tool_dataflows'),
+    $heading,
+    $persistent->name ?? '',
+]));
+$PAGE->set_title($title);
+$PAGE->set_heading(get_string('pluginname', 'tool_dataflows'));
 echo $OUTPUT->header();
 
 // Output headings.
-if (isset($persistent)) {
-    echo $OUTPUT->heading(get_string('update_dataflow', 'tool_dataflows'));
-} else {
-    echo $OUTPUT->heading(get_string('new_dataflow', 'tool_dataflows'));
-}
+echo $OUTPUT->heading($heading);
 
 // And display the form, and its validation errors if there are any.
 $form->display();

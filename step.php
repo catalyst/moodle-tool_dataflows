@@ -48,7 +48,7 @@ require_capability('tool/dataflows:managedataflows', $context);
 
 // Ensure the dataflow exists before continuing (you should not be able to create a step without a dataflow).
 try {
-    $persistent = new dataflow($dataflowid);
+    $dataflow = new dataflow($dataflowid);
 } catch (\Exception $e) {
     \core\notification::error(get_string('dataflowrequiredforstepcreation', 'tool_dataflows'));
     // We are done, so let's redirect somewhere.
@@ -86,6 +86,7 @@ if (($data = $form->get_data())) {
             // Call your API to create a new persistent from this data.
             // Or, do the following if you don't want capability checks (discouraged).
             $persistent = new step(0, $data);
+            $persistent->depends_on($data->dependson);
             $persistent->upsert();
         } else {
             // We had an ID, this means that we are going to update a record.
@@ -107,14 +108,23 @@ if (($data = $form->get_data())) {
 }
 
 // Display the mandatory header and footer.
+$heading = get_string('new_step', 'tool_dataflows');
+if (isset($persistent)) {
+    $heading = get_string('update_step', 'tool_dataflows');
+}
+
+$title = implode(': ', array_filter([
+    get_string('pluginname', 'tool_dataflows'),
+    $dataflow->name,
+    $heading,
+    $persistent->name ?? '',
+]));
+$PAGE->set_title($title);
+$PAGE->set_heading(get_string('pluginname', 'tool_dataflows'). ': ' .$dataflow->name);
 echo $OUTPUT->header();
 
 // Output headings.
-if (isset($persistent)) {
-    echo $OUTPUT->heading(get_string('update_step', 'tool_dataflows'));
-} else {
-    echo $OUTPUT->heading(get_string('new_step', 'tool_dataflows'));
-}
+echo $OUTPUT->heading($heading);
 
 // And display the form, and its validation errors if there are any.
 $form->display();

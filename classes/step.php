@@ -75,8 +75,12 @@ class step extends persistent {
     private function update_depends_on() {
         global $DB;
 
-        // Update records in database.
         $dependencies = $this->dependson;
+        if (empty($dependencies)) {
+            return;
+        }
+
+        // Update records in database.
         $dependencymap = [];
         foreach ($dependencies as $dependency) {
             $dependencymap[] = ['stepid' => $this->id, 'dependson' => $dependency->id ?? $dependency];
