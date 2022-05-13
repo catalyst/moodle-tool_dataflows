@@ -107,21 +107,6 @@ class step extends persistent {
     }
 
     /**
-     * Validate the dependencies
-     *
-     * @param array $dependencies steps that this step is dependent on
-     * @return true|lang_string
-     */
-    protected function validate_dependson($dependencies) {
-        // echo"<pre>";print_r(12223);die;
-        if (false) {
-            return get_string('invaliduserid', 'error');
-        }
-
-        return true;
-    }
-
-    /**
      * Updates the persistent if the record exists, otherwise creates it
      *
      * @return  $this
