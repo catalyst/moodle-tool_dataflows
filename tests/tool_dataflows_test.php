@@ -96,8 +96,15 @@ class tool_dataflows_test extends \advanced_testcase {
         $dataflow->add_step($steptwo);
 
         $dotscript = $dataflow->get_dotscript();
-        $this->assertStringContainsString($steptwo->name, $dotscript);
-        $this->assertStringContainsString($stepone->name, $dotscript);
+        // PHPUnit backwards compatibility check.
+        if (method_exists($this, 'assertStringContainsString')) {
+            $this->assertStringContainsString($steptwo->name, $dotscript);
+            $this->assertStringContainsString($stepone->name, $dotscript);
+        } else {
+            $this->assertContains($steptwo->name, $dotscript);
+            $this->assertContains($stepone->name, $dotscript);
+        }
+
         // Ensure dependency chain exists.
         $this->assertMatchesRegularExpression("/{$stepone->name}.*->.*{$steptwo->name}/", $dotscript);
         $this->assertDoesNotMatchRegularExpression("/{$steptwo->name}.*->.*{$stepone->name}/", $dotscript);
