@@ -17,7 +17,7 @@
 namespace tool_dataflows\step;
 
 /**
- * Dataflows Manager
+ * Step type: debugging
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>

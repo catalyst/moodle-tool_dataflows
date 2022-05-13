@@ -64,7 +64,16 @@ class step_form extends \core\form\persistent {
         $select->setMultiple(true);
 
         // Type of the step (should be a FQCN).
-        $mform->addElement('text', 'type', get_string('field_type', 'tool_dataflows'));
+        $steptypes = manager::get_steps_types();
+        $steptypes = array_reduce($steptypes, function ($acc, $steptype) {
+            $classname = get_class($steptype);
+            $basename = substr($classname, strrpos($classname, '\\') + 1);
+            // For readability, opting to show the name of the type of step first, and FQCN afterwards.
+            // Example: debugging (tool_dataflows\step\debugging)
+            $acc[$classname] = "$basename ($classname)";
+            return $acc;
+        }, []);
+        $mform->addElement('select', 'type', get_string('field_type', 'tool_dataflows'), $steptypes);
 
         // Configuration - e.g. as JSON/YML (leaning towards the later).
         $mform->addElement(

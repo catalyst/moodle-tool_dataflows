@@ -79,6 +79,29 @@ class steps_table extends \table_sql {
     }
 
     /**
+     * Display the step type
+     *
+     * @param \stdClass $record
+     * @return string
+     */
+    public function col_type(\stdClass $record): string {
+        // Prepare the base class name and fully qualified class name (FQCN).
+        $classname = $record->type;
+        $position = strrpos($classname, '\\');
+        $basename = substr($classname, $position + 1);
+        if ($position !== 0) {
+            $basename = $classname;
+        }
+
+        // For readability, opting to show the name of the type of step first, and FQCN afterwards.
+        // TODO: When downloading, display as below, otherwise split into next line for web view.
+        // Example: debugging (tool_dataflows\step\debugging)
+        $str = $basename;
+        $str .= \html_writer::tag('div', "($classname)", ['class' => 'text-muted small']);
+        return $str;
+    }
+
+    /**
      * Display the configuration
      *
      * @param \stdClass $record

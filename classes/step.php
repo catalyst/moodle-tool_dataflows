@@ -47,11 +47,6 @@ class step extends persistent {
             'userid' => ['type' => PARAM_INT, 'default' => 0],
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
             'usermodified' => ['type' => PARAM_INT, 'default' => 0],
-            // 'dependson' => [
-            //     'type' => PARAM_TEXT,
-            //     'null' => NULL_ALLOWED,
-            //     'message' => new \lang_string('invaliddata', 'error'),
-            // ],
         ];
     }
 
