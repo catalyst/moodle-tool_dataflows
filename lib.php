@@ -40,6 +40,7 @@ function tool_dataflows_after_config() {
 function tool_dataflows_step_types() {
     return [
         new step\debugging(),
+        new step\join(),
         new step\mtrace(),
         new step\void_step(),
     ];
