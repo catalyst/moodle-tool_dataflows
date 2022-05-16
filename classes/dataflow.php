@@ -17,7 +17,6 @@
 namespace tool_dataflows;
 
 use core\persistent;
-use moodle_exception;
 
 /**
  * Dataflows persistent class
@@ -51,6 +50,70 @@ class dataflow extends persistent {
 
     public function __set($name, $value) {
         return $this->set($name, $value);
+    }
+
+    /**
+     * Validates the dataflow (steps, config, etc)
+     *
+     * This should:
+     * - check if it's in a valid DAG format
+     * - the number of connections (input/output streams) are expected and correct.
+     */
+    public function validate_steps() {
+        global $DB;
+        // Check flows are in valid DAG (no circular dependencies, self referencing, etc).
+        $sql = "SELECT concat(sd.dependson, '|', sd.stepid) as id,
+                       sd.dependson AS src,
+                       sd.stepid AS dest
+                  FROM {tool_dataflows_step_depends} sd
+             LEFT JOIN {tool_dataflows_steps} step ON step.id = sd.stepid
+                 WHERE step.dataflowid = :dataflowid";
+
+        // Note that this works currently because all dependencies are set for each step.
+        $edges = $DB->get_records_sql($sql, ['dataflowid' => $this->id]);
+        // Change this to an array of edges (without the id, keys, etc).
+        $edges = array_map(function ($edge) {
+            return [$edge->src, $edge->dest];
+        }, $edges);
+
+        $isdag = graph::is_dag($edges);
+
+        if ($isdag === false) {
+            return ['dataflowisnotavaliddag' => get_string('dataflowisnotavaliddag', 'tool_dataflows')];
+        }
+
+        // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
+        // TODO: Implement.
+
+        return true;
+    }
+
+
+    /**
+     * Validate Dataflow (steps, dataflow config, etc.)
+     *
+     * Unlike the default validate() method which can not be overriden, this
+     * will also validate any connected steps, configuration and anything
+     * additionally linked with the dataflow.
+     *
+     * @return     true|array true if valid, an array of errors otherwise.
+     * @author     Kevin Pham <kevinpham@catalyst-au.net>
+     * @copyright  Catalyst IT, 2022
+     */
+    public function validate_dataflow() {
+        $stepvalidation = $this->validate_steps();
+        $dataflowvalidation = parent::validate();
+        $errors = [];
+        // If step validation fails, ensure the errors are appended to $errors.
+        if ($stepvalidation !== true) {
+            $errors = array_merge($errors, $stepvalidation);
+        }
+        // If dataflow validation fails, ensure the errors are appended to $errors.
+        if ($dataflowvalidation !== true) {
+            $errors = array_merge($errors, $dataflowvalidation);
+        }
+
+        return empty($errors) ? true : $errors;
     }
 
     /**
@@ -123,7 +186,6 @@ class dataflow extends persistent {
         ]);
         return $steps;
     }
-
 
     /**
      * Method to link another step to this dataflow
