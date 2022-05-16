@@ -182,6 +182,14 @@ class tool_dataflows_test extends \advanced_testcase {
         ];
         $isdag = \tool_dataflows\graph::is_dag($edges);
         $this->assertTrue($isdag);
+
+        // Test the ok (but weird) case if there are disconnected graphs inside a flow.
+        $edges = [
+            ['a', 'b'], ['a', 'd'],
+            ['f', 'g'],
+        ];
+        $isdag = \tool_dataflows\graph::is_dag($edges);
+        $this->assertTrue($isdag);
     }
 
     // PHPUnit backwards compatible methods which handles the fallback to previous version calls.
