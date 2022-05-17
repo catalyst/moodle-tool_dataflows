@@ -17,26 +17,42 @@
 namespace tool_dataflows\step;
 
 /**
- * Step type: debugging
+ * Step type: join
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class debugging extends base_step {
+class join extends base_step {
+
+    /**
+     * @var int[] number of input streams (min, max)
+     *
+     * For a join step, it should have 2 or more inputs and for now, up to 20
+     * possible input streams.
+     */
+    protected $inputstreams = [2, 20];
+
+    /**
+     * @var int[] number of output streams (min, max)
+     *
+     * For a join step, there should be exactly one output. This is because
+     * without at least one output, there is no need to perform a join.
+     */
+    protected $outputstreams = [1, 1];
 
     /**
      * Executes the step
      *
-     * This will logs the input via debugging and passes the input value as-is to the output.
+     * This step not perform any operations, but instead waits for all
+     * dependencies to be complete before continuing. This passes the input
+     * as-is to the output.
      *
      * @param mixed $input
      * @return mixed $output
      */
     public function execute($input) {
-        $output = $input;
-        debugging(json_encode($input));
-        return $output;
+        return $input;
     }
 }

@@ -75,8 +75,12 @@ class step extends persistent {
     private function update_depends_on() {
         global $DB;
 
-        // Update records in database.
         $dependencies = $this->dependson;
+        if (empty($dependencies)) {
+            return;
+        }
+
+        // Update records in database.
         $dependencymap = [];
         foreach ($dependencies as $dependency) {
             $dependencymap[] = ['stepid' => $this->id, 'dependson' => $dependency->id ?? $dependency];
@@ -89,8 +93,6 @@ class step extends persistent {
      * Returns a list of steps that this step depends on before it can run.
      *
      * @return     array step dependencies
-     * @author     Kevin Pham <kevinpham@catalyst-au.net>
-     * @copyright  Catalyst IT, 2022
      */
     public function dependencies() {
         global $DB;

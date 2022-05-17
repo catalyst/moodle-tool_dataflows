@@ -60,6 +60,7 @@ $string['new_step'] = 'New Step';
 
 // Warnings / Errors.
 $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
+$string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Graph (DAG).';
 
 // Privacy.
 $string['privacy:metadata'] = 'No personal information is stored';

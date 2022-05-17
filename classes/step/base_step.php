@@ -33,6 +33,13 @@ abstract class base_step {
      */
     protected $component = 'tool_dataflows';
 
+
+    /** @var int[] number of input streams (min, max) */
+    protected $inputstreams = [0, 1];
+
+    /** @var int[] number of output streams (min, max) */
+    protected $outputstreams = [0, 1];
+
     /**
      * Get the frankenstyle component name
      *

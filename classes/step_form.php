@@ -60,7 +60,13 @@ class step_form extends \core\form\persistent {
             return $acc;
         }, []);
 
-        $select = $mform->addElement('select', 'dependson', get_string('field_dependson', 'tool_dataflows'), $options);
+        $select = $mform->addElement(
+            'select',
+            'dependson',
+            get_string('field_dependson', 'tool_dataflows'),
+            $options,
+            ['class' => empty($options) ? 'hidden' : ''] // Hidden if there are no options to select from.
+        );
         $select->setMultiple(true);
 
         // Type of the step (should be a FQCN).
