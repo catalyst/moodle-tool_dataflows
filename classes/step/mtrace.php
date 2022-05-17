@@ -24,7 +24,7 @@ namespace tool_dataflows\step;
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mtrace extends \tool_dataflows\step\base_step {
+class mtrace extends base_step {
 
     /**
      * Executes the step
