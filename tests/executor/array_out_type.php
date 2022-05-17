@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,38 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\step;
+namespace tool_dataflows\executor;
 
 use tool_dataflows\executor\iterators\iterator;
 use tool_dataflows\executor\iterators\map_iterator;
-use tool_dataflows\executor;
+use tool_dataflows\step\base_step;
 
 /**
- * Step type: debugging
+ * <insertdescription>
  *
- * @package    tool_dataflows
- * @author     Kevin Pham <kevinpham@catalyst-au.net>
- * @copyright  Catalyst IT, 2022
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   <insert>
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class debugging extends base_step {
 
-    public function get_iterator(executor\step $step): iterator {
+class array_out_type extends base_step {
+
+    public static $dest;
+
+    public function get_iterator(step $step): iterator {
         $input = current($step->upstreams)->iterator;
         return new map_iterator($step, $input);
     }
 
-    /**
-     * Executes the step
-     *
-     * This will logs the input via debugging and passes the input value as-is to the output.
-     *
-     * @param mixed $input
-     * @return mixed $output
-     */
     public function execute($input) {
-        $output = $input;
-        debugging(json_encode($input));
-        return $output;
+        self::$dest[] = $input;
+        return $input;
     }
 }

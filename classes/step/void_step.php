@@ -16,6 +16,10 @@
 
 namespace tool_dataflows\step;
 
+use tool_dataflows\executor\iterators\iterator;
+use tool_dataflows\executor\iterators\map_iterator;
+use tool_dataflows\executor;
+
 /**
  * Step type: void
  *
@@ -25,6 +29,17 @@ namespace tool_dataflows\step;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class void_step extends base_step {
+
+    public function get_iterator(executor\step $step): iterator {
+        $input = current($step->upstreams)->iterator;
+        return new class($step, $input) extends map_iterator {
+            public function __construct(\tool_dataflows\executor\step $step, iterator $input) {
+                parent::__construct($step, $input);
+                // This finishes straight away.
+                $this->abort();
+            }
+        };
+    }
 
     /**
      * Executes the step

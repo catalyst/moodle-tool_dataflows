@@ -16,6 +16,9 @@
 
 namespace tool_dataflows\step;
 
+use tool_dataflows\executor\dataflow;
+use tool_dataflows\executor\iterators\iterator;
+
 /**
  * Base class for steps
  *
@@ -98,11 +101,33 @@ abstract class base_step {
     }
 
     /**
+     * returns true if this is a flow step type. Override for any connector steps.
+     * TODO: Perhaps have two sub classes - flow_step and connector_step.
+     *
+     * @return bool
+     */
+    public function is_flow(): bool {
+        return true;
+    }
+
+    /*
+     * Execution functions
+     *
+     * Functions that will be used by the execution engine.
+     */
+
+    /**
+     * Once all lights are green, this will be called to construct an iterator.
+     */
+    // TODO: I anticipate this will be subject to a lot of refactoring as steps get defined and fleshed out.
+    abstract public function get_iterator(\tool_dataflows\executor\step $step): iterator;
+
+    /**
      * Step callback handler
      *
      * Implementation can vary, this might be a transformer, resource, or
      * something else.
      */
+
     abstract public function execute($input);
 }
-
