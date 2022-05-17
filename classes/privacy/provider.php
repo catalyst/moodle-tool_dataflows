@@ -167,7 +167,7 @@ class provider implements \core_privacy\local\metadata\provider,
     }
 
     /**
-     * Description of what this does
+     * Deletes all data relating for the provided userid within this plugin.
      *
      * @param      int $userid
      */
