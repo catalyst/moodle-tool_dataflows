@@ -21,7 +21,7 @@ use tool_dataflows\executor\iterators\iterator;
 /**
  * Pulls the data along a flow block.
  *
- * A flow block is group of contiguously connected flow blocks. In order for the iterator chain to
+ * A flow block is group of contiguously connected flow steps. In order for the iterator chain to
  * operate, there needs to be something to pull the data. This class fills that role.
  *
  * @package   tool_dataflows
