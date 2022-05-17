@@ -34,8 +34,6 @@ function tool_dataflows_after_config() {
  * NOTE: For other plugins, the function name should be simply declared as dataflow_step_types.
  *
  * @return     array of step types
- * @author     Kevin Pham <kevinpham@catalyst-au.net>
- * @copyright  Catalyst IT, 2022
  */
 function tool_dataflows_step_types() {
     return [

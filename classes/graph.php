@@ -34,11 +34,9 @@ class graph {
      * before storing.
      *
      * @param      array $graph array of edges (node connections)
-     * @return     boolean whether or not the edges provided form a valid DAG
-     * @author     Kevin Pham <kevinpham@catalyst-au.net>
-     * @copyright  Catalyst IT, 2022
+     * @return     bool whether or not the edges provided form a valid DAG
      */
-    public static function is_dag($graph) {
+    public static function is_dag($graph): bool {
         $departure = [];
         $discovered = [];
         $time = 0;
@@ -78,10 +76,8 @@ class graph {
      * @param      array $departure a hash map keeping track of the departure time of all graph nodes
      * @param      int $time tracks current departure time
      * @return     int $time tracks current departure time
-     * @author     Kevin Pham <kevinpham@catalyst-au.net>
-     * @copyright  Catalyst IT, 2022
      */
-    public static function dfs(array $adjacencylist, $node,  &$discovered, &$departure, &$time) {
+    public static function dfs(array $adjacencylist, $node,  &$discovered, &$departure, &$time): int {
         // Mark node as discovered.
         $discovered[$node] = true;
 

@@ -53,11 +53,13 @@ class dataflow extends persistent {
     }
 
     /**
-     * Validates the dataflow (steps, config, etc)
+     * Validates the steps in the dataflow (steps, step config, etc)
      *
      * This should:
      * - check if it's in a valid DAG format
      * - the number of connections (input/output streams) are expected and correct.
+     *
+     * @return true|array true if valid, an array of errors otherwise.
      */
     public function validate_steps() {
         global $DB;
@@ -97,8 +99,6 @@ class dataflow extends persistent {
      * additionally linked with the dataflow.
      *
      * @return     true|array true if valid, an array of errors otherwise.
-     * @author     Kevin Pham <kevinpham@catalyst-au.net>
-     * @copyright  Catalyst IT, 2022
      */
     public function validate_dataflow() {
         $stepvalidation = $this->validate_steps();
@@ -120,8 +120,6 @@ class dataflow extends persistent {
      * Returns a dotscript of the dataflow, false if no connections are available
      *
      * @return     string|false dotscript or false if not a valid flow
-     * @author     Kevin Pham <kevinpham@catalyst-au.net>
-     * @copyright  Catalyst IT, 2022
      */
     public function get_dotscript() {
         global $DB;
@@ -172,8 +170,6 @@ class dataflow extends persistent {
      * Return a list of steps (raw DB records)
      *
      * @return     array
-     * @author     Kevin Pham <kevinpham@catalyst-au.net>
-     * @copyright  Catalyst IT, 2022
      */
     public function raw_steps(): array {
         global $DB;
