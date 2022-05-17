@@ -63,5 +63,16 @@ $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. 
 $string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Graph (DAG).';
 
 // Privacy.
-$string['privacy:metadata'] = 'No personal information is stored';
+$string['privacy:metadata:dataflows'] = 'Data from the configured dataflows';
+$string['privacy:metadata:steps'] = 'Data from the configured dataflow steps';
+$string['privacy:metadata:dataflows:userid'] = 'The id of the user who created this dataflow';
+$string['privacy:metadata:dataflows:timecreated'] = 'The timestamp of when the dataflow was created';
+$string['privacy:metadata:dataflows:usermodified'] = 'The id of the user who modified this dataflow';
+$string['privacy:metadata:dataflows:timemodified'] = 'The timestamp of when the dataflow was modified';
+$string['privacy:metadata:steps:userid'] = 'The id of the user who created this step';
+$string['privacy:metadata:steps:timecreated'] = 'The timestamp of when the step was created';
+$string['privacy:metadata:steps:usermodified'] = 'The id of the user who modified this step';
+$string['privacy:metadata:steps:timemodified'] = 'The timestamp of when the step was modified';
+
+// Tasks.
 $string['task:processdataflows'] = 'Process dataflows scheduled task.';
