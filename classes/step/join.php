@@ -43,6 +43,14 @@ class join extends base_step {
     protected $outputstreams = [1, 1];
 
     /**
+     * TODO: This still needs correct implementing.
+     */
+    public function get_iterator(step_executor $step): iterator {
+        $input = current($step->upstreams)->iterator;
+        return new map_iterator($step, $input);
+    }
+
+    /**
      * Executes the step
      *
      * This step not perform any operations, but instead waits for all

@@ -45,9 +45,11 @@ class flow_puller implements downstream {
         }
     }
 
-    public function on_cancel(step_executor $step) {}
+    public function on_cancel(step_executor $step) {
+    }
 
-    public function on_finished(step_executor $step) {}
+    public function on_finished(step_executor $step) {
+    }
 
     /**
      * Called when the upstreams are ready to flow. If all upstreams are OK,

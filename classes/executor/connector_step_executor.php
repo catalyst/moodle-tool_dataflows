@@ -31,11 +31,14 @@ class connector_step_executor extends step_executor {
         return false;
     }
 
-    public function start() {}
+    public function start() {
+    }
 
-    public function abort() {}
+    public function abort() {
+    }
 
-    public function on_cancel(step_executor $step) {}
+    public function on_cancel(step_executor $step) {
+    }
 
     /**
      * Signals that the step is ready to flow.
@@ -43,12 +46,14 @@ class connector_step_executor extends step_executor {
      * @param step_executor $step
      * @param iterator $iterator
      */
-    public function on_proceed(step_executor $step, iterator $iterator) {}
+    public function on_proceed(step_executor $step, iterator $iterator) {
+    }
 
     /**
      * Singals that the step has finished.
      *
      * @param step_executor $step
      */
-    public function on_finished(step_executor $step) {}
+    public function on_finished(step_executor $step) {
+    }
 }
