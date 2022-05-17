@@ -45,13 +45,14 @@ class join extends base_step {
     /**
      * Executes the step
      *
-     * This will logs the input via debugging and passes the input value as-is to the output.
+     * This step not perform any operations, but instead waits for all
+     * dependencies to be complete before continuing. This passes the input
+     * as-is to the output.
      *
      * @param mixed $input
      * @return mixed $output
      */
     public function execute($input) {
-        $output = $input;
-        return $output;
+        return $input;
     }
 }
