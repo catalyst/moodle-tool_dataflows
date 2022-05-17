@@ -14,16 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\executor;
+namespace tool_dataflows;
 
 use tool_dataflows\executor\iterators\iterator;
 use tool_dataflows\executor\iterators\php_iterator;
+use tool_dataflows\executor\step_executor;
 use tool_dataflows\step\base_step;
 
 /**
- * <insertdescription>
+ * Test reader step type that supplies an array.
  *
- * @package   <insert>
+ * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -31,9 +32,10 @@ use tool_dataflows\step\base_step;
 
 class array_in_type extends base_step {
 
-    public static $source;
+    /** @var array The source. Place dat here before use. */
+    public static $source = [];
 
-    public function get_iterator(step $step): iterator {
+    public function get_iterator(step_executor $step): iterator {
         return new php_iterator($step, new \ArrayIterator(self::$source));
     }
 

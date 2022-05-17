@@ -27,10 +27,10 @@ namespace tool_dataflows\executor;
 
 class upstream {
     public $step;
-    public $status = dataflow::STATUS_NEW; // Status received from upstream
+    public $status = dataflow_executor::STATUS_NEW; // Status received from upstream.
     public $iterator = null;
 
-    public function __construct(step $step) {
+    public function __construct(step_executor $step) {
         $this->step = $step;
     }
 }

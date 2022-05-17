@@ -18,7 +18,7 @@ namespace tool_dataflows\step;
 
 use tool_dataflows\executor\iterators\iterator;
 use tool_dataflows\executor\iterators\map_iterator;
-use tool_dataflows\executor;
+use tool_dataflows\executor\step_executor;
 
 /**
  * Step type: debugging
@@ -30,7 +30,7 @@ use tool_dataflows\executor;
  */
 class debugging extends base_step {
 
-    public function get_iterator(executor\step $step): iterator {
+    public function get_iterator(step_executor $step): iterator {
         $input = current($step->upstreams)->iterator;
         return new map_iterator($step, $input);
     }

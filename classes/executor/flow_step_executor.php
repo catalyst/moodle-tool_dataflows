@@ -26,16 +26,16 @@ use tool_dataflows\executor\iterators\iterator;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class flow_step extends step {
+class flow_step_executor extends step_executor {
     public function is_flow(): bool {
         return true;
     }
 
     public function start() {
-        $this->status = dataflow::STATUS_WAITING;
+        $this->status = dataflow_executor::STATUS_WAITING;
         if (count($this->upstreams) == 0) {
             // No dependencies, therefore can immediately start.
-            $this->flow();
+            $this->begin_flow();
         } else {
             foreach ($this->upstreams as $upstream) {
                 $upstream->step->start();
@@ -43,40 +43,47 @@ class flow_step extends step {
         }
     }
 
-    public function on_proceed(step $step, iterator $iterator) {
-        $this->upstreams[$step->get_id()]->status = dataflow::STATUS_FLOWING;
+    public function on_proceed(step_executor $step, iterator $iterator) {
+        $this->upstreams[$step->get_id()]->status = dataflow_executor::STATUS_FLOWING;
         $this->upstreams[$step->get_id()]->iterator = $iterator;
         // TODO: check that all upstreams are green.
-        $this->flow();
+        $this->begin_flow();
     }
 
-    public function on_cancel(step $step) {
-        $this->upstreams[$step->get_id()]->status = dataflow::STATUS_CANCELLED;
+    public function on_cancel(step_executor $step) {
+        $this->upstreams[$step->get_id()]->status = dataflow_executor::STATUS_CANCELLED;
         if ($this->check_all_cancelled()) {
             foreach ($this->downstreams as $downstream) {
                 $downstream->on_cancel($this);
             }
         } else {
-            $this->flow();
+            $this->begin_flow();
         }
     }
 
-    public function on_finished(step $step) {
-        $this->upstreams[$step->get_id()]->status = dataflow::STATUS_FINISHED;
-        $this->flow();
+    public function on_finished(step_executor $step) {
+        $this->upstreams[$step->get_id()]->status = dataflow_executor::STATUS_FINISHED;
+        $this->begin_flow();
     }
 
-    protected function flow() {
-        $this->status = dataflow::STATUS_FLOWING;
+    /**
+     * Prepares the iterators and signals to upstreams that it is ready to flow.
+     */
+    protected function begin_flow() {
+        $this->status = dataflow_executor::STATUS_FLOWING;
         $iterator = $this->steptype->get_iterator($this);
         foreach ($this->downstreams as $downstream) {
             $downstream->on_proceed($this, $iterator);
         }
     }
 
+    /**
+     * Checks if all upsrteams have cancelled. If this is true, then this step is cancelled.
+     * @return bool
+     */
     protected function check_all_cancelled() {
         foreach ($this->upstreams as $upstream) {
-            if ($upstream->status != dataflow::STATUS_CANCELLED) {
+            if ($upstream->status != dataflow_executor::STATUS_CANCELLED) {
                 return false;
             }
         }
@@ -84,7 +91,7 @@ class flow_step extends step {
     }
 
     public function abort() {
-        $this->status = dataflow::STATUS_ABORTED;
+        $this->status = dataflow_executor::STATUS_ABORTED;
         foreach ($this->upstreams as $upstream) {
             $upstream->iterator->abort();
         }

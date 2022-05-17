@@ -18,7 +18,7 @@ namespace tool_dataflows\step;
 
 use tool_dataflows\executor\iterators\iterator;
 use tool_dataflows\executor\iterators\map_iterator;
-use tool_dataflows\executor;
+use tool_dataflows\executor\step_executor;
 
 /**
  * Step type: void
@@ -30,7 +30,7 @@ use tool_dataflows\executor;
  */
 class void_step extends base_step {
 
-    public function get_iterator(executor\step $step): iterator {
+    public function get_iterator(step_executor $step): iterator {
         $input = current($step->upstreams)->iterator;
         return new class($step, $input) extends map_iterator {
             public function __construct(\tool_dataflows\executor\step $step, iterator $input) {

@@ -16,8 +16,8 @@
 
 namespace tool_dataflows\step;
 
-use tool_dataflows\executor\dataflow;
 use tool_dataflows\executor\iterators\iterator;
+use tool_dataflows\executor\step_executor;
 
 /**
  * Base class for steps
@@ -120,7 +120,7 @@ abstract class base_step {
      * Once all lights are green, this will be called to construct an iterator.
      */
     // TODO: I anticipate this will be subject to a lot of refactoring as steps get defined and fleshed out.
-    abstract public function get_iterator(\tool_dataflows\executor\step $step): iterator;
+    abstract public function get_iterator(step_executor $step): iterator;
 
     /**
      * Step callback handler

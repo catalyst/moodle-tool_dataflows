@@ -28,22 +28,26 @@ namespace tool_dataflows\executor\iterators;
 interface iterator {
     /**
      * True if the iterator has no more values to provide.
+     *
      * @return bool
      */
     public function is_finished(): bool;
 
     /**
      * True if the iterator is capable (or allowed) of supplying a value.
+     *
      * @return bool
      */
     public function is_ready(): bool;
 
     /**
-     * Terminste the iterator immediately.
+     * Terminate the iterator immediately.
      */
     public function abort();
-    
+
     /**
+     * Next item in the stream.
+     *
      * @return object|bool A JSON compatible object, or false if nothing returned.
      */
     public function next();

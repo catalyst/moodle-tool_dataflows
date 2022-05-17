@@ -21,6 +21,9 @@ use tool_dataflows\executor\iterators\iterator;
 /**
  * Pulls the data along a flow block.
  *
+ * A flow block is group of contiguously connected flow blocks. In order for the iterator chain to
+ * operate, there needs to be something to pull the data. This class fills that role.
+ *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
@@ -28,24 +31,34 @@ use tool_dataflows\executor\iterators\iterator;
  */
 class flow_puller implements downstream {
 
+    /** @var dataflow_executor */
     protected $dataflow;
-    protected $endflows;
 
-    public function __construct(dataflow $dataflow, array $endflows) {
+    /** @var array|upstream The sinks of the flow block */
+    protected $flowsinks = [];
+
+    public function __construct(dataflow_executor $dataflow, array $flowsinks) {
         $this->dataflow = $dataflow;
-        $this->endflows = $endflows;
-        foreach ($endflows as $endflow) {
-            $this->endflows[$endflow->stepdef->id] = new upstream($endflow);
-            $endflow->downstreams['puller'] = $this;
+        foreach ($flowsinks as $flowsink) {
+            $this->flowsinks[$flowsink->stepdef->id] = new upstream($flowsink);
+            $flowsink->downstreams['puller'] = $this;
         }
     }
 
-    public function on_cancel(step $step) {}
-    public function on_finished(step $step) {}
+    public function on_cancel(step_executor $step) {}
 
-    public function on_proceed(step $step, iterator $iterator) {
-        $this->endflows[$step->get_id()]->status = dataflow::STATUS_FLOWING;
-        $this->endflows[$step->get_id()]->iterator = $iterator;
+    public function on_finished(step_executor $step) {}
+
+    /**
+     * Called when the upstreams are ready to flow. If all upstreams are OK,
+     * then this object will start pulling values from the streams.
+     *
+     * @param step_executor $step
+     * @param iterator $iterator
+     */
+    public function on_proceed(step_executor $step, iterator $iterator) {
+        $this->flowsinks[$step->get_id()]->status = dataflow_executor::STATUS_FLOWING;
+        $this->flowsinks[$step->get_id()]->iterator = $iterator;
         // TODO: check that all upstreams are green.
 
         while (!$iterator->is_finished()) {

@@ -16,9 +16,11 @@
 
 namespace tool_dataflows\executor\iterators;
 
+use tool_dataflows\executor\step_executor;
+
 /**
- * A mapping iterator that takes in a value, passws it to a function, and then passes it on
- * to the output.
+ * A mapping iterator that takes in a value from another iterator, passes it to a function, and then
+ * passes the return value to the output.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -31,7 +33,7 @@ class map_iterator implements iterator {
     private $finished = false;
     private $input;
 
-    public function __construct(\tool_dataflows\executor\step $step, iterator $input) {
+    public function __construct(step_executor $step, iterator $input) {
         $this->step = $step;
         $this->input = $input;
         $this->steptype = $step->steptype;
@@ -41,24 +43,14 @@ class map_iterator implements iterator {
         return $this->finished;
     }
 
-    /**
-     * True if the iterator is capable (or allowed) of supplying a value.
-     * @return bool
-     */
     public function is_ready(): bool {
         return !$this->finished && $this->input->is_ready();
     }
 
-    /**
-     * Terminste the iterator immediately.
-     */
     public function abort() {
         $this->finished = true;
     }
-    
-    /**
-     * @return object|bool A JSON compatible object, or false if nothing returned.
-     */
+
     public function next() {
         if ($this->finished) {
             return false;
@@ -75,4 +67,3 @@ class map_iterator implements iterator {
         }
     }
 }
-

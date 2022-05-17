@@ -16,34 +16,39 @@
 
 namespace tool_dataflows\executor;
 
+use tool_dataflows\executor\iterators\iterator;
+
 /**
- * Manages the execution of a step.
+ * Execution manager for connector steps.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class step implements downstream {
-    public $manager;
-    public $stepdef;
-    public $steptype;
-    public $upstreams = [], $downstreams = [];
-    public $status = dataflow::STATUS_NEW;
-
-    public function __construct(dataflow $dataflow, \tool_dataflows\step $stepdef, \tool_dataflows\step\base_step $steptype) {
-        $this->dataflow = $dataflow;
-        $this->stepdef = $stepdef;
-        $this->steptype = $steptype;
+class connector_step_executor extends step_executor {
+    public function is_flow(): bool {
+        return false;
     }
 
-    public function get_id(): int {
-        return $this->stepdef->id;
-    }
+    public function start() {}
 
-    abstract public function is_flow(): bool;
+    public function abort() {}
 
-    public function initialise() {
-        $this->status = dataflow::STATUS_INITALISED;
-    }
+    public function on_cancel(step_executor $step) {}
+
+    /**
+     * Signals that the step is ready to flow.
+     *
+     * @param step_executor $step
+     * @param iterator $iterator
+     */
+    public function on_proceed(step_executor $step, iterator $iterator) {}
+
+    /**
+     * Singals that the step has finished.
+     *
+     * @param step_executor $step
+     */
+    public function on_finished(step_executor $step) {}
 }

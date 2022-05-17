@@ -16,6 +16,8 @@
 
 namespace tool_dataflows\executor\iterators;
 
+use tool_dataflows\executor\step_executor;
+
 /**
  * A mapping iterator that takes a PHP iterator as a source.
  *
@@ -30,7 +32,7 @@ class php_iterator implements iterator {
     private $finished = false;
     private $input;
 
-    public function __construct(\tool_dataflows\executor\step $step, \Iterator $input) {
+    public function __construct(step_executor $step, \Iterator $input) {
         $this->step = $step;
         $this->input = $input;
         $this->steptype = $step->steptype;
@@ -40,24 +42,14 @@ class php_iterator implements iterator {
         return $this->finished;
     }
 
-    /**
-     * True if the iterator is capable (or allowed) of supplying a value.
-     * @return bool
-     */
     public function is_ready(): bool {
         return !$this->finished && $this->input->valid();
     }
 
-    /**
-     * Terminste the iterator immediately.
-     */
     public function abort() {
         $this->finished = true;
     }
-    
-    /**
-     * @return object|bool A JSON compatible object, or false if nothing returned.
-     */
+
     public function next() {
         if ($this->finished) {
             return false;

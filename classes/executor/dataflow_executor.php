@@ -16,16 +16,18 @@
 
 namespace tool_dataflows\executor;
 
+use tool_dataflows\dataflow;
+use tool_dataflows\step;
+
 /**
  * Manages the execution of a dataflow
  *
- * @package   <insert>
+ * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-class dataflow {
+class dataflow_executor {
 
     const STATUS_NEW = 0;
     const STATUS_INITALISED = 1;
@@ -37,33 +39,42 @@ class dataflow {
     const STATUS_CANCELLED = 7;
     const STATUS_ABORTED = 8;
 
-    /** @var \tool_dataflows\dataflow The dataflow definition */
+    /** @var dataflow The dataflow definition */
     protected $dataflow;
 
     /** @var array The execution steps */
     protected $steps = [];
 
+    /** @var array The pullers, one for each flow block*/
     protected $flowpullers = [];
 
-    protected $endpoints = [];
+    /** @var array The steps that have no downstreams */
+    protected $sinks = [];
 
+    /** @var int */
     protected $status = self::STATUS_NEW;
 
-    public function __construct(\tool_dataflows\dataflow $dataflow) {
+    /**
+     * Builds the engine from the definition, and initialises it.
+     *
+     * @param dataflow $dataflow
+     */
+    public function __construct(dataflow $dataflow) {
         $this->dataflow = $dataflow;
 
+        // Create executors for each step in the dataflow.
         foreach ($dataflow->raw_steps() as $stepdef) {
             $classname = $stepdef->type;
             $steptype = new $classname();
-            $stepdef = new \tool_dataflows\step(0, $stepdef);
+            $stepdef = new step(0, $stepdef);
             if ($steptype->is_flow()) {
-                $this->steps[$stepdef->id] = new flow_step($this, $stepdef, $steptype);
+                $this->steps[$stepdef->id] = new flow_step_executor($this, $stepdef, $steptype);
             } else {
-                $this->steps[$stepdef->id] = new connector_step($this, $stepdef, $steptype);
+                $this->steps[$stepdef->id] = new connector_step_executor($this, $stepdef, $steptype);
             }
         }
 
-        // Create the links between steps
+        // Create the links between step executors.
         foreach ($this->steps as $id => $step) {
             $deps = $step->stepdef->dependencies();
             foreach ($deps as $dep) {
@@ -73,12 +84,12 @@ class dataflow {
             }
         }
 
-        // Find the endpoints.
+        // Find the sinks.
         // Find the flow blocks and attach pullers to them.
         // TODO: For now this assumes no forks and no downstream connectors.
         foreach ($this->steps as $step) {
             if (count($step->downstreams) == 0) {
-                $this->endpoints[] = $step;
+                $this->sinks[] = $step;
                 if ($step->is_flow()) {
                     $this->flowpullers[] = new flow_puller($this, [$step]);
                 }
@@ -92,19 +103,37 @@ class dataflow {
         $this->status = self::STATUS_INITALISED;
     }
 
+    /**
+     * The dataflow status.
+     *
+     * @return int
+     */
     public function status(): int {
         return $this->status;
     }
 
+    /**
+     * Start the execution.
+     *
+     * @throws \moodle_exception
+     */
     public function start() {
         if ($this->status != self::STATUS_INITALISED) {
             throw new \moodle_exception('Cannot start a dataflow execution in any state other than initialised');
         }
         $this->status = self::STATUS_PROCESSING;
-        $this->endpoints[0]->start();
+        $this->sinks[0]->start();
     }
 
-    public function abort(step $step, \Throwable $exception) {
+    /**
+     * Gracefully aborts the execution. Will stop all iterators, release all resources, and then throws
+     * the exception that triggered the abort.
+     *
+     * @param step_executor $step
+     * @param \Throwable $exception
+     * @throws \Throwable
+     */
+    public function abort(step_executor $step, \Throwable $exception) {
         $this->status = self::STATUS_ABORTED;
         foreach ($this->steps as $step) {
             $step->abort();

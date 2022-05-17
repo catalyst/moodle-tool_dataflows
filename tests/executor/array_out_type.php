@@ -14,26 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\executor;
+namespace tool_dataflows;
 
 use tool_dataflows\executor\iterators\iterator;
 use tool_dataflows\executor\iterators\map_iterator;
+use tool_dataflows\executor\step_executor;
 use tool_dataflows\step\base_step;
 
 /**
- * <insertdescription>
+ * Test writer step type that writes to an array.
  *
- * @package   <insert>
+ * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class array_out_type extends base_step {
 
-    public static $dest;
+    /** @var array The output array that the dat is written into. Make sure it is empty before use. */
+    public static $dest = [];
 
-    public function get_iterator(step $step): iterator {
+    public function get_iterator(step_executor $step): iterator {
         $input = current($step->upstreams)->iterator;
         return new map_iterator($step, $input);
     }

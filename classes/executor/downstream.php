@@ -29,16 +29,23 @@ use tool_dataflows\executor\iterators\iterator;
 interface downstream {
     /**
      * Signals that this flow path has been cancelled.
+     *
+     * @param step_executor $step
      */
-    public function on_cancel(step $step);
+    public function on_cancel(step_executor $step);
 
     /**
-     * Signals that the step is ready to proceed.
+     * Signals that the step is ready to flow.
+     *
+     * @param step_executor $step
+     * @param iterator $iterator
      */
-    public function on_proceed(step $step, iterator $iterator);
+    public function on_proceed(step_executor $step, iterator $iterator);
 
     /**
      * Singals that the step has finished.
+     *
+     * @param step_executor $step
      */
-    public function on_finished(step $step);
+    public function on_finished(step_executor $step);
 }
