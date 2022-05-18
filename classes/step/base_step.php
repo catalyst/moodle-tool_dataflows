@@ -104,5 +104,23 @@ abstract class base_step {
      * something else.
      */
     abstract public function execute($input);
+
+    /**
+     * Returns the [min, max] number of input streams
+     *
+     * @return     int[] of 2 ints, min and max values for the stream
+     */
+    public function get_number_of_input_streams() {
+        return $this->inputstreams;
+    }
+
+    /**
+     * Returns the [min, max] number of output streams
+     *
+     * @return     int[] of 2 ints, min and max values for the stream
+     */
+    public function get_number_of_output_streams() {
+        return $this->outputstreams;
+    }
 }
 

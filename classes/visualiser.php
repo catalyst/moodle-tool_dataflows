@@ -158,6 +158,14 @@ class visualiser {
             // Display the current dataflow visually.
             echo \html_writer::div($contents, 'text-center p-4');
 
+            // Validate current dataflow, displaying any reason why the flow is not valid.
+            $validation = $dataflow->validate_dataflow();
+            if ($validation !== true) {
+                foreach ($validation as $message) {
+                    echo $output->notification($message);
+                }
+            }
+
             echo $output->heading($pageheading);
         }
 
