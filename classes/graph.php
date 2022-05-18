@@ -27,6 +27,21 @@ namespace tool_dataflows;
 class graph {
 
     /**
+     * Creates and returns an adjacency list based on the graph provided
+     *
+     * @param      array $graph of edges
+     * @return     array adjacency list
+     */
+    public static function to_adjacency_list($graph): array {
+        // Transform to adjacency list.
+        $adjacencylist = [];
+        foreach ($graph as [$src, $dest]) {
+            $adjacencylist[$src][] = $dest;
+        }
+        return $adjacencylist;
+    }
+
+    /**
      * Returns whether or not the digraph provided is a Directed Acyclic Graph (DAG)
      *
      * Note: the data could be structured as {0, 1}, {1, 2}, {2, 3} using ids,
@@ -41,11 +56,7 @@ class graph {
         $discovered = [];
         $time = 0;
 
-        // Transform to adjacency list.
-        $adjacencylist = [];
-        foreach ($graph as [$src, $dest]) {
-            $adjacencylist[$src][] = $dest;
-        }
+        $adjacencylist = self::to_adjacency_list($graph);
 
         // Perform a depth first search and set and apply various states.
         foreach (array_keys($adjacencylist) as $src) {

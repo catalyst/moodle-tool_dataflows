@@ -63,6 +63,8 @@ class dataflow extends persistent {
      */
     public function validate_steps() {
         global $DB;
+
+        $errors = [];
         // Check flows are in valid DAG (no circular dependencies, self referencing, etc).
         $sql = "SELECT concat(sd.dependson, '|', sd.stepid) as id,
                        sd.dependson AS src,
@@ -81,15 +83,77 @@ class dataflow extends persistent {
         $isdag = graph::is_dag($edges);
 
         if ($isdag === false) {
-            return ['dataflowisnotavaliddag' => get_string('dataflowisnotavaliddag', 'tool_dataflows')];
+            $errors['dataflowisnotavaliddag'] = get_string('dataflowisnotavaliddag', 'tool_dataflows');
+        }
+
+        // Check steps have correct connections going in and out based on their step type.
+        $adjacencylist = graph::to_adjacency_list($edges);
+        $steps = $this->steps();
+        foreach ($steps as $step) {
+            $steptype = $step->type;
+            $steptype = new $steptype();
+            // Check inputs - ensure the item's occurance across the items in the adjacency list is within range.
+            $srccount = 0;
+            foreach ($adjacencylist as $destinations) {
+                if (in_array($step->id, $destinations)) {
+                    $srccount++;
+                }
+            }
+            [$min, $max] = $steptype->get_number_of_input_streams();
+            if ($srccount < $min || $srccount > $max) {
+                $errors["invalid_count_inputstreams_{$step->id}"] = get_string(
+                    'stepinvalidinputstreamcount',
+                    'tool_dataflows',
+                    (object) [
+                        'name' => $step->name,
+                        'found' => $srccount,
+                        'min' => $min,
+                        'max' => $max,
+                    ]
+                );
+            }
+
+            // Check outputs - for the item in the adjacency list, ensure the count of destinations is valid.
+            [$min, $max] = $steptype->get_number_of_output_streams();
+            $destcount = isset($adjacencylist[$step->id]) ? count($adjacencylist[$step->id]) : 0;
+            if ($destcount < $min || $destcount > $max) {
+                $errors["invalid_count_inputstreams_{$step->id}"] = get_string(
+                    'stepinvalidoutputstreamcount',
+                    'tool_dataflows',
+                    (object) [
+                        'name' => $step->name,
+                        'found' => $destcount,
+                        'min' => $min,
+                        'max' => $max,
+                    ]
+                );
+            }
         }
 
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
-        // TODO: Implement.
+        // TODO: implement.
 
-        return true;
+        return empty($errors) ? true : $errors;
     }
 
+    /**
+     * Returns a list of step (persistent models)
+     *
+     * @return     array of step models
+     */
+    public function steps() {
+        global $DB;
+        $sql = "SELECT step.id
+                  FROM {tool_dataflows_steps} step
+                 WHERE step.dataflowid = :dataflowid";
+
+        $steps = $DB->get_records_sql($sql, [
+            'dataflowid' => $this->id,
+        ]);
+        return array_map(function ($step) {
+            return new step($step->id);
+        }, $steps);
+    }
 
     /**
      * Validate Dataflow (steps, dataflow config, etc.)
