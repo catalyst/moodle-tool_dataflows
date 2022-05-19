@@ -50,6 +50,18 @@ class step_form extends \core\form\persistent {
         // Name of the step.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
 
+        // Description for the step which may include the purpose for its inclusion, more detail about what it does or how it works.
+        $mform->addElement(
+            'textarea',
+            'description',
+            get_string('field_description', 'tool_dataflows'),
+            ['cols' => 20, 'rows' => 2]
+        );
+
+        // Internal ID for the step (e.g. id field of a yaml configured dataflow, if absent, the key for the step).
+        $mform->addElement('text', 'internalid', get_string('field_internalid', 'tool_dataflows'));
+        $mform->addElement('static', 'internalid_help', '', get_string('field_internalid_help', 'tool_dataflows'));
+
         // Show a list of other steps as options for depends on.
         $dataflow = new dataflow($dataflowid);
         $steps = $dataflow->raw_steps();

@@ -41,6 +41,8 @@ class step extends persistent {
     protected static function define_properties(): array {
         return [
             'dataflowid' => ['type' => PARAM_INT],
+            'internalid' => ['type' => PARAM_TEXT],
+            'description' => ['type' => PARAM_TEXT, 'default' => ''],
             'type' => ['type' => PARAM_TEXT],
             'name' => ['type' => PARAM_TEXT],
             'config' => ['type' => PARAM_TEXT, 'default' => ''],
@@ -51,12 +53,33 @@ class step extends persistent {
         ];
     }
 
+    /**
+     * Magic getter - which allows the user to get values directly instead of via ->get('name')
+     *
+     * @param      string name of the property to get
+     * @return     mixed
+     */
     public function __get($name) {
         return $this->get($name);
     }
 
+    /**
+     * Magic setter - which allows the user to set values directly instead of via ->set('name', $value)
+     *
+     * @param      string name of the property to update
+     * @param      mixed new value of the property
+     * @return     $this
+     */
     public function __set($name, $value) {
         return $this->set($name, $value);
+    }
+
+    protected function set_name($value) {
+        if (empty($this->internalid)) {
+            $slug = str_replace(' ', '-', strtolower($this->name));
+            $this->internalid = $slug;
+        }
+        return $this->raw_set('name', $value);
     }
 
     /**
