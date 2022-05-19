@@ -16,8 +16,13 @@
 
 namespace tool_dataflows;
 
+defined('MOODLE_INTERNAL') || die();
+
+// Include lib.php functions that aren't included automatically for Moodle 37- and below.
+require_once(dirname(__FILE__) . '/../lib.php');
+
 /**
- * Units tests for the manager class.
+ * Units tests for tool_dataflows
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
@@ -151,6 +156,26 @@ class tool_dataflows_test extends \advanced_testcase {
         $stepone->depends_on([$stepthree])->upsert();
         $validation = $dataflow->validate_dataflow();
         $this->assertNotTrue($validation);
+    }
+
+    /**
+     * Test custom step type based on the callback defined in the manager.
+     *
+     * @covers \tool_dataflows\dataflow\manager::get_steps_types
+     */
+    public function test_local_aws_custom_step() {
+        // The test should only run if this condition is true.
+        $localawsexampleclass = class_exists(\local_aws\step\example::class);
+        if (!$localawsexampleclass) {
+            $this->markTestSkipped('local_aws with custom step not located, skipping this specific test.');
+            return;
+        }
+
+        $steptypes = manager::get_steps_types();
+        $classnames = array_map(function ($class) {
+            return get_class($class);
+        }, $steptypes);
+        $this->assertContains(\local_aws\step\example::class, $classnames);
     }
 
     /**
