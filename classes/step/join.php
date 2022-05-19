@@ -16,6 +16,10 @@
 
 namespace tool_dataflows\step;
 
+use tool_dataflows\execution\engine;
+use tool_dataflows\execution\engine_step;
+use tool_dataflows\execution\flow_engine_step;
+
 /**
  * Step type: join
  *
@@ -43,6 +47,14 @@ class join extends base_step {
     protected $outputstreams = [1, 1];
 
     /**
+     * Does this type define a flow step?
+     * @return bool
+     */
+    function is_flow(): bool {
+        return true;
+    }
+
+    /**
      * Executes the step
      *
      * This step not perform any operations, but instead waits for all
@@ -54,5 +66,17 @@ class join extends base_step {
      */
     public function execute($input) {
         return $input;
+    }
+
+    /**
+     * Generates an engine step for this type.
+     *
+     * @param engine $engine
+     * @param \tool_dataflows\step $stepdef
+     * @return engine_step
+     */
+    public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
+        // This should be sufficient for most cases. Override this function if needed.
+        return new flow_engine_step($engine, $stepdef, $this);
     }
 }

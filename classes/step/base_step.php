@@ -16,6 +16,9 @@
 
 namespace tool_dataflows\step;
 
+use tool_dataflows\execution\engine;
+use tool_dataflows\execution\engine_step;
+
 /**
  * Base class for steps
  *
@@ -59,6 +62,12 @@ abstract class base_step {
     }
 
     /**
+     * Does this type define a flow step?
+     * @return bool
+     */
+    abstract function is_flow(): bool;
+
+        /**
      * Get the step's id
      *
      * This defaults to the base name of the class which is ok in the most
@@ -122,5 +131,14 @@ abstract class base_step {
     public function get_number_of_output_streams() {
         return $this->outputstreams;
     }
+
+    /**
+     * Generates an engine step for this type.
+     *
+     * @param engine $engine
+     * @param \tool_dataflows\step $stepdef
+     * @return engine_step
+     */
+    abstract public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step;
 }
 

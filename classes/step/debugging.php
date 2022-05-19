@@ -16,6 +16,10 @@
 
 namespace tool_dataflows\step;
 
+use tool_dataflows\execution\engine;
+use tool_dataflows\execution\engine_step;
+use tool_dataflows\execution\flow_engine_step;
+
 /**
  * Step type: debugging
  *
@@ -25,6 +29,14 @@ namespace tool_dataflows\step;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class debugging extends base_step {
+
+    /**
+     * Does this type define a flow step?
+     * @return bool
+     */
+    function is_flow(): bool {
+        return true;
+    }
 
     /**
      * Executes the step
@@ -38,5 +50,17 @@ class debugging extends base_step {
         $output = $input;
         debugging(json_encode($input));
         return $output;
+    }
+
+    /**
+     * Generates an engine step for this type.
+     *
+     * @param engine $engine
+     * @param \tool_dataflows\step $stepdef
+     * @return engine_step
+     */
+    public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
+        // This should be sufficient for most cases. Override this function if needed.
+        return new flow_engine_step($engine, $stepdef, $this);
     }
 }
