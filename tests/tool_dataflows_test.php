@@ -16,6 +16,8 @@
 
 namespace tool_dataflows;
 
+use Symfony\Component\Yaml\Yaml;
+
 defined('MOODLE_INTERNAL') || die();
 
 // Include lib.php functions that aren't included automatically for Moodle 37- and below.
@@ -215,6 +217,41 @@ class tool_dataflows_test extends \advanced_testcase {
         ];
         $isdag = \tool_dataflows\graph::is_dag($edges);
         $this->assertTrue($isdag);
+    }
+
+    /**
+     * Test the parsing and importing of a sample yaml file which could be used in an import.
+     *
+     * This test may likely expand to cover any specific cases used for dataflows.
+     *
+     * @covers \tool_dataflows\dataflow::import
+     */
+    public function test_dataflows_import() {
+        $content = file_get_contents(dirname(__FILE__) . '/fixtures/sample.yml');
+        $yaml = \Symfony\Component\Yaml\Yaml::parse($content);
+        $dataflow = new dataflow();
+        $dataflow->import($yaml);
+
+        // Test the dataflow name.
+        $this->assertEquals('Example Dataflow', $yaml['name']);
+        $this->assertEquals($yaml['name'], $dataflow->name);
+
+        // Test the dataflow imported steps.
+        $steps = $dataflow->steps();
+        // Pull out the steps from the dataflow and check their values.
+        $read = array_shift($steps);
+        $debugging = array_shift($steps);
+        $write = array_shift($steps);
+        // Test various yaml provided values to have confidence the import is working as expected.
+        $this->assertEquals($yaml['steps']['read']['description'], $read->description);
+        $this->assertEquals(Yaml::dump($yaml['steps']['write']['config']), $write->config);
+        $this->assertEquals(Yaml::dump($yaml['steps']['write']['config']), $write->config);
+        $this->assertEquals($yaml['steps']['debugging']['type'], $debugging->type);
+        // Check dependencies (read -> debugging -> write).
+        $deps = $debugging->dependencies();
+        $this->assertArrayHasKey($read->id, $deps);
+        $deps = $write->dependencies();
+        $this->assertArrayHasKey($debugging->id, $deps);
     }
 
     // PHPUnit backwards compatible methods which handles the fallback to previous version calls.
