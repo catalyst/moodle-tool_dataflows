@@ -77,7 +77,7 @@ class step extends persistent {
 
     protected function set_name($value) {
         if (empty($this->internalid)) {
-            $slug = str_replace(' ', '-', strtolower($this->name));
+            $slug = str_replace(' ', '-', strtolower($value));
             $this->internalid = $slug;
         }
         return $this->raw_set('name', $value);
