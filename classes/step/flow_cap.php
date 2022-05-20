@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,27 +18,27 @@ namespace tool_dataflows\step;
 
 use tool_dataflows\execution\engine;
 use tool_dataflows\execution\engine_step;
-use tool_dataflows\execution\flow_engine_step;
+use tool_dataflows\execution\engine_flow_cap;
 
 /**
- * Step type: void
+ * A special, virtual flow step that is attached to the end of a flow block.
  *
- * @package    tool_dataflows
- * @author     Kevin Pham <kevinpham@catalyst-au.net>
- * @copyright  Catalyst IT, 2022
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   tool_dataflows
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class void_step extends flow_step {
+
+class flow_cap extends flow_step {
 
     /**
-     * Executes the step
+     * Generates an engine step for this type.
      *
-     * This will simply return nothing, causing the output chain to be empty
-     *
-     * @param mixed $input
-     * @return mixed $output
+     * @param engine $engine
+     * @param \tool_dataflows\step $stepdef
+     * @return engine_step
      */
-    public function execute($input) {
-        return;
+    public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
+        return new engine_flow_cap($engine, $stepdef, $this);
     }
 }

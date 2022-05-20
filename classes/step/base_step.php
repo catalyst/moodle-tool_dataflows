@@ -16,6 +16,12 @@
 
 namespace tool_dataflows\step;
 
+use tool_dataflows\execution\engine;
+use tool_dataflows\execution\engine_step;
+use tool_dataflows\execution\iterators\iterator;
+use tool_dataflows\execution\iterators\map_iterator;
+use tool_dataflows\execution\flow_engine_step;
+
 /**
  * Base class for steps
  *
@@ -32,7 +38,6 @@ abstract class base_step {
      * This is autopopulated by the dataflows manager.
      */
     protected $component = 'tool_dataflows';
-
 
     /** @var int[] number of input streams (min, max) */
     protected $inputstreams = [0, 1];
@@ -57,6 +62,12 @@ abstract class base_step {
     public function set_component(string $component) {
         $this->component = $component;
     }
+
+    /**
+     * Does this type define a flow step?
+     * @return bool
+     */
+    abstract public function is_flow(): bool;
 
     /**
      * Get the step's id
@@ -98,14 +109,6 @@ abstract class base_step {
     }
 
     /**
-     * Step callback handler
-     *
-     * Implementation can vary, this might be a transformer, resource, or
-     * something else.
-     */
-    abstract public function execute($input);
-
-    /**
      * Returns the [min, max] number of input streams
      *
      * @return     int[] of 2 ints, min and max values for the stream
@@ -122,5 +125,13 @@ abstract class base_step {
     public function get_number_of_output_streams() {
         return $this->outputstreams;
     }
-}
 
+    /**
+     * Generates an engine step for this type.
+     *
+     * @param engine $engine
+     * @param \tool_dataflows\step $stepdef
+     * @return engine_step
+     */
+    abstract public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step;
+}
