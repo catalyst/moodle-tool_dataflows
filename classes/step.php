@@ -61,6 +61,10 @@ class step extends persistent {
      * @return     mixed
      */
     public function __get($name) {
+        $methodname = 'get_' . $name;
+        if (method_exists($this, $methodname)) {
+            return $this->$methodname();
+        }
         return $this->get($name);
     }
 
@@ -73,6 +77,31 @@ class step extends persistent {
      */
     public function __set($name, $value) {
         return $this->set($name, $value);
+    }
+
+    public function get_variables() {
+        $dataflow = new dataflow($this->dataflowid);
+        return $dataflow->variables;
+    }
+
+    /**
+     * Return the configuration of the dataflow, parsed such that any
+     * expressions are evaluated at this point in time.
+     *
+     * @return     \stdClass configuration object
+     */
+    protected function get_config(): \stdClass {
+        $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
+        // Prepare this as a php object (stdClass), as it makes expressions easier to write.
+        $parser = new parser();
+        foreach ($yaml as $key => &$string) {
+            // TODO: Perhaps some keys should not be evaluated?
+
+            // NOTE: This does not support nested expressions.
+            $string = $parser->evaluate($string, $this->variables);
+        }
+
+        return $yaml;
     }
 
     /**

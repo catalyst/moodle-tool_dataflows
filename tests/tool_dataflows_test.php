@@ -16,6 +16,7 @@
 
 namespace tool_dataflows;
 
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
 
 defined('MOODLE_INTERNAL') || die();
@@ -239,8 +240,8 @@ class tool_dataflows_test extends \advanced_testcase {
         $this->assertEquals($yaml['name'], $dataflow->name);
 
         // Test the dataflow imported steps.
-        $steps = $dataflow->steps();
-        $this->assertCount(3, $steps);
+        $steps = $dataflow->steps;
+        $this->assertCount(3, (array) $steps);
 
         // Pull out the steps from the dataflow and check their values.
         foreach ($steps as $step) {
@@ -264,14 +265,61 @@ class tool_dataflows_test extends \advanced_testcase {
 
         // Test various yaml provided values to have confidence the import is working as expected.
         $this->assertEquals($yaml['steps']['read']['description'], $read->description);
-        $this->assertEquals(Yaml::dump($yaml['steps']['write']['config']), $write->config);
-        $this->assertEquals(Yaml::dump($yaml['steps']['write']['config']), $write->config);
+        $this->assertEquals(json_encode($yaml['steps']['write']['config']), json_encode($write->config));
         $this->assertEquals($yaml['steps']['debugging']['type'], $debugging->type);
         // Check dependencies (read -> debugging -> write).
         $deps = $debugging->dependencies();
         $this->assertArrayHasKey($read->id, $deps);
         $deps = $write->dependencies();
         $this->assertArrayHasKey($debugging->id, $deps);
+    }
+
+    /**
+     * @covers \tool_dataflows\dataflow::config
+     * @covers \tool_dataflows\step::config
+     * @covers \tool_dataflows\parser::evaluate
+     * @covers \Symfony\Component\ExpressionLanguage\ExpressionLanguage
+     */
+    public function test_expressions_parsing() {
+        // To register a custom function, we need to first register the provider
+        // and pass it when constructing the expression language object.
+        // See https://symfony.com/doc/current/components/expression_language/syntax.html#working-with-functions for details.
+        $now = time();
+        $variables = [
+            'steps' => (object) [
+                'read' => (object) ['timestamp' => $now],
+                'debugging' => (object) [],
+                'write' => (object) [],
+            ],
+        ];
+
+        // Test reading a value directly.
+        $expressionlanguage = new ExpressionLanguage();
+        $result = $expressionlanguage->evaluate(
+            'steps.read.timestamp',
+            $variables
+        );
+        $this->assertEquals($now, $result);
+
+        // Test evaluating an imported dataflow. The expressions would be
+        // evaluated when relevant. For example, an import might have a few
+        // expressions set, and the dataflow config will hold the expressions,
+        // however only when it turns into an dataflow instance (e.g. via the
+        // dataflow engine), will it attempt to evaluate the dataflow level
+        // expressions from config. Similarly, expressions in steps will not be
+        // evaluated until previous steps have run.
+        $content = file_get_contents(dirname(__FILE__) . '/fixtures/sample-with-expressions.yml');
+        $yaml = \Symfony\Component\Yaml\Yaml::parse($content);
+        $dataflow = new dataflow();
+        $dataflow->import($yaml);
+        $config = $dataflow->config;
+        $this->assertNotEquals($yaml['config']['expression'],  $config->expression);
+        $this->assertEquals($dataflow->id,  $config->expression_test_id);
+        $this->assertEquals($dataflow->id + 777,  $config->expression_math); // Adding an fixed number.
+        $this->assertEquals('notifycheck_version',  $config->expression_concat); // Using the ~ operator.
+        $this->compatible_assertStringContainsString('steps notify and Check Version',  $config->expression);
+
+        // TODO: Add tests for parsing during a dataflow run (via the dataflow engine).
     }
 
     // PHPUnit backwards compatible methods which handles the fallback to previous version calls.

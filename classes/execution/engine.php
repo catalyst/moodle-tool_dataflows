@@ -88,7 +88,7 @@ class engine {
         $this->dataflow = $dataflow;
 
         // Create engine steps for each step in the dataflow.
-        foreach ($dataflow->steps() as $stepdef) {
+        foreach ($dataflow->steps as $stepdef) {
             $classname = $stepdef->type;
             $steptype = new $classname();
             $this->enginesteps[$stepdef->id] = $steptype->get_engine_step($this, $stepdef);
