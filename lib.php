@@ -31,7 +31,7 @@ function tool_dataflows_after_config() {
 /**
  * Returns a list of step types available for this plugin.
  *
- * NOTE: For other plugins, the function name should be simply declared as dataflow_step_types.
+ * NOTE: For other plugins, the function name should be simply declared as <component_name>_dataflow_step_types.
  *
  * @return     array of step types
  */

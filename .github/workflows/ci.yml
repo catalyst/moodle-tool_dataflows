@@ -12,3 +12,4 @@ jobs:
     with:
       disable_behat: true
       disable_grunt: true
+      extra_plugin_runners: 'moodle-plugin-ci add-plugin catalyst/moodle-local_aws --branch ci-for-tool_dataflows'
