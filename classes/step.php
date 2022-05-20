@@ -18,6 +18,7 @@ namespace tool_dataflows;
 
 use core\persistent;
 use moodle_exception;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Dataflow Step persistent class
@@ -41,6 +42,8 @@ class step extends persistent {
     protected static function define_properties(): array {
         return [
             'dataflowid' => ['type' => PARAM_INT],
+            'internalid' => ['type' => PARAM_TEXT],
+            'description' => ['type' => PARAM_TEXT, 'default' => ''],
             'type' => ['type' => PARAM_TEXT],
             'name' => ['type' => PARAM_TEXT],
             'config' => ['type' => PARAM_TEXT, 'default' => ''],
@@ -51,12 +54,41 @@ class step extends persistent {
         ];
     }
 
+    /**
+     * Magic getter - which allows the user to get values directly instead of via ->get('name')
+     *
+     * @param      string name of the property to get
+     * @return     mixed
+     */
     public function __get($name) {
         return $this->get($name);
     }
 
+    /**
+     * Magic setter - which allows the user to set values directly instead of via ->set('name', $value)
+     *
+     * @param      string name of the property to update
+     * @param      mixed new value of the property
+     * @return     $this
+     */
     public function __set($name, $value) {
         return $this->set($name, $value);
+    }
+
+    /**
+     * Sets the step's name
+     *
+     * Also sets the internalid based on the new name, if the property is unset.
+     *
+     * @param      string $name new name of the step
+     * @return     $this
+     */
+    protected function set_name(string $name): step {
+        if (empty($this->internalid)) {
+            $slug = str_replace(' ', '-', strtolower($name));
+            $this->internalid = $slug;
+        }
+        return $this->raw_set('name', $name);
     }
 
     /**
@@ -72,7 +104,7 @@ class step extends persistent {
     /**
      * Persists the dependencies (dependson) for this step into the database.
      */
-    private function update_depends_on() {
+    public function update_depends_on() {
         global $DB;
 
         $dependencies = $this->dependson;
@@ -83,7 +115,20 @@ class step extends persistent {
         // Update records in database.
         $dependencymap = [];
         foreach ($dependencies as $dependency) {
-            $dependencymap[] = ['stepid' => $this->id, 'dependson' => $dependency->id ?? $dependency];
+            // If the dependency is a string, then it is most likely referencing
+            // the internalid. In this case, it should query the DB and populate
+            // the expected id numeric value.
+            $dependson = $dependency->id ?? $dependency;
+            if (gettype($dependson) === 'string') {
+                $step = $DB->get_record(
+                    'tool_dataflows_steps',
+                    ['internalid' => $dependency, 'dataflowid' => $this->dataflowid],
+                    'id'
+                );
+                $dependson = $step->id;
+                // TODO: Throw an exception if dependson is null/missing, as it should exist by this stage.
+            }
+            $dependencymap[] = ['stepid' => $this->id, 'dependson' => $dependson];
         }
         $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
         $DB->insert_records('tool_dataflows_step_depends', $dependencymap);
@@ -121,5 +166,33 @@ class step extends persistent {
         $this->update_depends_on();
 
         return $this;
+    }
+
+    /**
+     * Handling for importing an individual step based on the step relevant to the yml file.
+     *
+     * See dataflow->import for how this all strings together.
+     *
+     * @param      array $yaml full dataflow configuration as a php array
+     */
+    public function import($stepdata) {
+        // Set the name of this step, the key will be used if a name is not provided.
+        $this->name = $stepdata['name'] ?? $stepdata['id'];
+        // Sets the type of this step, which should be a FQCN.
+        $this->type = $stepdata['type'];
+        // Sets the description for this step.
+        $this->description = $stepdata['description'] ?? '';
+        // Set the internalid of this step, the key will be used if the id is not provided.
+        // TODO: See if there's a good reason to have an id field separate to simply using the key.
+        $this->internalid = $stepdata['id'];
+
+        // Set the config as a valid YAML string.
+        $this->config = Yaml::dump($stepdata['config'] ?? '');
+
+        // Set up the dependencies, connected to each other via their internal step ids.
+        if (!empty($stepdata['depends_on'])) {
+            $dependson = (array) $stepdata['depends_on'];
+            $this->depends_on($dependson);
+        }
     }
 }

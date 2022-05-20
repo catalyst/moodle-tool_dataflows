@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>vendor/symfony/expression-language</location>
+    <name>expression-language</name>
+    <version>v3.4</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/yaml</location>
+    <name>yaml</name>
+    <version>v3.4</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor</location>
+    <name>3rd party sub-dependencies</name>
+    <version></version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+</libraries>

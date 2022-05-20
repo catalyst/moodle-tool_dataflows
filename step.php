@@ -86,7 +86,17 @@ if (($data = $form->get_data())) {
             // Call your API to create a new persistent from this data.
             // Or, do the following if you don't want capability checks (discouraged).
             $persistent = new step(0, $data);
-            $persistent->depends_on($data->dependson);
+            $dependson = $data->dependson;
+            unset($data->dependson);
+            // Only unset field (as it should be set based on the name) if it is empty.
+            if (empty($data->internalid)) {
+                unset($data->internalid);
+            }
+            // Ensure the values are set through a loop which should ensure it goes through set_* methods.
+            foreach ($data as $key => $value) {
+                $persistent->$key = $value;
+            }
+            $persistent->depends_on($dependson);
             $persistent->upsert();
         } else {
             // We had an ID, this means that we are going to update a record.
@@ -94,7 +104,14 @@ if (($data = $form->get_data())) {
             // Or, do the following if you don't want capability checks (discouraged).
             $dependson = $data->dependson;
             unset($data->dependson);
-            $persistent->from_record($data);
+            // Only unset field (as it should be set based on the name) if it is empty.
+            if (empty($data->internalid)) {
+                unset($data->internalid);
+            }
+            // Ensure the values are set through a loop which should ensure it goes through set_* methods.
+            foreach ($data as $key => $value) {
+                $persistent->$key = $value;
+            }
             $persistent->depends_on($dependson);
             $persistent->upsert();
         }

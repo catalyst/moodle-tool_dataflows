@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220513" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
+<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220519" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -20,6 +20,8 @@
     <TABLE NAME="tool_dataflows_steps" COMMENT="Steps configuration which are mapped to a particular dataflow">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="internalid" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="A text based id used to connect steps together, reference them for inputs, etc, unique to the dataflow it lies under"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Description for the step, which may include the purpose for its inclusion, more detail about what it does or how it works."/>
         <FIELD NAME="dataflowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="type" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" COMMENT="Fully Qualified Class Name of the step."/>
         <FIELD NAME="name" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" COMMENT="Display name for the step, used in the UI and graph"/>
@@ -33,6 +35,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="stepname_dataflowid" TYPE="unique" FIELDS="name, dataflowid"/>
         <KEY NAME="dataflowid" TYPE="foreign" FIELDS="dataflowid" REFTABLE="tool_dataflows" REFFIELDS="id"/>
+        <KEY NAME="stepinternalid_dataflowid" TYPE="unique" FIELDS="internalid, dataflowid" COMMENT="To ensure the text based id is unique for each dataflow"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="tool_dataflows_step_depends" COMMENT="Step dependencies, mapped out.">
