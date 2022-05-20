@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,56 +14,36 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\step;
+namespace tool_dataflows\execution;
 
-use tool_dataflows\execution\engine;
-use tool_dataflows\execution\engine_step;
+use tool_dataflows\execution\iterators\iterator;
+use tool_dataflows\execution\iterators\php_iterator;
 use tool_dataflows\execution\flow_engine_step;
+use tool_dataflows\step\base_step;
 
 /**
- * Step type: join
+ * Test reader step type that supplies an array.
+ * TODO: Until better classes have been defined, this is GEFN (Good Enough For Now).
  *
- * @package    tool_dataflows
- * @author     Kevin Pham <kevinpham@catalyst-au.net>
- * @copyright  Catalyst IT, 2022
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   tool_dataflows
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class join extends base_step {
 
-    /**
-     * @var int[] number of input streams (min, max)
-     *
-     * For a join step, it should have 2 or more inputs and for now, up to 20
-     * possible input streams.
-     */
-    protected $inputstreams = [2, 20];
+class array_in_type extends base_step {
 
-    /**
-     * @var int[] number of output streams (min, max)
-     *
-     * For a join step, there should be exactly one output. This is because
-     * without at least one output, there is no need to perform a join.
-     */
-    protected $outputstreams = [1, 1];
-
-    /**
-     * Does this type define a flow step?
-     * @return bool
-     */
     public function is_flow(): bool {
         return true;
     }
 
-    /**
-     * Executes the step
-     *
-     * This step not perform any operations, but instead waits for all
-     * dependencies to be complete before continuing. This passes the input
-     * as-is to the output.
-     *
-     * @param mixed $input
-     * @return mixed $output
-     */
+    /** @var array The source. Place dat here before use. */
+    public static $source = [];
+
+    public function get_iterator(flow_engine_step $step): iterator {
+        return new php_iterator($step, new \ArrayIterator(self::$source));
+    }
+
     public function execute($input) {
         return $input;
     }

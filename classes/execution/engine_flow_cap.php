@@ -14,41 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\execution\iterators;
+namespace tool_dataflows\execution;
 
 /**
- * Iterator interface for use within a dataflow structure.
+ * Engine flow step for flow caps.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-interface iterator {
+class engine_flow_cap extends flow_engine_step {
 
     /**
-     * True if the iterator has no more values to provide.
+     * Attempt to execute the step. If flowing, will run the iterator.
      *
-     * @return bool
+     * @return int
      */
-    public function is_finished(): bool;
+    public function go(): int {
+        $status = parent::go();
 
-    /**
-     * True if the iterator is capable (or allowed) of supplying a value.
-     *
-     * @return bool
-     */
-    public function is_ready(): bool;
+        try {
+            if ($status == engine::STATUS_FLOWING) {
+                while (!$this->iterator->is_finished()) {
+                    $this->iterator->next();
+                }
+            }
+            $this->status = engine::STATUS_FINISHED;
+        } catch (\Throwable $thrown) {
+            $this->status = engine::STATUS_ABORTED;
+            $this->exception = $thrown;
+        }
 
-    /**
-     * Terminate the iterator immediately.
-     */
-    public function abort();
-
-    /**
-     * Next item in the stream.
-     *
-     * @return object|bool A JSON compatible object, or false if nothing returned.
-     */
-    public function next();
+        return $this->status;
+    }
 }

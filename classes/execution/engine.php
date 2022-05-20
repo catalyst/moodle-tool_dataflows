@@ -17,9 +17,15 @@
 namespace tool_dataflows\execution;
 
 use tool_dataflows\dataflow;
+use tool_dataflows\step\flow_cap;
 
 /**
- * Executes a dataflow
+ * Executes a dataflow.
+ *
+ * Once an engien has been created, it can be executed in one action, or stepped through.
+ * Call execute() to run the engine completely through, or execute_step() to execute one
+ * step.
+ * Regardless of the method of execution, you will need to check for an aborted status.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -53,7 +59,7 @@ class engine {
     const STATUS_FINALISED = 9;
 
     /** @var  array The queue of steps to be given a run. */
-    protected $queue;
+    public $queue;
 
     /** @var dataflow The dataflow defined by the user. */
     protected $dataflow;
@@ -64,25 +70,31 @@ class engine {
     /** @var array The steps that have no outputstreams. */
     protected $sinks = [];
 
+    /** @var array Caps for the flow blocks. */
+    protected $flowcaps = [];
+
     /** @var int The status of the execution. */
     protected $status = self::STATUS_NEW;
+
+    /** @var \Throwable The exception generated when abort occurred. */
+    protected $exception = null;
 
     /**
      * Constructs the engine.
      *
      * @param dataflow $dataflow The dataflow to be executed, as defined in the editor.
      */
-    function __construct(dataflow $dataflow) {
+    public function __construct(dataflow $dataflow) {
         $this->dataflow = $dataflow;
 
-       // Create engine steps for each step in the dataflow.
+        // Create engine steps for each step in the dataflow.
         foreach ($dataflow->steps() as $stepdef) {
             $classname = $stepdef->type;
             $steptype = new $classname();
             $this->enginesteps[$stepdef->id] = $steptype->get_engine_step($this, $stepdef);
         }
 
-        // Create the links between step executors.
+        // Create the links between engine step.
         foreach ($this->enginesteps as $id => $enginestep) {
             $deps = $enginestep->stepdef->dependencies();
             foreach ($deps as $dep) {
@@ -99,7 +111,7 @@ class engine {
             }
         }
 
-        // Find the flow blocks
+        // Find the flow blocks.
         $this->create_flow_caps();
     }
 
@@ -117,6 +129,16 @@ class engine {
      * Finds the steps that are sinks for their respective flow blocks and create flow caps for them.
      */
     protected function create_flow_caps() {
+        // TODO Currently assumes flow blocks have no branches.
+        foreach ($this->enginesteps as $enginestep) {
+            if ($enginestep->is_flow() && count($enginestep->downstreams) == 0) {
+                $steptype = new flow_cap();
+                $flowcap = $steptype->get_engine_step($this, new \tool_dataflows\step());
+                $this->flowcaps[] = $flowcap;
+                $enginestep->downstreams['puller'] = $flowcap;
+                $flowcap->upstreams[$enginestep->id] = $enginestep;
+            }
+        }
     }
 
     /**
@@ -135,22 +157,22 @@ class engine {
     }
 
     /**
-     * Executes a single step. Must be initialised prior to calling.
+     * Executes a single step. Must be initialised prior to calling. Does not finalise.
      */
     public function execute_step() {
-        if ($this->status == self::STATUS_INITIALISED) {
+        if ($this->status === self::STATUS_INITIALISED) {
             $this->status = self::STATUS_PROCESSING;
         }
-        if ($this->status != self::STATUS_PROCESSING) {
+        if ($this->status !== self::STATUS_PROCESSING) {
             throw new \moodle_exception("bad_status", "tool_dataflows");
         }
-        if (count($this->queue)) {
+        if (count($this->queue) == 0) {
             $this->status = self::STATUS_FINISHED;
         } else {
             $currentstep = array_shift($this->queue);
             $result = $currentstep->go();
 
-            switch ($result['status']) {
+            switch ($result) {
                 case self::STATUS_BLOCKED:
                 case self::STATUS_WAITING:
                     foreach ($currentstep->upstreams as $upstream) {
@@ -171,7 +193,7 @@ class engine {
                     }
                     break;
                 case self::STATUS_ABORTED:
-                    $this->abort();
+                    $this->abort($currentstep->exception);
             }
         }
     }
@@ -189,19 +211,25 @@ class engine {
     /**
      * Stops execution immediately. Gracefully stops all processors and iterators.
      */
-    public function abort() {
+    public function abort(?\Throwable $exception = null) {
+        $this->exception = $exception;
         foreach ($this->enginesteps as $enginestep) {
             $enginestep->abort();
         }
         $this->status = self::STATUS_ABORTED;
+        // TODO: Do we want to throw the excpetion here, or make it the caller's responsibility?
     }
 
-    public function __get($p) {
-        switch ($p) {
+    /**
+     * PHP getter.
+     */
+    public function __get($parameter) {
+        switch ($parameter) {
             case 'status':
-                return $this->status;
+            case 'exception':
+                return $this->$parameter;
             default:
-                throw new \moodle_exception('');
+                throw new \moodle_exception('bad_parameter', 'tool_dataflows', [$parameter]);
         }
     }
 }

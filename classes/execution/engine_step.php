@@ -20,7 +20,7 @@ use tool_dataflows\step\base_step;
 use tool_dataflows\step;
 
 /**
- * Manages the execution of a step
+ * Manages the execution of a step.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -28,6 +28,13 @@ use tool_dataflows\step;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class engine_step {
+
+    /** @var int Cannot go forward. Must cancel. */
+    const PROCEED_STOP = 0;
+    /** @var int Cannot go forward. Must wait. */
+    const PROCEED_WAIT = 1;
+    /** @var int Can go forward. Perform execution. */
+    const PROCEED_GO = 2;
 
     /** @var engine Dataflow_execution engine  */
     protected $engine;
@@ -50,12 +57,29 @@ abstract class engine_step {
     /** @var int The step's current status */
     protected $status = engine::STATUS_NEW;
 
+    /** @var \moodle_exception  Any exception that was thrown by this step. */
+    protected $exception = null;
+
+    /**
+     * Constructs the engine step.
+     *
+     * @param engine $engine The engine this step is a pert of.
+     * @param step $stepdef The definition this step is based on.
+     * @param base_step $steptype The type of teh step.
+     */
     public function __construct(engine $engine, step $stepdef, base_step $steptype) {
         $this->engine = $engine;
         $this->stepdef = $stepdef;
         $this->steptype = $steptype;
         $this->id = $stepdef->id;
     }
+
+    /**
+     * True for flow steps, false for connector steps.
+     *
+     * @return bool
+     */
+    abstract public function is_flow(): bool;
 
     /**
      * Initialises the step.
@@ -72,6 +96,19 @@ abstract class engine_step {
     }
 
     /**
+     * Aborts the step.
+     */
+    public function abort() {
+    }
+
+    /**
+     * Attempt to execute the step.
+     *
+     * @return int
+     */
+    abstract public function go(): int;
+
+    /**
      * Exposes parameters that need to be accessed.
      *
      * @param $parameter
@@ -83,11 +120,41 @@ abstract class engine_step {
             case 'id':
             case 'status':
             case 'stepdef':
+            case 'steptype':
+            case 'exception':
+            case 'iterator':
                 return $this->$parameter;
             case 'name':
                 return $this->stepdef->name;
             default:
                 throw new \moodle_exception('Parameter ' . $parameter . ' not defined.');
+        }
+    }
+
+    /**
+     * Tells whether the step execution can proceed or not.
+     * @return int
+     */
+    protected function proceed_status(): int {
+        // The default is zero or one inputs. Override for multiple inputs/outputs.
+        if (count($this->upstreams) == 0) {
+            return self::PROCEED_GO;
+        } else {
+            $status = current($this->upstreams)->status;
+            switch ($status) {
+                case engine::STATUS_CANCELLED:
+                    return self::PROCEED_STOP;
+                case engine::STATUS_FINISHED:
+                    return self::PROCEED_GO;
+                case engine::STATUS_FLOWING:
+                    if ($this->is_flow()) {
+                        return self::PROCEED_GO;
+                    } else {
+                        return self::PROCEED_WAIT;
+                    }
+                default:
+                    return self::PROCEED_WAIT;
+            }
         }
     }
 

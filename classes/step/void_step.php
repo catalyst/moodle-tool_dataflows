@@ -34,7 +34,7 @@ class void_step extends base_step {
      * Does this type define a flow step?
      * @return bool
      */
-    function is_flow(): bool {
+    public function is_flow(): bool {
         return true;
     }
 

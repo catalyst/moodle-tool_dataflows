@@ -16,7 +16,7 @@
 
 namespace tool_dataflows\execution\iterators;
 
-use tool_dataflows\execution\step_executor;
+use tool_dataflows\execution\flow_engine_step;
 
 /**
  * A mapping iterator that takes in a value from another iterator, passes it to a function, and then
@@ -27,44 +27,61 @@ use tool_dataflows\execution\step_executor;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class map_iterator implements iterator {
     private $steptype;
     private $finished = false;
     private $input;
 
-    public function __construct(step_executor $step, iterator $input) {
+    /**
+     * @param flow_engine_step $step The step the iterator is for.
+     * @param iterator $input The iterator that serves as input to this one.
+     */
+    public function __construct(flow_engine_step $step, iterator $input) {
         $this->step = $step;
         $this->input = $input;
         $this->steptype = $step->steptype;
     }
 
+    /**
+     * True if the iterator has no more values to provide.
+     *
+     * @return bool
+     */
     public function is_finished(): bool {
         return $this->finished;
     }
 
+    /**
+     * True if the iterator is capable (or allowed) of supplying a value.
+     *
+     * @return bool
+     */
     public function is_ready(): bool {
         return !$this->finished && $this->input->is_ready();
     }
 
+    /**
+     * Terminate the iterator immediately.
+     */
     public function abort() {
         $this->finished = true;
     }
 
+    /**
+     * Next item in the stream.
+     *
+     * @return object|bool A JSON compatible object, or false if nothing returned.
+     */
     public function next() {
         if ($this->finished) {
             return false;
         }
-        try {
-            $value = $this->input->next();
-            if ($this->input->is_finished()) {
-                $this->abort();
-                $this->step->iterator_finished();
-            }
-            $newvalue = $this->steptype->execute($value);
-            return $newvalue;
-        } catch (\Throwable $exception) {
-            $this->step->dataflow->abort($this->step, $exception);
+
+        $value = $this->input->next();
+        if ($this->input->is_finished()) {
+            $this->abort();
         }
+        $newvalue = $this->steptype->execute($value);
+        return $newvalue;
     }
 }

@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,33 +18,18 @@ namespace tool_dataflows\step;
 
 use tool_dataflows\execution\engine;
 use tool_dataflows\execution\engine_step;
-use tool_dataflows\execution\flow_engine_step;
+use tool_dataflows\execution\engine_flow_cap;
 
 /**
- * Step type: join
+ * A special, virtual flow step that is attached to the end of a flow block.
  *
- * @package    tool_dataflows
- * @author     Kevin Pham <kevinpham@catalyst-au.net>
- * @copyright  Catalyst IT, 2022
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   <insert>
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class join extends base_step {
 
-    /**
-     * @var int[] number of input streams (min, max)
-     *
-     * For a join step, it should have 2 or more inputs and for now, up to 20
-     * possible input streams.
-     */
-    protected $inputstreams = [2, 20];
-
-    /**
-     * @var int[] number of output streams (min, max)
-     *
-     * For a join step, there should be exactly one output. This is because
-     * without at least one output, there is no need to perform a join.
-     */
-    protected $outputstreams = [1, 1];
+class flow_cap extends base_step {
 
     /**
      * Does this type define a flow step?
@@ -57,9 +42,7 @@ class join extends base_step {
     /**
      * Executes the step
      *
-     * This step not perform any operations, but instead waits for all
-     * dependencies to be complete before continuing. This passes the input
-     * as-is to the output.
+     * Does nothing.
      *
      * @param mixed $input
      * @return mixed $output
@@ -77,6 +60,6 @@ class join extends base_step {
      */
     public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
         // This should be sufficient for most cases. Override this function if needed.
-        return new flow_engine_step($engine, $stepdef, $this);
+        return new engine_flow_cap($engine, $stepdef, $this);
     }
 }

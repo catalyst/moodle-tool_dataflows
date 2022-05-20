@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\executor\iterators;
+namespace tool_dataflows\execution\iterators;
 
-use tool_dataflows\executor\step_executor;
+use tool_dataflows\execution\flow_engine_step;
 
 /**
  * A mapping iterator that takes a PHP iterator as a source.
@@ -26,45 +26,62 @@ use tool_dataflows\executor\step_executor;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class php_iterator implements iterator {
     protected $steptype;
     protected $finished = false;
     protected $input;
     protected $step;
 
-    public function __construct(step_executor $step, \Iterator $input) {
+    /**
+     * @param flow_engine_step $step The step the iterator is for.
+     * @param \Iterator $input The source for this reader, as a PHP iterator.
+     */
+    public function __construct(flow_engine_step $step, \Iterator $input) {
         $this->step = $step;
         $this->input = $input;
         $this->steptype = $step->steptype;
     }
 
+    /**
+     * True if the iterator has no more values to provide.
+     *
+     * @return bool
+     */
     public function is_finished(): bool {
         return $this->finished;
     }
 
+    /**
+     * True if the iterator is capable (or allowed) of supplying a value.
+     *
+     * @return bool
+     */
     public function is_ready(): bool {
         return !$this->finished && $this->input->valid();
     }
 
+    /**
+     * Terminate the iterator immediately.
+     */
     public function abort() {
         $this->finished = true;
     }
 
+    /**
+     * Next item in the stream.
+     *
+     * @return object|bool A JSON compatible object, or false if nothing returned.
+     */
     public function next() {
         if ($this->finished) {
             return false;
         }
-        try {
-            $value = $this->input->current();
-            $this->input->next();
-            if (!$this->input->valid()) {
-                $this->abort();
-            }
-            $newvalue = $this->steptype->execute($value);
-            return $newvalue;
-        } catch (\Throwable $exception) {
-            $this->step->dataflow->abort($this->step, $exception);
+        $value = $this->input->current();
+        $this->input->next();
+        if (!$this->input->valid()) {
+            $this->abort();
         }
+        $newvalue = $this->steptype->execute($value);
+        return $newvalue;
     }
 }

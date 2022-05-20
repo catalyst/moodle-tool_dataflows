@@ -18,6 +18,9 @@ namespace tool_dataflows\step;
 
 use tool_dataflows\execution\engine;
 use tool_dataflows\execution\engine_step;
+use tool_dataflows\execution\iterators\iterator;
+use tool_dataflows\execution\iterators\map_iterator;
+use tool_dataflows\execution\flow_engine_step;
 
 /**
  * Base class for steps
@@ -35,7 +38,6 @@ abstract class base_step {
      * This is autopopulated by the dataflows manager.
      */
     protected $component = 'tool_dataflows';
-
 
     /** @var int[] number of input streams (min, max) */
     protected $inputstreams = [0, 1];
@@ -65,9 +67,9 @@ abstract class base_step {
      * Does this type define a flow step?
      * @return bool
      */
-    abstract function is_flow(): bool;
+    abstract public function is_flow(): bool;
 
-        /**
+    /**
      * Get the step's id
      *
      * This defaults to the base name of the class which is ok in the most
@@ -107,6 +109,13 @@ abstract class base_step {
     }
 
     /**
+     * For connectors, perform the task.
+     */
+    public function do_task(): bool {
+        return true;
+    }
+
+    /**
      * Step callback handler
      *
      * Implementation can vary, this might be a transformer, resource, or
@@ -140,5 +149,15 @@ abstract class base_step {
      * @return engine_step
      */
     abstract public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step;
-}
 
+    /**
+     * Get the iterator for the step, based on configurations.
+     *
+     * @param flow_engine_step $step
+     * @return iterator
+     */
+    public function get_iterator(flow_engine_step $step): iterator {
+        $input = current($step->upstreams)->iterator;
+        return new map_iterator($step, $input);
+    }
+}
