@@ -18,18 +18,32 @@ namespace tool_dataflows\step;
 
 use tool_dataflows\execution\engine;
 use tool_dataflows\execution\engine_step;
-use tool_dataflows\execution\engine_flow_cap;
+use tool_dataflows\execution\connector_engine_step;
 
 /**
- * A special, virtual flow step that is attached to the end of a flow block.
+ * Base class for connector step types.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+abstract class connector_step extends base_step {
 
-class flow_cap extends flow_step {
+    /**
+     * Does this type define a flow step?
+     * @return bool
+     */
+    final public function is_flow(): bool {
+        return false;
+    }
+
+    /**
+     * Perform the task required by this connector.
+     *
+     * @return bool Returns true if successful, false otherwise.
+     */
+    abstract public function do_task(): bool;
 
     /**
      * Generates an engine step for this type.
@@ -39,6 +53,7 @@ class flow_cap extends flow_step {
      * @return engine_step
      */
     public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
-        return new engine_flow_cap($engine, $stepdef, $this);
+        // This should be sufficient for most cases. Override this function if needed.
+        return new connector_engine_step($engine, $stepdef, $this);
     }
 }

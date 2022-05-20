@@ -109,21 +109,6 @@ abstract class base_step {
     }
 
     /**
-     * For connectors, perform the task.
-     */
-    public function do_task(): bool {
-        return true;
-    }
-
-    /**
-     * Step callback handler
-     *
-     * Implementation can vary, this might be a transformer, resource, or
-     * something else.
-     */
-    abstract public function execute($input);
-
-    /**
      * Returns the [min, max] number of input streams
      *
      * @return     int[] of 2 ints, min and max values for the stream
@@ -149,15 +134,4 @@ abstract class base_step {
      * @return engine_step
      */
     abstract public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step;
-
-    /**
-     * Get the iterator for the step, based on configurations.
-     *
-     * @param flow_engine_step $step
-     * @return iterator
-     */
-    public function get_iterator(flow_engine_step $step): iterator {
-        $input = current($step->upstreams)->iterator;
-        return new map_iterator($step, $input);
-    }
 }

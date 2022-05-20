@@ -16,19 +16,18 @@
 
 namespace tool_dataflows\step;
 
-use tool_dataflows\execution\engine;
-use tool_dataflows\execution\engine_step;
-use tool_dataflows\execution\flow_engine_step;
-
 /**
  * Step type: join
+ *
+ * This step not perform any operations, but instead waits for all
+ * dependencies to be complete before continuing.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class join extends base_step {
+class join extends flow_step {
 
     /**
      * @var int[] number of input streams (min, max)
@@ -45,38 +44,4 @@ class join extends base_step {
      * without at least one output, there is no need to perform a join.
      */
     protected $outputstreams = [1, 1];
-
-    /**
-     * Does this type define a flow step?
-     * @return bool
-     */
-    public function is_flow(): bool {
-        return true;
-    }
-
-    /**
-     * Executes the step
-     *
-     * This step not perform any operations, but instead waits for all
-     * dependencies to be complete before continuing. This passes the input
-     * as-is to the output.
-     *
-     * @param mixed $input
-     * @return mixed $output
-     */
-    public function execute($input) {
-        return $input;
-    }
-
-    /**
-     * Generates an engine step for this type.
-     *
-     * @param engine $engine
-     * @param \tool_dataflows\step $stepdef
-     * @return engine_step
-     */
-    public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
-        // This should be sufficient for most cases. Override this function if needed.
-        return new flow_engine_step($engine, $stepdef, $this);
-    }
 }
