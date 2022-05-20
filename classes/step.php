@@ -75,12 +75,20 @@ class step extends persistent {
         return $this->set($name, $value);
     }
 
-    protected function set_name($value) {
+    /**
+     * Sets the step's name
+     *
+     * Also sets the internalid based on the new name, if the property is unset.
+     *
+     * @param      string $name new name of the step
+     * @return     $this
+     */
+    protected function set_name(string $name): step {
         if (empty($this->internalid)) {
-            $slug = str_replace(' ', '-', strtolower($value));
+            $slug = str_replace(' ', '-', strtolower($name));
             $this->internalid = $slug;
         }
-        return $this->raw_set('name', $value);
+        return $this->raw_set('name', $name);
     }
 
     /**
