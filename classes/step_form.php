@@ -93,7 +93,7 @@ class step_form extends \core\form\persistent {
         }, []);
         $mform->addElement('select', 'type', get_string('field_type', 'tool_dataflows'), $steptypes);
 
-        // Configuration - e.g. as JSON/YML (leaning towards the later).
+        // Configuration - YAML format.
         $mform->addElement(
             'textarea',
             'config',

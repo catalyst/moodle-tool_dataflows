@@ -29,6 +29,7 @@ class dataflows_table extends \table_sql {
     const COLUMNS = [
         'preview',
         'name',
+        'config',
         'userid',
         'stepcount',
     ];
@@ -127,5 +128,15 @@ class dataflows_table extends \table_sql {
     public function col_manage(\stdClass $record): string {
         // TODO: Implement the actions.
         return '';
+    }
+
+    /**
+     * Display the configuration
+     *
+     * @param \stdClass $record
+     * @return string
+     */
+    public function col_config(\stdClass $record): string {
+        return \html_writer::tag('pre', $record->config);
     }
 }

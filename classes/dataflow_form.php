@@ -42,6 +42,14 @@ class dataflow_form extends \core\form\persistent {
         // Name of the dataflow.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
 
+        // Configuration - YAML format.
+        $mform->addElement(
+            'textarea',
+            'config',
+            get_string('field_config', 'tool_dataflows'),
+            ['cols' => 50, 'rows' => 7]
+        );
+
         $this->add_action_buttons();
     }
 
