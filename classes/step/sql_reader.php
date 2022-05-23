@@ -37,6 +37,13 @@ class sql_reader extends flow_step {
     /** @var int[] number of output streams (min, max), one for readers. */
     protected $outputstreams = [1, 1];
 
+    /**
+     * Get the iterator for the step, based on configurations.
+     *
+     * @param flow_engine_step $step
+     * @return iterator
+     * @throws \moodle_exception
+     */
     public function get_iterator(flow_engine_step $step): iterator {
         $query = $this->construct_query($step);
         return new class($step, $query) extends php_iterator {
@@ -55,8 +62,12 @@ class sql_reader extends flow_step {
 
     /**
      * Constructs the SQL query from the configuration options.
+     *
+     * @param flow_engine_step $step
+     * @return string
+     * @throws \moodle_exception
      */
-    protected function construct_query(flow_engine_step $step) {
+    protected function construct_query(flow_engine_step $step): string {
         $config = $this->extract_config($step->stepdef->config);
         return $config->sql;
     }
