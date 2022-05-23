@@ -54,16 +54,17 @@ $string['field_dependson'] = 'Depends On';
 
 // Step (form).
 $string['field_description'] = 'Description';
-$string['field_internalid'] = 'Internal ID';
-$string['field_internalid_help'] = 'A kebab cased reference to the step, unique to this dataflow. This can be used when referencing dependencies and inputs from other steps. Leaving this field blank will attempt to use a sluggified version of the name value.';
+$string['field_alias'] = 'Alias';
+$string['field_alias_help'] = 'A snake cased reference to the step, unique to this dataflow. This can be used when referencing dependencies and inputs from other steps. Leaving this field blank will attempt to use a snake case version of the name value. For example, if the name is "My Step", it will be populate this field as "my_step"';
 $string['field_config'] = 'Configuration';
 $string['field_type'] = 'Type of Step';
 $string['update_step'] = 'Update Step';
 $string['new_step'] = 'New Step';
 
 // Warnings / Errors.
-$string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
 $string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Graph (DAG).';
+$string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
+$string['stepdependencydoesnotexist'] = 'The step dependency "{$a}" does not exist';
 $string['stepinvalidinputstreamcount'] = 'Invalid number of input streams for {$a->name} (Found: {$a->found}, Expected between {$a->min} and {$a->max})';
 $string['stepinvalidoutputstreamcount'] = 'Invalid number of output streams for {$a->name} (Found: {$a->found}, Expected between {$a->min} and {$a->max})';
 $string['bad_parameter'] = 'Parameter \'{$a->parameter}\' not supported in \'{$a->classname}\'.';

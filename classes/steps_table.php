@@ -28,7 +28,7 @@ class steps_table extends \table_sql {
 
     const COLUMNS = [
         'name',
-        'internalid',
+        'alias',
         'description',
         'type',
         'config',

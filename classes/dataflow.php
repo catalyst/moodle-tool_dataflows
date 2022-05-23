@@ -38,6 +38,7 @@ class dataflow extends persistent {
     protected static function define_properties(): array {
         return [
             'name' => ['type' => PARAM_TEXT],
+            'config' => ['type' => PARAM_TEXT, 'default' => ''],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
@@ -45,12 +46,63 @@ class dataflow extends persistent {
         ];
     }
 
+    /**
+     * Magic Getter
+     *
+     * This allows any get_$name methods to be called if they exist, before any
+     * property exist checks.
+     *
+     * @param      string $name of the property
+     * @return     mixed
+     */
     public function __get($name) {
+        $methodname = 'get_' . $name;
+        if (method_exists($this, $methodname)) {
+            return $this->$methodname();
+        }
         return $this->get($name);
     }
 
     public function __set($name, $value) {
         return $this->set($name, $value);
+    }
+
+    /**
+     * Returns the variables available for this object
+     *
+     * @return     array of variables typically passed to the expression parser
+     */
+    public function get_variables(): array {
+        // Test reading a value directly.
+        $variables = [
+            'env' => (object) [
+                'DATAFLOW_ID' => $this->id,
+                'DATAFLOW_RUN_NUMBER' => 0,
+            ],
+            'dataflow' => $this,
+            'steps' => $this->steps
+        ];
+        return $variables;
+    }
+
+    /**
+     * Return the configuration of the dataflow, parsed such that any
+     * expressions are evaluated at this point in time.
+     *
+     * @return     \stdClass configuration object
+     */
+    protected function get_config(): \stdClass {
+        $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
+        // Prepare this as a php object (stdClass), as it makes expressions easier to write.
+        $parser = new parser();
+        foreach ($yaml as &$string) {
+            // TODO: Perhaps some $key should not be evaluated?
+
+            // NOTE: This does not support nested expressions.
+            $string = $parser->evaluate($string, $this->variables);
+        }
+
+        return $yaml;
     }
 
     /**
@@ -89,7 +141,7 @@ class dataflow extends persistent {
 
         // Check steps have correct connections going in and out based on their step type.
         $adjacencylist = graph::to_adjacency_list($edges);
-        $steps = $this->steps();
+        $steps = $this->steps;
         foreach ($steps as $step) {
             $steptype = $step->type;
             $steptype = new $steptype();
@@ -140,9 +192,9 @@ class dataflow extends persistent {
     /**
      * Returns a list of step (persistent models)
      *
-     * @return     array of step models
+     * @return     \stdClass array of step models, keyed by their alias
      */
-    public function steps() {
+    public function get_steps(): \stdClass {
         global $DB;
         $sql = "SELECT step.id
                   FROM {tool_dataflows_steps} step
@@ -151,9 +203,11 @@ class dataflow extends persistent {
         $steps = $DB->get_records_sql($sql, [
             'dataflowid' => $this->id,
         ]);
-        return array_map(function ($step) {
-            return new step($step->id);
-        }, $steps);
+        return (object) array_reduce($steps, function ($acc, $step) {
+            $steppersistent = new step($step->id);
+            $acc[$steppersistent->alias] = $steppersistent;
+            return $acc;
+        }, []);
     }
 
     /**
@@ -269,6 +323,7 @@ class dataflow extends persistent {
      */
     public function import(array $yaml) {
         $this->name = $yaml['name'] ?? '';
+        $this->config = Yaml::dump($yaml['config'] ?? '');
         $this->save();
 
         // Import any provided steps.
@@ -278,7 +333,7 @@ class dataflow extends persistent {
                 // Create the step and set the fields.
                 $step = new \tool_dataflows\step();
                 $step->dataflowid = $this->id;
-                // Set a step id if one does not already exist, and use that as an internal/text reference between steps.
+                // Set a step id if one does not already exist, and use that as an alias/reference between steps.
                 $stepdata['id'] = $stepdata['id'] ?? $key;
 
                 $step->import($stepdata);

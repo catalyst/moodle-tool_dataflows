@@ -1,0 +1,35 @@
+name: Example Dataflow
+
+config:
+    expression: with steps ${{ steps.notify.name }} and ${{ steps.check_version.name }}
+    expression_test_id: ${{ dataflow.id }}
+    expression_math: ${{ dataflow.id + 777 }}
+    expression_concat: ${{ steps.notify.alias~steps.check_version.alias }}
+
+steps:
+  check_version:
+    name: Check Version
+    description: Check if a certain value exists
+    type: \tool_dataflows\step\cfg_reader
+    config:
+      component: core
+      name: version
+    outputs:
+      # Here "version" will be an output name (available under steps.check.outputs.version)
+      # Here "value" is the step's internal reference, which happens to be using the output path of "value".
+      version: value
+  notify:
+    description: Notify all the people involved that this has happened
+    depends_on: check_version
+    type: \tool_dataflows\step\notification_writer
+    config:
+      template: |
+        Run #${{ env.RUN_ID }}:
+        Hi, your admin userid is ${{ config('siteadmins') }}
+        and site's ${{ steps.check_version.config.component }} version is ${{ steps.check_version.outputs.version }}
+
+# Scopes
+# global = globally cross dataflow scoped variables. These being typically defined at the plugin level.
+# env = instance scope. It is only available within the run and is disposed of when the run ends. Think of it like a shared space when it doesn't belong in an individual step.
+# steps.stepkey.thing = instance scope, but namespaced under a step. Same as env, but specifically linked to a step.
+# dataflow
