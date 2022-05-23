@@ -121,6 +121,19 @@ class step extends persistent {
     }
 
     /**
+     * Validates the name field
+     *
+     * @param      $string name provided
+     * @return     true|lang_string will return a lang_string if there was an error
+     */
+    protected function validate_name($name) {
+        if (empty($name)) {
+            return new \lang_string('missingname');
+        }
+        return true;
+    }
+
+    /**
      * Sets the dependencies for this step
      *
      * @param int[]|step[] $dependencies a collection of steps or step ids
@@ -148,7 +161,7 @@ class step extends persistent {
             // the alias. In this case, it should query the DB and populate
             // the expected id numeric value.
             $dependson = $dependency->id ?? $dependency;
-            if (gettype($dependson) === 'string') {
+            if (gettype($dependson) === 'string' && !is_number($dependson)) {
                 $step = $DB->get_record(
                     'tool_dataflows_steps',
                     ['alias' => $dependency, 'dataflowid' => $this->dataflowid],
