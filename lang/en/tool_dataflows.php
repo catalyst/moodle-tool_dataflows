@@ -66,6 +66,7 @@ $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. 
 $string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Graph (DAG).';
 $string['stepinvalidinputstreamcount'] = 'Invalid number of input streams for {$a->name} (Found: {$a->found}, Expected between {$a->min} and {$a->max})';
 $string['stepinvalidoutputstreamcount'] = 'Invalid number of output streams for {$a->name} (Found: {$a->found}, Expected between {$a->min} and {$a->max})';
+$string['bad_parameter'] = 'Parameter \'{$a->parameter}\' not supported in \'{$a->classname}\'.';
 
 // Privacy.
 $string['privacy:metadata:dataflows'] = 'Data from the configured dataflows';
