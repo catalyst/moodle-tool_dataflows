@@ -67,7 +67,7 @@ class sql_reader extends flow_step {
      * @param object $config
      * @return true|array true if valid, an array of errors otherwise
      */
-    public function validate_config(object $config) {
+    public function validate_config($config) {
         $errors = [];
         if (!isset($config->sql)) {
             $errors['sqlnotfound'] = get_string('sqlnotfound', 'tool_dataflows');
