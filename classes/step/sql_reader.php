@@ -58,13 +58,20 @@ class sql_reader extends flow_step {
      */
     protected function construct_query(flow_engine_step $step) {
         $config = $this->extract_config($step->stepdef->config);
-        return $config['sql'];
+        return $config->sql;
     }
 
-    public function validate_config(array $config): bool {
-        if (!isset($config['sql'])) {
-            return false;
+    /**
+     * Validate the configuration settings.
+     *
+     * @param object $config
+     * @return true|array true if valid, an array of errors otherwise
+     */
+    public function validate_config(object $config) {
+        $errors = [];
+        if (!isset($config->sql)) {
+            $errors['sqlnotfound'] = get_string('sqlnotfound', 'tool_dataflows');
         }
-        return true;
+        return empty($errors) ? true : $errors;
     }
 }

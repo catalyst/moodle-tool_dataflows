@@ -49,6 +49,11 @@ class tool_dataflows_engine_test extends \advanced_testcase {
     /**
      * Test the construction of the engine to ensure it mirrors the dataflow defined by the user.
      */
+    /**
+     * @covers engine::__construct
+     * @covers engine::create_flow_caps
+     * @covers engine::initialise
+     */
     public function test_engine_construction() {
 
         list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
