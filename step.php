@@ -89,8 +89,8 @@ if (($data = $form->get_data())) {
             $dependson = $data->dependson;
             unset($data->dependson);
             // Only unset field (as it should be set based on the name) if it is empty.
-            if (empty($data->internalid)) {
-                unset($data->internalid);
+            if (empty($data->alias)) {
+                unset($data->alias);
             }
             // Ensure the values are set through a loop which should ensure it goes through set_* methods.
             foreach ($data as $key => $value) {
@@ -105,8 +105,8 @@ if (($data = $form->get_data())) {
             $dependson = $data->dependson;
             unset($data->dependson);
             // Only unset field (as it should be set based on the name) if it is empty.
-            if (empty($data->internalid)) {
-                unset($data->internalid);
+            if (empty($data->alias)) {
+                unset($data->alias);
             }
             // Ensure the values are set through a loop which should ensure it goes through set_* methods.
             foreach ($data as $key => $value) {

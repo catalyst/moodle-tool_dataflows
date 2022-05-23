@@ -4,7 +4,7 @@ config:
     expression: with steps ${{ steps.notify.name }} and ${{ steps.check_version.name }}
     expression_test_id: ${{ dataflow.id }}
     expression_math: ${{ dataflow.id + 777 }}
-    expression_concat: ${{ steps.notify.internalid~steps.check_version.internalid }}
+    expression_concat: ${{ steps.notify.alias~steps.check_version.alias }}
 
 steps:
   check_version:

@@ -192,7 +192,7 @@ class dataflow extends persistent {
     /**
      * Returns a list of step (persistent models)
      *
-     * @return     \stdClass array of step models, keyed by their internal id
+     * @return     \stdClass array of step models, keyed by their alias
      */
     public function get_steps(): \stdClass {
         global $DB;
@@ -205,7 +205,7 @@ class dataflow extends persistent {
         ]);
         return (object) array_reduce($steps, function ($acc, $step) {
             $steppersistent = new step($step->id);
-            $acc[$steppersistent->internalid] = $steppersistent;
+            $acc[$steppersistent->alias] = $steppersistent;
             return $acc;
         }, []);
     }
@@ -333,7 +333,7 @@ class dataflow extends persistent {
                 // Create the step and set the fields.
                 $step = new \tool_dataflows\step();
                 $step->dataflowid = $this->id;
-                // Set a step id if one does not already exist, and use that as an internal/text reference between steps.
+                // Set a step id if one does not already exist, and use that as an alias/reference between steps.
                 $stepdata['id'] = $stepdata['id'] ?? $key;
 
                 $step->import($stepdata);

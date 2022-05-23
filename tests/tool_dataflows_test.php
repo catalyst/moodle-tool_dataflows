@@ -245,7 +245,7 @@ class tool_dataflows_test extends \advanced_testcase {
 
         // Pull out the steps from the dataflow and check their values.
         foreach ($steps as $step) {
-            switch ($step->internalid) {
+            switch ($step->alias) {
                 case 'read':
                     $read = $step;
                     break;

@@ -42,7 +42,7 @@ class step extends persistent {
     protected static function define_properties(): array {
         return [
             'dataflowid' => ['type' => PARAM_INT],
-            'internalid' => ['type' => PARAM_TEXT],
+            'alias' => ['type' => PARAM_TEXT],
             'description' => ['type' => PARAM_TEXT, 'default' => ''],
             'type' => ['type' => PARAM_TEXT],
             'name' => ['type' => PARAM_TEXT],
@@ -107,15 +107,15 @@ class step extends persistent {
     /**
      * Sets the step's name
      *
-     * Also sets the internalid based on the new name, if the property is unset.
+     * Also sets the alias based on the new name, if the property is unset.
      *
      * @param      string $name new name of the step
      * @return     $this
      */
     protected function set_name(string $name): step {
-        if (empty($this->internalid)) {
-            $slug = str_replace(' ', '-', strtolower($name));
-            $this->internalid = $slug;
+        if (empty($this->alias)) {
+            $snake = str_replace(' ', '_', strtolower($name));
+            $this->alias = $snake;
         }
         return $this->raw_set('name', $name);
     }
@@ -145,13 +145,13 @@ class step extends persistent {
         $dependencymap = [];
         foreach ($dependencies as $dependency) {
             // If the dependency is a string, then it is most likely referencing
-            // the internalid. In this case, it should query the DB and populate
+            // the alias. In this case, it should query the DB and populate
             // the expected id numeric value.
             $dependson = $dependency->id ?? $dependency;
             if (gettype($dependson) === 'string') {
                 $step = $DB->get_record(
                     'tool_dataflows_steps',
-                    ['internalid' => $dependency, 'dataflowid' => $this->dataflowid],
+                    ['alias' => $dependency, 'dataflowid' => $this->dataflowid],
                     'id'
                 );
                 if (empty($step->id)) {
@@ -213,14 +213,14 @@ class step extends persistent {
         $this->type = $stepdata['type'];
         // Sets the description for this step.
         $this->description = $stepdata['description'] ?? '';
-        // Set the internalid of this step, the key will be used if the id is not provided.
+        // Set the alias of this step, the key will be used if the id is not provided.
         // TODO: See if there's a good reason to have an id field separate to simply using the key.
-        $this->internalid = $stepdata['id'];
+        $this->alias = $stepdata['id'];
 
         // Set the config as a valid YAML string.
         $this->config = Yaml::dump($stepdata['config'] ?? '');
 
-        // Set up the dependencies, connected to each other via their internal step ids.
+        // Set up the dependencies, connected to each other via their step aliases.
         if (!empty($stepdata['depends_on'])) {
             $dependson = (array) $stepdata['depends_on'];
             $this->depends_on($dependson);

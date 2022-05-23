@@ -54,8 +54,8 @@ $string['field_dependson'] = 'Depends On';
 
 // Step (form).
 $string['field_description'] = 'Description';
-$string['field_internalid'] = 'Internal ID';
-$string['field_internalid_help'] = 'A kebab cased reference to the step, unique to this dataflow. This can be used when referencing dependencies and inputs from other steps. Leaving this field blank will attempt to use a sluggified version of the name value.';
+$string['field_alias'] = 'Alias';
+$string['field_alias_help'] = 'A snake cased reference to the step, unique to this dataflow. This can be used when referencing dependencies and inputs from other steps. Leaving this field blank will attempt to use a snake case version of the name value. For example, if the name is "My Step", it will be populate this field as "my_step"';
 $string['field_config'] = 'Configuration';
 $string['field_type'] = 'Type of Step';
 $string['update_step'] = 'Update Step';
