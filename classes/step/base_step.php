@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\step;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\execution\engine;
 use tool_dataflows\execution\engine_step;
 use tool_dataflows\execution\iterators\iterator;
@@ -124,6 +125,32 @@ abstract class base_step {
      */
     public function get_number_of_output_streams() {
         return $this->outputstreams;
+    }
+
+    /**
+     * Extract the configuration settings from a YAML string.
+     *
+     * @param string $yaml
+     * @return array
+     * @throws \moodle_exception
+     */
+    public function extract_config(string $yaml): array {
+        $config = Yaml::parse($yaml);
+        if (!$this->validate_config($config)) {
+            throw new \moodle_exception('Bad config');
+        }
+        return $config;
+    }
+
+    /**
+     * Validate the configuration settings.
+     * Defaults to no check.
+     *
+     * @param array $config
+     * @return bool
+     */
+    public function validate_config(array $config): bool {
+        return true;
     }
 
     /**
