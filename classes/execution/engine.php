@@ -229,7 +229,7 @@ class engine {
             case 'exception':
                 return $this->$parameter;
             default:
-                throw new \moodle_exception('bad_parameter', 'tool_dataflows', [$parameter]);
+                throw new \moodle_exception('bad_parameter', 'tool_dataflows', '', ['parameter' => $parameter, 'classname' => self::class]);
         }
     }
 }

@@ -127,7 +127,7 @@ abstract class engine_step {
             case 'name':
                 return $this->stepdef->name;
             default:
-                throw new \moodle_exception('Parameter ' . $parameter . ' not defined.');
+                throw new \moodle_exception('bad_parameter', 'tool_dataflows', '', ['parameter' => $parameter, 'classname' => self::class]);
         }
     }
 
