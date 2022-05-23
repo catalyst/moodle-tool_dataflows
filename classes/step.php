@@ -125,8 +125,10 @@ class step extends persistent {
                     ['internalid' => $dependency, 'dataflowid' => $this->dataflowid],
                     'id'
                 );
+                if (empty($step->id)) {
+                    throw new moodle_exception('stepdependencydoesnotexist', 'tool_dataflows', '', $dependson);
+                }
                 $dependson = $step->id;
-                // TODO: Throw an exception if dependson is null/missing, as it should exist by this stage.
             }
             $dependencymap[] = ['stepid' => $this->id, 'dependson' => $dependson];
         }
