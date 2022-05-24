@@ -1,0 +1,18 @@
+name: 'Example Dataflow'
+steps:
+  read:
+    description: 'Read configuration value'
+    type: \tool_dataflows\step\cfg_reader
+    config:
+      component: core
+      name: version
+  debugging:
+    description: 'Output the value to debugging'
+    depends_on: read
+    type: \tool_dataflows\step\debugging
+  write:
+    description: 'Write the value to a file'
+    depends_on: debugging
+    type: \tool_dataflows\step\file_writer
+    config:
+      path: /dev/stdout

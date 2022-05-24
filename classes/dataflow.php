@@ -28,6 +28,8 @@ use Symfony\Component\Yaml\Yaml;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dataflow extends persistent {
+    use exportable;
+
     const TABLE = 'tool_dataflows';
 
     /**
@@ -93,6 +95,11 @@ class dataflow extends persistent {
      */
     protected function get_config(): \stdClass {
         $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
+        // If there is no config, return an empty object.
+        if (empty($yaml)) {
+            return new \stdClass();
+        }
+
         // Prepare this as a php object (stdClass), as it makes expressions easier to write.
         $parser = new parser();
         foreach ($yaml as &$string) {
@@ -323,7 +330,7 @@ class dataflow extends persistent {
      */
     public function import(array $yaml) {
         $this->name = $yaml['name'] ?? '';
-        $this->config = Yaml::dump($yaml['config'] ?? '');
+        $this->config = isset($yaml['config']) ? Yaml::dump($yaml['config']) : '';
         $this->save();
 
         // Import any provided steps.
@@ -349,4 +356,31 @@ class dataflow extends persistent {
             }
         }
     }
+
+    /**
+     * Exports a dataflow
+     *
+     * @return      string $contents of the exported yaml file
+     */
+    public function get_export_data() {
+        // Exportable fields for dataflows.
+        $yaml = [];
+        $dataflowfields = ['name', 'config'];
+        foreach ($dataflowfields as $field) {
+            // Only set the field if it does not match the default value (e.g. if one exists).
+            // Note the fallback should not match any dataflow field value.
+            $default = $this->define_properties()[$field]['default'] ?? [];
+            $value = $this->raw_get($field);
+            if ($value !== $default) {
+                $yaml[$field] = $value;
+            }
+        }
+        $steps = $this->steps;
+        foreach ($steps as $key => $step) {
+            $yaml['steps'][$key] = $step->get_export_data();
+        }
+
+        return $yaml;
+    }
+
 }

@@ -29,6 +29,8 @@ use Symfony\Component\Yaml\Yaml;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class step extends persistent {
+    use exportable;
+
     const TABLE = 'tool_dataflows_steps';
 
     /** @var array $dependson */
@@ -92,6 +94,10 @@ class step extends persistent {
      */
     protected function get_config(): \stdClass {
         $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
+        if (empty($yaml)) {
+            return new \stdClass();
+        }
+
         // Prepare this as a php object (stdClass), as it makes expressions easier to write.
         $parser = new parser();
         foreach ($yaml as $key => &$string) {
@@ -185,8 +191,9 @@ class step extends persistent {
      */
     public function dependencies() {
         global $DB;
-        $sql = "SELECT step.id AS id,
-                       step.name AS name
+        $sql = "SELECT step.id,
+                       step.name,
+                       step.alias
                   FROM {tool_dataflows_step_depends} sd
              LEFT JOIN {tool_dataflows_steps} step ON sd.dependson = step.id
                  WHERE sd.stepid = :stepid";
@@ -231,12 +238,55 @@ class step extends persistent {
         $this->alias = $stepdata['id'];
 
         // Set the config as a valid YAML string.
-        $this->config = Yaml::dump($stepdata['config'] ?? '');
+        $this->config = isset($stepdata['config']) ? Yaml::dump($stepdata['config']) : '';
 
         // Set up the dependencies, connected to each other via their step aliases.
         if (!empty($stepdata['depends_on'])) {
             $dependson = (array) $stepdata['depends_on'];
             $this->depends_on($dependson);
         }
+    }
+
+    /**
+     * Returns a structured representation of the step and its configuration - ready to be exported
+     *
+     * @return     array
+     */
+    public function get_export_data(): array {
+        // Set the base exported fields.
+        $output = [
+            'description' => $this->description,
+            'type' => $this->type,
+        ];
+
+        // Conditionally export the configuration if it has content.
+        $config = (array) $this->config;
+        if (!empty($config)) {
+            $output['config'] = $config;
+        }
+
+        // Conditionally export the dependencies (depends_on) if set.
+        $dependencies = $this->dependencies();
+        if (!empty($dependencies)) {
+            // Since this field can be a single string or an array of aliases, it should be checked beforehand.
+            $aliases = array_column($dependencies, 'alias');
+
+            // Simplify into a single value if there is only a single entry.
+            $aliases = isset($aliases[1]) ? $aliases : reset($aliases);
+
+            $output['depends_on'] = $aliases;
+        }
+
+        // Resort the order of exported fields for consistency.
+        $ordered = [
+            'description',
+            'depends_on',
+            'type',
+            'config',
+        ];
+        $commonkeys = array_intersect_key(array_flip($ordered), $output);
+        $output = array_replace($commonkeys, $output);
+
+        return $output;
     }
 }
