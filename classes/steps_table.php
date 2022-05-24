@@ -76,7 +76,7 @@ class steps_table extends \table_sql {
      * @return string
      */
     public function col_name(\stdClass $record): string {
-        $url = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $record->id, 'dataflowid' => $record->dataflowid]);
+        $url = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $record->id]);
         return \html_writer::link($url, $record->name);
     }
 
