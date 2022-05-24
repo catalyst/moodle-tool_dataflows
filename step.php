@@ -73,6 +73,9 @@ $customdata = [
     'userid' => $USER->id, // For the hidden userid field.
 ];
 $form = new step_form($PAGE->url->out(false), $customdata);
+if ($form->is_cancelled()) {
+    redirect($dataflowstepsurl);
+}
 
 // Populate the foreign dependencies data if there was any.
 if (!empty($dependencies)) {
