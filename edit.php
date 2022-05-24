@@ -58,6 +58,9 @@ $customdata = [
     'userid' => $USER->id // For the hidden userid field.
 ];
 $form = new dataflow_form($PAGE->url->out(false), $customdata);
+if ($form->is_cancelled()) {
+    redirect($overviewurl);
+}
 
 
 if (($data = $form->get_data())) {
