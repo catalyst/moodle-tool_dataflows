@@ -179,9 +179,22 @@ class visualiser {
             $dataflow = new dataflow($dataflowid);
             $PAGE->set_title($pluginname . ': ' . $dataflow->name . ': ' . $pageheading);
             $PAGE->set_pagelayout('admin');
-            $PAGE->set_heading($pluginname);
+            $PAGE->set_heading($pluginname . ': ' . $dataflow->name);
             echo $output->header();
-            echo $output->heading($dataflow->name);
+
+            // Validate current dataflow, displaying any reason why the flow is not valid.
+            $validation = $dataflow->validate_dataflow();
+
+            // Action buttons for the dataflow (disabling it if dataflow is not valid).
+            $runurl = new \moodle_url(
+                '/admin/tool/dataflows/run.php',
+                ['dataflowid' => $dataflow->id]);
+            $runbuttonattributes = ['class' => 'btn btn-warning' ];
+            if ($validation !== true) {
+                $runbuttonattributes['disabled'] = true;
+            }
+            $runbutton = \html_writer::tag('button', get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
+            echo \html_writer::link($runurl, $runbutton);
 
             // Generate the image based on the DOT script.
             $contents = self::generate($dataflow->get_dotscript(), 'svg');
@@ -189,8 +202,6 @@ class visualiser {
             // Display the current dataflow visually.
             echo \html_writer::div($contents, 'text-center p-4');
 
-            // Validate current dataflow, displaying any reason why the flow is not valid.
-            $validation = $dataflow->validate_dataflow();
             if ($validation !== true) {
                 foreach ($validation as $message) {
                     echo $output->notification($message);

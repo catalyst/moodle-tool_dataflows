@@ -42,6 +42,9 @@ $string['field_userid'] = 'User';
 $string['field_manage'] = 'Manage';
 $string['field_stepcount'] = '# Steps';
 $string['import_dataflow'] = 'Import Dataflow';
+$string['run_confirm'] = 'Are you sure you want to run the dataflow \'{$a}\' now? The will run on the web server and may take some time to complete.';
+$string['run_again'] = 'Run again';
+$string['run_now'] = 'Run now';
 
 // Dataflows (form).
 $string['field_name'] = 'Name';

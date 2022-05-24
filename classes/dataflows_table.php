@@ -126,8 +126,11 @@ class dataflows_table extends \table_sql {
      * @return string
      */
     public function col_manage(\stdClass $record): string {
-        // TODO: Implement the actions.
-        return '';
+        global $OUTPUT;
+        $runurl = new \moodle_url(
+            '/admin/tool/dataflows/run.php',
+            ['dataflowid' => $record->id]);
+        return $OUTPUT->single_button($runurl, get_string('run_now', 'tool_dataflows'));
     }
 
     /**
