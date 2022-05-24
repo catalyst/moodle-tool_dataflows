@@ -79,6 +79,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
                        WHERE plugin = '--phantom_plugin--'"]);
         $dataflow->add_step($reader);
 
+        // TODO: When better writers are available, change this to use one.
         $writer = new step();
         $writer->name = 'writer';
         $writer->type = 'tool_dataflows\step\debugging';
@@ -100,15 +101,15 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
      */
     public function test_validate_config() {
         // Test valid configuration.
-        $config = (object)['sql' => 'arbitrary sql statement'];
+        $config = (object)['sql' => 'SELECT * FROM {config}'];
         $reader = new sql_reader();
         $this->assertTrue($reader->validate_config($config));
 
         // Test missing sql value.
-        $config = (object)['notsql' => 'arbitrary sql statement'];
+        $config = (object)['notsql' => 'SELECT * FROM {config}'];
         $result = $reader->validate_config($config);
         $this->assertTrue(is_array($result));
-        $this->assertArrayHasKey('sqlnotfound', $result);
-        $this->assertEquals(get_string('sqlnotfound', 'tool_dataflows'), $result['sqlnotfound']);
+        $this->assertArrayHasKey('config_field_missing', $result);
+        $this->assertEquals(get_string('config_field_missing', 'tool_dataflows', ['field' => 'sql']), $result['config_field_missing']);
     }
 }

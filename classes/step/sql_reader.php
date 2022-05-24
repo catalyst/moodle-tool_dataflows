@@ -81,7 +81,7 @@ class sql_reader extends flow_step {
     public function validate_config($config) {
         $errors = [];
         if (!isset($config->sql)) {
-            $errors['sqlnotfound'] = get_string('sqlnotfound', 'tool_dataflows');
+            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', ['field' => 'sql']);
         }
         return empty($errors) ? true : $errors;
     }
