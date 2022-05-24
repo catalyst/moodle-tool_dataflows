@@ -26,6 +26,7 @@
 use tool_dataflows\dataflow;
 use tool_dataflows\step;
 use tool_dataflows\step_form;
+use tool_dataflows\visualiser;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -50,7 +51,7 @@ if (!empty($id)) {
 
 require_login();
 
-$overviewurl = new moodle_url('/admin/tool/dataflows/overview.php');
+$overviewurl = new moodle_url('/admin/tool/dataflows/index.php');
 $dataflowstepsurl = new moodle_url('/admin/tool/dataflows/steps.php', ['dataflowid' => $dataflowid]);
 $url = new moodle_url('/admin/tool/dataflows/step.php', ['id' => $id]);
 $context = context_system::instance();
@@ -138,6 +139,15 @@ $heading = get_string('new_step', 'tool_dataflows');
 if (isset($persistent)) {
     $heading = get_string('update_step', 'tool_dataflows');
 }
+
+// Configure the breadcrumb navigation.
+$dataflow = new dataflow($dataflowid);
+visualiser::breadcrumb_navigation([
+    [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
+    [$dataflow->name, new moodle_url('/admin/tool/dataflows/edit.php', ['id' => $dataflowid])],
+    [get_string('steps', 'tool_dataflows'), $url],
+    [$heading, $url],
+]);
 
 $title = implode(': ', array_filter([
     get_string('pluginname', 'tool_dataflows'),

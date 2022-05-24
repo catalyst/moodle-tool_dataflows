@@ -25,6 +25,7 @@
 
 use tool_dataflows\steps_table;
 use tool_dataflows\visualiser;
+use tool_dataflows\dataflow;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -56,5 +57,13 @@ $sqlwhere = 'dataflowid = :dataflowid';
 $sqlparams = ['dataflowid' => $dataflowid];
 $table->set_sql($sqlfields, $sqlfrom, $sqlwhere, $sqlparams);
 $table->make_columns();
+
+// Configure the breadcrumb navigation.
+$dataflow = new dataflow($dataflowid);
+visualiser::breadcrumb_navigation([
+    [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
+    [$dataflow->name, new moodle_url('/admin/tool/dataflows/edit.php', ['id' => $dataflowid])],
+    [get_string('steps', 'tool_dataflows'), $url],
+]);
 
 visualiser::display_steps_table($dataflowid, $table, $url, get_string('steps', 'tool_dataflows'));

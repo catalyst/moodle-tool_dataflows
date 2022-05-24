@@ -27,6 +27,37 @@ namespace tool_dataflows;
 class visualiser {
 
     /**
+     * Constructs the breadcrumb admin navigation to a nested plugin page
+     *
+     * @param array $crumbs navigation crumbs, in the format of [title, moodle_url] per entry
+     */
+    public static function breadcrumb_navigation($crumbs) {
+        global $PAGE;
+
+        // Admin tools.
+        $PAGE->navbar->add(
+            get_string('tools', 'admin'),
+            new \moodle_url('/admin/category.php?category=tools'));
+
+        // Dataflows (category).
+        $PAGE->navbar->add(
+            get_string('pluginname', 'tool_dataflows'),
+            new \moodle_url('/admin/category.php?category=tool_dataflows'));
+
+        // Provided page(s), going from plugin dir to desired page.
+        foreach ($crumbs as [$title, $url]) {
+            $PAGE->navbar->add($title, $url);
+        }
+
+        // Sets the URL to the last $url in the list (typically the current page's url).
+        $PAGE->set_url($url);
+
+        // This may be overriden later on, but keep nice heading and title defaults for now.
+        $PAGE->set_heading(get_string('pluginname', 'tool_dataflows') . ': ' . $title);
+        $PAGE->set_title(get_string('pluginname', 'tool_dataflows') . ': ' . $title);
+    }
+
+    /**
      * Generate image according to DOT script. This function will spawn a process
      * with "dot" command and pipe the "dot_script" to it and pipe out the
      * generated image content.

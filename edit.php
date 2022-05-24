@@ -25,6 +25,7 @@
 
 use tool_dataflows\dataflow;
 use tool_dataflows\dataflow_form;
+use tool_dataflows\visualiser;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -36,7 +37,7 @@ $id = optional_param('id', 0, PARAM_INT);
 
 require_login();
 
-$overviewurl = new moodle_url("/admin/tool/dataflows/overview.php");
+$overviewurl = new moodle_url("/admin/tool/dataflows/index.php");
 $url = new moodle_url("/admin/tool/dataflows/edit.php", ['id' => $id]);
 $context = context_system::instance();
 
@@ -88,12 +89,17 @@ if (($data = $form->get_data())) {
     redirect($overviewurl);
 }
 
-
 // Display the mandatory header and footer.
 $heading = get_string('new_dataflow', 'tool_dataflows');
 if (isset($persistent)) {
     $heading = get_string('update_dataflow', 'tool_dataflows');
 }
+
+// Configure the breadcrumb navigation.
+visualiser::breadcrumb_navigation([
+    [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
+    [$heading, $url],
+]);
 
 $title = implode(': ', array_filter([
     get_string('pluginname', 'tool_dataflows'),
