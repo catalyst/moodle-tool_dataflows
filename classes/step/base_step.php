@@ -128,21 +128,6 @@ abstract class base_step {
     }
 
     /**
-     * Extract the configuration settings from a YAML string.
-     *
-     * @param string $yaml
-     * @return object Parsed configurations as an object.
-     * @throws \moodle_exception
-     */
-    public function extract_config(string $yaml) {
-        $config = Yaml::parse($yaml, Yaml::PARSE_OBJECT_FOR_MAP);
-        if ($this->validate_config($config) !== true) {
-            throw new \moodle_exception('invalid_config', 'tool_dataflows');
-        }
-        return $config;
-    }
-
-    /**
      * Validate the configuration settings.
      * Defaults to no check.
      *

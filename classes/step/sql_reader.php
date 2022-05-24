@@ -68,7 +68,7 @@ class sql_reader extends flow_step {
      * @throws \moodle_exception
      */
     protected function construct_query(flow_engine_step $step): string {
-        $config = $this->extract_config($step->stepdef->config);
+        $config = $step->stepdef->config;
         return $config->sql;
     }
 
