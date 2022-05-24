@@ -49,7 +49,6 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
      * Tests the reader's ability to read from a database.
      *
      * @covers \tool_dataflows\step\sql_reader::construct_query
-     * @covers \tool_dataflows\step\sql_reader::extract_config
      * @covers \tool_dataflows\step\sql_reader::validate_config
      * @throws \coding_exception
      * @throws \dml_exception
@@ -91,19 +90,6 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $engine = new engine($dataflow);
         $engine->execute();
         $this->assertDebuggingCalledCount(2, [json_encode($input[0]), json_encode($input[1])]);
-    }
-
-    /**
-     * Test extract_config().
-     *
-     * @covers \tool_dataflows\step\sql_reader::extract_config
-     */
-    public function test_extract_config() {
-        $config = ['sql' => 'arbitrary sql statement'];
-        $configyaml = Yaml::dump($config);
-        $reader = new sql_reader();
-        $extracted = $reader->extract_config($configyaml);
-        $this->assertEquals((object)$config, $extracted);
     }
 
     /**
