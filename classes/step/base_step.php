@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\step;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\execution\engine;
 use tool_dataflows\execution\engine_step;
 use tool_dataflows\execution\iterators\iterator;
@@ -124,6 +125,17 @@ abstract class base_step {
      */
     public function get_number_of_output_streams() {
         return $this->outputstreams;
+    }
+
+    /**
+     * Validate the configuration settings.
+     * Defaults to no check.
+     *
+     * @param object $config
+     * @return true|array true if valid, an array of errors otherwise
+     */
+    public function validate_config($config) {
+        return true;
     }
 
     /**

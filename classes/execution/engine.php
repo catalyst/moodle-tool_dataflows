@@ -217,7 +217,8 @@ class engine {
             $enginestep->abort();
         }
         $this->status = self::STATUS_ABORTED;
-        // TODO: Do we want to throw the excpetion here, or make it the caller's responsibility?
+        // TODO: We may want to make this the responsibility of the caller.
+        throw $exception;
     }
 
     /**

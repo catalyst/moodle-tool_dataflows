@@ -47,11 +47,13 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
      * Tests the minimal ability for the execution engine. Reads in array data from a reader,
      * and passes it on to a writer.
      *
+     * @covers \tool_dataflows\execution\engine::execute
+     * @covers \tool_dataflows\execution\engine::execute_step
+     * @covers \tool_dataflows\execution\engine::finalise
+     * @covers \tool_dataflows\execution\engine::initialise
      * @throws \moodle_exception
      */
     public function test_in_and_out() {
-        $this->resetAfterTest();
-
         // Crate the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'two-step';

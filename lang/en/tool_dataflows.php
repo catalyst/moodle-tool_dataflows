@@ -68,6 +68,8 @@ $string['stepdependencydoesnotexist'] = 'The step dependency "{$a}" does not exi
 $string['stepinvalidinputstreamcount'] = 'Invalid number of input streams for {$a->name} (Found: {$a->found}, Expected between {$a->min} and {$a->max})';
 $string['stepinvalidoutputstreamcount'] = 'Invalid number of output streams for {$a->name} (Found: {$a->found}, Expected between {$a->min} and {$a->max})';
 $string['bad_parameter'] = 'Parameter \'{$a->parameter}\' not supported in \'{$a->classname}\'.';
+$string['config_field_missing'] = 'Config \'{$a}\' missing.';
+$string['invalid_config'] = 'Invalid configuration';
 
 // Privacy.
 $string['privacy:metadata:dataflows'] = 'Data from the configured dataflows';
