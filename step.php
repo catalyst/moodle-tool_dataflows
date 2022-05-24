@@ -50,7 +50,7 @@ if (!empty($id)) {
 
 require_login();
 
-$overviewurl = new moodle_url('/admin/tool/dataflows/overview.php');
+$overviewurl = new moodle_url('/admin/tool/dataflows/index.php');
 $dataflowstepsurl = new moodle_url('/admin/tool/dataflows/steps.php', ['dataflowid' => $dataflowid]);
 $url = new moodle_url('/admin/tool/dataflows/step.php', ['id' => $id]);
 $context = context_system::instance();

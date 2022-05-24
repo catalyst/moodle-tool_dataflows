@@ -36,7 +36,7 @@ $id = optional_param('id', 0, PARAM_INT);
 
 require_login();
 
-$overviewurl = new moodle_url("/admin/tool/dataflows/overview.php");
+$overviewurl = new moodle_url("/admin/tool/dataflows/index.php");
 $url = new moodle_url("/admin/tool/dataflows/edit.php", ['id' => $id]);
 $context = context_system::instance();
 
