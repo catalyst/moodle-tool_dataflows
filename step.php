@@ -33,14 +33,26 @@ require_once($CFG->libdir . '/adminlib.php');
 defined('MOODLE_INTERNAL') || die();
 
 // The dataflow id, if not provided, it is as if the user is creating a new dataflow.
-$dataflowid = required_param('dataflowid', PARAM_INT);
+$dataflowid = optional_param('dataflowid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
+if (empty($id)) {
+    // If a step id is NOT provided (new step), then it MUST have a dataflow id present.
+    $dataflowid = required_param('dataflowid', PARAM_INT);
+}
+
+// If a step id is provided, then the dataflowid should be from the stored step.
+$persistent = null;
+if (!empty($id)) {
+    $persistent = new step($id);
+    $dataflowid = $persistent->dataflowid;
+    $dependencies = $persistent->dependencies();
+}
 
 require_login();
 
 $overviewurl = new moodle_url('/admin/tool/dataflows/overview.php');
 $dataflowstepsurl = new moodle_url('/admin/tool/dataflows/steps.php', ['dataflowid' => $dataflowid]);
-$url = new moodle_url('/admin/tool/dataflows/step.php', ['id' => $id, 'dataflowid' => $dataflowid]);
+$url = new moodle_url('/admin/tool/dataflows/step.php', ['id' => $id]);
 $context = context_system::instance();
 
 // Check capabilities and setup page.
@@ -59,12 +71,6 @@ try {
 // Set the PAGE URL (and mandatory context). Note the ID being recorded, this is important.
 $PAGE->set_context($context);
 $PAGE->set_url($url);
-
-$persistent = null;
-if (!empty($id)) {
-    $persistent = new step($id);
-    $dependencies = $persistent->dependencies();
-}
 
 // Render the specific dataflow form.
 $customdata = [
