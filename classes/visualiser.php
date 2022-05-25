@@ -138,7 +138,11 @@ class visualiser {
         }
 
         // New Dataflow.
-        $addbutton = \html_writer::tag('button', get_string('new_dataflow', 'tool_dataflows'), ['class' => 'btn btn-primary']);
+        $addbutton = \html_writer::tag(
+            'button',
+            get_string('new_dataflow', 'tool_dataflows'),
+            ['class' => 'btn btn-primary mb-3']
+        );
         $addurl = new \moodle_url('/admin/tool/dataflows/edit.php');
         echo \html_writer::link($addurl, $addbutton);
 
@@ -151,8 +155,13 @@ class visualiser {
         $importurl = new \moodle_url('/admin/tool/dataflows/import.php');
         echo \html_writer::link($importurl, $importbutton);
 
-        $table->out($table->pagesize, false);
+        // No hide/show links under each column.
+        $table->collapsible(false);
+        // Columns are presorted.
+        $table->sortable(false);
+        // Table does not show download options by default, an import/export option will be available instead.
         $table->is_downloadable(false);
+        $table->out($table->pagesize, false);
 
         if (!$table->is_downloading()) {
             echo $output->footer();
@@ -212,12 +221,21 @@ class visualiser {
         }
 
         // New Step.
-        $addbutton = \html_writer::tag('button', get_string('new_step', 'tool_dataflows'), ['class' => 'btn btn-primary']);
+        $addbutton = \html_writer::tag(
+            'button',
+            get_string('new_step', 'tool_dataflows'),
+            ['class' => 'btn btn-primary mb-3']
+        );
         $addurl = new \moodle_url('/admin/tool/dataflows/step.php', ['dataflowid' => $dataflowid]);
         echo \html_writer::link($addurl, $addbutton);
 
-        $table->out($table->pagesize, false);
+        // No hide/show links under each column.
+        $table->collapsible(false);
+        // Columns are presorted.
+        $table->sortable(false);
+        // Table does not show download options by default, an import/export option will be available instead.
         $table->is_downloadable(false);
+        $table->out($table->pagesize, false);
 
         if (!$table->is_downloading()) {
             echo $output->footer();
