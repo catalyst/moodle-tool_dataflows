@@ -127,10 +127,12 @@ class dataflows_table extends \table_sql {
      */
     public function col_manage(\stdClass $record): string {
         global $OUTPUT;
+
         $runurl = new \moodle_url(
             '/admin/tool/dataflows/run.php',
             ['dataflowid' => $record->id]);
-        return $OUTPUT->single_button($runurl, get_string('run_now', 'tool_dataflows'));
+        $icon = $OUTPUT->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
+        return \html_writer::link($runurl, $icon, array('class' => 'action-icon'));
     }
 
     /**
