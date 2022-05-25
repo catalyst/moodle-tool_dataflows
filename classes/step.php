@@ -254,7 +254,7 @@ class step extends persistent {
      */
     public function get_export_data(): array {
         // Set the base exported fields.
-        $fields = ['description', 'type'];
+        $fields = ['name', 'description', 'type'];
         foreach ($fields as $field) {
             // Only set the field if it does not match the default value (e.g. if one exists).
             // Note the fallback should not match any dataflow field value.
@@ -285,6 +285,7 @@ class step extends persistent {
 
         // Resort the order of exported fields for consistency.
         $ordered = [
+            'name',
             'description',
             'depends_on',
             'type',
