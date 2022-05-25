@@ -113,18 +113,13 @@ class dataflow extends persistent {
     }
 
     /**
-     * Validates the steps in the dataflow (steps, step config, etc)
+     * Returns all the edges with their dependencies
      *
-     * This should:
-     * - check if it's in a valid DAG format
-     * - the number of connections (input/output streams) are expected and correct.
-     *
-     * @return true|array true if valid, an array of errors otherwise.
+     * @return     array $edges steps and their dependencies (by id)
      */
-    public function validate_steps() {
+    public function get_edges() {
         global $DB;
 
-        $errors = [];
         // Check flows are in valid DAG (no circular dependencies, self referencing, etc).
         $sql = "SELECT concat(sd.dependson, '|', sd.stepid) as id,
                        sd.dependson AS src,
@@ -135,10 +130,27 @@ class dataflow extends persistent {
 
         // Note that this works currently because all dependencies are set for each step.
         $edges = $DB->get_records_sql($sql, ['dataflowid' => $this->id]);
+
         // Change this to an array of edges (without the id, keys, etc).
         $edges = array_map(function ($edge) {
             return [$edge->src, $edge->dest];
         }, $edges);
+
+        return $edges;
+    }
+
+    /**
+     * Validates the steps in the dataflow (steps, step config, etc)
+     *
+     * This should:
+     * - check if it's in a valid DAG format
+     * - the number of connections (input/output streams) are expected and correct.
+     *
+     * @return true|array true if valid, an array of errors otherwise.
+     */
+    public function validate_steps() {
+        $edges = $this->edges;
+        $errors = [];
 
         $isdag = graph::is_dag($edges);
 
@@ -199,22 +211,31 @@ class dataflow extends persistent {
     /**
      * Returns a list of step (persistent models)
      *
-     * @return     \stdClass array of step models, keyed by their alias
+     * @return     \stdClass array of step models, keyed by their alias, ordered by their possible execution order
      */
     public function get_steps(): \stdClass {
-        global $DB;
-        $sql = "SELECT step.id
-                  FROM {tool_dataflows_steps} step
-                 WHERE step.dataflowid = :dataflowid";
+        $departure = [];
+        $discovered = [];
+        $time = 0;
 
-        $steps = $DB->get_records_sql($sql, [
-            'dataflowid' => $this->id,
-        ]);
-        return (object) array_reduce($steps, function ($acc, $step) {
-            $steppersistent = new step($step->id);
-            $acc[$steppersistent->alias] = $steppersistent;
-            return $acc;
-        }, []);
+        $adjacencylist = graph::to_adjacency_list($this->edges);
+
+        // Perform a depth first search and set and apply various states.
+        foreach (array_keys($adjacencylist) as $src) {
+            if (!isset($discovered[$src])) {
+                graph::dfs($adjacencylist, $src, $discovered, $departure, $time);
+            }
+        }
+
+        // Sort arrays in descending order, according to the value.
+        arsort($departure);
+        $stepsbyalias = [];
+        foreach ($departure as $stepid => $notused) {
+            $steppersistent = new step($stepid);
+            $stepsbyalias[$steppersistent->alias] = $steppersistent;
+        }
+
+        return (object) $stepsbyalias;
     }
 
     /**
