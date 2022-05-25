@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\execution\iterators;
 
+use tool_dataflows\execution\engine;
 use tool_dataflows\execution\flow_engine_step;
 
 /**
@@ -31,6 +32,8 @@ class map_iterator implements iterator {
     private $steptype;
     private $finished = false;
     private $input;
+
+    protected $iterationcount = 0;
 
     /**
      * @param flow_engine_step $step The step the iterator is for.
@@ -82,6 +85,8 @@ class map_iterator implements iterator {
             $this->abort();
         }
         $newvalue = $this->steptype->execute($value);
+        ++$this->iterationcount;
+        $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
         return $newvalue;
     }
 }
