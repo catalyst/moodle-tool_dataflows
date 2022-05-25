@@ -46,7 +46,8 @@ $dataflowid = required_param('dataflowid', PARAM_RAW_TRIMMED);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 
 // Basic security checks.
-require_admin();
+require_login(null, false);
+require_capability('moodle/site:config', context_system::instance());
 $context = context_system::instance();
 
 // Find and set the dataflow, if not found, it will throw an exception.
