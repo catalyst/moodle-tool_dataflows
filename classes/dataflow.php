@@ -214,6 +214,21 @@ class dataflow extends persistent {
      * @return     \stdClass array of step models, keyed by their alias, ordered by their possible execution order
      */
     public function get_steps(): \stdClass {
+        $stepsbyalias = [];
+        foreach ($this->step_order as $stepid) {
+            $steppersistent = new step($stepid);
+            $stepsbyalias[$steppersistent->alias] = $steppersistent;
+        }
+
+        return (object) $stepsbyalias;
+    }
+
+    /**
+     * Returns a list of step ids in the order they should appear and would be executed.
+     *
+     * @return     array $stepids
+     */
+    public function get_step_order() {
         $departure = [];
         $discovered = [];
         $time = 0;
@@ -229,13 +244,7 @@ class dataflow extends persistent {
 
         // Sort arrays in descending order, according to the value.
         arsort($departure);
-        $stepsbyalias = [];
-        foreach ($departure as $stepid => $notused) {
-            $steppersistent = new step($stepid);
-            $stepsbyalias[$steppersistent->alias] = $steppersistent;
-        }
-
-        return (object) $stepsbyalias;
+        return array_keys($departure);
     }
 
     /**

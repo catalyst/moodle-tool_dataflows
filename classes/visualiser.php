@@ -235,7 +235,22 @@ class visualiser {
         $table->sortable(false);
         // Table does not show download options by default, an import/export option will be available instead.
         $table->is_downloadable(false);
-        $table->out($table->pagesize, false);
+
+        // Output the table manually based on the step order.
+        $table->setup();
+        $table->query_db(0); // No limit, fetch all rows.
+        $table->pageable(false);
+        $table->close_recordset();
+
+        // Custom sort on the step order.
+        $newdata = [];
+        foreach ($dataflow->step_order as $stepid) {
+            $newdata[] = $table->rawdata[$stepid];
+        }
+        $table->rawdata = $newdata;
+
+        $table->build_table();
+        $table->finish_output();
 
         if (!$table->is_downloading()) {
             echo $output->footer();
