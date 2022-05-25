@@ -16,6 +16,8 @@
 
 namespace tool_dataflows;
 
+use core\output\icon_system;
+
 /**
  * Dataflows visualiser
  *
@@ -141,19 +143,21 @@ class visualiser {
         $addbutton = \html_writer::tag(
             'button',
             get_string('new_dataflow', 'tool_dataflows'),
-            ['class' => 'btn btn-primary mb-3']
+            ['class' => 'btn btn-primary']
         );
         $addurl = new \moodle_url('/admin/tool/dataflows/edit.php');
-        echo \html_writer::link($addurl, $addbutton);
+        $newdataflow = \html_writer::link($addurl, $addbutton);
 
         // Import Dataflow.
         $importbutton = \html_writer::tag(
             'button',
             get_string('import_dataflow', 'tool_dataflows'),
-            ['class' => 'hidden btn btn-primary ml-2']
+            ['class' => 'btn btn-primary ml-2']
         );
         $importurl = new \moodle_url('/admin/tool/dataflows/import.php');
-        echo \html_writer::link($importurl, $importbutton);
+        $importdataflow = \html_writer::link($importurl, $importbutton);
+
+        echo \html_writer::tag('div', $newdataflow . $importdataflow, ['class' => 'mb-3']);
 
         // No hide/show links under each column.
         $table->collapsible(false);
@@ -202,7 +206,8 @@ class visualiser {
             if ($validation !== true) {
                 $runbuttonattributes['disabled'] = true;
             }
-            $runbutton = \html_writer::tag('button', get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
+            $icon = $output->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
+            $runbutton = \html_writer::tag('button', $icon . get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
             echo \html_writer::link($runurl, $runbutton);
 
             // Generate the image based on the DOT script.
@@ -253,6 +258,31 @@ class visualiser {
         $table->finish_output();
 
         if (!$table->is_downloading()) {
+
+            echo \html_writer::empty_tag('hr');
+
+            // Display the export button.
+            $icon = $output->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows')));
+            $exportactionurl = new \moodle_url(
+                '/admin/tool/dataflows/export.php',
+                ['dataflowid' => $dataflowid, 'sesskey' => sesskey()]);
+            $btnuid = 'exportbuttoncontents';
+            $btn = $output->single_button($exportactionurl, $btnuid);
+            $exportbtn = str_replace($btnuid, $icon . get_string('export', 'tool_dataflows'), $btn);
+            echo $exportbtn;
+
+            // Display the import button, which links to the import page.
+            $icon = $output->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
+            $importurl = new \moodle_url(
+                '/admin/tool/dataflows/import.php',
+                ['dataflowid' => $dataflow->id]);
+            $exportbtn = \html_writer::tag(
+                'button',
+                $icon . get_string('import', 'tool_dataflows'),
+                ['class' => 'btn btn-secondary ml-2' ]
+            );
+            echo \html_writer::link($importurl, $exportbtn);
+
             echo $output->footer();
         }
     }

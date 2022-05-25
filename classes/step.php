@@ -254,15 +254,21 @@ class step extends persistent {
      */
     public function get_export_data(): array {
         // Set the base exported fields.
-        $output = [
-            'description' => $this->description,
-            'type' => $this->type,
-        ];
+        $fields = ['description', 'type'];
+        foreach ($fields as $field) {
+            // Only set the field if it does not match the default value (e.g. if one exists).
+            // Note the fallback should not match any dataflow field value.
+            $default = $this->define_properties()[$field]['default'] ?? [];
+            $value = $this->raw_get($field);
+            if ($value !== $default) {
+                $yaml[$field] = $value;
+            }
+        }
 
         // Conditionally export the configuration if it has content.
         $config = (array) $this->config;
         if (!empty($config)) {
-            $output['config'] = $config;
+            $yaml['config'] = $config;
         }
 
         // Conditionally export the dependencies (depends_on) if set.
@@ -274,7 +280,7 @@ class step extends persistent {
             // Simplify into a single value if there is only a single entry.
             $aliases = isset($aliases[1]) ? $aliases : reset($aliases);
 
-            $output['depends_on'] = $aliases;
+            $yaml['depends_on'] = $aliases;
         }
 
         // Resort the order of exported fields for consistency.
@@ -284,9 +290,9 @@ class step extends persistent {
             'type',
             'config',
         ];
-        $commonkeys = array_intersect_key(array_flip($ordered), $output);
-        $output = array_replace($commonkeys, $output);
+        $commonkeys = array_intersect_key(array_flip($ordered), $yaml);
+        $yaml = array_replace($commonkeys, $yaml);
 
-        return $output;
+        return $yaml;
     }
 }
