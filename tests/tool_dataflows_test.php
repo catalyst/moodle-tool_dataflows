@@ -325,6 +325,56 @@ class tool_dataflows_test extends \advanced_testcase {
     }
 
     /**
+     * Tests adding steps and steps without dependencies attached to anything, and ensuring they are listed
+     *
+     * @covers \tool_dataflows\dataflow::get_steps
+     */
+    public function test_adding_and_listing_steps() {
+        // Test multiple steps with one detached node.
+        $dataflow = new \tool_dataflows\dataflow();
+        $dataflow
+            ->set('name', 'add detached steps')
+            ->create();
+
+        $stepone = new \tool_dataflows\step();
+        $stepone->name = 'step1';
+        $stepone->type = execution\array_in_type::class;
+        $dataflow->add_step($stepone);
+
+        $steptwo = new \tool_dataflows\step();
+        $steptwo->name = 'step2';
+        $steptwo->type = step\debugging::class;
+        $steptwo->depends_on([$stepone]);
+        $dataflow->add_step($steptwo);
+
+        $stepthree = new \tool_dataflows\step();
+        $stepthree->name = 'step3';
+        $stepthree->type = step\debugging::class;
+        $stepthree->depends_on([$steptwo]);
+        $dataflow->add_step($stepthree);
+
+        $stepdetached = new \tool_dataflows\step();
+        $stepdetached->name = 'detachedstep';
+        $stepdetached->type = step\debugging::class;
+        $dataflow->add_step($stepdetached);
+
+        $this->assertCount(4, (array) $dataflow->steps);
+
+        // Test a dataflow with a single detached node.
+        $dataflow = new \tool_dataflows\dataflow();
+        $dataflow
+            ->set('name', 'add detached step')
+            ->create();
+
+        $stepone = new \tool_dataflows\step();
+        $stepone->name = 'alone';
+        $stepone->type = execution\array_in_type::class;
+        $dataflow->add_step($stepone);
+
+        $this->assertCount(1, (array) $dataflow->steps);
+    }
+
+    /**
      * Tests export of a dataflow. The easiest way to do this is to have an
      * import file, that matches a would-be export file exactly.
      *

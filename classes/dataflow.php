@@ -229,6 +229,8 @@ class dataflow extends persistent {
      * @return     array $stepids
      */
     public function get_step_order() {
+        global $DB;
+
         $departure = [];
         $discovered = [];
         $time = 0;
@@ -244,7 +246,23 @@ class dataflow extends persistent {
 
         // Sort arrays in descending order, according to the value.
         arsort($departure);
-        return array_keys($departure);
+
+        // Insert any nodes that do not have any links to the start of the list.
+        $attachednodes = array_keys($departure);
+
+        // Fetch any step ids that weren't listed as part of an edge.
+        $stepstoexclude = !empty($attachednodes) ? $attachednodes : [0]; // Assumption steps will NOT have an id of zero.
+        list($stepidin, $inparams) = $DB->get_in_or_equal($stepstoexclude, SQL_PARAMS_NAMED);
+        $params = array_merge(['dataflowid' => $this->id], $inparams);
+        $sql = "SELECT id
+                  FROM {tool_dataflows_steps}
+                 WHERE dataflowid = :dataflowid
+                   AND NOT id $stepidin";
+        $detached = $DB->get_fieldset_sql($sql, $params);
+
+        // Ensure detached nodes are listed first, then everything else in the order expected.
+        $ordered = array_merge($detached, $attachednodes);
+        return $ordered;
     }
 
     /**
