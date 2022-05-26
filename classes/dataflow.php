@@ -372,6 +372,17 @@ class dataflow extends persistent {
     }
 
     /**
+     * Removes a step from the flow
+     *
+     * @param $step
+     * @return $this
+     */
+    public function remove_step(step $step) {
+        $step->delete();
+        return $this;
+    }
+
+    /**
      * Imports a dataflow through a php array parsed from a yaml file
      *
      * @param      array $yaml full dataflow configuration as a php array

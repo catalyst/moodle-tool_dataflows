@@ -296,4 +296,16 @@ class step extends persistent {
 
         return $yaml;
     }
+
+    /**
+     * Removes any dependencies before removing the step.
+     */
+    protected function before_delete() {
+        global $DB;
+
+        // Remove dependencies other steps have on this step.
+        // NOTE: Later this should check and attempt to rewire/connect steps previously linked to this step.
+        $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
+        $DB->delete_records('tool_dataflows_step_depends', ['dependson' => $this->id]);
+    }
 }
