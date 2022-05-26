@@ -68,7 +68,6 @@ class dataflows_table extends \table_sql {
         $this->define_headers($headers);
     }
 
-
     /**
      * Display a small preview of the workflow
      *
@@ -128,11 +127,26 @@ class dataflows_table extends \table_sql {
     public function col_manage(\stdClass $record): string {
         global $OUTPUT;
 
+        $content = '';
+        // Display the run now button, which will link to a confirmation page.
         $runurl = new \moodle_url(
             '/admin/tool/dataflows/run.php',
             ['dataflowid' => $record->id]);
         $icon = $OUTPUT->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
-        return \html_writer::link($runurl, $icon, array('class' => 'action-icon'));
+        $content .= \html_writer::link($runurl, $icon, array('class' => 'action-icon'));
+
+        // Display the export button (adjusted to be a small icon button).
+        $icon = $OUTPUT->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows'), 'moodle', ['class' => 'mr-0']));
+        $exportactionurl = new \moodle_url(
+            '/admin/tool/dataflows/export.php',
+            ['dataflowid' => $record->id, 'sesskey' => sesskey()]);
+        $btnuid = 'exportbuttoncontents';
+        $btn = $OUTPUT->single_button($exportactionurl, $btnuid, 'post');
+        $exportbtn = str_replace($btnuid, $icon, $btn);
+        $exportbtn = str_replace('btn-secondary', 'btn-link bn-sm p-0', $exportbtn);
+        $content .= $exportbtn;
+
+        return $content;
     }
 
     /**

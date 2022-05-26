@@ -28,6 +28,8 @@ use Symfony\Component\Yaml\Yaml;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dataflow extends persistent {
+    use exportable;
+
     const TABLE = 'tool_dataflows';
 
     /**
@@ -93,6 +95,11 @@ class dataflow extends persistent {
      */
     protected function get_config(): \stdClass {
         $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
+        // If there is no config, return an empty object.
+        if (empty($yaml)) {
+            return new \stdClass();
+        }
+
         // Prepare this as a php object (stdClass), as it makes expressions easier to write.
         $parser = new parser();
         foreach ($yaml as &$string) {
@@ -106,18 +113,13 @@ class dataflow extends persistent {
     }
 
     /**
-     * Validates the steps in the dataflow (steps, step config, etc)
+     * Returns all the edges with their dependencies
      *
-     * This should:
-     * - check if it's in a valid DAG format
-     * - the number of connections (input/output streams) are expected and correct.
-     *
-     * @return true|array true if valid, an array of errors otherwise.
+     * @return     array $edges steps and their dependencies (by id)
      */
-    public function validate_steps() {
+    public function get_edges() {
         global $DB;
 
-        $errors = [];
         // Check flows are in valid DAG (no circular dependencies, self referencing, etc).
         $sql = "SELECT concat(sd.dependson, '|', sd.stepid) as id,
                        sd.dependson AS src,
@@ -128,10 +130,27 @@ class dataflow extends persistent {
 
         // Note that this works currently because all dependencies are set for each step.
         $edges = $DB->get_records_sql($sql, ['dataflowid' => $this->id]);
+
         // Change this to an array of edges (without the id, keys, etc).
         $edges = array_map(function ($edge) {
             return [$edge->src, $edge->dest];
         }, $edges);
+
+        return $edges;
+    }
+
+    /**
+     * Validates the steps in the dataflow (steps, step config, etc)
+     *
+     * This should:
+     * - check if it's in a valid DAG format
+     * - the number of connections (input/output streams) are expected and correct.
+     *
+     * @return true|array true if valid, an array of errors otherwise.
+     */
+    public function validate_steps() {
+        $edges = $this->edges;
+        $errors = [];
 
         $isdag = graph::is_dag($edges);
 
@@ -192,22 +211,40 @@ class dataflow extends persistent {
     /**
      * Returns a list of step (persistent models)
      *
-     * @return     \stdClass array of step models, keyed by their alias
+     * @return     \stdClass array of step models, keyed by their alias, ordered by their possible execution order
      */
     public function get_steps(): \stdClass {
-        global $DB;
-        $sql = "SELECT step.id
-                  FROM {tool_dataflows_steps} step
-                 WHERE step.dataflowid = :dataflowid";
+        $stepsbyalias = [];
+        foreach ($this->step_order as $stepid) {
+            $steppersistent = new step($stepid);
+            $stepsbyalias[$steppersistent->alias] = $steppersistent;
+        }
 
-        $steps = $DB->get_records_sql($sql, [
-            'dataflowid' => $this->id,
-        ]);
-        return (object) array_reduce($steps, function ($acc, $step) {
-            $steppersistent = new step($step->id);
-            $acc[$steppersistent->alias] = $steppersistent;
-            return $acc;
-        }, []);
+        return (object) $stepsbyalias;
+    }
+
+    /**
+     * Returns a list of step ids in the order they should appear and would be executed.
+     *
+     * @return     array $stepids
+     */
+    public function get_step_order() {
+        $departure = [];
+        $discovered = [];
+        $time = 0;
+
+        $adjacencylist = graph::to_adjacency_list($this->edges);
+
+        // Perform a depth first search and set and apply various states.
+        foreach (array_keys($adjacencylist) as $src) {
+            if (!isset($discovered[$src])) {
+                graph::dfs($adjacencylist, $src, $discovered, $departure, $time);
+            }
+        }
+
+        // Sort arrays in descending order, according to the value.
+        arsort($departure);
+        return array_keys($departure);
     }
 
     /**
@@ -323,7 +360,7 @@ class dataflow extends persistent {
      */
     public function import(array $yaml) {
         $this->name = $yaml['name'] ?? '';
-        $this->config = Yaml::dump($yaml['config'] ?? '');
+        $this->config = isset($yaml['config']) ? Yaml::dump($yaml['config']) : '';
         $this->save();
 
         // Import any provided steps.
@@ -348,5 +385,31 @@ class dataflow extends persistent {
                 $step->update_depends_on();
             }
         }
+    }
+
+    /**
+     * Exports a dataflow
+     *
+     * @return      string $contents of the exported yaml file
+     */
+    public function get_export_data() {
+        // Exportable fields for dataflows.
+        $yaml = [];
+        $dataflowfields = ['name', 'config'];
+        foreach ($dataflowfields as $field) {
+            // Only set the field if it does not match the default value (e.g. if one exists).
+            // Note the fallback should not match any dataflow field value.
+            $default = $this->define_properties()[$field]['default'] ?? [];
+            $value = $this->raw_get($field);
+            if ($value !== $default) {
+                $yaml[$field] = $value;
+            }
+        }
+        $steps = $this->steps;
+        foreach ($steps as $key => $step) {
+            $yaml['steps'][$key] = $step->get_export_data();
+        }
+
+        return $yaml;
     }
 }

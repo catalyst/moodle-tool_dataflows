@@ -324,6 +324,25 @@ class tool_dataflows_test extends \advanced_testcase {
         // TODO: Add tests for parsing during a dataflow run (via the dataflow engine).
     }
 
+    /**
+     * Tests export of a dataflow. The easiest way to do this is to have an
+     * import file, that matches a would-be export file exactly.
+     *
+     * This should ensure all the required fields and parameters are displayed as expected.
+     *
+     * @covers \tool_dataflows\dataflow::get_export_data
+     * @covers \tool_dataflows\step::get_export_data
+     * @covers \tool_dataflows\exportable::export
+     */
+    public function test_export_of_dataflow() {
+        $content = file_get_contents(dirname(__FILE__) . '/fixtures/sample-export.yml');
+        $yaml = \Symfony\Component\Yaml\Yaml::parse($content);
+        $dataflow = new dataflow();
+        $dataflow->import($yaml);
+        $exportdata = $dataflow->export();
+        $this->assertEquals($content, $exportdata);
+    }
+
     // PHPUnit backwards compatible methods which handles the fallback to previous version calls.
 
     public function compatible_assertStringContainsString(...$args): void { // phpcs:ignore

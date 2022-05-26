@@ -14,42 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
-
 /**
- * Dataflow Form
+ * This page handles dataflow downloads as YAML.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class dataflow_form extends \core\form\persistent {
 
-    /** @var string Persistent class name. */
-    protected static $persistentclass = 'tool_dataflows\dataflow';
+use tool_dataflows\dataflow;
 
-    /**
-     * Define the form.
-     */
-    public function definition() {
-        $mform = $this->_form;
+require_once(__DIR__ . '/../../../config.php');
+require_once($CFG->libdir.'/adminlib.php');
 
-        // User ID.
-        $mform->addElement('hidden', 'userid');
-        $mform->setConstant('userid', $this->_customdata['userid']);
+require_login();
+$context = context_system::instance();
 
-        // Name of the dataflow.
-        $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
+// Check for caps.
+require_capability('tool/dataflows:managedataflows', $context);
 
-        // Configuration - YAML format.
-        $mform->addElement(
-            'textarea',
-            'config',
-            get_string('field_config', 'tool_dataflows'),
-            ['cols' => 50, 'rows' => 7]
-        );
+$dataflowid = required_param('dataflowid', PARAM_INT);
 
-        $this->add_action_buttons();
-    }
-}
+$dataflow = new dataflow($dataflowid);
+$dataflow->download();

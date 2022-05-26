@@ -45,11 +45,16 @@ $string['import_dataflow'] = 'Import Dataflow';
 $string['run_confirm'] = 'Are you sure you want to run the dataflow \'{$a}\' now? The will run on the web server and may take some time to complete.';
 $string['run_again'] = 'Run again';
 $string['run_now'] = 'Run now';
+$string['export'] = 'Export';
+$string['import'] = 'Import';
 
 // Dataflows (form).
 $string['field_name'] = 'Name';
 $string['update_dataflow'] = 'Update Dataflow';
 $string['new_dataflow'] = 'New Dataflow';
+
+// Dataflow import form.
+$string['dataflow_file'] = 'Dataflow File';
 
 // Dataflow steps (table).
 $string['steps'] = 'Steps';
@@ -65,6 +70,8 @@ $string['update_step'] = 'Update Step';
 $string['new_step'] = 'New Step';
 
 // Warnings / Errors.
+$string['invalidyaml'] = 'The content provided is invalid YAML.';
+$string['nodataflowfile'] = 'No dataflow file found.';
 $string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Graph (DAG).';
 $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
 $string['stepdependencydoesnotexist'] = 'The step dependency "{$a}" does not exist';
