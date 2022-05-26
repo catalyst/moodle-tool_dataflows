@@ -32,8 +32,7 @@ use tool_dataflows\execution\flow_engine_step;
  */
 abstract class flow_step extends base_step {
 
-    /** @var int[] number of input streams (min, max) */
-    // Flow steps default to min 1 input.
+    /** @var int[] number of input streams (min, max). Flow steps default to min 1 input. */
     protected $inputstreams = [1, 1];
 
     /**

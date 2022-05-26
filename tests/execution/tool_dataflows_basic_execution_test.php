@@ -22,8 +22,10 @@ use tool_dataflows\step;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . "/array_in_type.php"); // This is needed. File will not be automatically included.
-require_once(__DIR__ . "/array_out_type.php"); // This is needed. File will not be automatically included.
+// This is needed. File will not be automatically included.
+require_once(__DIR__ . '/array_in_type.php');
+// This is needed. File will not be automatically included.
+require_once(__DIR__ . '/array_out_type.php');
 
 /**
  * Unit tests for the execution engine
