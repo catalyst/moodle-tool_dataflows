@@ -138,19 +138,22 @@ class visualiser {
         }
 
         // New Dataflow.
+        $icon = $output->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
         $addbutton = \html_writer::tag(
             'button',
-            get_string('new_dataflow', 'tool_dataflows'),
+            $icon . get_string('new_dataflow', 'tool_dataflows'),
             ['class' => 'btn btn-primary']
         );
+
         $addurl = new \moodle_url('/admin/tool/dataflows/edit.php');
         $newdataflow = \html_writer::link($addurl, $addbutton);
 
         // Import Dataflow.
+        $icon = $output->render(new \pix_icon('i/upload', get_string('import', 'tool_dataflows')));
         $importbutton = \html_writer::tag(
             'button',
-            get_string('import_dataflow', 'tool_dataflows'),
-            ['class' => 'btn btn-primary ml-2']
+            $icon . get_string('import_dataflow', 'tool_dataflows'),
+            ['class' => 'btn btn-secondary ml-2']
         );
         $importurl = new \moodle_url('/admin/tool/dataflows/import.php');
         $importdataflow = \html_writer::link($importurl, $importbutton);
@@ -270,7 +273,7 @@ class visualiser {
             echo $exportbtn;
 
             // Display the import button, which links to the import page.
-            $icon = $output->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
+            $icon = $output->render(new \pix_icon('i/upload', get_string('import', 'tool_dataflows')));
             $importurl = new \moodle_url(
                 '/admin/tool/dataflows/import.php',
                 ['dataflowid' => $dataflow->id]);
