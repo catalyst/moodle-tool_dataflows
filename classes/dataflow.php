@@ -412,5 +412,4 @@ class dataflow extends persistent {
 
         return $yaml;
     }
-
 }

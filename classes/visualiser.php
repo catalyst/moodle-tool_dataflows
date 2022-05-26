@@ -16,8 +16,6 @@
 
 namespace tool_dataflows;
 
-use core\output\icon_system;
-
 /**
  * Dataflows visualiser
  *
@@ -33,7 +31,7 @@ class visualiser {
      *
      * @param array $crumbs navigation crumbs, in the format of [title, moodle_url] per entry
      */
-    public static function breadcrumb_navigation($crumbs) {
+    public static function breadcrumb_navigation(array $crumbs) {
         global $PAGE;
 
         // Admin tools.

@@ -70,8 +70,8 @@ $string['update_step'] = 'Update Step';
 $string['new_step'] = 'New Step';
 
 // Warnings / Errors.
-$string['invalidyaml'] = 'The content provided is invalid YAML';
-$string['nodataflowfile'] = 'No dataflow file found';
+$string['invalidyaml'] = 'The content provided is invalid YAML.';
+$string['nodataflowfile'] = 'No dataflow file found.';
 $string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Graph (DAG).';
 $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
 $string['stepdependencydoesnotexist'] = 'The step dependency "{$a}" does not exist';

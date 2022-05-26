@@ -68,7 +68,6 @@ class dataflows_table extends \table_sql {
         $this->define_headers($headers);
     }
 
-
     /**
      * Display a small preview of the workflow
      *

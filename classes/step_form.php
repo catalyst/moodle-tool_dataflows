@@ -103,5 +103,4 @@ class step_form extends \core\form\persistent {
 
         $this->add_action_buttons();
     }
-
 }

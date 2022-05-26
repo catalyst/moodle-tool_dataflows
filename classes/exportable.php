@@ -72,7 +72,6 @@ trait exportable {
         header("Content-Disposition: attachment; filename=\"$filename\"");
     }
 
-
     /**
      * Download the flow/step in YAML format.
      */

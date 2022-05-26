@@ -38,4 +38,3 @@ $dataflowid = required_param('dataflowid', PARAM_INT);
 
 $dataflow = new dataflow($dataflowid);
 $dataflow->download();
-
