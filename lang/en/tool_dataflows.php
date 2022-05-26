@@ -96,3 +96,15 @@ $string['privacy:metadata:steps:timemodified'] = 'The timestamp of when the step
 
 // Tasks.
 $string['task:processdataflows'] = 'Process dataflows scheduled task.';
+
+// Engine status.
+$string['engine_status_new'] = 'New';
+$string['engine_status_initialised'] = 'Initialised';
+$string['engine_status_blocked'] = 'Blocked';
+$string['engine_status_waiting'] = 'Waiting';
+$string['engine_status_processing'] = 'Processing';
+$string['engine_status_flowing'] = 'Flowing';
+$string['engine_status_finished'] = 'Finished';
+$string['engine_status_cancelled'] = 'Cancelled';
+$string['engine_status_aborted'] = 'Aborted';
+$string['engine_status_finialised'] = 'Finalised';

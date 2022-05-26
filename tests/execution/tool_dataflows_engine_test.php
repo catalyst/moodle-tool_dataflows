@@ -24,7 +24,11 @@ defined('MOODLE_INTERNAL') || die();
 /** Exposes all private fields for the purpose of testing them. */
 class test_engine extends engine {
     public function __get($p) {
-        return $this->$p;
+        if (isset($this->$p)) {
+            return $this->$p;
+        } else {
+            return parent::__get($p);
+        }
     }
 }
 

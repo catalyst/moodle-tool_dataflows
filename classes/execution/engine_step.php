@@ -117,6 +117,7 @@ abstract class engine_step {
      */
     public function __get($parameter) {
         switch ($parameter) {
+            case 'engine':
             case 'id':
             case 'status':
             case 'stepdef':
@@ -133,6 +134,7 @@ abstract class engine_step {
 
     /**
      * Tells whether the step execution can proceed or not.
+     *
      * @return int
      */
     protected function proceed_status(): int {
@@ -156,5 +158,14 @@ abstract class engine_step {
                     return self::PROCEED_WAIT;
             }
         }
+    }
+
+    /**
+     * Emit a log message.
+     *
+     * @param string $message
+     */
+    public function log(string $message) {
+        mtrace('Engine \'' . $this->engine->name . '\', step \'' . $this->name . '\': ' . $message);
     }
 }

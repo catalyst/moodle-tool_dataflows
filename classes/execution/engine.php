@@ -58,6 +58,20 @@ class engine {
     /** @var int Step/dataflow has completely finished. */
     const STATUS_FINALISED = 9;
 
+    /** @var string[] Maps statuses to string indexes. */
+    const STATUS_LABELS = [
+        self::STATUS_NEW => 'engine_status_new',
+        self::STATUS_INITIALISED => 'engine_status_initialised',
+        self::STATUS_BLOCKED => 'engine_status_blocked',
+        self::STATUS_WAITING => 'engine_status_waiting',
+        self::STATUS_PROCESSING => 'engine_status_processing',
+        self::STATUS_FLOWING => 'engine_status_flowing',
+        self::STATUS_FINISHED => 'engine_status_finished',
+        self::STATUS_CANCELLED => 'engine_status_cancelled',
+        self::STATUS_ABORTED => 'engine_status_aborted',
+        self::STATUS_FINALISED => 'engine_status_finalised',
+    ];
+
     /** @var  array The queue of steps to be given a run. */
     public $queue;
 
@@ -83,6 +97,7 @@ class engine {
      * Constructs the engine.
      *
      * @param dataflow $dataflow The dataflow to be executed, as defined in the editor.
+     * @param bool $trace Set to true to enable log output.
      */
     public function __construct(dataflow $dataflow) {
         $this->dataflow = $dataflow;
@@ -113,6 +128,8 @@ class engine {
 
         // Find the flow blocks.
         $this->create_flow_caps();
+
+        $this->log('Created');
     }
 
     public function initialise() {
@@ -123,6 +140,7 @@ class engine {
         // Add sinks to the execution queue.
         $this->queue = $this->sinks;
         $this->status = self::STATUS_INITIALISED;
+        $this->log('Initialised');
     }
 
     /**
@@ -168,6 +186,7 @@ class engine {
         }
         if (count($this->queue) == 0) {
             $this->status = self::STATUS_FINISHED;
+            $this->log('Finished');
         } else {
             $currentstep = array_shift($this->queue);
             $result = $currentstep->go();
@@ -195,6 +214,7 @@ class engine {
                 case self::STATUS_ABORTED:
                     $this->abort($currentstep->exception);
             }
+            $currentstep->log('status ' . get_string(self::STATUS_LABELS[$result], 'tool_dataflows'));
         }
     }
 
@@ -206,10 +226,14 @@ class engine {
             $enginestep->finalise();
         }
         $this->status = self::STATUS_FINALISED;
+        $this->log('Finalised');
     }
 
     /**
      * Stops execution immediately. Gracefully stops all processors and iterators.
+     *
+     * @param \Throwable|null $exception
+     * @throws \Throwable
      */
     public function abort(?\Throwable $exception = null) {
         $this->exception = $exception;
@@ -217,8 +241,18 @@ class engine {
             $enginestep->abort();
         }
         $this->status = self::STATUS_ABORTED;
+        $this->log('Aborted');
         // TODO: We may want to make this the responsibility of the caller.
         throw $exception;
+    }
+
+    /**
+     * Emit a log message.
+     *
+     * @param string $message
+     */
+    public function log(string $message) {
+        mtrace('Engine \'' . $this->name . '\': ' . $message);
     }
 
     /**
@@ -229,8 +263,14 @@ class engine {
             case 'status':
             case 'exception':
                 return $this->$parameter;
+            case 'name':
+                return $this->dataflow->name;
             default:
-                throw new \moodle_exception('bad_parameter', 'tool_dataflows', '', ['parameter' => $parameter, 'classname' => self::class]);
+                throw new \moodle_exception(
+                    'bad_parameter',
+                    'tool_dataflows',
+                    '',
+                    ['parameter' => $parameter, 'classname' => self::class]);
         }
     }
 }
