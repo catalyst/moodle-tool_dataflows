@@ -73,6 +73,7 @@ $string['stepinvalidoutputstreamcount'] = 'Invalid number of output streams for 
 $string['bad_parameter'] = 'Parameter \'{$a->parameter}\' not supported in \'{$a->classname}\'.';
 $string['config_field_missing'] = 'Config \'{$a}\' missing.';
 $string['invalid_config'] = 'Invalid configuration';
+$string['non_reader_steps_must_have_flow_upstreams'] = 'Non reader steps must have at least one flow step dependency.';
 
 // Privacy.
 $string['privacy:metadata:dataflows'] = 'Data from the configured dataflows';

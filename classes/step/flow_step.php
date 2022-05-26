@@ -32,6 +32,9 @@ use tool_dataflows\execution\flow_engine_step;
  */
 abstract class flow_step extends base_step {
 
+    /** @var int[] number of input streams (min, max). Flow steps default to min 1 input. */
+    protected $inputstreams = [1, 1];
+
     /**
      * Does this type define a flow step?
      * @return bool
@@ -71,7 +74,10 @@ abstract class flow_step extends base_step {
      */
     public function get_iterator(flow_engine_step $step): iterator {
         // Default is to simply map.
-        $input = current($step->upstreams)->iterator;
-        return new map_iterator($step, $input);
+        $upstream = current($step->upstreams);
+        if ($upstream === false || !$upstream->is_flow()) {
+            throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
+        }
+        return new map_iterator($step, $upstream->iterator);
     }
 }
