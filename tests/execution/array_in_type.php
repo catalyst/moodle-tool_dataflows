@@ -33,6 +33,9 @@ use tool_dataflows\step\base_step;
 
 class array_in_type extends base_step {
 
+    /** @var int[] number of input streams (min, max), zero for readers. */
+    protected $inputstreams = [0, 0];
+
     public function is_flow(): bool {
         return true;
     }

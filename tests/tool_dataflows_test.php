@@ -23,6 +23,7 @@ defined('MOODLE_INTERNAL') || die();
 
 // Include lib.php functions that aren't included automatically for Moodle 37- and below.
 require_once(dirname(__FILE__) . '/../lib.php');
+require_once(__DIR__ . "/execution/array_in_type.php"); // This is needed. File will not be automatically included.
 
 /**
  * Units tests for tool_dataflows
@@ -94,7 +95,7 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $stepone = new \tool_dataflows\step();
         $stepone->name = 'step1';
-        $stepone->type = step\debugging::class;
+        $stepone->type = execution\array_in_type::class;
         $dataflow->add_step($stepone);
 
         $steptwo = new \tool_dataflows\step();
@@ -136,7 +137,7 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $stepone = new \tool_dataflows\step();
         $stepone->name = 'step1';
-        $stepone->type = step\debugging::class;
+        $stepone->type = execution\array_in_type::class;
         $dataflow->add_step($stepone);
 
         $steptwo = new \tool_dataflows\step();
