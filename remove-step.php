@@ -49,4 +49,5 @@ $dataflowdetailsurl = new moodle_url('/admin/tool/dataflows/view.php', ['id' => 
 $step->delete();
 
 // Redirect to the dataflows details page.
-redirect($dataflowdetailsurl, get_string('remove_step_successful', 'tool_dataflows', $step->name));
+redirect($dataflowdetailsurl, get_string('remove_step_successful', 'tool_dataflows', $step->name),
+    0, \core\output\notification::NOTIFY_SUCCESS);
