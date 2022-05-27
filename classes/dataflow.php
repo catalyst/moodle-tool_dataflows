@@ -356,7 +356,7 @@ class dataflow extends persistent {
             $link[] = $dep->dependsonstepname;
             $link[] = $dep->stepname;
             // TODO: Ensure quoted names will appear okay.
-            $link = '"' . implode('" -> "', array_filter($link)) . '"';
+            $link = '"' . implode('" -> "', array_filter($link)) . '" [color="#1d2125", arrowsize=0.7]';
             $connections[] = $link;
         }
         $connections = implode(';' . PHP_EOL, $connections);
@@ -364,8 +364,8 @@ class dataflow extends persistent {
                           rankdir=LR;
                           bgcolor=\"transparent\";
                           node [shape=record, height=.1];
-                          {$nodes}
                           {$connections}
+                          {$nodes}
                       }";
 
         return $dotscript;
