@@ -255,9 +255,12 @@ class visualiser {
             echo \html_writer::div($contents, 'text-center p-4');
 
             if ($validation !== true) {
+                $errors = '';
                 foreach ($validation as $message) {
-                    echo $output->notification($message);
+                    $errors .= \html_writer::tag('li', $message);
                 }
+                $errors = \html_writer::tag('ul', $errors);
+                echo $output->notification($errors);
             }
 
             echo $output->heading($pageheading);
