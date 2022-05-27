@@ -129,18 +129,18 @@ class dataflows_table extends \table_sql {
 
         $content = '';
         // Display the run now button, which will link to a confirmation page.
-        $editurl = new \moodle_url(
-            '/admin/tool/dataflows/edit.php',
-            ['id' => $record->id]);
-        $icon = $OUTPUT->render(new \pix_icon('i/settings', get_string('edit')));
-        $content .= \html_writer::link($editurl, $icon, ['class' => 'action-icon']);
-
-        // Display the run now button, which will link to a confirmation page.
         $runurl = new \moodle_url(
             '/admin/tool/dataflows/run.php',
             ['dataflowid' => $record->id]);
         $icon = $OUTPUT->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
         $content .= \html_writer::link($runurl, $icon, ['class' => 'action-icon']);
+
+        // Display the run now button, which will link to a confirmation page.
+        $editurl = new \moodle_url(
+            '/admin/tool/dataflows/edit.php',
+            ['id' => $record->id]);
+        $icon = $OUTPUT->render(new \pix_icon('i/settings', get_string('edit')));
+        $content .= \html_writer::link($editurl, $icon, ['class' => 'action-icon']);
 
         // Display the export button (adjusted to be a small icon button).
         $icon = $OUTPUT->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows'), 'moodle', ['class' => 'mr-0']));

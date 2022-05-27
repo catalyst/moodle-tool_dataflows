@@ -199,6 +199,18 @@ class visualiser {
             // Validate current dataflow, displaying any reason why the flow is not valid.
             $validation = $dataflow->validate_dataflow();
 
+            // Display the run now button (disabling it if dataflow is not valid).
+            $runurl = new \moodle_url(
+                '/admin/tool/dataflows/run.php',
+                ['dataflowid' => $dataflow->id]);
+            $runbuttonattributes = ['class' => 'btn btn-warning' ];
+            if ($validation !== true) {
+                $runbuttonattributes['disabled'] = true;
+            }
+            $icon = $output->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
+            $runbutton = \html_writer::tag('button', $icon . get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
+            echo \html_writer::link($runurl, $runbutton);
+
             // Edit dataflow button.
             $icon = $output->render(new \pix_icon('i/settings', get_string('edit')));
             $importurl = new \moodle_url(
@@ -207,21 +219,9 @@ class visualiser {
             $exportbtn = \html_writer::tag(
                 'button',
                 $icon . get_string('edit'),
-                ['class' => 'btn btn-secondary ml-2' ]
+                ['class' => 'btn btn-secondary mx-2' ]
             );
             echo \html_writer::link($importurl, $exportbtn);
-
-            // Display the run now button (disabling it if dataflow is not valid).
-            $runurl = new \moodle_url(
-                '/admin/tool/dataflows/run.php',
-                ['dataflowid' => $dataflow->id]);
-            $runbuttonattributes = ['class' => 'btn btn-warning mx-2' ];
-            if ($validation !== true) {
-                $runbuttonattributes['disabled'] = true;
-            }
-            $icon = $output->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
-            $runbutton = \html_writer::tag('button', $icon . get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
-            echo \html_writer::link($runurl, $runbutton);
 
             // Display the export button.
             $icon = $output->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows')));
