@@ -54,20 +54,20 @@ $string['update_dataflow'] = 'Update Dataflow';
 $string['new_dataflow'] = 'New Dataflow';
 
 // Dataflow import form.
-$string['dataflow_file'] = 'Dataflow File';
+$string['dataflow_file'] = 'Dataflow file';
 
 // Dataflow steps (table).
 $string['steps'] = 'Steps';
-$string['field_dependson'] = 'Depends On';
+$string['field_dependson'] = 'Depends on';
 
 // Step (form).
 $string['field_description'] = 'Description';
 $string['field_alias'] = 'Alias';
 $string['field_alias_help'] = 'A snake cased reference to the step, unique to this dataflow. This can be used when referencing dependencies and inputs from other steps. Leaving this field blank will attempt to use a snake case version of the name value. For example, if the name is "My Step", it will be populate this field as "my_step"';
 $string['field_config'] = 'Configuration';
-$string['field_type'] = 'Type of Step';
-$string['update_step'] = 'Update Step';
-$string['new_step'] = 'New Step';
+$string['field_type'] = 'Type of step';
+$string['update_step'] = 'Update step';
+$string['new_step'] = 'New step';
 
 // Warnings / Errors.
 $string['invalidyaml'] = 'The content provided is invalid YAML.';
