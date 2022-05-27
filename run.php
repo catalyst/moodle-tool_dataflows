@@ -44,6 +44,7 @@ function tool_dataflows_mtrace_wrapper($message, $eol) {
 // Allow execution of single dataflow. This requires login and has different rules.
 $dataflowid = required_param('dataflowid', PARAM_RAW_TRIMMED);
 $confirm = optional_param('confirm', 0, PARAM_INT);
+$returnurl = optional_param('returnurl', '/admin/tool/dataflows/index.php', PARAM_LOCALURL);
 
 // Basic security checks.
 require_login(null, false);
@@ -79,9 +80,7 @@ if (!$confirm) {
         // Confirm.
         new single_button($runnowurl, get_string('run_now', 'tool_dataflows')),
         // Cancel.
-        new single_button(new moodle_url('/admin/tool/dataflows/index.php',
-        ['dataflowid' => $dataflowid]),
-        get_string('cancel'), false));
+        new single_button(new moodle_url($returnurl), get_string('cancel'), false));
 
     echo $OUTPUT->footer();
     exit;

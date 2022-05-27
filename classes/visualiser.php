@@ -202,7 +202,10 @@ class visualiser {
             // Display the run now button (disabling it if dataflow is not valid).
             $runurl = new \moodle_url(
                 '/admin/tool/dataflows/run.php',
-                ['dataflowid' => $dataflow->id]);
+                [
+                    'dataflowid' => $dataflow->id,
+                    'returnurl' => $PAGE->url->out(false),
+                ]);
             $runbuttonattributes = ['class' => 'btn btn-warning' ];
             if ($validation !== true) {
                 $runbuttonattributes['disabled'] = true;
