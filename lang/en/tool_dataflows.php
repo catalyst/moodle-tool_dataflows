@@ -86,6 +86,11 @@ $string['config_field_missing'] = 'Config \'{$a}\' missing.';
 $string['invalid_config'] = 'Invalid configuration';
 $string['non_reader_steps_must_have_flow_upstreams'] = 'Non reader steps must have at least one flow step dependency.';
 
+// Capabilities.
+$string['dataflows:managedataflows'] = 'Create and configure dataflows';
+$string['dataflows:exportdataflowhistory'] = 'Download / export history of dataflows';
+$string['dataflows:exportrundetails'] = 'Download / export dataflow run details';
+
 // Privacy.
 $string['privacy:metadata:dataflows'] = 'Data from the configured dataflows';
 $string['privacy:metadata:steps'] = 'Data from the configured dataflow steps';

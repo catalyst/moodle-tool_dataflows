@@ -27,8 +27,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-
+$capabilities = [
     'tool/dataflows:managedataflows' => array(
         'riskbitmask' => RISK_CONFIG | RISK_PERSONAL | RISK_SPAM,
         'captype' => 'write',
@@ -53,4 +52,4 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         ),
     ),
-);
+];
