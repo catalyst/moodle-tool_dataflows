@@ -24,7 +24,7 @@
  */
 
 use tool_dataflows\dataflow;
-use tool_dataflows\dataflow_form;
+use tool_dataflows\form\dataflow_form;
 use tool_dataflows\visualiser;
 
 require_once(dirname(__FILE__) . '/../../../config.php');

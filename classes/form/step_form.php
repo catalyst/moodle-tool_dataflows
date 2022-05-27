@@ -14,7 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
+namespace tool_dataflows\form;
+
+use tool_dataflows\dataflow;
+use tool_dataflows\manager;
 
 /**
  * Dataflow Step Form
