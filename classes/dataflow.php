@@ -323,6 +323,7 @@ class dataflow extends persistent {
         ]);
         $connections = [];
         foreach ($deps as $dep) {
+            $nodes[] = "\"{$dep->stepname}\" [color=black, shape=record, fillcolor=white, style=filled ]";
             $link = [];
             $link[] = $dep->dependsonstepname;
             $link[] = $dep->stepname;
@@ -330,10 +331,13 @@ class dataflow extends persistent {
             $link = '"' . implode('" -> "', array_filter($link)) . '"';
             $connections[] = $link;
         }
+        $nodes = implode(';' . PHP_EOL, $nodes);
         $connections = implode(';' . PHP_EOL, $connections);
         $dotscript = "digraph G {
                           rankdir=LR;
-                          node [shape = record,height=.1];
+                          bgcolor=\"transparent\";
+                          node [shape=record, height=.1];
+                          {$nodes}
                           {$connections}
                       }";
 
