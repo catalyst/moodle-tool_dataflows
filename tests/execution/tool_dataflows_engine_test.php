@@ -21,8 +21,17 @@ use tool_dataflows\step;
 
 defined('MOODLE_INTERNAL') || die();
 
-/** Exposes all private fields for the purpose of testing them. */
+/**
+ * A engine subclass used for testing
+ *
+ * @package   tool_dataflows
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class test_engine extends engine {
+
+    /** Exposes all private fields for the purpose of testing them. */
     public function __get($p) {
         if (isset($this->$p)) {
             return $this->$p;
@@ -52,8 +61,7 @@ class tool_dataflows_engine_test extends \advanced_testcase {
 
     /**
      * Test the construction of the engine to ensure it mirrors the dataflow defined by the user.
-     */
-    /**
+     *
      * @covers \tool_dataflows\execution\engine::__construct
      * @covers \tool_dataflows\execution\engine::create_flow_caps
      * @covers \tool_dataflows\execution\engine::initialise

@@ -44,6 +44,7 @@ function tool_dataflows_mtrace_wrapper($message, $eol) {
 // Allow execution of single dataflow. This requires login and has different rules.
 $dataflowid = required_param('dataflowid', PARAM_RAW_TRIMMED);
 $confirm = optional_param('confirm', 0, PARAM_INT);
+$returnurl = optional_param('returnurl', '/admin/tool/dataflows/index.php', PARAM_LOCALURL);
 
 // Basic security checks.
 require_login(null, false);
@@ -58,9 +59,11 @@ $url = new moodle_url('/admin/tool/dataflows/run.php', ['dataflowid' => $dataflo
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 
+// Dataflows > Manage Flows > :dataflow->name > Run now.
 visualiser::breadcrumb_navigation([
     [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
-    [$dataflow->name, $url],
+    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflowid])],
+    [get_string('run_now', 'tool_dataflows'), $url],
 ]);
 
 echo $OUTPUT->header();
@@ -77,9 +80,7 @@ if (!$confirm) {
         // Confirm.
         new single_button($runnowurl, get_string('run_now', 'tool_dataflows')),
         // Cancel.
-        new single_button(new moodle_url('/admin/tool/dataflows/index.php',
-        ['dataflowid' => $dataflowid]),
-        get_string('cancel'), false));
+        new single_button(new moodle_url($returnurl), get_string('cancel'), false));
 
     echo $OUTPUT->footer();
     exit;
@@ -93,11 +94,14 @@ require_sesskey();
 // Prepare to handle output via mtrace.
 echo html_writer::start_tag('pre');
 $CFG->mtrace_wrapper = 'tool_dataflows_mtrace_wrapper';
-
-$engine = new engine($dataflow);
-// TODO: Validate it can run.
-// Run the specified flow (this will output an error if it doesn't exist).
-$engine->execute();
+try {
+    $engine = new engine($dataflow);
+    // TODO: Validate it can run.
+    // Run the specified flow (this will output an error if it doesn't exist).
+    $engine->execute();
+} catch (\Throwable $e) {
+    $engine->log($e);
+}
 
 echo html_writer::end_tag('pre');
 
@@ -107,5 +111,10 @@ echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'
 echo html_writer::link(
     new moodle_url('/admin/tool/dataflows/index.php'),
     get_string('pluginmanage', 'tool_dataflows'));
+
+echo html_writer::link(
+    new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflow->id]),
+    get_string('back_to', 'tool_dataflows'),
+    ['class' => 'ml-2']);
 
 echo $OUTPUT->footer();
