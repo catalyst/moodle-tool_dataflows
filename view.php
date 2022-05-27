@@ -43,7 +43,7 @@ $context = context_system::instance();
 // Check for caps.
 require_capability('tool/dataflows:managedataflows', $context);
 
-$url = new moodle_url('/admin/tool/dataflows/steps.php', ['dataflowid' => $dataflowid]);
+$url = new moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $dataflowid]);
 
 // Configure any table specifics.
 $table = new steps_table('dataflows_table');

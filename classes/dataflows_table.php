@@ -80,7 +80,7 @@ class dataflows_table extends \table_sql {
         // can infer which one it is.
         $imgurl = new \moodle_url('/admin/tool/dataflows/visual.php', ['id' => $record->id, 'type' => 'png']);
         $img = \html_writer::img($imgurl, "Dataflow #{$record->id} visualisation", ['height' => 30, 'class' => 'lightbox']);
-        $dataflowstepsurl = new \moodle_url('/admin/tool/dataflows/steps.php', ['dataflowid' => $record->id]);
+        $dataflowstepsurl = new \moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $record->id]);
         return \html_writer::link($dataflowstepsurl, $img);
     }
 
@@ -114,7 +114,7 @@ class dataflows_table extends \table_sql {
      * @return string
      */
     public function col_stepcount(\stdClass $record): string {
-        $dataflowstepsurl = new \moodle_url('/admin/tool/dataflows/steps.php', ['dataflowid' => $record->id]);
+        $dataflowstepsurl = new \moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $record->id]);
         return \html_writer::link($dataflowstepsurl, $record->stepcount);
     }
 

@@ -43,7 +43,7 @@ require_capability('tool/dataflows:managedataflows', $context);
 $step = new step($stepid);
 
 // Start output.
-$dataflowdetailsurl = new moodle_url('/admin/tool/dataflows/steps.php', ['dataflowid' => $step->dataflowid]);
+$dataflowdetailsurl = new moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $step->dataflowid]);
 
 // Remove the step.
 $step->delete();
