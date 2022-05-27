@@ -199,17 +199,51 @@ class visualiser {
             // Validate current dataflow, displaying any reason why the flow is not valid.
             $validation = $dataflow->validate_dataflow();
 
-            // Action buttons for the dataflow (disabling it if dataflow is not valid).
+            // Edit dataflow button.
+            $icon = $output->render(new \pix_icon('i/settings', get_string('edit')));
+            $importurl = new \moodle_url(
+                '/admin/tool/dataflows/edit.php',
+                ['id' => $dataflow->id]);
+            $exportbtn = \html_writer::tag(
+                'button',
+                $icon . get_string('edit'),
+                ['class' => 'btn btn-secondary ml-2' ]
+            );
+            echo \html_writer::link($importurl, $exportbtn);
+
+            // Display the run now button (disabling it if dataflow is not valid).
             $runurl = new \moodle_url(
                 '/admin/tool/dataflows/run.php',
                 ['dataflowid' => $dataflow->id]);
-            $runbuttonattributes = ['class' => 'btn btn-warning' ];
+            $runbuttonattributes = ['class' => 'btn btn-warning mx-2' ];
             if ($validation !== true) {
                 $runbuttonattributes['disabled'] = true;
             }
             $icon = $output->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
             $runbutton = \html_writer::tag('button', $icon . get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
             echo \html_writer::link($runurl, $runbutton);
+
+            // Display the export button.
+            $icon = $output->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows')));
+            $exportactionurl = new \moodle_url(
+                '/admin/tool/dataflows/export.php',
+                ['dataflowid' => $dataflowid, 'sesskey' => sesskey()]);
+            $btnuid = 'exportbuttoncontents';
+            $btn = $output->single_button($exportactionurl, $btnuid);
+            $exportbtn = str_replace($btnuid, $icon . get_string('export', 'tool_dataflows'), $btn);
+            echo $exportbtn;
+
+            // Display the import button, which links to the import page.
+            $icon = $output->render(new \pix_icon('i/upload', get_string('import', 'tool_dataflows')));
+            $importurl = new \moodle_url(
+                '/admin/tool/dataflows/import.php',
+                ['dataflowid' => $dataflow->id]);
+            $exportbtn = \html_writer::tag(
+                'button',
+                $icon . get_string('import', 'tool_dataflows'),
+                ['class' => 'btn btn-secondary ml-2' ]
+            );
+            echo \html_writer::link($importurl, $exportbtn);
 
             // Generate the image based on the DOT script.
             $contents = self::generate($dataflow->get_dotscript(), 'svg');
@@ -262,28 +296,6 @@ class visualiser {
         if (!$table->is_downloading()) {
 
             echo \html_writer::empty_tag('hr');
-
-            // Display the export button.
-            $icon = $output->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows')));
-            $exportactionurl = new \moodle_url(
-                '/admin/tool/dataflows/export.php',
-                ['dataflowid' => $dataflowid, 'sesskey' => sesskey()]);
-            $btnuid = 'exportbuttoncontents';
-            $btn = $output->single_button($exportactionurl, $btnuid);
-            $exportbtn = str_replace($btnuid, $icon . get_string('export', 'tool_dataflows'), $btn);
-            echo $exportbtn;
-
-            // Display the import button, which links to the import page.
-            $icon = $output->render(new \pix_icon('i/upload', get_string('import', 'tool_dataflows')));
-            $importurl = new \moodle_url(
-                '/admin/tool/dataflows/import.php',
-                ['dataflowid' => $dataflow->id]);
-            $exportbtn = \html_writer::tag(
-                'button',
-                $icon . get_string('import', 'tool_dataflows'),
-                ['class' => 'btn btn-secondary ml-2' ]
-            );
-            echo \html_writer::link($importurl, $exportbtn);
 
             echo $output->footer();
         }
