@@ -299,6 +299,35 @@ class dataflow extends persistent {
         global $DB;
 
         // Generate DOT script based on the configured dataflow.
+
+        // Styles for each step node.
+        $sql = "SELECT *
+                  FROM {tool_dataflows_steps} s
+                 WHERE s.dataflowid = :dataflowid";
+        $steps = $DB->get_records_sql($sql, ['dataflowid' => $this->id]);
+        $nodes = [];
+        foreach ($steps as $step) {
+            $url = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $step->id]))->out();
+            $rawstyles = [
+                'color'     => '#b8c1ca',
+                'shape'     => 'record',
+                'fillcolor' => '#ced4da',
+                'style'     => 'filled,rounded',
+                'fontsize'  => '10',
+                'fontname'  => 'Arial',
+                'URL'       => $url,
+                'tooltip'   => $step->description,
+            ];
+            $styles = '';
+            foreach ($rawstyles as $key => $value) {
+                // TODO escape all attributes correctly.
+                $styles .= "$key =\"$value\", ";
+            }
+            trim($styles);
+            $nodes[] = "\"{$step->name}\" [$styles]";
+        }
+        $nodes = implode(';' . PHP_EOL, $nodes);
+
         // First block - Lists all the step dependencies (connections) related to this workflow.
         // Second block - Ensures steps with no dependencies on prior steps (e.g. entry steps) will be listed.
         $sql = "SELECT concat(sd.stepid, sd.dependson) as id,
@@ -323,7 +352,6 @@ class dataflow extends persistent {
         ]);
         $connections = [];
         foreach ($deps as $dep) {
-            $nodes[] = "\"{$dep->stepname}\" [color=black, shape=record, fillcolor=white, style=filled ]";
             $link = [];
             $link[] = $dep->dependsonstepname;
             $link[] = $dep->stepname;
@@ -331,7 +359,6 @@ class dataflow extends persistent {
             $link = '"' . implode('" -> "', array_filter($link)) . '"';
             $connections[] = $link;
         }
-        $nodes = implode(';' . PHP_EOL, $nodes);
         $connections = implode(';' . PHP_EOL, $connections);
         $dotscript = "digraph G {
                           rankdir=LR;
