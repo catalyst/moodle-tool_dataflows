@@ -54,10 +54,12 @@ if ($form->is_cancelled()) {
 
 if (($data = $form->get_data())) {
     try {
-        // Do stuff.
+        // Prepares the data and adds a new dataflow.
         $filecontent = $form->get_file_content('userfile');
         $yaml = \Symfony\Component\Yaml\Yaml::parse($filecontent);
-        $dataflow = new dataflow();
+        $data = (object) ['userid' => $USER->id];
+        $dataflow = new dataflow(0, $data);
+        // Imports the dataflow details provided.
         $dataflow->import($yaml);
         \core\notification::success(get_string('changessaved'));
     } catch (Exception $e) {
