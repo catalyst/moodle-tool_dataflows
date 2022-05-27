@@ -47,6 +47,7 @@ class sql_reader extends flow_step {
     public function get_iterator(flow_engine_step $step): iterator {
         $query = $this->construct_query($step);
         return new class($step, $query) extends php_iterator {
+
             public function __construct(flow_engine_step $step, string $query) {
                 global $DB;
                 $input = $DB->get_recordset_sql($query);
