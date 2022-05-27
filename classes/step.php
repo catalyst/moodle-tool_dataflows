@@ -155,10 +155,8 @@ class step extends persistent {
     public function update_depends_on() {
         global $DB;
 
-        $dependencies = $this->dependson;
-        if (empty($dependencies)) {
-            return;
-        }
+        // Uses the local dependson property, and defaults to an empty list if not set.
+        $dependencies = $this->dependson ?? [];
 
         // Update records in database.
         $dependencymap = [];
