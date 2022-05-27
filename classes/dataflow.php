@@ -189,7 +189,7 @@ class dataflow extends persistent {
             [$min, $max] = $steptype->get_number_of_output_streams();
             $destcount = isset($adjacencylist[$step->id]) ? count($adjacencylist[$step->id]) : 0;
             if ($destcount < $min || $destcount > $max) {
-                $errors["invalid_count_inputstreams_{$step->id}"] = get_string(
+                $errors["invalid_count_outputstreams_{$step->id}"] = get_string(
                     'stepinvalidoutputstreamcount',
                     'tool_dataflows',
                     (object) [
