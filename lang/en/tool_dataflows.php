@@ -85,6 +85,7 @@ $string['bad_parameter'] = 'Parameter \'{$a->parameter}\' not supported in \'{$a
 $string['config_field_missing'] = 'Config \'{$a}\' missing.';
 $string['invalid_config'] = 'Invalid configuration';
 $string['non_reader_steps_must_have_flow_upstreams'] = 'Non reader steps must have at least one flow step dependency.';
+$string['format_not_supported'] = 'The format \'{$a}\' is not supported.';
 
 // Privacy.
 $string['privacy:metadata:dataflows'] = 'Data from the configured dataflows';
