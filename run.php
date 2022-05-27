@@ -61,7 +61,7 @@ $PAGE->set_context($context);
 // Dataflows > Manage Flows > :dataflow->name > Run now.
 visualiser::breadcrumb_navigation([
     [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
-    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $dataflowid])],
+    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflowid])],
     [get_string('run_now', 'tool_dataflows'), $url],
 ]);
 
@@ -114,7 +114,7 @@ echo html_writer::link(
     get_string('pluginmanage', 'tool_dataflows'));
 
 echo html_writer::link(
-    new moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $dataflow->id]),
+    new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflow->id]),
     get_string('back_to', 'tool_dataflows'),
     ['class' => 'ml-2']);
 

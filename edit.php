@@ -94,7 +94,7 @@ $crumbs = [[get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin
 $heading = get_string('new_dataflow', 'tool_dataflows');
 if (isset($persistent)) {
     $heading = get_string('update_dataflow', 'tool_dataflows');
-    $crumbs[] = [$persistent->name, new moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $persistent->id])];
+    $crumbs[] = [$persistent->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $persistent->id])];
 }
 $crumbs[] = [$heading, $url];
 

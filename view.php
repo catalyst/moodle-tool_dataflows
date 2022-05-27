@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_login();
 
-$dataflowid = required_param('dataflowid', PARAM_INT);
+$id = required_param('id', PARAM_INT);
 
 admin_externalpage_setup('tool_dataflows_overview', '', null, '', ['pagelayout' => 'report']);
 
@@ -43,7 +43,7 @@ $context = context_system::instance();
 // Check for caps.
 require_capability('tool/dataflows:managedataflows', $context);
 
-$url = new moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $dataflowid]);
+$url = new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id]);
 
 // Configure any table specifics.
 $table = new steps_table('dataflows_table');
@@ -54,16 +54,16 @@ $sqlfrom = '{tool_dataflows_steps} step
   LEFT JOIN {user} usr
          ON usr.id = step.userid';
 $sqlwhere = 'dataflowid = :dataflowid';
-$sqlparams = ['dataflowid' => $dataflowid];
+$sqlparams = ['dataflowid' => $id];
 $table->set_sql($sqlfields, $sqlfrom, $sqlwhere, $sqlparams);
 $table->make_columns();
 
 // Configure the breadcrumb navigation.
-$dataflow = new dataflow($dataflowid);
+$dataflow = new dataflow($id);
 visualiser::breadcrumb_navigation([
     // Dataflows > Manage Flows > :dataflow->name (details page).
     [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
-    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflowid])],
+    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id])],
 ]);
 
-visualiser::display_steps_table($dataflowid, $table, $url, get_string('steps', 'tool_dataflows'));
+visualiser::display_steps_table($id, $table, $url, get_string('steps', 'tool_dataflows'));
