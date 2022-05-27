@@ -143,9 +143,9 @@ if (isset($persistent)) {
 // Configure the breadcrumb navigation.
 $dataflow = new dataflow($dataflowid);
 visualiser::breadcrumb_navigation([
+    // Dataflows > Manage Flows > :dataflow->name > add/update (step add/edit page).
     [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
-    [$dataflow->name, new moodle_url('/admin/tool/dataflows/edit.php', ['id' => $dataflowid])],
-    [get_string('steps', 'tool_dataflows'), $url],
+    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $dataflowid])],
     [$heading, $url],
 ]);
 

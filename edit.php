@@ -90,16 +90,18 @@ if (($data = $form->get_data())) {
 }
 
 // Display the mandatory header and footer.
+$crumbs = [[get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')]];
 $heading = get_string('new_dataflow', 'tool_dataflows');
 if (isset($persistent)) {
     $heading = get_string('update_dataflow', 'tool_dataflows');
+    $crumbs[] = [$persistent->name, new moodle_url('/admin/tool/dataflows/view.php', ['dataflowid' => $persistent->id])];
 }
+$crumbs[] = [$heading, $url];
 
 // Configure the breadcrumb navigation.
-visualiser::breadcrumb_navigation([
-    [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
-    [$heading, $url],
-]);
+// New    - Dataflows > Manage Flows > New dataflow.
+// Update - Dataflows > Manage Flows > $dataflow->name > Update dataflow.
+visualiser::breadcrumb_navigation($crumbs);
 
 $title = implode(': ', array_filter([
     get_string('pluginname', 'tool_dataflows'),

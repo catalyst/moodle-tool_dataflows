@@ -61,9 +61,9 @@ $table->make_columns();
 // Configure the breadcrumb navigation.
 $dataflow = new dataflow($dataflowid);
 visualiser::breadcrumb_navigation([
+    // Dataflows > Manage Flows > :dataflow->name (details page).
     [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
-    [$dataflow->name, new moodle_url('/admin/tool/dataflows/edit.php', ['id' => $dataflowid])],
-    [get_string('steps', 'tool_dataflows'), $url],
+    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflowid])],
 ]);
 
 visualiser::display_steps_table($dataflowid, $table, $url, get_string('steps', 'tool_dataflows'));
