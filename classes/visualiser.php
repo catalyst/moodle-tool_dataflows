@@ -227,9 +227,10 @@ class visualiser {
         }
 
         // New Step.
+        $icon = $output->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
         $addbutton = \html_writer::tag(
             'button',
-            get_string('new_step', 'tool_dataflows'),
+            $icon . get_string('new_step', 'tool_dataflows'),
             ['class' => 'btn btn-primary mb-3']
         );
         $addurl = new \moodle_url('/admin/tool/dataflows/step.php', ['dataflowid' => $dataflowid]);
