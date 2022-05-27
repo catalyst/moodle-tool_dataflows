@@ -17,11 +17,12 @@
 namespace tool_dataflows;
 
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
-use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\application_trait;
 
 defined('MOODLE_INTERNAL') || die();
 
 // Include lib.php functions that aren't included automatically for Moodle 37- and below.
+require_once(__DIR__ . '/application_trait.php');
 require_once(__DIR__ . '/../lib.php');
 // This is needed. File will not be automatically included.
 require_once(__DIR__ . '/execution/array_in_type.php');
@@ -35,6 +36,7 @@ require_once(__DIR__ . '/execution/array_in_type.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_test extends \advanced_testcase {
+    use application_trait;
 
     /**
      * Set up before each test
@@ -393,29 +395,52 @@ class tool_dataflows_test extends \advanced_testcase {
         $this->assertEquals($content, $exportdata);
     }
 
-    // PHPUnit backwards compatible methods which handles the fallback to previous version calls.
+    /**
+     * Test deleting a step after adding it.
+     *
+     * Deletion should be possible via direct step deletion, and from the dataflow
+     *
+     * TODO: include special domain specific requirement:
+     * - should rewire the before/after steps of the step removed if it is valid to do so
+     *
+     * @covers \tool_dataflows\step::before_delete
+     * @covers \tool_dataflows\dataflow::remove_step
+     */
+    public function test_step_deletion() {
+        $dataflow = new dataflow();
 
-    public function compatible_assertStringContainsString(...$args): void { // phpcs:ignore
-        if (method_exists($this, 'assertStringContainsString')) {
-            $this->assertStringContainsString(...$args);
-        } else {
-            $this->assertContains(...$args);
-        }
-    }
+        $step1 = new \tool_dataflows\step();
+        $step1->name = 'delete_via_step';
+        $step1->type = execution\array_in_type::class;
+        $dataflow->add_step($step1);
 
-    public function compatible_assertMatchesRegularExpression(...$args): void { // phpcs:ignore
-        if (method_exists($this, 'assertMatchesRegularExpression')) {
-            $this->assertMatchesRegularExpression(...$args);
-        } else {
-            $this->assertRegExp(...$args);
-        }
-    }
+        $step2 = new \tool_dataflows\step();
+        $step2->name = 'oneisalonelynumber';
+        $step2->type = execution\array_in_type::class;
+        $step2->depends_on([$step1]);
+        $dataflow->add_step($step2);
 
-    public function compatible_assertDoesNotMatchRegularExpression(...$args): void { // phpcs:ignore
-        if (method_exists($this, 'assertDoesNotMatchRegularExpression')) {
-            $this->assertDoesNotMatchRegularExpression(...$args);
-        } else {
-            $this->assertNotRegExp(...$args);
-        }
+        $step3 = new \tool_dataflows\step();
+        $step3->name = 'delete_via_dataflow';
+        $step3->type = execution\array_in_type::class;
+        $step3->depends_on([$step2]);
+        $dataflow->add_step($step3);
+
+        // Check current step count.
+        $this->assertCount(3, (array) $dataflow->steps);
+        // Ensure the linked dependencies are present.
+        $this->assertSeeInDatabase('tool_dataflows_step_depends', ['stepid' => $step2->id, 'dependson' => $step1->id]);
+
+        // Remove step1, the count should be one less.
+        $step1->delete();
+        $this->assertCount(2, (array) $dataflow->steps);
+        // Ensure the linked dependencies are no longer present, since the dependency has been removed.
+        $this->assertNotSeeInDatabase('tool_dataflows_step_depends', ['dependson' => $step1->id]);
+
+        // Remove step3, the count should be one less.
+        $dataflow->remove_step($step3);
+        $this->assertCount(1, (array) $dataflow->steps);
+        // Confirm the dependency no longer exists, since this step is removed.
+        $this->assertNotSeeInDatabase('tool_dataflows_step_depends', ['stepid' => $step3->id]);
     }
 }

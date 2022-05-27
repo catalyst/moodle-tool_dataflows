@@ -57,8 +57,12 @@ $string['new_dataflow'] = 'New Dataflow';
 $string['dataflow_file'] = 'Dataflow file';
 
 // Dataflow steps (table).
-$string['steps'] = 'Steps';
+$string['back_to'] = 'Back to Dataflow';
 $string['field_dependson'] = 'Depends on';
+$string['remove_confirm'] = 'Are you sure you want to remove the step \'{$a}\'? This action is irreversible.';
+$string['remove_step_successful'] = 'Removed step \'{$a}\' successfully.';
+$string['remove_step'] = 'Remove step';
+$string['steps'] = 'Steps';
 
 // Step (form).
 $string['field_description'] = 'Description';
