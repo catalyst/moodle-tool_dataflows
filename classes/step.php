@@ -304,7 +304,7 @@ class step extends persistent {
         global $DB;
 
         // Remove dependencies other steps have on this step.
-        // NOTE: Later this should check and attempt to rewire/connect steps previously linked to this step.
+        // TODO: this should check and attempt to rewire/connect steps previously linked to this step.
         $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
         $DB->delete_records('tool_dataflows_step_depends', ['dependson' => $this->id]);
     }

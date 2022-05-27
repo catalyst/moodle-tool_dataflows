@@ -152,7 +152,18 @@ class steps_table extends \table_sql {
      * @return string
      */
     public function col_manage(\stdClass $record): string {
-        // TODO: Implement the actions.
-        return '';
+        global $OUTPUT;
+
+        // Display the remove_step button.
+        $icon = $OUTPUT->render(new \pix_icon('i/delete', get_string('remove_step', 'tool_dataflows')));
+        $removeurl = new \moodle_url(
+            '/admin/tool/dataflows/remove-step.php',
+            ['stepid' => $record->id, 'sesskey' => sesskey()]);
+
+        return $OUTPUT->action_link(
+            $removeurl,
+            $icon,
+            new \confirm_action(get_string('remove_confirm', 'tool_dataflows', $record->name))
+        );
     }
 }
