@@ -29,9 +29,9 @@ use tool_dataflows\execution\flow_engine_step;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class map_iterator implements iterator {
-    private $steptype;
-    private $finished = false;
-    private $input;
+    protected $steptype;
+    protected $finished = false;
+    protected $input;
 
     protected $iterationcount = 0;
 

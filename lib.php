@@ -46,5 +46,6 @@ function tool_dataflows_step_types() {
         new step\mtrace(),
         new step\void_step(),
         new step\sql_reader(),
+        new step\stream_writer(),
     ];
 }
