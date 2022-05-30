@@ -44,7 +44,9 @@ class csv extends encoder_base {
     public function encode_record($record, int $rownum): string {
         $line = [];
         foreach ($record as $field) {
-            if ($field === "ID") { // Special case for SYLK problem.
+            if (!is_scalar($field)) { // TODO: Just ignoring complex values for now.
+                $line[] = '';
+            } else if ($field === "ID") { // Special case for SYLK problem.
                 $line[] = '"ID"';
             } else if ($this->options | self::ESC_DOUBLEQUOTES) {
                 $line[] = $this->escape_field_doublequotes($field);
