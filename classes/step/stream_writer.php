@@ -34,6 +34,7 @@ use tool_dataflows\execution\iterators\map_iterator;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class stream_writer extends flow_step {
+
     /**
      * Get the iterator for the step, based on configurations.
      *
@@ -58,6 +59,7 @@ class stream_writer extends flow_step {
             private $handle;
             /** @var object dataformat writer. */
             private $writer;
+
             public function __construct(flow_engine_step $step, string $streamname, string $format, iterator $input) {
                 $this->handle = fopen($streamname, 'a');
                 if ($this->handle === false) {

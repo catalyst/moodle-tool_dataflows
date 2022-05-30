@@ -349,7 +349,6 @@ class step extends persistent {
         return true;
     }
 
-
     /**
      * Ensures the type (which should be a class) exists and is referenceable
      *
