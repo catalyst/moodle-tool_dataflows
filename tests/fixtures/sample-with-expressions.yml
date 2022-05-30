@@ -1,32 +1,33 @@
 name: Example Dataflow
 
 config:
-    expression: with steps ${{ steps.notify.name }} and ${{ steps.check_version.name }}
+    expression: with steps ${{ steps.notify.name }} and ${{ steps.read_value.name }}
     expression_test_id: ${{ dataflow.id }}
     expression_math: ${{ dataflow.id + 777 }}
-    expression_concat: ${{ steps.notify.alias~steps.check_version.alias }}
+    expression_concat: ${{ steps.notify.alias~steps.read_value.alias }}
 
 steps:
-  check_version:
-    name: Check Version
-    description: Check if a certain value exists
-    type: \tool_dataflows\step\cfg_reader
+  read_value:
+    name: Read a value
+    description: Check if the value is returned from the DB
+    type: \tool_dataflows\step\sql_reader
     config:
-      component: core
-      name: version
+      sql: SELECT 1
     outputs:
       # Here "version" will be an output name (available under steps.check.outputs.version)
       # Here "value" is the step's internal reference, which happens to be using the output path of "value".
       version: value
   notify:
     description: Notify all the people involved that this has happened
-    depends_on: check_version
-    type: \tool_dataflows\step\notification_writer
+    depends_on: read_value
+    type: tool_dataflows\step\stream_writer
     config:
+      streamname: /tmp/file
+      format: csv
       template: |
-        Run #${{ env.RUN_ID }}:
-        Hi, your admin userid is ${{ config('siteadmins') }}
-        and site's ${{ steps.check_version.config.component }} version is ${{ steps.check_version.outputs.version }}
+        Run #${{ env.DATAFLOW_RUN_NUMBER }}:
+        Hi, your admin userid is TBA
+        The query was ${{ steps.read_value.config.sql }}.
 
 # Scopes
 # global = globally cross dataflow scoped variables. These being typically defined at the plugin level.
