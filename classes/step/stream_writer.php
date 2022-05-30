@@ -111,7 +111,7 @@ class stream_writer extends flow_step {
      */
     public function validate_config($config) {
         $errors = [];
-        if (!isset($config->stream)) {
+        if (!isset($config->streamname)) {
             $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
         }
         if (!isset($config->format)) {
