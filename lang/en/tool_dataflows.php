@@ -78,6 +78,7 @@ $string['invalidyaml'] = 'The content provided is invalid YAML.';
 $string['nodataflowfile'] = 'No dataflow file found.';
 $string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Graph (DAG).';
 $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
+$string['steptypedoesnotexist'] = 'The step type "{$a}" does not exist.';
 $string['stepdependencydoesnotexist'] = 'The step dependency "{$a}" does not exist.';
 $string['stepinvalidinputstreamcount'] = 'Invalid number of input streams (Found: {$a->found}, Expected between {$a->min} and {$a->max}).';
 $string['stepinvalidoutputstreamcount'] = 'Invalid number of output streams (Found: {$a->found}, Expected between {$a->min} and {$a->max}).';

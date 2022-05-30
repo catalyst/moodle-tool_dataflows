@@ -107,18 +107,18 @@ class stream_writer extends flow_step {
      * Validate the configuration settings.
      *
      * @param object $config
-     * @return true|array true if valid, an array of errors otherwise
+     * @return true|\lang_string[] true if valid, an array of errors otherwise
      */
     public function validate_config($config) {
         $errors = [];
         if (!isset($config->stream)) {
-            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'streamname');
+            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
         }
         if (!isset($config->format)) {
-            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'format');
+            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'format', true);
         } else {
             if (!class_exists('tool_dataflows\formats\encoders\\' . $config->format)) {
-                $errors['format_not_supported'] = get_string('format_not_supported', 'tool_dataflows', $config->format);
+                $errors['format_not_supported'] = get_string('format_not_supported', 'tool_dataflows', $config->format, true);
             }
         }
 
