@@ -19,7 +19,7 @@ namespace tool_dataflows\execution;
 use tool_dataflows\execution\iterators\iterator;
 use tool_dataflows\execution\iterators\php_iterator;
 use tool_dataflows\execution\flow_engine_step;
-use tool_dataflows\step\base_step;
+use tool_dataflows\step\reader_step;
 
 /**
  * Test reader step type that supplies an array.
@@ -31,14 +31,10 @@ use tool_dataflows\step\base_step;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class array_in_type extends base_step {
+class array_in_type extends reader_step {
 
-    /** @var int[] number of input streams (min, max), zero for readers. */
-    protected $inputstreams = [0, 0];
-
-    public function is_flow(): bool {
-        return true;
-    }
+    /** @var int[] number of input flows (min, max), zero for readers. */
+    protected $inputflows = [0, 0];
 
     /** @var array The source. Place dat here before use. */
     public static $source = [];
@@ -49,17 +45,5 @@ class array_in_type extends base_step {
 
     public function execute($input) {
         return $input;
-    }
-
-    /**
-     * Generates an engine step for this type.
-     *
-     * @param engine $engine
-     * @param \tool_dataflows\step $stepdef
-     * @return engine_step
-     */
-    public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
-        // This should be sufficient for most cases. Override this function if needed.
-        return new flow_engine_step($engine, $stepdef, $this);
     }
 }

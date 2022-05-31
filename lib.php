@@ -41,11 +41,11 @@ function tool_dataflows_after_config() {
  */
 function tool_dataflows_step_types() {
     return [
-        new step\debugging(),
-        new step\join(),
-        new step\mtrace(),
-        new step\void_step(),
-        new step\sql_reader(),
-        new step\stream_writer(),
+        new step\trigger_cron(),
+        new step\reader_sql(),
+        new step\writer_debugging(),
+        new step\flow_logic_join(),
+        new step\writer_stream(),
+        new step\connector_debugging(),
     ];
 }

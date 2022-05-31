@@ -33,7 +33,7 @@ use tool_dataflows\execution\iterators\map_iterator;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class stream_writer extends flow_step {
+class writer_stream extends writer_step {
 
     /**
      * Get the iterator for the step, based on configurations.

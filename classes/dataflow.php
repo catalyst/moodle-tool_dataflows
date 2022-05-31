@@ -144,7 +144,7 @@ class dataflow extends persistent {
      *
      * This should:
      * - check if it's in a valid DAG format
-     * - the number of connections (input/output streams) are expected and correct.
+     * - the number of connections (input/output flows) are expected and correct.
      *
      * @return true|array true if valid, an array of errors otherwise.
      */
@@ -172,10 +172,10 @@ class dataflow extends persistent {
                     $srccount++;
                 }
             }
-            [$min, $max] = $steptype->get_number_of_input_streams();
+            [$min, $max] = $steptype->get_number_of_input_flows();
             if ($srccount < $min || $srccount > $max) {
-                $errors["invalid_count_inputstreams_{$step->id}"] = $prefix . get_string(
-                    'stepinvalidinputstreamcount',
+                $errors["invalid_count_inputflows_{$step->id}"] = $prefix . get_string(
+                    'stepinvalidinputflowcount',
                     'tool_dataflows',
                     (object) [
                         'found' => $srccount,
@@ -186,11 +186,11 @@ class dataflow extends persistent {
             }
 
             // Check outputs - for the item in the adjacency list, ensure the count of destinations is valid.
-            [$min, $max] = $steptype->get_number_of_output_streams();
+            [$min, $max] = $steptype->get_number_of_output_flows();
             $destcount = isset($adjacencylist[$step->id]) ? count($adjacencylist[$step->id]) : 0;
             if ($destcount < $min || $destcount > $max) {
-                $errors["invalid_count_outputstreams_{$step->id}"] = $prefix . get_string(
-                    'stepinvalidoutputstreamcount',
+                $errors["invalid_count_outputflows_{$step->id}"] = $prefix . get_string(
+                    'stepinvalidoutputflowcount',
                     'tool_dataflows',
                     (object) [
                         'found' => $destcount,

@@ -16,29 +16,32 @@
 
 namespace tool_dataflows\step;
 
-use tool_dataflows\execution\engine;
-use tool_dataflows\execution\engine_step;
-use tool_dataflows\execution\flow_engine_step;
-
 /**
- * Step type: void
+ * Flow logic: join
+ *
+ * This step not perform any operations, but instead waits for all
+ * dependencies to be complete before continuing.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class void_step extends flow_step {
+class flow_logic_join extends flow_logic_step {
 
     /**
-     * Executes the step
+     * For a join step, it should have 2 or more inputs and for now, up to 20
+     * possible input flows.
      *
-     * This will simply return nothing, causing the output chain to be empty
-     *
-     * @param mixed $input
-     * @return mixed $output
+     * @var int[] number of input flows (min, max)
      */
-    public function execute($input) {
-        return;
-    }
+    protected $inputflows = [2, 20];
+
+    /**
+     * For a join step, there should be exactly one output. This is because
+     * without at least one output, there is no need to perform a join.
+     *
+     * @var int[] number of output flows (min, max)
+     */
+    protected $outputflows = [1, 1];
 }

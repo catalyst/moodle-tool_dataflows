@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,26 +17,20 @@
 namespace tool_dataflows\step;
 
 /**
- * Step type: debugging
+ * CRON trigger class
+ *
+ * TODO Implement scheduling related logic.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class debugging extends flow_step {
+class trigger_cron extends trigger_step {
 
-    /**
-     * Executes the step
-     *
-     * This will logs the input via debugging and passes the input value as-is to the output.
-     *
-     * @param mixed $input
-     * @return mixed $output
-     */
-    public function execute($input) {
-        $output = $input;
-        debugging(json_encode($input));
-        return $output;
-    }
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
+
+    /** @var int[] number of output connectors (min, max). */
+    protected $outputconnectors = [0, 1];
 }

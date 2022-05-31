@@ -155,13 +155,14 @@ class tool_dataflows_engine_test extends \advanced_testcase {
         $steps = [];
         $reader = new step();
         $reader->name = 'reader';
-        $reader->type = 'tool_dataflows\step\mtrace';
+        $reader->type = 'tool_dataflows\step\reader_sql';
+        $reader->config = '{sql: SELECT 1}';
         $dataflow->add_step($reader);
         $steps[$reader->id] = $reader;
 
         $writer = new step();
         $writer->name = 'writer';
-        $writer->type = 'tool_dataflows\step\debugging';
+        $writer->type = 'tool_dataflows\step\writer_debugging';
 
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);

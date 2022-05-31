@@ -16,56 +16,28 @@
 
 namespace tool_dataflows\step;
 
-use tool_dataflows\execution\engine;
-use tool_dataflows\execution\engine_step;
 use tool_dataflows\execution\iterators\iterator;
 use tool_dataflows\execution\iterators\map_iterator;
 use tool_dataflows\execution\flow_engine_step;
 
 /**
- * Base class for flow step types.
+ * Base class for writer step types.
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2022, Catalyst IT
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class flow_step extends base_step {
+abstract class writer_step extends flow_step {
 
-    /** @var int[] number of input flows (min, max). Flow steps default to min 1 input. */
+    /** @var int[] number of input flows (min, max). */
     protected $inputflows = [1, 1];
 
-    /**
-     * Does this type define a flow step?
-     * @return bool
-     */
-    final public function is_flow(): bool {
-        return true;
-    }
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
 
-    /**
-     * Step callback handler
-     *
-     * Implementation can vary, this might be a transformer, resource, or
-     * something else.
-     */
-    public function execute($input) {
-        // Default is to do nothing.
-        return $input;
-    }
-
-    /**
-     * Generates an engine step for this type.
-     *
-     * This should be sufficient for most cases. Override this function if needed.
-     *
-     * @param engine $engine
-     * @param \tool_dataflows\step $stepdef
-     * @return engine_step
-     */
-    public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
-        return new flow_engine_step($engine, $stepdef, $this);
-    }
+    /** @var int[] number of output connectors (min, max). */
+    protected $outputconnectors = [0, 1];
 
     /**
      * Get the iterator for the step, based on configurations.
@@ -86,6 +58,6 @@ abstract class flow_step extends base_step {
      * {@inheritdoc}
      */
     public function get_group(): string {
-        return 'flows';
+        return 'writers';
     }
 }

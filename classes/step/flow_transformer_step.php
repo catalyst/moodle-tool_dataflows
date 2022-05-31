@@ -16,28 +16,26 @@
 
 namespace tool_dataflows\step;
 
-use tool_dataflows\execution\engine;
-use tool_dataflows\execution\engine_flow_cap;
-use tool_dataflows\execution\engine_step;
-
 /**
- * A special, virtual flow step that is attached to the end of a flow block.
+ * Base class for flow step types.
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2022, Catalyst IT
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class flow_cap extends flow_step {
+abstract class flow_transformer_step extends flow_step {
+
+    /** @var int[] number of input flows (min, max). */
+    protected $inputflows = [1, 1];
+
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [1, 1];
 
     /**
-     * Generates an engine step for this type.
-     *
-     * @param engine $engine
-     * @param \tool_dataflows\step $stepdef
-     * @return engine_step
+     * {@inheritdoc}
      */
-    public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
-        return new engine_flow_cap($engine, $stepdef, $this);
+    final public function get_group(): string {
+        return 'flowtransformers';
     }
 }

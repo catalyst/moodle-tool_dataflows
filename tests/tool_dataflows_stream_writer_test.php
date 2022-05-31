@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/execution/array_in_type.php');
 
 /**
- * Unit tests for stream_writer.
+ * Unit tests for writer_stream.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -63,7 +63,7 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
         $tmpfilename = tempnam('', 'tool_dataflows_');
         $writer = new step();
         $writer->name = 'stream-writer';
-        $writer->type = 'tool_dataflows\step\stream_writer';
+        $writer->type = 'tool_dataflows\step\writer_stream';
         $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpfilename]);
 
         $writer->depends_on([$reader]);

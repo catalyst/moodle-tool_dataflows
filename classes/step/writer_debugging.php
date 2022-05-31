@@ -17,26 +17,26 @@
 namespace tool_dataflows\step;
 
 /**
- * Step type: mtrace
+ * Debugging writer step type
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mtrace extends flow_step {
+class writer_debugging extends writer_step {
 
     /**
      * Executes the step
      *
-     * This will logs the input via mtrace and passes the input value as-is to the output.
+     * This will logs the input via debugging and passes the input value as-is to the output.
      *
      * @param mixed $input
      * @return mixed $output
      */
     public function execute($input) {
         $output = $input;
-        mtrace(json_encode($input));
+        debugging(json_encode($input));
         return $output;
     }
 }

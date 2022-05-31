@@ -16,12 +16,8 @@
 
 namespace tool_dataflows\step;
 
-use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\execution\engine;
 use tool_dataflows\execution\engine_step;
-use tool_dataflows\execution\iterators\iterator;
-use tool_dataflows\execution\iterators\map_iterator;
-use tool_dataflows\execution\flow_engine_step;
 
 /**
  * Base class for steps
@@ -40,11 +36,19 @@ abstract class base_step {
      */
     protected $component = 'tool_dataflows';
 
-    /** @var int[] number of input streams (min, max) */
-    protected $inputstreams = [0, 1];
+    /* Input and Output flow and connectors, default all things to zero */
 
-    /** @var int[] number of output streams (min, max) */
-    protected $outputstreams = [0, 1];
+    /** @var int[] number of input flows (min, max) */
+    protected $inputflows = [0, 0];
+
+    /** @var int[] number of output flows (min, max) */
+    protected $outputflows = [0, 0];
+
+    /** @var int[] number of input connectors (min, max) */
+    protected $inputconnectors = [0, 0];
+
+    /** @var int[] number of output connectors (min, max) */
+    protected $outputconnectors = [0, 0];
 
     /**
      * Get the frankenstyle component name
@@ -68,7 +72,9 @@ abstract class base_step {
      * Does this type define a flow step?
      * @return bool
      */
-    abstract public function is_flow(): bool;
+    public function is_flow(): bool {
+        return false;
+    }
 
     /**
      * Get the step's id
@@ -110,21 +116,39 @@ abstract class base_step {
     }
 
     /**
-     * Returns the [min, max] number of input streams
+     * Returns the [min, max] number of input flows
      *
      * @return     int[] of 2 ints, min and max values for the stream
      */
-    public function get_number_of_input_streams() {
-        return $this->inputstreams;
+    public function get_number_of_input_flows() {
+        return $this->inputflows;
     }
 
     /**
-     * Returns the [min, max] number of output streams
+     * Returns the [min, max] number of output flows
      *
      * @return     int[] of 2 ints, min and max values for the stream
      */
-    public function get_number_of_output_streams() {
-        return $this->outputstreams;
+    public function get_number_of_output_flows() {
+        return $this->outputflows;
+    }
+
+    /**
+     * Returns the [min, max] number of input connectors
+     *
+     * @return     int[] of 2 ints, min and max values for the stream
+     */
+    public function get_number_of_input_connectors() {
+        return $this->inputconnectors;
+    }
+
+    /**
+     * Returns the [min, max] number of output connectors
+     *
+     * @return     int[] of 2 ints, min and max values for the stream
+     */
+    public function get_number_of_output_connectors() {
+        return $this->outputconnectors;
     }
 
     /**
@@ -141,9 +165,18 @@ abstract class base_step {
     /**
      * Generates an engine step for this type.
      *
+     * This should be sufficient for most cases. Override this function if needed.
+     *
      * @param engine $engine
      * @param \tool_dataflows\step $stepdef
      * @return engine_step
      */
     abstract public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step;
+
+    /**
+     * Returns the group (string) this step type is categorised under.
+     *
+     * @return  string name of the group
+     */
+    abstract public function get_group(): string;
 }

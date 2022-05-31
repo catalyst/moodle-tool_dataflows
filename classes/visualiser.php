@@ -264,6 +264,30 @@ class visualiser {
         $addurl = new \moodle_url('/admin/tool/dataflows/step.php', ['dataflowid' => $dataflowid]);
         echo \html_writer::link($addurl, $addbutton);
 
+        $steptypes = manager::get_steps_types();
+        $items = array_reduce($steptypes, function ($acc, $steptype) use ($dataflowid) {
+            $acc[$steptype->get_group()] = $acc[$steptype->get_group()] ?? [];
+            $acc[$steptype->get_group()][] = [
+                'href' => new \moodle_url(
+                    '/admin/tool/dataflows/step.php',
+                    ['dataflowid' => $dataflowid, 'steptype' => get_class($steptype)]
+                ),
+                'label' => get_class($steptype),
+            ];
+            return $acc;
+        }, []);
+
+        // Triggers have some trigger property configured TBD.
+        // Flows always handle some iterator.
+        $data = [
+            'label' => $icon . get_string('new_step', 'tool_dataflows'),
+            'items' => $items,
+        ];
+        foreach ($data['items'] as $key => $value) {
+            $data["has$key"] = !empty($value);
+        }
+        echo $output->render_from_template('tool_dataflows/dropdown', $data);
+
         // No hide/show links under each column.
         $table->collapsible(false);
         // Columns are presorted.

@@ -17,31 +17,25 @@
 namespace tool_dataflows\step;
 
 /**
- * Step type: join
- *
- * This step not perform any operations, but instead waits for all
- * dependencies to be complete before continuing.
+ * Debugging connector step type
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class join extends flow_step {
+class connector_debugging extends connector_step {
 
     /**
-     * @var int[] number of input streams (min, max)
+     * Executes the step
      *
-     * For a join step, it should have 2 or more inputs and for now, up to 20
-     * possible input streams.
-     */
-    protected $inputstreams = [2, 20];
-
-    /**
-     * @var int[] number of output streams (min, max)
+     * This will logs the input via debugging and passes the input value as-is to the output.
      *
-     * For a join step, there should be exactly one output. This is because
-     * without at least one output, there is no need to perform a join.
+     * @param mixed $input
+     * @return mixed $output
      */
-    protected $outputstreams = [1, 1];
+    public function execute(): bool {
+        // TODO: Reach in and output the result of an expression via a debugging call.
+        return true;
+    }
 }

@@ -47,21 +47,6 @@ class tool_dataflows_test extends \advanced_testcase {
     }
 
     /**
-     * @covers \tool_dataflows\step\debugging
-     */
-    public function test_debugging_step(): void {
-        $step = new step\debugging();
-        $input = [1, 2, 3, 4, 5];
-        $output = $step->execute($input);
-
-        // No changes are expected.
-        $this->assertEquals($input, $output);
-
-        // Debugging was called with the expected format.
-        $this->assertDebuggingCalled(json_encode($input));
-    }
-
-    /**
      * @covers \tool_dataflows\dataflow
      */
     public function test_creating_empty_dataflow(): void {
@@ -103,13 +88,13 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $steptwo = new \tool_dataflows\step();
         $steptwo->name = 'step2';
-        $steptwo->type = step\debugging::class;
+        $steptwo->type = step\writer_debugging::class;
         $steptwo->depends_on([$stepone]);
         $dataflow->add_step($steptwo);
 
         $stepthree = new \tool_dataflows\step();
         $stepthree->name = 'step3';
-        $stepthree->type = step\debugging::class;
+        $stepthree->type = step\writer_debugging::class;
         $stepthree->depends_on([$steptwo]);
         $dataflow->add_step($stepthree);
 
@@ -145,13 +130,13 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $steptwo = new \tool_dataflows\step();
         $steptwo->name = 'step2';
-        $steptwo->type = step\debugging::class;
+        $steptwo->type = step\writer_debugging::class;
         $steptwo->depends_on([$stepone]);
         $dataflow->add_step($steptwo);
 
         $stepthree = new \tool_dataflows\step();
         $stepthree->name = 'step3';
-        $stepthree->type = step\debugging::class;
+        $stepthree->type = step\writer_debugging::class;
         $stepthree->depends_on([$steptwo]);
         $dataflow->add_step($stepthree);
 
@@ -345,19 +330,19 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $steptwo = new \tool_dataflows\step();
         $steptwo->name = 'step2';
-        $steptwo->type = step\debugging::class;
+        $steptwo->type = step\writer_debugging::class;
         $steptwo->depends_on([$stepone]);
         $dataflow->add_step($steptwo);
 
         $stepthree = new \tool_dataflows\step();
         $stepthree->name = 'step3';
-        $stepthree->type = step\debugging::class;
+        $stepthree->type = step\writer_debugging::class;
         $stepthree->depends_on([$steptwo]);
         $dataflow->add_step($stepthree);
 
         $stepdetached = new \tool_dataflows\step();
         $stepdetached->name = 'detachedstep';
-        $stepdetached->type = step\debugging::class;
+        $stepdetached->type = step\writer_debugging::class;
         $dataflow->add_step($stepdetached);
 
         $this->assertCount(4, (array) $dataflow->steps);

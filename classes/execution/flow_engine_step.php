@@ -16,9 +16,6 @@
 
 namespace tool_dataflows\execution;
 
-use tool_dataflows\step\base_step;
-use tool_dataflows\step;
-
 /**
  * Manages the execution of a flow step.
  *

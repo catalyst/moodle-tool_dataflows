@@ -29,13 +29,7 @@ use tool_dataflows\execution\iterators\php_iterator;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sql_reader extends flow_step {
-
-    /** @var int[] number of input streams (min, max), zero for readers. */
-    protected $inputstreams = [0, 0];
-
-    /** @var int[] number of output streams (min, max), one for readers. */
-    protected $outputstreams = [1, 1];
+class reader_sql extends reader_step {
 
     /**
      * Get the iterator for the step, based on configurations.

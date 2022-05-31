@@ -81,7 +81,7 @@ class engine {
     /** @var array The engine steps in the dataflow. */
     protected $enginesteps = [];
 
-    /** @var array The steps that have no outputstreams. */
+    /** @var array The steps that have no outputflows. */
     protected $sinks = [];
 
     /** @var array Caps for the flow blocks. */

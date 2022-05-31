@@ -14,34 +14,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\execution;
+namespace tool_dataflows\step;
 
+use tool_dataflows\execution\engine;
+use tool_dataflows\execution\engine_step;
 use tool_dataflows\execution\iterators\iterator;
 use tool_dataflows\execution\iterators\map_iterator;
 use tool_dataflows\execution\flow_engine_step;
-use tool_dataflows\step\writer_step;
 
 /**
- * Test writer step type that writes to an array.
- * TODO: Until better classes have been defined, this is GEFN (Good Enough For Now).
+ * Base class for flow step types.
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2022, Catalyst IT
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class array_out_type extends writer_step {
+abstract class flow_logic_step extends flow_step {
 
-    /** @var array The output array that the dat is written into. Make sure it is empty before use. */
-    public static $dest = [];
+    /** @var int[] number of input flows (min, max). */
+    protected $inputflows = [1, 20];
 
-    public function get_iterator(flow_engine_step $step): iterator {
-        $input = current($step->upstreams)->iterator;
-        return new map_iterator($step, $input);
-    }
+    /** @var int[] number of input flows (min, max). */
+    protected $outputflows = [1, 20];
 
-    public function execute($input) {
-        self::$dest[] = $input;
-        return $input;
+    /**
+     * {@inheritdoc}
+     */
+    public function get_group(): string {
+        return 'flowlogics';
     }
 }
