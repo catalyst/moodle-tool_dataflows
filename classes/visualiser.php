@@ -116,8 +116,6 @@ class visualiser {
     public static function display_dataflows_table(dataflows_table $table, \moodle_url $url, string $pageheading) {
         global $PAGE;
 
-        $download = optional_param('download', '', PARAM_ALPHA);
-
         $context = \context_system::instance();
 
         $PAGE->set_context($context);
@@ -126,16 +124,13 @@ class visualiser {
         $output = $PAGE->get_renderer('tool_dataflows');
         $pluginname = get_string('pluginname', 'tool_dataflows');
 
-        $table->is_downloading($download, 'dataflows', 'flows');
         $table->define_baseurl($url);
 
-        if (!$table->is_downloading()) {
-            $PAGE->set_title($pluginname . ': ' . $pageheading);
-            $PAGE->set_pagelayout('admin');
-            $PAGE->set_heading($pluginname);
-            echo $output->header();
-            echo $output->heading($pageheading);
-        }
+        $PAGE->set_title($pluginname . ': ' . $pageheading);
+        $PAGE->set_pagelayout('admin');
+        $PAGE->set_heading($pluginname);
+        echo $output->header();
+        echo $output->heading($pageheading);
 
         // New Dataflow.
         $icon = $output->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
@@ -168,15 +163,11 @@ class visualiser {
         $table->is_downloadable(false);
         $table->out($table->pagesize, false);
 
-        if (!$table->is_downloading()) {
-            echo $output->footer();
-        }
+        echo $output->footer();
     }
 
     public static function display_steps_table(int $dataflowid, steps_table $table, \moodle_url $url, string $pageheading) {
         global $PAGE;
-
-        $download = optional_param('download', '', PARAM_ALPHA);
 
         $context = \context_system::instance();
 
@@ -186,85 +177,82 @@ class visualiser {
         $output = $PAGE->get_renderer('tool_dataflows');
         $pluginname = get_string('pluginname', 'tool_dataflows');
 
-        $table->is_downloading($download, 'dataflows', 'flows');
         $table->define_baseurl($url);
 
-        if (!$table->is_downloading()) {
-            $dataflow = new dataflow($dataflowid);
-            $PAGE->set_title($pluginname . ': ' . $dataflow->name . ': ' . $pageheading);
-            $PAGE->set_pagelayout('admin');
-            $PAGE->set_heading($pluginname . ': ' . $dataflow->name);
-            echo $output->header();
+        $dataflow = new dataflow($dataflowid);
+        $PAGE->set_title($pluginname . ': ' . $dataflow->name . ': ' . $pageheading);
+        $PAGE->set_pagelayout('admin');
+        $PAGE->set_heading($pluginname . ': ' . $dataflow->name);
+        echo $output->header();
 
-            // Validate current dataflow, displaying any reason why the flow is not valid.
-            $validation = $dataflow->validate_dataflow();
+        // Validate current dataflow, displaying any reason why the flow is not valid.
+        $validation = $dataflow->validate_dataflow();
 
-            // Display the run now button (disabling it if dataflow is not valid).
-            $runurl = new \moodle_url(
-                '/admin/tool/dataflows/run.php',
-                [
-                    'dataflowid' => $dataflow->id,
-                    'returnurl' => $PAGE->url->out(false),
-                ]);
-            $runbuttonattributes = ['class' => 'btn btn-warning' ];
-            if ($validation !== true) {
-                $runbuttonattributes['disabled'] = true;
-            }
-            $icon = $output->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
-            $runbutton = \html_writer::tag('button', $icon . get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
-            echo \html_writer::link($runurl, $runbutton);
-
-            // Edit dataflow button.
-            $icon = $output->render(new \pix_icon('i/settings', get_string('edit')));
-            $importurl = new \moodle_url(
-                '/admin/tool/dataflows/edit.php',
-                ['id' => $dataflow->id]);
-            $exportbtn = \html_writer::tag(
-                'button',
-                $icon . get_string('edit'),
-                ['class' => 'btn btn-secondary mx-2' ]
-            );
-            echo \html_writer::link($importurl, $exportbtn);
-
-            // Display the export button.
-            $icon = $output->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows')));
-            $exportactionurl = new \moodle_url(
-                '/admin/tool/dataflows/export.php',
-                ['dataflowid' => $dataflowid, 'sesskey' => sesskey()]);
-            $btnuid = 'exportbuttoncontents';
-            $btn = $output->single_button($exportactionurl, $btnuid);
-            $exportbtn = str_replace($btnuid, $icon . get_string('export', 'tool_dataflows'), $btn);
-            echo $exportbtn;
-
-            // Display the import button, which links to the import page.
-            $icon = $output->render(new \pix_icon('i/upload', get_string('import', 'tool_dataflows')));
-            $importurl = new \moodle_url(
-                '/admin/tool/dataflows/import.php',
-                ['dataflowid' => $dataflow->id]);
-            $exportbtn = \html_writer::tag(
-                'button',
-                $icon . get_string('import', 'tool_dataflows'),
-                ['class' => 'btn btn-secondary ml-2' ]
-            );
-            echo \html_writer::link($importurl, $exportbtn);
-
-            // Generate the image based on the DOT script.
-            $contents = self::generate($dataflow->get_dotscript(), 'svg');
-
-            // Display the current dataflow visually.
-            echo \html_writer::div($contents, 'text-center p-4');
-
-            if ($validation !== true) {
-                $errors = '';
-                foreach ($validation as $message) {
-                    $errors .= \html_writer::tag('li', $message);
-                }
-                $errors = \html_writer::tag('ul', $errors);
-                echo $output->notification($errors);
-            }
-
-            echo $output->heading($pageheading);
+        // Display the run now button (disabling it if dataflow is not valid).
+        $runurl = new \moodle_url(
+            '/admin/tool/dataflows/run.php',
+            [
+                'dataflowid' => $dataflow->id,
+                'returnurl' => $PAGE->url->out(false),
+            ]);
+        $runbuttonattributes = ['class' => 'btn btn-warning' ];
+        if ($validation !== true) {
+            $runbuttonattributes['disabled'] = true;
         }
+        $icon = $output->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
+        $runbutton = \html_writer::tag('button', $icon . get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
+        echo \html_writer::link($runurl, $runbutton);
+
+        // Edit dataflow button.
+        $icon = $output->render(new \pix_icon('i/settings', get_string('edit')));
+        $importurl = new \moodle_url(
+            '/admin/tool/dataflows/edit.php',
+            ['id' => $dataflow->id]);
+        $exportbtn = \html_writer::tag(
+            'button',
+            $icon . get_string('edit'),
+            ['class' => 'btn btn-secondary mx-2' ]
+        );
+        echo \html_writer::link($importurl, $exportbtn);
+
+        // Display the export button.
+        $icon = $output->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows')));
+        $exportactionurl = new \moodle_url(
+            '/admin/tool/dataflows/export.php',
+            ['dataflowid' => $dataflowid, 'sesskey' => sesskey()]);
+        $btnuid = 'exportbuttoncontents';
+        $btn = $output->single_button($exportactionurl, $btnuid);
+        $exportbtn = str_replace($btnuid, $icon . get_string('export', 'tool_dataflows'), $btn);
+        echo $exportbtn;
+
+        // Display the import button, which links to the import page.
+        $icon = $output->render(new \pix_icon('i/upload', get_string('import', 'tool_dataflows')));
+        $importurl = new \moodle_url(
+            '/admin/tool/dataflows/import.php',
+            ['dataflowid' => $dataflow->id]);
+        $exportbtn = \html_writer::tag(
+            'button',
+            $icon . get_string('import', 'tool_dataflows'),
+            ['class' => 'btn btn-secondary ml-2' ]
+        );
+        echo \html_writer::link($importurl, $exportbtn);
+
+        // Generate the image based on the DOT script.
+        $contents = self::generate($dataflow->get_dotscript(), 'svg');
+
+        // Display the current dataflow visually.
+        echo \html_writer::div($contents, 'text-center p-4');
+
+        if ($validation !== true) {
+            $errors = '';
+            foreach ($validation as $message) {
+                $errors .= \html_writer::tag('li', $message);
+            }
+            $errors = \html_writer::tag('ul', $errors);
+            echo $output->notification($errors);
+        }
+
+        echo $output->heading($pageheading);
 
         // New Step.
         $icon = $output->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
@@ -299,12 +287,7 @@ class visualiser {
         $table->build_table();
         $table->finish_output();
 
-        if (!$table->is_downloading()) {
-
-            echo \html_writer::empty_tag('hr');
-
-            echo $output->footer();
-        }
+        echo $output->footer();
     }
 }
 
