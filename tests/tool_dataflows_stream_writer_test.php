@@ -34,6 +34,7 @@ require_once(__DIR__ . '/execution/array_in_type.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_stream_writer_test extends \advanced_testcase {
+
     /**
      * Set up before each test
      */

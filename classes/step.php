@@ -306,4 +306,60 @@ class step extends persistent {
         $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
         $DB->delete_records('tool_dataflows_step_depends', ['dependson' => $this->id]);
     }
+
+    /**
+     * Validates this step
+     *
+     * @return     true|array will return true or an array of errors
+     */
+    public function validate_step() {
+        $configvalidation = $this->validate_config();
+        $stepvalidation = parent::validate();
+        $errors = [];
+        // If step validation fails, ensure the errors are appended to $errors.
+        if ($stepvalidation !== true) {
+            $errors = array_merge($errors, $stepvalidation);
+        }
+        // If dataflow validation fails, ensure the errors are appended to $errors.
+        if ($configvalidation !== true) {
+            $errors = array_merge($errors, $configvalidation);
+        }
+
+        return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * This should drill down into the config and validate the configuration
+     * using the step type configured.
+     *
+     * It is worth noting that values might be set as expressions, so step types
+     * should be cautious of this when performing their own validation.
+     *
+     * @return true|\lang_string true if valid otherwise a lang_string object with the first error
+     */
+    protected function validate_config() {
+        $classname = $this->type;
+        $steptype = new $classname();
+        $validation = $steptype->validate_config($this->config);
+        if ($validation !== true) {
+            // NOTE: This will only return the first error as the persistent
+            // class expects the return value to be an instance of lang_string.
+            return reset($validation);
+        }
+        return true;
+    }
+
+    /**
+     * Ensures the type (which should be a class) exists and is referenceable
+     *
+     * @return true|\lang_string true if valid otherwise a lang_string object with the first error
+     */
+    protected function validate_type() {
+        $classname = $this->type;
+        if (!class_exists($classname)) {
+            return new \lang_string('steptypedoesnotexist', 'tool_dataflows', $classname);
+        }
+
+        return true;
+    }
 }

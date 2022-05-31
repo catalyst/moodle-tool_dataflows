@@ -320,8 +320,8 @@ class tool_dataflows_test extends \advanced_testcase {
         $this->assertNotEquals($yaml['config']['expression'],  $config->expression);
         $this->assertEquals($dataflow->id,  $config->expression_test_id);
         $this->assertEquals($dataflow->id + 777,  $config->expression_math); // Adding an fixed number.
-        $this->assertEquals('notifycheck_version',  $config->expression_concat); // Using the ~ operator.
-        $this->compatible_assertStringContainsString('steps notify and Check Version',  $config->expression);
+        $this->assertEquals('notifyread_value',  $config->expression_concat); // Using the ~ operator.
+        $this->compatible_assertStringContainsString('steps notify and Read a value',  $config->expression);
 
         // TODO: Add tests for parsing during a dataflow run (via the dataflow engine).
     }

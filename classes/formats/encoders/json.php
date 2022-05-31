@@ -27,6 +27,7 @@ use tool_dataflows\formats\encoder_base;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class json extends encoder_base {
+
     /**
      * Return the start of the output.
      *

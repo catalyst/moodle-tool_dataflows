@@ -3,10 +3,9 @@ name: Example Dataflow
 steps:
   read:
     description: Read configuration value
-    type: \tool_dataflows\step\cfg_reader
+    type: \tool_dataflows\step\sql_reader
     config:
-      component: core
-      name: version
+      sql: SELECT 1
   debugging:
     description: Output the value to debugging
     depends_on: read
@@ -14,6 +13,7 @@ steps:
   write:
     description: Write the value to a file
     depends_on: debugging
-    type: \tool_dataflows\step\file_writer
+    type: tool_dataflows\step\stream_writer
     config:
-      path: /dev/stdout
+      streamname: /tmp/file
+      format: json

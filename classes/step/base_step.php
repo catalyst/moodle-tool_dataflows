@@ -132,7 +132,7 @@ abstract class base_step {
      * Defaults to no check.
      *
      * @param object $config
-     * @return true|array true if valid, an array of errors otherwise
+     * @return true|\lang_string[] true if valid, an array of errors otherwise
      */
     public function validate_config($config) {
         return true;

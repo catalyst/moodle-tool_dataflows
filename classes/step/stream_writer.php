@@ -34,6 +34,7 @@ use tool_dataflows\execution\iterators\map_iterator;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class stream_writer extends flow_step {
+
     /**
      * Get the iterator for the step, based on configurations.
      *
@@ -58,6 +59,7 @@ class stream_writer extends flow_step {
             private $handle;
             /** @var object dataformat writer. */
             private $writer;
+
             public function __construct(flow_engine_step $step, string $streamname, string $format, iterator $input) {
                 $this->handle = fopen($streamname, 'a');
                 if ($this->handle === false) {
@@ -107,18 +109,18 @@ class stream_writer extends flow_step {
      * Validate the configuration settings.
      *
      * @param object $config
-     * @return true|array true if valid, an array of errors otherwise
+     * @return true|\lang_string[] true if valid, an array of errors otherwise
      */
     public function validate_config($config) {
         $errors = [];
-        if (!isset($config->stream)) {
-            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'streamname');
+        if (!isset($config->streamname)) {
+            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
         }
         if (!isset($config->format)) {
-            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'format');
+            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'format', true);
         } else {
             if (!class_exists('tool_dataflows\formats\encoders\\' . $config->format)) {
-                $errors['format_not_supported'] = get_string('format_not_supported', 'tool_dataflows', $config->format);
+                $errors['format_not_supported'] = get_string('format_not_supported', 'tool_dataflows', $config->format, true);
             }
         }
 

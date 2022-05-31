@@ -162,6 +162,7 @@ class dataflow extends persistent {
         $adjacencylist = graph::to_adjacency_list($edges);
         $steps = $this->steps;
         foreach ($steps as $step) {
+            $prefix = \html_writer::tag('b', $step->name). ': ';
             $steptype = $step->type;
             $steptype = new $steptype();
             // Check inputs - ensure the item's occurance across the items in the adjacency list is within range.
@@ -173,11 +174,10 @@ class dataflow extends persistent {
             }
             [$min, $max] = $steptype->get_number_of_input_streams();
             if ($srccount < $min || $srccount > $max) {
-                $errors["invalid_count_inputstreams_{$step->id}"] = get_string(
+                $errors["invalid_count_inputstreams_{$step->id}"] = $prefix . get_string(
                     'stepinvalidinputstreamcount',
                     'tool_dataflows',
                     (object) [
-                        'name' => $step->name,
                         'found' => $srccount,
                         'min' => $min,
                         'max' => $max,
@@ -189,11 +189,10 @@ class dataflow extends persistent {
             [$min, $max] = $steptype->get_number_of_output_streams();
             $destcount = isset($adjacencylist[$step->id]) ? count($adjacencylist[$step->id]) : 0;
             if ($destcount < $min || $destcount > $max) {
-                $errors["invalid_count_outputstreams_{$step->id}"] = get_string(
+                $errors["invalid_count_outputstreams_{$step->id}"] = $prefix . get_string(
                     'stepinvalidoutputstreamcount',
                     'tool_dataflows',
                     (object) [
-                        'name' => $step->name,
                         'found' => $destcount,
                         'min' => $min,
                         'max' => $max,
@@ -203,7 +202,16 @@ class dataflow extends persistent {
         }
 
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
-        // TODO: implement.
+        foreach ($steps as $step) {
+            $stepvalidation = $step->validate_step();
+            if ($stepvalidation !== true) {
+                // Additionally, prefix all step validation with something to
+                // make it easier to identify from the dataflow details page.
+                $prefix = \html_writer::tag('b', $step->name). ': ';
+                $prefixed = preg_filter('/^/', $prefix, $stepvalidation);
+                $errors = array_merge($errors, $prefixed);
+            }
+        }
 
         return empty($errors) ? true : $errors;
     }
