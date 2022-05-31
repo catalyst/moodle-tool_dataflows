@@ -91,7 +91,7 @@ class steps_table extends \table_sql {
         $classname = $record->type;
         $position = strrpos($classname, '\\');
         $basename = substr($classname, $position + 1);
-        if ($position !== 0) {
+        if ($position === false) {
             $basename = $classname;
         }
 
