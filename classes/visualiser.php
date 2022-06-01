@@ -256,29 +256,13 @@ class visualiser {
 
         // New Step.
         $icon = $output->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
-        $steptypes = manager::get_steps_types();
-        $items = array_reduce($steptypes, function ($acc, $steptype) use ($dataflowid) {
-            $acc[$steptype->get_group()] = $acc[$steptype->get_group()] ?? [];
-            $acc[$steptype->get_group()][] = [
-                'href' => new \moodle_url(
-                    '/admin/tool/dataflows/step.php',
-                    ['dataflowid' => $dataflowid, 'type' => get_class($steptype)]
-                ),
-                'label' => get_class($steptype),
-            ];
-            return $acc;
-        }, []);
-
-        // Triggers have some trigger property configured TBD.
-        // Flows always handle some iterator.
-        $data = [
-            'label' => $icon . get_string('new_step', 'tool_dataflows'),
-            'items' => $items,
-        ];
-        foreach ($data['items'] as $key => $value) {
-            $data["has$key"] = !empty($value);
-        }
-        echo $output->render_from_template('tool_dataflows/dropdown', $data);
+        $addbutton = \html_writer::tag(
+            'button',
+            $icon . get_string('new_step', 'tool_dataflows'),
+            ['class' => 'btn btn-primary mb-3']
+        );
+        $addurl = new \moodle_url('/admin/tool/dataflows/step-chooser.php', ['id' => $dataflowid]);
+        echo \html_writer::link($addurl, $addbutton);
 
         // No hide/show links under each column.
         $table->collapsible(false);

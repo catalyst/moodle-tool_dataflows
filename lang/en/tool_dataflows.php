@@ -83,6 +83,9 @@ $string['field_type'] = 'Type of step';
 $string['update_step'] = 'Update step';
 $string['new_step'] = 'New step';
 
+// Step Chooser.
+$string['stepchooser'] = 'Step chooser';
+
 // Warnings / Errors.
 $string['invalidyaml'] = 'The content provided is invalid YAML.';
 $string['nodataflowfile'] = 'No dataflow file found.';
