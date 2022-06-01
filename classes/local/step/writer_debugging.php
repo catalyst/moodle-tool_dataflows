@@ -14,38 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\local\step;
+
 /**
- * Main file
+ * Debugging writer step type
  *
  * @package    tool_dataflows
- * @author     Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class writer_debugging extends writer_step {
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once(dirname(__FILE__) . '/vendor/autoload.php');
-
-use tool_dataflows\local\step;
-
-function tool_dataflows_after_config() {
-}
-
-/**
- * Returns a list of step types available for this plugin.
- *
- * NOTE: For other plugins, the function name should be simply declared as <component_name>_dataflow_step_types.
- *
- * @return     array of step types
- */
-function tool_dataflows_step_types() {
-    return [
-        new step\trigger_cron(),
-        new step\reader_sql(),
-        new step\writer_debugging(),
-        new step\flow_logic_join(),
-        new step\writer_stream(),
-        new step\connector_debugging(),
-    ];
+    /**
+     * Executes the step
+     *
+     * This will logs the input via debugging and passes the input value as-is to the output.
+     *
+     * @param mixed $input
+     * @return mixed $output
+     */
+    public function execute($input) {
+        $output = $input;
+        debugging(json_encode($input));
+        return $output;
+    }
 }

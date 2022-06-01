@@ -58,7 +58,7 @@ class step_form extends \core\form\persistent {
             $classname = get_class($steptype);
             $basename = substr($classname, strrpos($classname, '\\') + 1);
             // For readability, opting to show the name of the type of step first, and FQCN afterwards.
-            // Example: writer_debugging (tool_dataflows\step\writer_debugging).
+            // Example: writer_debugging (tool_dataflows\local\step\writer_debugging).
             $smallfqcn = \html_writer::tag('small', "($classname)", ['class' => 'text-muted']);
             $acc[$classname] = "$basename $smallfqcn";
             return $acc;

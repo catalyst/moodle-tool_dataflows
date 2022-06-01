@@ -18,6 +18,7 @@ namespace tool_dataflows;
 
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use tool_dataflows\application_trait;
+use tool_dataflows\local\step;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -25,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/application_trait.php');
 require_once(__DIR__ . '/../lib.php');
 // This is needed. File will not be automatically included.
-require_once(__DIR__ . '/execution/array_in_type.php');
+require_once(__DIR__ . '/local/execution/array_in_type.php');
 
 /**
  * Units tests for tool_dataflows
@@ -83,7 +84,7 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $stepone = new \tool_dataflows\step();
         $stepone->name = 'step1';
-        $stepone->type = execution\array_in_type::class;
+        $stepone->type = local\execution\array_in_type::class;
         $dataflow->add_step($stepone);
 
         $steptwo = new \tool_dataflows\step();
@@ -125,7 +126,7 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $stepone = new \tool_dataflows\step();
         $stepone->name = 'step1';
-        $stepone->type = execution\array_in_type::class;
+        $stepone->type = local\execution\array_in_type::class;
         $dataflow->add_step($stepone);
 
         $steptwo = new \tool_dataflows\step();
@@ -325,7 +326,7 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $stepone = new \tool_dataflows\step();
         $stepone->name = 'step1';
-        $stepone->type = execution\array_in_type::class;
+        $stepone->type = local\execution\array_in_type::class;
         $dataflow->add_step($stepone);
 
         $steptwo = new \tool_dataflows\step();
@@ -355,7 +356,7 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $stepone = new \tool_dataflows\step();
         $stepone->name = 'alone';
-        $stepone->type = execution\array_in_type::class;
+        $stepone->type = local\execution\array_in_type::class;
         $dataflow->add_step($stepone);
 
         $this->assertCount(1, (array) $dataflow->steps);
@@ -396,18 +397,18 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $step1 = new \tool_dataflows\step();
         $step1->name = 'delete_via_step';
-        $step1->type = execution\array_in_type::class;
+        $step1->type = local\execution\array_in_type::class;
         $dataflow->add_step($step1);
 
         $step2 = new \tool_dataflows\step();
         $step2->name = 'oneisalonelynumber';
-        $step2->type = execution\array_in_type::class;
+        $step2->type = local\execution\array_in_type::class;
         $step2->depends_on([$step1]);
         $dataflow->add_step($step2);
 
         $step3 = new \tool_dataflows\step();
         $step3->name = 'delete_via_dataflow';
-        $step3->type = execution\array_in_type::class;
+        $step3->type = local\execution\array_in_type::class;
         $step3->depends_on([$step2]);
         $dataflow->add_step($step3);
 

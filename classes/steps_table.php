@@ -97,7 +97,7 @@ class steps_table extends \table_sql {
 
         // For readability, opting to show the name of the type of step first, and FQCN afterwards.
         // TODO: When downloading, display as below, otherwise split into next line for web view.
-        // Example: writer_debugging (tool_dataflows\step\writer_debugging).
+        // Example: writer_debugging (tool_dataflows\local\step\writer_debugging).
         $str = $basename;
         $str .= \html_writer::tag('div', "($classname)", ['class' => 'text-muted small']);
         return $str;
