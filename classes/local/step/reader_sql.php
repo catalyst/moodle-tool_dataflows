@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\local\step;
 
-use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\php_iterator;

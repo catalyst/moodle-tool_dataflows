@@ -16,7 +16,7 @@
 
 namespace tool_dataflows\local\step;
 
-use tool_dataflows\execution\connector_engine_step;
+use tool_dataflows\local\execution\connector_engine_step;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
 
