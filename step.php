@@ -36,6 +36,7 @@ defined('MOODLE_INTERNAL') || die();
 // The dataflow id, if not provided, it is as if the user is creating a new dataflow.
 $dataflowid = optional_param('dataflowid', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
+$type = optional_param('type', '', PARAM_TEXT);
 if (empty($id)) {
     // If a step id is NOT provided (new step), then it MUST have a dataflow id present.
     $dataflowid = required_param('dataflowid', PARAM_INT);
@@ -77,7 +78,9 @@ $PAGE->set_url($url);
 $customdata = [
     'persistent' => $persistent ?? null, // An instance, or null.
     'dataflowid' => $dataflowid, // Required as the step needs to be linked to a dataflow record.
+    'type' => $persistent->type ?? $type, // For new steps, this is required as the type cannot change afterwards.
     'userid' => $USER->id, // For the hidden userid field.
+    'backlink' => $dataflowstepsurl, // Previous url in the event of an exception.
 ];
 $form = new step_form($PAGE->url->out(false), $customdata);
 if ($form->is_cancelled()) {

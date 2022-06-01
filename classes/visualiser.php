@@ -262,7 +262,7 @@ class visualiser {
             $acc[$steptype->get_group()][] = [
                 'href' => new \moodle_url(
                     '/admin/tool/dataflows/step.php',
-                    ['dataflowid' => $dataflowid, 'steptype' => get_class($steptype)]
+                    ['dataflowid' => $dataflowid, 'type' => get_class($steptype)]
                 ),
                 'label' => get_class($steptype),
             ];
