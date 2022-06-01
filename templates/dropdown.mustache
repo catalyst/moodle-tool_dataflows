@@ -33,7 +33,45 @@
     * items collection of known categories of step types (trigger, flow, connectors)
 
     Example context (json):
-    { "status": "OK"}
+    {
+        "label": "New step",
+        "items": {
+            "triggers": [ {
+                    "href": {},
+                    "label": "tool_dataflows\\step\\trigger_cron"
+                } ],
+            "readers": [ {
+                    "href": {},
+                    "label": "tool_dataflows\\step\\reader_sql"
+                } ],
+            "writers": [ {
+                    "href": {},
+                    "label": "tool_dataflows\\step\\writer_debugging"
+                },
+                {
+                    "href": {},
+                    "label": "tool_dataflows\\step\\writer_stream"
+                } ],
+            "flowlogics": [ {
+                    "href": {},
+                    "label": "tool_dataflows\\step\\flow_logic_join"
+                } ],
+            "connectors": [ {
+                    "href": {},
+                    "label": "tool_dataflows\\step\\connector_debugging"
+                } ],
+            "flows": [ {
+                    "href": {},
+                    "label": "local_aws\\step\\example"
+                } ]
+        },
+        "hastriggers": true,
+        "hasreaders": true,
+        "haswriters": true,
+        "hasflowlogics": true,
+        "hasconnectors": true,
+        "hasflows": true
+    }
 }}
 <span class="badge badge-secondary">{{status}}</span>
 
