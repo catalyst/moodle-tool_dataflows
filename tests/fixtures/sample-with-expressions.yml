@@ -10,7 +10,7 @@ steps:
   read_value:
     name: Read a value
     description: Check if the value is returned from the DB
-    type: \tool_dataflows\step\sql_reader
+    type: \tool_dataflows\local\step\reader_sql
     config:
       sql: SELECT 1
     outputs:
@@ -20,7 +20,7 @@ steps:
   notify:
     description: Notify all the people involved that this has happened
     depends_on: read_value
-    type: tool_dataflows\step\stream_writer
+    type: tool_dataflows\local\step\writer_stream
     config:
       streamname: /tmp/file
       format: csv

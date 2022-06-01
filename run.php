@@ -25,7 +25,7 @@
 
 use tool_dataflows\dataflow;
 use tool_dataflows\visualiser;
-use tool_dataflows\execution\engine;
+use tool_dataflows\local\execution\engine;
 
 define('NO_OUTPUT_BUFFERING', true);
 

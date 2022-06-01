@@ -18,9 +18,9 @@ namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
-use tool_dataflows\execution\engine;
+use tool_dataflows\local\execution\engine;
 use tool_dataflows\step;
-use tool_dataflows\step\sql_reader;
+use tool_dataflows\local\step\reader_sql;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -48,8 +48,8 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
     /**
      * Tests the reader's ability to read from a database.
      *
-     * @covers \tool_dataflows\step\sql_reader::construct_query
-     * @covers \tool_dataflows\step\sql_reader::validate_config
+     * @covers \tool_dataflows\local\step\reader_sql::construct_query
+     * @covers \tool_dataflows\local\step\reader_sql::validate_config
      * @throws \coding_exception
      * @throws \dml_exception
      */
@@ -70,7 +70,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
 
         $reader = new step();
         $reader->name = 'reader';
-        $reader->type = 'tool_dataflows\step\sql_reader';
+        $reader->type = 'tool_dataflows\local\step\reader_sql';
 
         // Set the SQL query via a YAML config string.
         $reader->config = Yaml::dump([
@@ -82,7 +82,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         // TODO: When better writers are available, change this to use one.
         $writer = new step();
         $writer->name = 'writer';
-        $writer->type = 'tool_dataflows\step\debugging';
+        $writer->type = 'tool_dataflows\local\step\writer_debugging';
 
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);
@@ -96,13 +96,13 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
     /**
      * Test validate_config().
      *
-     * @covers \tool_dataflows\step\sql_reader::validate_config
+     * @covers \tool_dataflows\local\step\reader_sql::validate_config
      * @throws \coding_exception
      */
     public function test_validate_config() {
         // Test valid configuration.
         $config = (object)['sql' => 'SELECT * FROM {config}'];
-        $reader = new sql_reader();
+        $reader = new reader_sql();
         $this->assertTrue($reader->validate_config($config));
 
         // Test missing sql value.

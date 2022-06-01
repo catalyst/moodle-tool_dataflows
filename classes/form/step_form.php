@@ -41,6 +41,8 @@ class step_form extends \core\form\persistent {
     public function definition() {
         $mform = $this->_form;
         $dataflowid = $this->_customdata['dataflowid'];
+        $type = $this->_customdata['type'];
+        $backlink = $this->_customdata['backlink'];
 
         // User ID.
         $mform->addElement('hidden', 'userid');
@@ -50,8 +52,27 @@ class step_form extends \core\form\persistent {
         $mform->addElement('hidden', 'dataflowid');
         $mform->setConstant('dataflowid', $dataflowid);
 
+        // Type of the step (should be a FQCN).
+        $steptypes = manager::get_steps_types();
+        $steptypes = array_reduce($steptypes, function ($acc, $steptype) {
+            $classname = get_class($steptype);
+            $basename = substr($classname, strrpos($classname, '\\') + 1);
+            // For readability, opting to show the name of the type of step first, and FQCN afterwards.
+            // Example: writer_debugging (tool_dataflows\local\step\writer_debugging).
+            $smallfqcn = \html_writer::tag('small', "($classname)", ['class' => 'text-muted']);
+            $acc[$classname] = "$basename $smallfqcn";
+            return $acc;
+        }, []);
+
+        if (!isset($steptypes[$type])) {
+            throw new \moodle_exception('steptypedoesnotexist', 'tool_dataflows', $backlink, $type);
+        }
+        $mform->addElement('hidden', 'type');
+        $mform->setConstant('type', $this->_customdata['type']);
+
         // Name of the step.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
+        $mform->addElement('static', 'type_help', '', $steptypes[$type]);
 
         // Description for the step which may include the purpose for its inclusion, more detail about what it does or how it works.
         $mform->addElement(
@@ -83,18 +104,6 @@ class step_form extends \core\form\persistent {
             ['class' => empty($options) ? 'hidden' : ''] // Hidden if there are no options to select from.
         );
         $select->setMultiple(true);
-
-        // Type of the step (should be a FQCN).
-        $steptypes = manager::get_steps_types();
-        $steptypes = array_reduce($steptypes, function ($acc, $steptype) {
-            $classname = get_class($steptype);
-            $basename = substr($classname, strrpos($classname, '\\') + 1);
-            // For readability, opting to show the name of the type of step first, and FQCN afterwards.
-            // Example: debugging (tool_dataflows\step\debugging).
-            $acc[$classname] = "$basename ($classname)";
-            return $acc;
-        }, []);
-        $mform->addElement('select', 'type', get_string('field_type', 'tool_dataflows'), $steptypes);
 
         // Configuration - YAML format.
         $mform->addElement(

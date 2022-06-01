@@ -308,21 +308,30 @@ class step extends persistent {
     }
 
     /**
+     * Sets the validated flag to false, such that validation can take place on
+     * the persistent again.
+     */
+    public function invalidate_step() {
+        // HACK to invalidate the persistent, such that it can go through it's
+        // validation again instead of assuming the store settings are still
+        // valid.
+        $name = $this->raw_get('name');
+        $this->raw_set('name', null);
+        $this->raw_set('name', $name);
+    }
+
+    /**
      * Validates this step
      *
      * @return     true|array will return true or an array of errors
      */
     public function validate_step() {
-        $configvalidation = $this->validate_config();
+        $this->invalidate_step();
         $stepvalidation = parent::validate();
         $errors = [];
         // If step validation fails, ensure the errors are appended to $errors.
         if ($stepvalidation !== true) {
             $errors = array_merge($errors, $stepvalidation);
-        }
-        // If dataflow validation fails, ensure the errors are appended to $errors.
-        if ($configvalidation !== true) {
-            $errors = array_merge($errors, $configvalidation);
         }
 
         return empty($errors) ? true : $errors;
@@ -339,6 +348,17 @@ class step extends persistent {
      */
     protected function validate_config() {
         $classname = $this->type;
+        $typevalidation = $this->validate_type();
+        if ($typevalidation !== true) {
+            return $typevalidation;
+        }
+
+        // Ensure configuration is in valid YAML format.
+        $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
+        if (isset($yaml) && gettype($yaml) !== 'object') {
+            return new \lang_string('invalidyaml', 'tool_dataflows');
+        }
+
         $steptype = new $classname();
         $validation = $steptype->validate_config($this->config);
         if ($validation !== true) {

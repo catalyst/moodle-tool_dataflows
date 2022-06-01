@@ -14,26 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
+namespace tool_dataflows\local\execution;
 
-use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
+use tool_dataflows\dataflow;
 use tool_dataflows\step;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . '/local/execution/array_in_type.php');
+// This is needed. File will not be automatically included.
+require_once(__DIR__ . '/array_in_type.php');
+// This is needed. File will not be automatically included.
+require_once(__DIR__ . '/array_out_type.php');
 
 /**
- * Unit tests for writer_stream.
+ * Unit tests for the execution engine
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_dataflows_stream_writer_test extends \advanced_testcase {
+class tool_dataflows_basic_execution_test extends \advanced_testcase {
 
     /**
      * Set up before each test
@@ -44,55 +46,44 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
     }
 
     /**
-     * Test the stream writer with json formatting.
+     * Tests the minimal ability for the execution engine. Reads in array data from a reader,
+     * and passes it on to a writer.
      *
-     * @dataProvider test_writer_data_provider
-     * @param $inputdata
+     * @covers \tool_dataflows\local\execution\engine::execute
+     * @covers \tool_dataflows\local\execution\engine::execute_step
+     * @covers \tool_dataflows\local\execution\engine::finalise
+     * @covers \tool_dataflows\local\execution\engine::initialise
+     * @throws \moodle_exception
      */
-    public function test_writer_json($inputdata) {
+    public function test_in_and_out() {
         // Crate the dataflow.
         $dataflow = new dataflow();
-        $dataflow->name = 'array-to-stream';
+        $dataflow->name = 'two-step';
         $dataflow->save();
 
         $reader = new step();
-        $reader->name = 'array-reader';
+        $reader->name = 'reader';
         $reader->type = 'tool_dataflows\local\execution\array_in_type';
         $dataflow->add_step($reader);
 
-        $tmpfilename = tempnam('', 'tool_dataflows_');
         $writer = new step();
-        $writer->name = 'stream-writer';
-        $writer->type = 'tool_dataflows\local\step\writer_stream';
-        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpfilename]);
+        $writer->name = 'writer';
+        $writer->type = 'tool_dataflows\local\execution\array_out_type';
 
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);
 
         // Define the input.
-        $json = json_encode($inputdata);
+        $json = '[{"a": 1, "b": 2, "c": 3}, {"a": 4, "b": 5, "c": 6}]';
 
-        \tool_dataflows\local\execution\array_in_type::$source = $inputdata;
+        array_in_type::$source = json_decode($json);
+        array_out_type::$dest = [];
 
         // Execute.
         $engine = new engine($dataflow);
         $engine->execute();
 
-        $resultdata = file_get_contents($tmpfilename);
-
-        $this->assertEquals($json, $resultdata);
+        $this->assertEquals(json_encode(array_in_type::$source), json_encode(array_out_type::$dest));
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
-    }
-
-    /**
-     * Data provider for tests.
-     *
-     * @return array
-     */
-    public function test_writer_data_provider(): array {
-        return [
-            [[['a' => 1, 'b' => 2, 'c' => 3], ['a' => 4, 'b' => 5, 'c' => 6]]],
-            [[['a' => 1], ['b' => 5], ['c' => 6]]],
-        ];
     }
 }

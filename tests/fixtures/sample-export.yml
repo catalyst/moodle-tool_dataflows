@@ -3,19 +3,19 @@ steps:
   read:
     name: read
     description: 'Read a value'
-    type: \tool_dataflows\step\sql_reader
+    type: \tool_dataflows\local\step\reader_sql
     config:
       sql: 'SELECT 1'
   debugging:
     name: debugging
     description: 'Output the value to debugging'
     depends_on: read
-    type: \tool_dataflows\step\debugging
+    type: \tool_dataflows\local\step\writer_debugging
   write:
     name: write
     description: 'Write the value to a file'
     depends_on: debugging
-    type: tool_dataflows\step\stream_writer
+    type: tool_dataflows\local\step\writer_stream
     config:
       streamname: /tmp/file
       format: json

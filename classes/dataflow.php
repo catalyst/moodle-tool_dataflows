@@ -144,7 +144,7 @@ class dataflow extends persistent {
      *
      * This should:
      * - check if it's in a valid DAG format
-     * - the number of connections (input/output streams) are expected and correct.
+     * - the number of connections (input/output flows) are expected and correct.
      *
      * @return true|array true if valid, an array of errors otherwise.
      */
@@ -158,48 +158,9 @@ class dataflow extends persistent {
             $errors['dataflowisnotavaliddag'] = get_string('dataflowisnotavaliddag', 'tool_dataflows');
         }
 
-        // Check steps have correct connections going in and out based on their step type.
-        $adjacencylist = graph::to_adjacency_list($edges);
+        // Prepare to validate steps.
         $steps = $this->steps;
-        foreach ($steps as $step) {
-            $prefix = \html_writer::tag('b', $step->name). ': ';
-            $steptype = $step->type;
-            $steptype = new $steptype();
-            // Check inputs - ensure the item's occurance across the items in the adjacency list is within range.
-            $srccount = 0;
-            foreach ($adjacencylist as $destinations) {
-                if (in_array($step->id, $destinations)) {
-                    $srccount++;
-                }
-            }
-            [$min, $max] = $steptype->get_number_of_input_streams();
-            if ($srccount < $min || $srccount > $max) {
-                $errors["invalid_count_inputstreams_{$step->id}"] = $prefix . get_string(
-                    'stepinvalidinputstreamcount',
-                    'tool_dataflows',
-                    (object) [
-                        'found' => $srccount,
-                        'min' => $min,
-                        'max' => $max,
-                    ]
-                );
-            }
-
-            // Check outputs - for the item in the adjacency list, ensure the count of destinations is valid.
-            [$min, $max] = $steptype->get_number_of_output_streams();
-            $destcount = isset($adjacencylist[$step->id]) ? count($adjacencylist[$step->id]) : 0;
-            if ($destcount < $min || $destcount > $max) {
-                $errors["invalid_count_outputstreams_{$step->id}"] = $prefix . get_string(
-                    'stepinvalidoutputstreamcount',
-                    'tool_dataflows',
-                    (object) [
-                        'found' => $destcount,
-                        'min' => $min,
-                        'max' => $max,
-                    ]
-                );
-            }
-        }
+        $adjacencylist = graph::to_adjacency_list($edges);
 
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
         foreach ($steps as $step) {
@@ -209,7 +170,58 @@ class dataflow extends persistent {
                 // make it easier to identify from the dataflow details page.
                 $prefix = \html_writer::tag('b', $step->name). ': ';
                 $prefixed = preg_filter('/^/', $prefix, $stepvalidation);
+                $prefixed = array_unique($prefixed);
+                $prefixed = array_combine(
+                    array_map(function ($k) use ($step) {
+                        return $step->id . $k;
+                    }, array_keys($prefixed)),
+                    $prefixed);
+
                 $errors = array_merge($errors, $prefixed);
+
+                // The following validation relies on a correctly defined type,
+                // so skip the rest if this is missing.
+                if (isset($stepvalidation['type'])) {
+                    continue;
+                }
+
+                // Validate step connections going in and out based on their step type.
+                $steptype = $step->type;
+                $steptype = new $steptype();
+                // Check inputs - ensure the item's occurance across the items in the adjacency list is within range.
+                $srccount = 0;
+                foreach ($adjacencylist as $destinations) {
+                    if (in_array($step->id, $destinations)) {
+                        $srccount++;
+                    }
+                }
+                [$min, $max] = $steptype->get_number_of_input_flows();
+                if ($srccount < $min || $srccount > $max) {
+                    $errors["invalid_count_inputflows_{$step->id}"] = $prefix . get_string(
+                        'stepinvalidinputflowcount',
+                        'tool_dataflows',
+                        (object) [
+                            'found' => $srccount,
+                            'min' => $min,
+                            'max' => $max,
+                        ]
+                    );
+                }
+
+                // Check outputs - for the item in the adjacency list, ensure the count of destinations is valid.
+                [$min, $max] = $steptype->get_number_of_output_flows();
+                $destcount = isset($adjacencylist[$step->id]) ? count($adjacencylist[$step->id]) : 0;
+                if ($destcount < $min || $destcount > $max) {
+                    $errors["invalid_count_outputflows_{$step->id}"] = $prefix . get_string(
+                        'stepinvalidoutputflowcount',
+                        'tool_dataflows',
+                        (object) [
+                            'found' => $destcount,
+                            'min' => $min,
+                            'max' => $max,
+                        ]
+                    );
+                }
             }
         }
 
