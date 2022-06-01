@@ -353,6 +353,12 @@ class step extends persistent {
             return $typevalidation;
         }
 
+        // Ensure configuration is in valid YAML format.
+        $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
+        if (isset($yaml) && gettype($yaml) !== 'object') {
+            return new \lang_string('invalidyaml', 'tool_dataflows');
+        }
+
         $steptype = new $classname();
         $validation = $steptype->validate_config($this->config);
         if ($validation !== true) {
