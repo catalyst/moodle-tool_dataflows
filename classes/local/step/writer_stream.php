@@ -48,8 +48,14 @@ class writer_stream extends writer_step {
         }
 
         $config = $step->stepdef->config;
-        // TODO: Include check for a dry run when dry runs are supported.
-        $streamname = $config->streamname;
+        if ($step->engine->isdryrun) {
+            if (empty($config->dryrunstreamname)) {
+                return new map_iterator($step, $upstream->iterator);
+            }
+            $streamname = $config->dryrunstreamname;
+        } else {
+            $streamname = $config->streamname;
+        }
 
         /*
          * Iterator class to write out to the stream.

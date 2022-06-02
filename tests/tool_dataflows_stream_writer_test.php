@@ -80,6 +80,9 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
 
         $resultdata = file_get_contents($tmpfilename);
 
+        // Strip the whitespace from the result data.
+        $resultdata = str_replace(PHP_EOL, '', $resultdata);
+
         $this->assertEquals($json, $resultdata);
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }

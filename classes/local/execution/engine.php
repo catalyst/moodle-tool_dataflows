@@ -93,6 +93,9 @@ class engine {
     /** @var \Throwable The exception generated when abort occurred. */
     protected $exception = null;
 
+    /** @var bool True if executing a dry run. */
+    protected $isdryrun = false;
+
     /**
      * Constructs the engine.
      *
@@ -101,6 +104,11 @@ class engine {
      */
     public function __construct(dataflow $dataflow) {
         $this->dataflow = $dataflow;
+
+        $config = $dataflow->config;
+
+        // TODO: For now, extract this from the config, but this should really be taken from global variables.
+        $this->isdryrun = !empty($config->isdryrun);
 
         // Create engine steps for each step in the dataflow.
         foreach ($dataflow->steps as $stepdef) {
@@ -262,6 +270,7 @@ class engine {
         switch ($parameter) {
             case 'status':
             case 'exception':
+            case 'isdryrun':
                 return $this->$parameter;
             case 'name':
                 return $this->dataflow->name;
