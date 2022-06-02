@@ -382,4 +382,25 @@ class step extends persistent {
 
         return true;
     }
+
+    /**
+     * Returns whether or not the step configured, has a side effect
+     *
+     * A side effect if it modifies some state variable value(s) outside its
+     * local environment, which is to say if it has any observable effect other
+     * than its primary effect of returning a value to the invoker of the
+     * operation
+     *
+     * @return     bool whether or not this step has a side effect
+     * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+     */
+    public function has_side_effect(): bool {
+        $typevalidation = $this->validate_type();
+        if ($typevalidation !== true) {
+            return false;
+        }
+        $classname = $this->type;
+        $steptype = new $classname();
+        return $steptype->has_side_effect();
+    }
 }

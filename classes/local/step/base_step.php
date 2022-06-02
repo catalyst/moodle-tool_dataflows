@@ -30,9 +30,9 @@ use tool_dataflows\local\execution\engine_step;
 abstract class base_step {
 
     /**
-     * @var string $component - The component / plugin this step belongs to.
-     *
      * This is autopopulated by the dataflows manager.
+     *
+     * @var string $component - The component / plugin this step belongs to.
      */
     protected $component = 'tool_dataflows';
 
@@ -49,6 +49,24 @@ abstract class base_step {
 
     /** @var int[] number of output connectors (min, max) */
     protected $outputconnectors = [0, 0];
+
+    /** @var bool whether or not this step type (potentially) contains a side effect or not */
+    protected $hassideeffect = false;
+
+    /**
+     * Returns whether or not the step configured, has a side effect
+     *
+     * A side effect if it modifies some state variable value(s) outside its
+     * local environment, which is to say if it has any observable effect other
+     * than its primary effect of returning a value to the invoker of the
+     * operation
+     *
+     * @return     bool whether or not this step has a side effect
+     * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+     */
+    public function has_side_effect(): bool {
+        return $this->hassideeffect;
+    }
 
     /**
      * Get the frankenstyle component name
@@ -70,6 +88,7 @@ abstract class base_step {
 
     /**
      * Does this type define a flow step?
+     *
      * @return bool
      */
     public function is_flow(): bool {
