@@ -16,6 +16,11 @@
 
 namespace tool_dataflows;
 
+use tool_dataflows\local\step\reader_step;
+use tool_dataflows\local\step\trigger_step;
+use tool_dataflows\local\step\connector_step;
+use tool_dataflows\local\step\flow_step;
+
 /**
  * Display a table of dataflow steps.
  *
@@ -95,10 +100,36 @@ class steps_table extends \table_sql {
             $basename = $classname;
         }
 
+        // Icons relating to the step type and its functions. Currently
+        // colours/shapes which will match up closely with the current dataflow
+        // diagram.
+        $classname = $record->type;
+        $icons = [];
+        if (class_exists($classname)) {
+            $steptype = new $classname();
+            // Flow vs Trigger vs Connector.
+            if ($steptype instanceof flow_step) {
+                // Green and rounded (circle).
+                $icons[] = '🟢';
+            } else if ($steptype instanceof trigger_step) {
+                // Blue and rounded (circle).
+                $icons[] = '🔵';
+            } else if ($steptype instanceof connector_step) {
+                // Connectors square and grey (black was closest).
+                $icons[] = '⬛';
+            }
+
+            // Add lightning to all steps with side effects.
+            $steptype->has_side_effect() && $icons[] = '⚡';
+        }
+        $icons = implode(' ', $icons);
+
         // For readability, opting to show the name of the type of step first, and FQCN afterwards.
         // TODO: When downloading, display as below, otherwise split into next line for web view.
         // Example: writer_debugging (tool_dataflows\local\step\writer_debugging).
-        $str = $basename;
+        $str = '';
+        $str .= \html_writer::tag('span', "$icons", ['class' => 'text-muted small mr-1']);
+        $str .= $basename;
         $str .= \html_writer::tag('div', "($classname)", ['class' => 'text-muted small']);
         return $str;
     }
