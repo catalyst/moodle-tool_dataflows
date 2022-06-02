@@ -329,15 +329,35 @@ class dataflow extends persistent {
         foreach ($steps as $step) {
             $url = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $step->id]))->out();
             $rawstyles = [
-                'color'     => '#b8c1ca',
+                'color'     => 'black',
                 'shape'     => 'record',
                 'fillcolor' => '#ced4da',
-                'style'     => 'filled,rounded',
+                'style'     => 'filled',
                 'fontsize'  => '10',
                 'fontname'  => 'Arial',
                 'URL'       => $url,
-                'tooltip'   => $step->description,
+                'tooltip'   => $step->description ?: $step->name,
             ];
+            // Override base / default styles with the styles for the step.
+            // If the class exists, use the styles from that step type.
+            // Otherwise, add styles to indicate this is an invalidly configured step.
+            $classname = $step->type;
+            if (class_exists($classname)) {
+                $steptype = new $classname();
+                $rawstyles = array_merge($rawstyles, $steptype->get_node_styles());
+                if ($steptype->has_side_effect()) {
+                    $rawstyles['shape'] = 'parallelogram';
+                    $rawstyles['style'] = 'filled';
+                }
+            } else {
+                $rawstyles = array_merge($rawstyles, [
+                   'fillcolor' => '#ff2500',
+                   'fontcolor' => '#ffffff',
+                ]);
+            }
+            // Make it seem borderless.
+            $rawstyles['color'] = $rawstyles['fillcolor'];
+
             $styles = '';
             foreach ($rawstyles as $key => $value) {
                 // TODO escape all attributes correctly.

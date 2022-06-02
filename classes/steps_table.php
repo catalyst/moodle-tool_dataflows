@@ -121,6 +121,8 @@ class steps_table extends \table_sql {
 
             // Add lightning to all steps with side effects.
             $steptype->has_side_effect() && $icons[] = '⚡';
+        } else {
+            $icons[] = '❓';
         }
         $icons = implode(' ', $icons);
 

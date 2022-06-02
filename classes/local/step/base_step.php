@@ -198,4 +198,20 @@ abstract class base_step {
      * @return  string name of the group
      */
     abstract public function get_group(): string;
+
+    /**
+     * Returns an array with styles used to draw the dot graph
+     *
+     * @return  array containing the styles
+     * @link    https://graphviz.org/doc/info/attrs.html for a list of available attributes
+     */
+    public function get_node_styles(): array {
+        return [
+            'color'     => '#b8c1ca',
+            'shape'     => 'record',
+            'fillcolor' => '#ced4da',
+            'fontsize'  => '10',
+            'fontname'  => 'Arial',
+        ];
+    }
 }

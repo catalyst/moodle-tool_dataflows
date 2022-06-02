@@ -71,4 +71,18 @@ abstract class trigger_step extends connector_step {
     final public function get_group(): string {
         return 'triggers';
     }
+
+    /**
+     * Returns an array with styles used to draw the dot graph
+     *
+     * @return  array containing the styles
+     * @link    https://graphviz.org/doc/info/attrs.html for a list of available attributes
+     */
+    final public function get_node_styles(): array {
+        return [
+            'shape'     => 'oval',
+            'fillcolor' => '#357a32',
+            'fontcolor' => 'white',
+        ];
+    }
 }
