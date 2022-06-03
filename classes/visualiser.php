@@ -64,13 +64,13 @@ class visualiser {
      *
      * @param string $dotscript the script for DOT to generate the image.
      * @param $type supported image types: jpg, gif, png, svg, ps.
-     * @return binary content of the generated image on success, empty string on
+     * @return binary|string content of the generated image on success, empty string on
      *           failure.
      *
      * @author     cjiang
      * @author     Kevin Pham <kevinpham@catalyst-au.net>
      */
-    public static function generate($dotscript, $type) {
+    public static function generate($dotscript, $type = 'svg') {
         global $CFG;
 
         $descriptorspec = [

@@ -206,12 +206,22 @@ abstract class base_step {
      * @link    https://graphviz.org/doc/info/attrs.html for a list of available attributes
      */
     public function get_node_styles(): array {
+        return self::get_base_node_styles();
+    }
+
+    /**
+     * Returns an array with styles used to draw the dot graph
+     *
+     * @return  array containing the base styles
+     */
+    public static function get_base_node_styles(): array {
         return [
-            'color'     => '#b8c1ca',
+            'color'     => 'none',
             'shape'     => 'record',
             'fillcolor' => '#ced4da',
             'fontsize'  => '10',
             'fontname'  => 'Arial',
+            'style'     => 'filled',
         ];
     }
 }

@@ -81,8 +81,9 @@ class steps_table extends \table_sql {
      * @return string
      */
     public function col_name(\stdClass $record): string {
-        $url = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $record->id]);
-        return \html_writer::link($url, $record->name);
+        $step = new step($record->id);
+        $contents = visualiser::generate($step->get_dotscript(), 'svg');
+        return $contents;
     }
 
     /**
@@ -107,22 +108,14 @@ class steps_table extends \table_sql {
         $icons = [];
         if (class_exists($classname)) {
             $steptype = new $classname();
-            // Flow vs Trigger vs Connector.
-            if ($steptype instanceof flow_step) {
-                // Green and rounded (circle).
-                $icons[] = '🟢';
-            } else if ($steptype instanceof trigger_step) {
-                // Blue and rounded (circle).
-                $icons[] = '🔵';
-            } else if ($steptype instanceof connector_step) {
-                // Connectors square and grey (black was closest).
-                $icons[] = '⬛';
-            }
-
             // Add lightning to all steps with side effects.
-            $steptype->has_side_effect() && $icons[] = '⚡';
+            $steptype->has_side_effect() && $icons[] = \html_writer::tag('span', '⚡', [
+                'title' => get_string('hassideeffect', 'tool_dataflows'),
+            ]);
         } else {
-            $icons[] = '❓';
+            $icons[] = \html_writer::tag('span', '❓', [
+                'title' => get_string('steptypedoesnotexist', 'tool_dataflows', $record->type),
+            ]);
         }
         $icons = implode(' ', $icons);
 

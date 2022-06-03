@@ -75,11 +75,8 @@ class dataflows_table extends \table_sql {
      * @return string
      */
     public function col_preview(\stdClass $record): string {
-        // IDEA: If the number of nodes in the dataflow is plenty, it might be
-        // better to make the nodes coloured. And based on the shape, the user
-        // can infer which one it is.
         $imgurl = new \moodle_url('/admin/tool/dataflows/visual.php', ['id' => $record->id, 'type' => 'png']);
-        $img = \html_writer::img($imgurl, "Dataflow #{$record->id} visualisation", ['height' => 30, 'class' => 'lightbox']);
+        $img = \html_writer::img($imgurl, "Dataflow #{$record->id} visualisation", ['height' => '30px', 'class' => 'lightbox']);
         $dataflowstepsurl = new \moodle_url('/admin/tool/dataflows/view.php', ['id' => $record->id]);
         return \html_writer::link($dataflowstepsurl, $img);
     }

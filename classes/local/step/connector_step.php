@@ -71,9 +71,17 @@ abstract class connector_step extends base_step {
      * @link    https://graphviz.org/doc/info/attrs.html for a list of available attributes
      */
     public function get_node_styles(): array {
-        return [
+        $styles = [
             'shape'     => 'record',
             'fillcolor' => '#cccccc',
         ];
+        $basestyles = parent::get_node_styles();
+
+        if ($this->has_side_effect()) {
+            $styles['shape'] = 'parallelogram';
+            $styles['style'] = 'filled';
+        }
+
+        return array_merge($basestyles, $styles);
     }
 }
