@@ -195,13 +195,19 @@ class visualiser {
                 'dataflowid' => $dataflow->id,
                 'returnurl' => $PAGE->url->out(false),
             ]);
-        $runbuttonattributes = ['class' => 'btn btn-warning' ];
+        $runbuttonattributes = ['class' => 'btn btn-warning'];
         if ($validation !== true) {
             $runbuttonattributes['disabled'] = true;
         }
         $icon = $output->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
         $runbutton = \html_writer::tag('button', $icon . get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
         echo \html_writer::link($runurl, $runbutton);
+
+        $runurl->param('dryrun', true);
+
+        $runbuttonattributes['class'] = 'btn btn-secondary mx-2';
+        $dryrunbutton = \html_writer::tag('button', $icon . get_string('dry_run', 'tool_dataflows'), $runbuttonattributes);
+        echo \html_writer::link($runurl, $dryrunbutton);
 
         // Edit dataflow button.
         $icon = $output->render(new \pix_icon('i/settings', get_string('edit')));

@@ -49,7 +49,7 @@ class json extends encoder_base {
             $output .= ',';
         }
 
-        $output .= json_encode($record);
+        $output .= json_encode($record) . PHP_EOL;
 
         $this->sheetdatadded = true;
         return $output;

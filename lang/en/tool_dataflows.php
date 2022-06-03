@@ -45,6 +45,7 @@ $string['import_dataflow'] = 'Import Dataflow';
 $string['run_confirm'] = 'Are you sure you want to run the dataflow \'{$a}\' now? The will run on the web server and may take some time to complete.';
 $string['run_again'] = 'Run again';
 $string['run_now'] = 'Run now';
+$string['dry_run'] = 'Dry run';
 $string['export'] = 'Export';
 $string['import'] = 'Import';
 

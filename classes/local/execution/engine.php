@@ -93,14 +93,19 @@ class engine {
     /** @var \Throwable The exception generated when abort occurred. */
     protected $exception = null;
 
+    /** @var bool True if executing a dry run. */
+    protected $isdryrun = false;
+
     /**
      * Constructs the engine.
      *
      * @param dataflow $dataflow The dataflow to be executed, as defined in the editor.
      * @param bool $trace Set to true to enable log output.
      */
-    public function __construct(dataflow $dataflow) {
+    public function __construct(dataflow $dataflow, bool $isdryrun = false) {
         $this->dataflow = $dataflow;
+
+        $this->isdryrun = $isdryrun;
 
         // Create engine steps for each step in the dataflow.
         foreach ($dataflow->steps as $stepdef) {
@@ -140,7 +145,7 @@ class engine {
         // Add sinks to the execution queue.
         $this->queue = $this->sinks;
         $this->status = self::STATUS_INITIALISED;
-        $this->log('Initialised');
+        $this->log('Initialised. Dry run: ' . ($this->isdryrun ? 'Yes' : 'No'));
     }
 
     /**
@@ -262,6 +267,7 @@ class engine {
         switch ($parameter) {
             case 'status':
             case 'exception':
+            case 'isdryrun':
                 return $this->$parameter;
             case 'name':
                 return $this->dataflow->name;

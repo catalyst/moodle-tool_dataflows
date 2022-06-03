@@ -26,7 +26,6 @@ use tool_dataflows\local\execution\iterators\map_iterator;
  *  configuration is
  *      streamname: <php stream> (The stream to output to.)
  *      format: <format> (The name of the format to encode the output.)
- *      dryrunstreamname: <php_stream> (Optional, the stream to output to for a dry run. If emtpy, no streaming is done.)
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -48,13 +47,16 @@ class writer_stream extends writer_step {
         }
 
         $config = $step->stepdef->config;
-        // TODO: Include check for a dry run when dry runs are supported.
-        $streamname = $config->streamname;
+
+        // We make no output in a dry run.
+        if ($step->engine->isdryrun) {
+            return new map_iterator($step, $upstream->iterator);
+        }
 
         /*
          * Iterator class to write out to the stream.
          */
-        return new class($step, $streamname, $config->format, $upstream->iterator) extends map_iterator {
+        return new class($step, $config->streamname, $config->format, $upstream->iterator) extends map_iterator {
             /** @var resource stream handle. */
             private $handle;
             /** @var object dataformat writer. */
