@@ -312,9 +312,9 @@ class dataflow extends persistent {
     }
 
     /**
-     * Returns a dotscript of the dataflow, false if no connections are available
+     * Returns a dotscript of the dataflow
      *
-     * @return     string dotscript or false if not a valid flow
+     * @return     string dotscript
      */
     public function get_dotscript(): string {
         global $DB;
