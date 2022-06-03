@@ -18,7 +18,7 @@ namespace tool_dataflows;
 
 use core\persistent;
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\local\step\base_step;
+use tool_dataflows\local\step\flow_step;
 
 /**
  * Dataflows persistent class
@@ -317,8 +317,6 @@ class dataflow extends persistent {
      * @return     string dotscript
      */
     public function get_dotscript(): string {
-        global $DB;
-
         // Fetch the dot script node from each step to construct them.
         $steps = $this->steps;
         $nodes = [];
@@ -328,38 +326,50 @@ class dataflow extends persistent {
         }
         $nodes = implode(';' . PHP_EOL, $nodes);
 
-        // First block - Lists all the step dependencies (connections) related to this workflow.
-        // Second block - Ensures steps with no dependencies on prior steps (e.g. entry steps) will be listed.
-        $sql = "SELECT concat(sd.stepid, sd.dependson) as id,
-                       step.name AS stepname,
-                       dependsonstep.name AS dependsonstepname
-                  FROM {tool_dataflows_step_depends} sd
-             LEFT JOIN {tool_dataflows_steps} step ON sd.stepid = step.id
-             LEFT JOIN {tool_dataflows_steps} dependsonstep ON sd.dependson = dependsonstep.id
-                 WHERE step.dataflowid = :dataflowid
-
-                 UNION ALL
-
-                SELECT concat(step.id) as id,
-                       step.name AS stepname,
-                       '' AS dependsonstepname
-                  FROM {tool_dataflows_steps} step
-                 WHERE step.dataflowid = :dataflowid2";
-
-        $deps = $DB->get_records_sql($sql, [
-            'dataflowid' => $this->id,
-            'dataflowid2' => $this->id,
-        ]);
+        // Loop through the edges and apply the appropriate styles for each connection.
         $connections = [];
-        foreach ($deps as $dep) {
-            $link = [];
-            $link[] = $dep->dependsonstepname;
-            $link[] = $dep->stepname;
-            // TODO: Ensure quoted names will appear okay.
-            $link = '"' . implode('" -> "', array_filter($link)) . '" [color="#1d2125", arrowsize=0.7]';
+        $edges = $this->edges;
+        $baseconnectionstyles = [
+            'color' => '#1d2125',
+            'arrowsize' => '0.7',
+        ];
+        foreach ($edges as $edge) {
+            [$srcid, $destid] = $edge;
+            $srcstep = new step($srcid);
+            $deststep = new step($destid);
+
+            $localstyles = [];
+            $typesvalid = class_exists($srcstep->type) && class_exists($deststep->type);
+            if (!$typesvalid) {
+                // If any dependency's type does NOT properly exist, draw a red
+                // connection line, probably with an X between the connection if
+                // possible.
+                $localstyles['arrowhead'] = 'none';
+                $localstyles['color'] = 'red';
+            } else {
+                $srcsteptype = new $srcstep->type();
+                $deststeptype = new $deststep->type();
+                if ($srcsteptype instanceof flow_step && $deststeptype instanceof flow_step) {
+                    // If this is a flow to flow, show a dashed/dotted arrow indicating trickling data.
+                    $localstyles['style'] = 'dashed';
+                    $localstyles['color'] = '#008196';
+                }
+            }
+            $finalstyles = array_merge($baseconnectionstyles, $localstyles);
+
+            $styles = '';
+            foreach ($finalstyles as $key => $value) {
+                // TODO escape all attributes correctly.
+                $styles .= "$key =\"$value\", ";
+            }
+            trim($styles);
+
+            $connection = implode('" -> "', [$srcstep->name, $deststep->name]);
+            $link = "\"{$connection}\" [$styles]";
             $connections[] = $link;
         }
         $connections = implode(';' . PHP_EOL, $connections);
+
         $dotscript = "digraph G {
                           rankdir=LR;
                           bgcolor=\"transparent\";

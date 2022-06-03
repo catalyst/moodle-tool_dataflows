@@ -41,6 +41,7 @@ function tool_dataflows_after_config() {
  */
 function tool_dataflows_step_types() {
     return [
+        new step\connector_curl(),
         new step\trigger_cron(),
         new step\reader_sql(),
         new step\writer_debugging(),
