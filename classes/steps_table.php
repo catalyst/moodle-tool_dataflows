@@ -16,6 +16,11 @@
 
 namespace tool_dataflows;
 
+use tool_dataflows\local\step\reader_step;
+use tool_dataflows\local\step\trigger_step;
+use tool_dataflows\local\step\connector_step;
+use tool_dataflows\local\step\flow_step;
+
 /**
  * Display a table of dataflow steps.
  *
@@ -76,8 +81,9 @@ class steps_table extends \table_sql {
      * @return string
      */
     public function col_name(\stdClass $record): string {
-        $url = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $record->id]);
-        return \html_writer::link($url, $record->name);
+        $step = new step($record->id);
+        $contents = visualiser::generate($step->get_dotscript(), 'svg');
+        return $contents;
     }
 
     /**
@@ -95,10 +101,30 @@ class steps_table extends \table_sql {
             $basename = $classname;
         }
 
+        // Icons relating to the step type and its functions. Currently
+        // colours/shapes which will match up closely with the current dataflow
+        // diagram.
+        $classname = $record->type;
+        $icons = [];
+        if (class_exists($classname)) {
+            $steptype = new $classname();
+            // Add lightning to all steps with side effects.
+            $steptype->has_side_effect() && $icons[] = \html_writer::tag('span', '⚡', [
+                'title' => get_string('hassideeffect', 'tool_dataflows'),
+            ]);
+        } else {
+            $icons[] = \html_writer::tag('span', '❓', [
+                'title' => get_string('steptypedoesnotexist', 'tool_dataflows', $record->type),
+            ]);
+        }
+        $icons = implode(' ', $icons);
+
         // For readability, opting to show the name of the type of step first, and FQCN afterwards.
         // TODO: When downloading, display as below, otherwise split into next line for web view.
         // Example: writer_debugging (tool_dataflows\local\step\writer_debugging).
-        $str = $basename;
+        $str = '';
+        $str .= \html_writer::tag('span', "$icons", ['class' => 'text-muted small mr-1']);
+        $str .= $basename;
         $str .= \html_writer::tag('div', "($classname)", ['class' => 'text-muted small']);
         return $str;
     }

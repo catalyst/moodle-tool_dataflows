@@ -88,4 +88,27 @@ abstract class flow_step extends base_step {
     public function get_group(): string {
         return 'flows';
     }
+
+    /**
+     * Returns an array with styles used to draw the dot graph
+     *
+     * @return  array containing the styles
+     * @link    https://graphviz.org/doc/info/attrs.html for a list of available attributes
+     */
+    public function get_node_styles(): array {
+        $basestyles = parent::get_node_styles();
+        $styles = [
+            'shape'     => 'record',
+            'fillcolor' => '#008196',
+            'fontcolor' => '#ffffff',
+            'style'     => 'filled,rounded',
+        ];
+
+        if ($this->has_side_effect()) {
+            $styles['shape'] = 'parallelogram';
+            $styles['style'] = 'filled';
+        }
+
+        return array_merge($basestyles, $styles);
+    }
 }

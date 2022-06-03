@@ -16,6 +16,7 @@
 
 namespace tool_dataflows;
 
+use tool_dataflows\local\step\base_step;
 use core\persistent;
 use moodle_exception;
 use Symfony\Component\Yaml\Yaml;
@@ -381,5 +382,80 @@ class step extends persistent {
         }
 
         return true;
+    }
+
+    /**
+     * Returns whether or not the step configured, has a side effect
+     *
+     * A side effect if it modifies some state variable value(s) outside its
+     * local environment, which is to say if it has any observable effect other
+     * than its primary effect of returning a value to the invoker of the
+     * operation
+     *
+     * @return     bool whether or not this step has a side effect
+     * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+     */
+    public function has_side_effect(): bool {
+        $typevalidation = $this->validate_type();
+        if ($typevalidation !== true) {
+            return false;
+        }
+        $classname = $this->type;
+        $steptype = new $classname();
+        return $steptype->has_side_effect();
+    }
+
+    /**
+     * Returns a dotscript of the step
+     *
+     * NOTE: this returns the fragment by default
+     *
+     * @param      bool $contentonly whether or not to return only the relevant contents vs a full dotscript
+     * @return     string
+     */
+    public function get_dotscript($contentonly = false): string {
+        $url = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->id]))->out();
+        $localstyles = [
+            'URL'       => $url,
+            'tooltip'   => $this->description ?: $this->name,
+        ];
+        // If the class exists, use the styles from that step type.
+        // Otherwise, add styles to indicate this is an invalidly configured step.
+        $classname = $this->type;
+        if (class_exists($classname)) {
+            // Styles specific for this step type.
+            $steptype = new $classname();
+            $stepstyles = $steptype->get_node_styles();
+        } else {
+            // Invalid step type styles.
+            $stepstyles = [
+               'fillcolor' => '#ff2500',
+               'fontcolor' => '#ffffff',
+            ];
+        }
+        // Apply styles in this order: base, step, local.
+        $basestyles = base_step::get_base_node_styles();
+        $rawstyles = array_merge($basestyles, $stepstyles, $localstyles);
+
+        $styles = '';
+        foreach ($rawstyles as $key => $value) {
+            // TODO escape all attributes correctly.
+            $styles .= "$key =\"$value\", ";
+        }
+        trim($styles);
+
+        $content = "\"{$this->name}\" [$styles]";
+        if ($contentonly) {
+            return $content;
+        }
+
+        $dotscript = "digraph G {
+                          rankdir=LR;
+                          bgcolor=\"transparent\";
+                          node [shape=record, height=.1];
+                          {$content}
+                      }";
+
+        return $dotscript;
     }
 }

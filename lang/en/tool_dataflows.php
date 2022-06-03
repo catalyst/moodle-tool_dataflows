@@ -89,6 +89,7 @@ $string['stepchooser'] = 'Step chooser';
 
 // Warnings / Errors.
 $string['invalidyaml'] = 'The content provided is invalid YAML.';
+$string['hassideeffect'] = 'Has a side effect';
 $string['nodataflowfile'] = 'No dataflow file found.';
 $string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Graph (DAG).';
 $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';

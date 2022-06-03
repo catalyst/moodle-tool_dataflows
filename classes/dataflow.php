@@ -18,6 +18,7 @@ namespace tool_dataflows;
 
 use core\persistent;
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\local\step\base_step;
 
 /**
  * Dataflows persistent class
@@ -311,40 +312,19 @@ class dataflow extends persistent {
     }
 
     /**
-     * Returns a dotscript of the dataflow, false if no connections are available
+     * Returns a dotscript of the dataflow
      *
-     * @return     string|false dotscript or false if not a valid flow
+     * @return     string dotscript
      */
-    public function get_dotscript() {
+    public function get_dotscript(): string {
         global $DB;
 
-        // Generate DOT script based on the configured dataflow.
-
-        // Styles for each step node.
-        $sql = "SELECT *
-                  FROM {tool_dataflows_steps} s
-                 WHERE s.dataflowid = :dataflowid";
-        $steps = $DB->get_records_sql($sql, ['dataflowid' => $this->id]);
+        // Fetch the dot script node from each step to construct them.
+        $steps = $this->steps;
         $nodes = [];
+        $contentonly = true;
         foreach ($steps as $step) {
-            $url = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $step->id]))->out();
-            $rawstyles = [
-                'color'     => '#b8c1ca',
-                'shape'     => 'record',
-                'fillcolor' => '#ced4da',
-                'style'     => 'filled,rounded',
-                'fontsize'  => '10',
-                'fontname'  => 'Arial',
-                'URL'       => $url,
-                'tooltip'   => $step->description,
-            ];
-            $styles = '';
-            foreach ($rawstyles as $key => $value) {
-                // TODO escape all attributes correctly.
-                $styles .= "$key =\"$value\", ";
-            }
-            trim($styles);
-            $nodes[] = "\"{$step->name}\" [$styles]";
+            $nodes[] = $step->get_dotscript($contentonly);
         }
         $nodes = implode(';' . PHP_EOL, $nodes);
 

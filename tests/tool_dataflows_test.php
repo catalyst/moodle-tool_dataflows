@@ -27,6 +27,7 @@ require_once(__DIR__ . '/application_trait.php');
 require_once(__DIR__ . '/../lib.php');
 // This is needed. File will not be automatically included.
 require_once(__DIR__ . '/local/execution/array_in_type.php');
+require_once(__DIR__ . '/local/execution/array_out_type.php');
 
 /**
  * Units tests for tool_dataflows
@@ -428,5 +429,45 @@ class tool_dataflows_test extends \advanced_testcase {
         $this->assertCount(1, (array) $dataflow->steps);
         // Confirm the dependency no longer exists, since this step is removed.
         $this->assertNotSeeInDatabase('tool_dataflows_step_depends', ['stepid' => $step3->id]);
+    }
+
+    /**
+     * Test new side effect check works as expected for different classes of steps.
+     *
+     * @covers \tool_dataflows\step::has_side_effect
+     * @covers \tool_dataflows\local\step\base_step::has_side_effect
+     */
+    public function test_side_effect_checks() {
+        // Test the step types directly.
+        $read = new local\execution\array_in_type();
+        $write = new local\execution\array_out_type();
+
+        // Reader - no side effect expected.
+        $this->assertFalse($read->has_side_effect());
+
+        // Writer - side effect expected.
+        $this->assertTrue($write->has_side_effect());
+
+        // Test them being checked via a dataflow.
+        $dataflow = new dataflow();
+
+        $step1 = new \tool_dataflows\step();
+        $step1->name = 'read';
+        $step1->type = local\execution\array_in_type::class;
+        $dataflow->add_step($step1);
+
+        $step2 = new \tool_dataflows\step();
+        $step2->name = 'write';
+        $step2->type = local\execution\array_out_type::class;
+        $step2->depends_on([$step1]);
+        $dataflow->add_step($step2);
+
+        // Reader classes should not have side effects (they generally only GET
+        // information, and are typically idempotent) - ignoring any logging.
+        $this->assertFalse($step1->has_side_effect());
+
+        // Writer classes should always cause side effects. They perform changes
+        // (except when run in dry-mode), and cause some state to change.
+        $this->assertTrue($step2->has_side_effect());
     }
 }

@@ -101,7 +101,11 @@ try {
     // Run the specified flow (this will output an error if it doesn't exist).
     $engine->execute();
 } catch (\Throwable $e) {
-    $engine->log($e);
+    if (isset($engine)) {
+        $engine->log($e);
+    } else {
+        mtrace('Engine \'' . $dataflow->name . '\': ' . $e->getMessage());
+    }
 }
 
 echo html_writer::end_tag('pre');

@@ -63,4 +63,25 @@ abstract class connector_step extends base_step {
     public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
         return new connector_engine_step($engine, $stepdef, $this);
     }
+
+    /**
+     * Returns an array with styles used to draw the dot graph
+     *
+     * @return  array containing the styles
+     * @link    https://graphviz.org/doc/info/attrs.html for a list of available attributes
+     */
+    public function get_node_styles(): array {
+        $styles = [
+            'shape'     => 'record',
+            'fillcolor' => '#cccccc',
+        ];
+        $basestyles = parent::get_node_styles();
+
+        if ($this->has_side_effect()) {
+            $styles['shape'] = 'parallelogram';
+            $styles['style'] = 'filled';
+        }
+
+        return array_merge($basestyles, $styles);
+    }
 }
