@@ -105,7 +105,6 @@ class engine {
     public function __construct(dataflow $dataflow, bool $isdryrun = false) {
         $this->dataflow = $dataflow;
 
-        // TODO: For now, extract this from the config, but this should really be taken from global variables.
         $this->isdryrun = $isdryrun;
 
         // Create engine steps for each step in the dataflow.
@@ -146,7 +145,7 @@ class engine {
         // Add sinks to the execution queue.
         $this->queue = $this->sinks;
         $this->status = self::STATUS_INITIALISED;
-        $this->log('Initialised');
+        $this->log('Initialised. Dry run: ' . ($this->isdryrun ? 'Yes' : 'No'));
     }
 
     /**

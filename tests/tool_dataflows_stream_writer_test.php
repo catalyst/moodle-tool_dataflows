@@ -61,12 +61,11 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
         $dataflow->add_step($reader);
 
         $tmpfilename = tempnam('', 'tool_dataflows_');
-        $drtmpfilename = tempnam('', 'tool_dataflows_');
 
         $writer = new step();
         $writer->name = 'stream-writer';
         $writer->type = 'tool_dataflows\local\step\writer_stream';
-        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpfilename, 'dryrunstreamname' => $drtmpfilename]);
+        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpfilename]);
 
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);
@@ -78,12 +77,14 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
         $engine->execute();
 
         if ($isdryrun) {
-            $resultdata = json_decode(file_get_contents($drtmpfilename), true);
+            // Dry runs should produce no output.
+            $resultdata = file_get_contents($tmpfilename);
+            $this->assertTrue(empty($resultdata));
         } else {
             $resultdata = json_decode(file_get_contents($tmpfilename), true);
+            $this->assertEquals($inputdata, $resultdata);
         }
 
-        $this->assertEquals($inputdata, $resultdata);
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
 
