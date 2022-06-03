@@ -243,6 +243,15 @@ class visualiser {
         );
         echo \html_writer::link($importurl, $exportbtn);
 
+        // Remove dataflow button.
+        $icon = $output->render(new \pix_icon('t/delete', get_string('delete')));
+        $deleteurl = new \moodle_url('/admin/tool/dataflows/remove-dataflow.php', ['id' => $dataflow->id]);
+        $deletebutton = new \single_button($deleteurl, $btnuid);
+        $deletebutton->add_confirm_action(get_string('remove_dataflow_confirm', 'tool_dataflows', $dataflow->name));
+        $deletebutton->class .= ' ml-2';
+        $content = $output->render($deletebutton);
+        echo str_replace($btnuid, $icon . get_string('delete'), $content);
+
         // Generate the image based on the DOT script.
         $contents = self::generate($dataflow->get_dotscript(), 'svg');
 

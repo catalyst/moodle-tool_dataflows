@@ -140,7 +140,7 @@ class dataflows_table extends \table_sql {
         $content .= \html_writer::link($editurl, $icon, ['class' => 'action-icon']);
 
         // Display the export button (adjusted to be a small icon button).
-        $icon = $OUTPUT->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows'), 'moodle', ['class' => 'mr-0']));
+        $icon = $OUTPUT->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows'), 'moodle'));
         $exportactionurl = new \moodle_url(
             '/admin/tool/dataflows/export.php',
             ['dataflowid' => $record->id, 'sesskey' => sesskey()]);
@@ -149,6 +149,13 @@ class dataflows_table extends \table_sql {
         $exportbtn = str_replace($btnuid, $icon, $btn);
         $exportbtn = str_replace('btn-secondary', 'btn-link bn-sm p-0', $exportbtn);
         $content .= $exportbtn;
+
+        // Delete dataflow icon.
+        $deleteurl = new \moodle_url('/admin/tool/dataflows/remove-dataflow.php', ['id' => $record->id, 'sesskey' => sesskey()]);
+        $confirmaction = new \confirm_action(get_string('remove_dataflow_confirm', 'tool_dataflows', $record->name));
+        $deleteicon = new \pix_icon('t/delete', get_string('remove_dataflow', 'tool_dataflows'));
+        $link = new \action_link($deleteurl, '', $confirmaction, null,  $deleteicon);
+        $content .= $OUTPUT->render($link);
 
         return $content;
     }

@@ -53,6 +53,9 @@ $string['import'] = 'Import';
 $string['field_name'] = 'Name';
 $string['update_dataflow'] = 'Update Dataflow';
 $string['new_dataflow'] = 'New Dataflow';
+$string['remove_dataflow'] = 'Remove dataflow';
+$string['remove_dataflow_confirm'] = 'Are you sure you want to remove the dataflow \'{$a}\'? This action is irreversible.';
+$string['remove_dataflow_successful'] = 'Removed dataflow \'{$a}\' successfully.';
 
 // Dataflow import form.
 $string['dataflow_file'] = 'Dataflow file';
