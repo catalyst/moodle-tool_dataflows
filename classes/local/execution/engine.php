@@ -102,13 +102,11 @@ class engine {
      * @param dataflow $dataflow The dataflow to be executed, as defined in the editor.
      * @param bool $trace Set to true to enable log output.
      */
-    public function __construct(dataflow $dataflow) {
+    public function __construct(dataflow $dataflow, bool $isdryrun = false) {
         $this->dataflow = $dataflow;
 
-        $config = $dataflow->config;
-
         // TODO: For now, extract this from the config, but this should really be taken from global variables.
-        $this->isdryrun = !empty($config->isdryrun);
+        $this->isdryrun = $isdryrun;
 
         // Create engine steps for each step in the dataflow.
         foreach ($dataflow->steps as $stepdef) {

@@ -49,7 +49,7 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
      * @dataProvider test_writer_data_provider
      * @param $inputdata
      */
-    public function test_writer_json($inputdata) {
+    public function test_writer_json($inputdata, $isdryrun) {
         // Crate the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'array-to-stream';
@@ -61,29 +61,29 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
         $dataflow->add_step($reader);
 
         $tmpfilename = tempnam('', 'tool_dataflows_');
+        $drtmpfilename = tempnam('', 'tool_dataflows_');
+
         $writer = new step();
         $writer->name = 'stream-writer';
         $writer->type = 'tool_dataflows\local\step\writer_stream';
-        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpfilename]);
+        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpfilename, 'dryrunstreamname' => $drtmpfilename]);
 
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);
 
-        // Define the input.
-        $json = json_encode($inputdata);
-
         \tool_dataflows\local\execution\array_in_type::$source = $inputdata;
 
         // Execute.
-        $engine = new engine($dataflow);
+        $engine = new engine($dataflow, $isdryrun);
         $engine->execute();
 
-        $resultdata = file_get_contents($tmpfilename);
+        if ($isdryrun) {
+            $resultdata = json_decode(file_get_contents($drtmpfilename), true);
+        } else {
+            $resultdata = json_decode(file_get_contents($tmpfilename), true);
+        }
 
-        // Strip the whitespace from the result data.
-        $resultdata = str_replace(PHP_EOL, '', $resultdata);
-
-        $this->assertEquals($json, $resultdata);
+        $this->assertEquals($inputdata, $resultdata);
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
 
@@ -94,8 +94,9 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
      */
     public function test_writer_data_provider(): array {
         return [
-            [[['a' => 1, 'b' => 2, 'c' => 3], ['a' => 4, 'b' => 5, 'c' => 6]]],
-            [[['a' => 1], ['b' => 5], ['c' => 6]]],
+            [[['a' => 1, 'b' => 2, 'c' => 3], ['a' => 4, 'b' => 5, 'c' => 6]], false],
+            [[['a' => 1], ['b' => 5], ['c' => 6]], true],
+            [[['a' => 1], ['b' => 5], ['c' => 7]], false],
         ];
     }
 }

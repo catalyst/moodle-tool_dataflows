@@ -45,6 +45,7 @@ function tool_dataflows_mtrace_wrapper($message, $eol) {
 $dataflowid = required_param('dataflowid', PARAM_RAW_TRIMMED);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 $returnurl = optional_param('returnurl', '/admin/tool/dataflows/index.php', PARAM_LOCALURL);
+$dryrun = optional_param('dryrun', false, PARAM_BOOL);
 
 // Basic security checks.
 require_login(null, false);
@@ -70,7 +71,7 @@ echo $OUTPUT->header();
 
 $runnowurl = new moodle_url(
     '/admin/tool/dataflows/run.php',
-    ['dataflowid' => $dataflowid, 'confirm' => 1, 'sesskey' => sesskey()]);
+    ['dataflowid' => $dataflowid, 'confirm' => 1, 'sesskey' => sesskey(), 'dryrun' => $dryrun]);
 
 // The initial request just shows the confirmation page; doing nothing until confirmation.
 if (!$confirm) {
@@ -95,7 +96,7 @@ require_sesskey();
 echo html_writer::start_tag('pre');
 $CFG->mtrace_wrapper = 'tool_dataflows_mtrace_wrapper';
 try {
-    $engine = new engine($dataflow);
+    $engine = new engine($dataflow, $dryrun);
     // TODO: Validate it can run.
     // Run the specified flow (this will output an error if it doesn't exist).
     $engine->execute();
