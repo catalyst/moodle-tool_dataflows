@@ -414,6 +414,15 @@ class dataflow extends persistent {
     }
 
     /**
+     * Remove all the steps first.
+     */
+    protected function before_delete() {
+        foreach ($this->get_steps() as $step) {
+            $this->remove_step($step);
+        }
+    }
+
+    /**
      * Imports a dataflow through a php array parsed from a yaml file
      *
      * @param      array $yaml full dataflow configuration as a php array
