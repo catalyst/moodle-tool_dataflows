@@ -417,7 +417,7 @@ class dataflow extends persistent {
      * Remove all the steps first.
      */
     protected function before_delete() {
-        foreach ($this->get_steps() as $step) {
+        foreach ($this->steps as $step) {
             $this->remove_step($step);
         }
     }
