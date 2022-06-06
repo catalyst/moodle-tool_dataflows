@@ -189,17 +189,24 @@ class visualiser {
         $validation = $dataflow->validate_dataflow();
 
         // Display the run now button (disabling it if dataflow is not valid).
+        if ($validation === true) {
+            $buttoncolour = 'btn-success';
+            $buttonicon = 't/go';
+        } else {
+            $buttoncolour = 'btn-danger ';
+            $buttonicon = 't/stop';
+        }
         $runurl = new \moodle_url(
             '/admin/tool/dataflows/run.php',
             [
                 'dataflowid' => $dataflow->id,
                 'returnurl' => $PAGE->url->out(false),
             ]);
-        $runbuttonattributes = ['class' => 'btn btn-warning'];
+        $runbuttonattributes = ['class' => 'btn ' . $buttoncolour];
         if ($validation !== true) {
             $runbuttonattributes['disabled'] = true;
         }
-        $icon = $output->render(new \pix_icon('t/go', get_string('run_now', 'tool_dataflows')));
+        $icon = $output->render(new \pix_icon($buttonicon, get_string('run_now', 'tool_dataflows')));
         $runbutton = \html_writer::tag('button', $icon . get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
         echo \html_writer::link($runurl, $runbutton);
 
@@ -217,7 +224,7 @@ class visualiser {
         $exportbtn = \html_writer::tag(
             'button',
             $icon . get_string('edit'),
-            ['class' => 'btn btn-secondary mx-2' ]
+            ['class' => 'btn btn-secondary mx-2']
         );
         echo \html_writer::link($importurl, $exportbtn);
 
