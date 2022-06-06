@@ -139,8 +139,11 @@ class step_form extends \core\form\persistent {
         $data = parent::get_default_data();
 
         // Process and convert the received data back under the config field.
-        $steptype = new $data->type();
-        $steptype->form_get_default_data($data);
+        $type = $this->_customdata['type'];
+        if (!empty($type) && class_exists($type)) {
+            $steptype = new $type();
+            $steptype->form_get_default_data($data);
+        }
 
         return $data;
     }
