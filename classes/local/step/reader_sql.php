@@ -31,6 +31,8 @@ use tool_dataflows\parser;
  */
 class reader_sql extends reader_step {
 
+    private $flowenginestep;
+
     /**
      * Return the definition of the fields available in this form.
      *
@@ -52,6 +54,7 @@ class reader_sql extends reader_step {
      * @throws \moodle_exception
      */
     public function get_iterator(flow_engine_step $step): iterator {
+        $this->flowenginestep = $step;
         $query = $this->construct_query($step);
         return new class($step, $query) extends php_iterator {
 
@@ -99,8 +102,9 @@ class reader_sql extends reader_step {
             $parser = new parser();
             $value = $parser->evaluate_or_fail($match['expressionwrapper'], $this->flowenginestep->get_variables());
 
-            // If the expression cannot be evaluated, then the query fragment is ignored entirely.
-            if ($match['expressionwrapper'] === $value) {
+            // If the expression cannot be evaluated (or evaluates to an empty
+            // string), then the query fragment is ignored entirely.
+            if ($match['expressionwrapper'] === $value || $value === '') {
                 $finalsql = str_replace($match['fragmentwrapper'], '', $finalsql);
                 continue;
             }

@@ -112,4 +112,94 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $this->assertArrayHasKey('config_sql', $result);
         $this->assertEquals(get_string('config_field_missing', 'tool_dataflows', 'sql'), $result['config_sql']);
     }
+
+    /**
+     * Test expression usage throughout a engine lifecycle/run
+     *
+     * @covers \tool_dataflows\local\step\reader_sql
+     */
+    public function test_expressions_within_a_run() {
+        global $DB;
+        // The gist:
+        // - Read some records,
+        // - ensure the counter (iterator checkpoint) is set after each iteration, based on & if the field is provided.
+        // - Perform the run again, and this time, expect the record to start from the next value, according to the SQL defined.
+
+        // Insert test records.
+        $template = ['plugin' => '--phantom_plugin--'];
+        foreach (range(1, 10) as $value) {
+            $input = array_merge($template, [
+                'name' => 'test_' . $value,
+                'value' => $value,
+            ]);
+            $DB->insert_record('config_plugins', (object) $input);
+        }
+        $sql = 'SELECT *
+                  FROM {config_plugins}
+                 WHERE plugin = \'' . $template['plugin'] . '\'
+                 [[ AND CAST(value as int) > ${{countervalue}} ]]
+                 ORDER BY CAST(value as int) ASC
+                 LIMIT 3';
+
+        // Create the dataflow.
+        $dataflow = new dataflow();
+        $dataflow->name = 'readwrite';
+        $dataflow->save();
+
+        $reader = new step();
+        $reader->name = 'reader';
+        $reader->type = 'tool_dataflows\local\step\reader_sql';
+
+        // Set the SQL query via a YAML config string.
+        $reader->config = Yaml::dump([
+            'sql' => $sql,
+            'counterfield' => 'value',
+            'countervalue' => '',
+        ]);
+        $dataflow->add_step($reader);
+
+        $writer = new step();
+        $writer->name = 'writer';
+        $writer->type = 'tool_dataflows\local\step\writer_debugging';
+        $writer->depends_on([$reader]);
+        $dataflow->add_step($writer);
+
+        // Execute.
+        $engine = new engine($dataflow);
+        $engine->execute();
+        $this->assertDebuggingCalledCount(3);
+        // Reload the step from the DB, the counter value should be updated.
+        $reader->read();
+        $this->assertEquals(3, $reader->config->countervalue);
+        $engine->execute();
+        $this->assertDebuggingCalledCount(3);
+        // Reload the step from the DB, the counter value should be updated again.
+        $reader->read();
+        $this->assertEquals(6, $reader->config->countervalue);
+
+        // Recreate the engine and rerun the flow, it should be the same result.
+        $engine = new engine($dataflow);
+        $engine->execute();
+        $this->assertDebuggingCalledCount(3);
+        // Reload the step from the DB, the counter value should be updated again.
+        $reader->read();
+        $this->assertEquals(9, $reader->config->countervalue);
+        $previousvalue = $reader->config->countervalue;
+
+        // Now test out a dry-run, it should not persist anything, but everything else should appear as expected.
+        $isdryrun = true;
+        $engine = new engine($dataflow, $isdryrun);
+        $engine->execute();
+        // Since there are only 10 records in total, this last batch should only yield one result.
+        $this->assertDebuggingCalledCount(1);
+        // Reload the step from the DB, the counter value should stay the same since it's a dry run.
+        $reader->read();
+        $this->assertEquals($previousvalue, $reader->config->countervalue);
+
+        // Recreate and complete the run.
+        $engine = new engine($dataflow);
+        $engine->execute();
+        $this->assertDebuggingCalledCount(1);
+        $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
+    }
 }

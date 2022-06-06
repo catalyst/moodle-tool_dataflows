@@ -17,14 +17,14 @@
 namespace tool_dataflows\local\step;
 
 /**
- * Base class for flow transformer step types.
+ * Flow filter (transformer step) class
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class flow_transformer_step extends flow_step {
+class flow_transformer_filter extends flow_transformer_step {
 
     /** @var int[] number of input flows (min, max). */
     protected $inputflows = [1, 1];
@@ -33,9 +33,11 @@ abstract class flow_transformer_step extends flow_step {
     protected $outputflows = [1, 1];
 
     /**
-     * {@inheritdoc}
+     * Apply the filter based on configuration
      */
-    final public function get_group(): string {
-        return 'flowtransformers';
+    public function execute($record) {
+        // TODO: implement.
+        return $record;
     }
 }
+
