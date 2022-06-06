@@ -193,7 +193,7 @@ class visualiser {
             $buttoncolour = 'btn-success';
             $buttonicon = 't/go';
         } else {
-            $buttoncolour = 'btn-danger ';
+            $buttoncolour = 'btn-danger';
             $buttonicon = 't/stop';
         }
         $runurl = new \moodle_url(
