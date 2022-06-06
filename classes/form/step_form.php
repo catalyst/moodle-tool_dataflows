@@ -108,7 +108,7 @@ class step_form extends \core\form\persistent {
         // Check and set custom form inputs if required. Defaulting to a
         // textarea config input for those not yet configured.
         $steptype = new $type();
-        $steptype->add_custom_form_inputs($mform);
+        $steptype->form_add_custom_inputs($mform);
 
         $this->add_action_buttons();
     }

@@ -202,7 +202,7 @@ abstract class base_step {
      *
      * @param \MoodleQuickForm &$mform
      */
-    public function add_custom_form_inputs(\MoodleQuickForm &$mform) {
+    public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // Configuration - YAML format.
         $mform->addElement(
             'textarea',
@@ -243,7 +243,6 @@ abstract class base_step {
         foreach ($yaml as $key => $value) {
             $data->{"config_$key"} = $value;
         }
-        unset($data->config);
         return $data;
     }
 
@@ -268,11 +267,13 @@ abstract class base_step {
             unset($data->{$datafield});
         }
 
-        // 4 levels of indentation before it starts to, JSONify / inline settings.
-        $inline = 4;
-        // 2 spaces per level of indentation.
-        $indent = 2;
-        $data->config = Yaml::dump($config, $inline, $indent);
+        if (!empty($config)) {
+            // 4 levels of indentation before it starts to, JSONify / inline settings.
+            $inline = 4;
+            // 2 spaces per level of indentation.
+            $indent = 2;
+            $data->config = Yaml::dump($config, $inline, $indent);
+        }
 
         return $data;
     }

@@ -147,7 +147,7 @@ class writer_stream extends writer_step {
      *
      * @param \MoodleQuickForm &$mform
      */
-    public function add_custom_form_inputs(\MoodleQuickForm &$mform) {
+    public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // Stream name.
         $mform->addElement('text', 'config_streamname', get_string('writer_stream:streamname', 'tool_dataflows'));
         $mform->setType('config_streamname', PARAM_TEXT);
