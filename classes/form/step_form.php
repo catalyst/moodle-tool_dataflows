@@ -33,7 +33,7 @@ class step_form extends \core\form\persistent {
     protected static $persistentclass = 'tool_dataflows\step';
 
     /** @var array Fields to remove from the persistent validation. */
-    protected static $foreignfields = ['dependson', 'config_format'];
+    protected static $foreignfields = ['dependson'];
 
     /**
      * Define the form.
@@ -108,6 +108,7 @@ class step_form extends \core\form\persistent {
         // Check and set custom form inputs if required. Defaulting to a
         // textarea config input for those not yet configured.
         $steptype = new $type();
+        $steptype->form_set_input_types($mform);
         $steptype->form_add_custom_inputs($mform);
 
         $this->add_action_buttons();

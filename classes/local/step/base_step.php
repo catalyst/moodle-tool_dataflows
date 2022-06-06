@@ -213,6 +213,23 @@ abstract class base_step {
     }
 
     /**
+     * Sets the default types for each input field defined
+     *
+     * This is mostly defined upfront and unlikely to change, and will show the following if not set:
+     * "Did you remember to call setType() for __"
+     *
+     * @param \MoodleQuickForm &$mform
+     */
+    public function form_set_input_types(\MoodleQuickForm &$mform) {
+        $fields = static::form_define_fields();
+        foreach ($fields as $fieldname => $config) {
+            if (isset($config['type'])) {
+                $mform->setType("config_$fieldname", $config['type']);
+            }
+        }
+    }
+
+    /**
      * Extra validation.
      *
      * @param  stdClass $data Data to validate.

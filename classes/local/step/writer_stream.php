@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\local\step;
 
-use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\map_iterator;
@@ -143,17 +142,19 @@ class writer_stream extends writer_step {
     }
 
     /**
-     * {@inheritdoc}
+     * Allows each step type to determine a list of optional/required form
+     * inputs for their configuration
+     *
+     * It's recommended you prefix the additional config related fields to avoid
+     * conflicts with any existing fields.
      *
      * @param \MoodleQuickForm &$mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // Stream name.
         $mform->addElement('text', 'config_streamname', get_string('writer_stream:streamname', 'tool_dataflows'));
-        $mform->setType('config_streamname', PARAM_TEXT);
 
         // Format.
         $mform->addElement('text', 'config_format', get_string('writer_stream:format', 'tool_dataflows'));
-        $mform->setType('config_format', PARAM_TEXT);
     }
 }
