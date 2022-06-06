@@ -141,3 +141,6 @@ $string['engine_status_finialised'] = 'Finalised';
 // Writer stream.
 $string['writer_stream:streamname'] = 'Stream Name';
 $string['writer_stream:format'] = 'Format';
+
+// Reader SQL.
+$string['reader_sql:sql'] = 'SQL';
