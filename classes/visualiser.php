@@ -194,7 +194,7 @@ class visualiser {
             $buttonicon = 't/go';
         } else {
             $buttoncolour = 'btn-danger';
-            $buttonicon = 't/stop';
+            $buttonicon = 't/block';
         }
         $runurl = new \moodle_url(
             '/admin/tool/dataflows/run.php',
