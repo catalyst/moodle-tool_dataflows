@@ -332,6 +332,7 @@ class dataflow extends persistent {
         $baseconnectionstyles = [
             'color' => '#1d2125',
             'arrowsize' => '0.7',
+            'penwidth' => 2,
         ];
         foreach ($edges as $edge) {
             [$srcid, $destid] = $edge;
