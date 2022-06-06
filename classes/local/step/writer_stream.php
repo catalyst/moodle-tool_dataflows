@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\local\step;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\map_iterator;
@@ -33,6 +34,18 @@ use tool_dataflows\local\execution\iterators\map_iterator;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class writer_stream extends writer_step {
+
+    /**
+     * Return the definition of the fields available in this form.
+     *
+     * @return array
+     */
+    protected static function form_define_fields(): array {
+        return [
+            'streamname' => ['type' => PARAM_TEXT],
+            'format' => ['type' => PARAM_TEXT],
+        ];
+    }
 
     /**
      * Get the iterator for the step, based on configurations.
@@ -116,16 +129,31 @@ class writer_stream extends writer_step {
     public function validate_config($config) {
         $errors = [];
         if (!isset($config->streamname)) {
-            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
+            $errors['config_streamname'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
         }
         if (!isset($config->format)) {
-            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'format', true);
+            $errors['config_format'] = get_string('config_field_missing', 'tool_dataflows', 'format', true);
         } else {
             if (!class_exists('tool_dataflows\local\formats\encoders\\' . $config->format)) {
-                $errors['format_not_supported'] = get_string('format_not_supported', 'tool_dataflows', $config->format, true);
+                $errors['config_format'] = get_string('format_not_supported', 'tool_dataflows', $config->format, true);
             }
         }
 
         return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @param \MoodleQuickForm &$mform
+     */
+    public function add_custom_form_inputs(\MoodleQuickForm &$mform) {
+        // Stream name.
+        $mform->addElement('text', 'config_streamname', get_string('writer_stream:streamname', 'tool_dataflows'));
+        $mform->setType('config_streamname', PARAM_TEXT);
+
+        // Format.
+        $mform->addElement('text', 'config_format', get_string('writer_stream:format', 'tool_dataflows'));
+        $mform->setType('config_format', PARAM_TEXT);
     }
 }

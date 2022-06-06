@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\local\step;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
 
@@ -66,6 +67,17 @@ abstract class base_step {
      */
     public function has_side_effect(): bool {
         return $this->hassideeffect;
+    }
+
+    /**
+     * Return the definition of the fields available in this form.
+     *
+     * @return array
+     */
+    protected static function form_define_fields(): array {
+        return [
+            'config' => ['type' => PARAM_TEXT, 'default' => ''],
+        ];
     }
 
     /**
@@ -179,6 +191,90 @@ abstract class base_step {
      */
     public function validate_config($config) {
         return true;
+    }
+
+    /**
+     * Allows each step type to determine a list of optional/required form
+     * inputs for their configuration
+     *
+     * It's recommended you prefix the additional config related fields to avoid
+     * conflicts with any existing fields.
+     *
+     * @param \MoodleQuickForm &$mform
+     */
+    public function add_custom_form_inputs(\MoodleQuickForm &$mform) {
+        // Configuration - YAML format.
+        $mform->addElement(
+            'textarea',
+            'config',
+            get_string('field_config', 'tool_dataflows'),
+            ['cols' => 50, 'rows' => 7]
+        );
+    }
+
+    /**
+     * Extra validation.
+     *
+     * @param  stdClass $data Data to validate.
+     * @param  array $files Array of files.
+     * @param  array $errors Currently reported errors.
+     * @return array of additional errors, or overridden errors.
+     */
+    public function form_extra_validation($data, $files, array &$errors) {
+        $yaml = Yaml::parse($data->config, Yaml::PARSE_OBJECT_FOR_MAP);
+        if (empty($yaml)) {
+            $yaml = new \stdClass();
+        }
+        $validation = $this->validate_config($yaml);
+        if ($validation === true) {
+            return [];
+        }
+
+        return $validation;
+    }
+
+    /**
+     * Get the default data.
+     *
+     * @return stdClass
+     */
+    public function form_get_default_data(&$data) {
+        $yaml = Yaml::parse($data->config, Yaml::PARSE_OBJECT_FOR_MAP) ?? new \stdClass;
+        foreach ($yaml as $key => $value) {
+            $data->{"config_$key"} = $value;
+        }
+        unset($data->config);
+        return $data;
+    }
+
+    /**
+     * Converts the config data if required, such that it is set as expected
+     * under a single key 'config'
+     *
+     * @param      mixed &$data
+     * @return     mixed &$data
+     */
+    public function form_convert_fields(&$data) {
+        // Construct configuration array based on standard format.
+        $fields = static::form_define_fields();
+        $config = [];
+        foreach ($fields as $fieldname => $unused) {
+            $datafield = "config_$fieldname";
+            if (!property_exists($data, $datafield)) {
+                continue;
+            }
+
+            $config[$fieldname] = $data->{$datafield};
+            unset($data->{$datafield});
+        }
+
+        // 4 levels of indentation before it starts to, JSONify / inline settings.
+        $inline = 4;
+        // 2 spaces per level of indentation.
+        $indent = 2;
+        $data->config = Yaml::dump($config, $inline, $indent);
+
+        return $data;
     }
 
     /**

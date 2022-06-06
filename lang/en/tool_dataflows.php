@@ -137,3 +137,7 @@ $string['engine_status_finished'] = 'Finished';
 $string['engine_status_cancelled'] = 'Cancelled';
 $string['engine_status_aborted'] = 'Aborted';
 $string['engine_status_finialised'] = 'Finalised';
+
+// Writer stream.
+$string['writer_stream:streamname'] = 'Stream Name';
+$string['writer_stream:format'] = 'Format';
