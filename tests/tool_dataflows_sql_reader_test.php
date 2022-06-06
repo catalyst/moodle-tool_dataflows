@@ -109,7 +109,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $config = (object)['notsql' => 'SELECT * FROM {config}'];
         $result = $reader->validate_config($config);
         $this->assertTrue(is_array($result));
-        $this->assertArrayHasKey('config_field_missing', $result);
-        $this->assertEquals(get_string('config_field_missing', 'tool_dataflows', 'sql'), $result['config_field_missing']);
+        $this->assertArrayHasKey('config_sql', $result);
+        $this->assertEquals(get_string('config_field_missing', 'tool_dataflows', 'sql'), $result['config_sql']);
     }
 }
