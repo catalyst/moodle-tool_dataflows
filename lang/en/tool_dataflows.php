@@ -140,7 +140,9 @@ $string['engine_status_finialised'] = 'Finalised';
 
 // Writer stream.
 $string['writer_stream:streamname'] = 'Stream Name';
+$string['writer_stream:streamname_help'] = 'For example, setting <code>file:///path/to/file.txt</code> as the stream name will write the contents to this target.';
 $string['writer_stream:format'] = 'Format';
+$string['writer_stream:format_help'] = 'The output format of the contents written.';
 
 // Reader SQL.
 $string['reader_sql:sql'] = 'SQL';

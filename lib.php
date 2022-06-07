@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
+use tool_dataflows\local\formats\encoders;
 use tool_dataflows\local\step;
 
 function tool_dataflows_after_config() {
@@ -41,12 +42,26 @@ function tool_dataflows_after_config() {
  */
 function tool_dataflows_step_types() {
     return [
-        new step\connector_curl(),
-        new step\trigger_cron(),
-        new step\reader_sql(),
-        new step\writer_debugging(),
-        new step\flow_logic_join(),
-        new step\writer_stream(),
-        new step\connector_debugging(),
+        new step\connector_curl,
+        new step\trigger_cron,
+        new step\reader_sql,
+        new step\writer_debugging,
+        new step\flow_logic_join,
+        new step\writer_stream,
+        new step\connector_debugging,
+    ];
+}
+
+/**
+ * Returns a list of encoders available for this plugin.
+ *
+ * NOTE: For other plugins, the function name should be simply declared as <component_name>_dataflows_encoders.
+ *
+ * @return     array of dataflow encoders
+ */
+function tool_dataflows_encoders() {
+    return [
+        new encoders\json,
+        new encoders\csv,
     ];
 }
