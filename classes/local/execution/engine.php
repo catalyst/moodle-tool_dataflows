@@ -272,6 +272,7 @@ class engine {
             case 'status':
             case 'exception':
             case 'isdryrun':
+            case 'dataflow':
                 return $this->$parameter;
             case 'name':
                 return $this->dataflow->name;
@@ -282,5 +283,18 @@ class engine {
                     '',
                     ['parameter' => $parameter, 'classname' => self::class]);
         }
+    }
+
+    /**
+     * Returns an array with all the variables available through the dataflow engine.
+     *
+     * Note: ideally, you could check a value set in another step via this
+     * function, and returning the dataflow->variables might not always be the
+     * correct choice, thus the need for this function should things be updated.
+     *
+     * @return  array
+     */
+    public function get_variables(): array {
+        return $this->dataflow->variables;
     }
 }

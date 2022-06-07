@@ -72,4 +72,20 @@ class flow_engine_step extends engine_step {
         }
         return $this->status;
     }
+
+    /**
+     * Returns an array with all the variables available, with the context of the step
+     *
+     * @return  array
+     */
+    public function get_variables(): array {
+        // Config values are directly referenceable, step values go through
+        // step.fieldname, everything else is available through expressions,
+        // such as 'dataflow.id' and 'steps.mystep.name' for example.
+        return array_merge(
+            $this->engine->get_variables(),
+            ['step' => $this->stepdef],
+            (array) $this->stepdef->config,
+        );
+    }
 }
