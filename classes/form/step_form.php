@@ -105,14 +105,62 @@ class step_form extends \core\form\persistent {
         );
         $select->setMultiple(true);
 
-        // Configuration - YAML format.
-        $mform->addElement(
-            'textarea',
-            'config',
-            get_string('field_config', 'tool_dataflows'),
-            ['cols' => 50, 'rows' => 7]
-        );
+        // Check and set custom form inputs if required. Defaulting to a
+        // textarea config input for those not yet configured.
+        $steptype = new $type();
+        $steptype->form_set_input_types($mform);
+        $steptype->form_add_custom_inputs($mform);
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Convert fields.
+     *
+     * @param \stdClass $data The data.
+     * @return \stdClass
+     */
+    protected static function convert_fields(\stdClass $data) {
+        $data = parent::convert_fields($data);
+
+        // Process and convert the received data back under the config field.
+        $steptype = new $data->type();
+        $steptype->form_convert_fields($data);
+
+        return $data;
+    }
+
+    /**
+     * Get the default data.
+     *
+     * @return stdClass
+     */
+    protected function get_default_data() {
+        $data = parent::get_default_data();
+
+        // Process and convert the received data back under the config field.
+        $type = $this->_customdata['type'];
+        if (!empty($type) && class_exists($type)) {
+            $steptype = new $type();
+            $steptype->form_get_default_data($data);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Extra validation.
+     *
+     * @param  stdClass $data Data to validate.
+     * @param  array $files Array of files.
+     * @param  array $errors Currently reported errors.
+     * @return array of additional errors, or overridden errors.
+     */
+    protected function extra_validation($data, $files, array &$errors) {
+        // Process and convert the received data back under the config field.
+        $steptype = new $data->type();
+        $newerrors = $steptype->form_extra_validation($data, $files, $errors);
+
+        return $newerrors;
     }
 }

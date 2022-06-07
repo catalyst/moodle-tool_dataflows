@@ -31,6 +31,17 @@ use tool_dataflows\local\execution\iterators\php_iterator;
 class reader_sql extends reader_step {
 
     /**
+     * Return the definition of the fields available in this form.
+     *
+     * @return array
+     */
+    protected static function form_define_fields(): array {
+        return [
+            'sql' => ['type' => PARAM_TEXT],
+        ];
+    }
+
+    /**
      * Get the iterator for the step, based on configurations.
      *
      * @param flow_engine_step $step
@@ -74,9 +85,23 @@ class reader_sql extends reader_step {
      */
     public function validate_config($config) {
         $errors = [];
-        if (!isset($config->sql)) {
-            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'sql', true);
+        if (empty($config->sql)) {
+            $errors['config_sql'] = get_string('config_field_missing', 'tool_dataflows', 'sql', true);
         }
         return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Allows each step type to determine a list of optional/required form
+     * inputs for their configuration
+     *
+     * It's recommended you prefix the additional config related fields to avoid
+     * conflicts with any existing fields.
+     *
+     * @param \MoodleQuickForm &$mform
+     */
+    public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
+        // SQL.
+        $mform->addElement('textarea', 'config_sql', get_string('reader_sql:sql', 'tool_dataflows'), ['cols' => 50, 'rows' => 7]);
     }
 }

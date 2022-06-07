@@ -19,6 +19,7 @@ namespace tool_dataflows\local\step;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\map_iterator;
+use tool_dataflows\manager;
 
 /**
  * Stream writer step. Writes to a PHP stream.
@@ -33,6 +34,40 @@ use tool_dataflows\local\execution\iterators\map_iterator;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class writer_stream extends writer_step {
+
+    /** @var string dataflow local encoder path */
+    const LOCAL_ENCODER_PATH = 'tool_dataflows\local\formats\encoders';
+
+    /**
+     * Return the definition of the fields available in this form.
+     *
+     * @return array
+     */
+    protected static function form_define_fields(): array {
+        return [
+            'streamname' => ['type' => PARAM_TEXT],
+            'format' => ['type' => PARAM_TEXT],
+        ];
+    }
+
+    /**
+     * Returns the fully qualified classname for the class provided
+     *
+     * @param      int
+     * @return     string empty string if the class is not found
+     */
+    public static function resolve_encoder($classname): string {
+        if (class_exists($classname)) {
+            return $classname;
+        }
+
+        $localencoderpath = self::LOCAL_ENCODER_PATH;
+        if (class_exists("{$localencoderpath}\\{$classname}")) {
+            return "{$localencoderpath}\\{$classname}";
+        }
+
+        return '';
+    }
 
     /**
      * Get the iterator for the step, based on configurations.
@@ -67,7 +102,7 @@ class writer_stream extends writer_step {
                 if ($this->handle === false) {
                     throw new \moodle_exception(get_string('unable_to_open_stream', 'tool_dataflows', $streamname));
                 }
-                $classname = 'tool_dataflows\local\formats\encoders\\' . $format;
+                $classname = writer_stream::resolve_encoder($format);
                 $this->writer = new $classname();
 
                 fwrite($this->handle, $this->writer->start_output());
@@ -116,16 +151,67 @@ class writer_stream extends writer_step {
     public function validate_config($config) {
         $errors = [];
         if (!isset($config->streamname)) {
-            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
+            $errors['config_streamname'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
         }
         if (!isset($config->format)) {
-            $errors['config_field_missing'] = get_string('config_field_missing', 'tool_dataflows', 'format', true);
+            $errors['config_format'] = get_string('config_field_missing', 'tool_dataflows', 'format', true);
         } else {
-            if (!class_exists('tool_dataflows\local\formats\encoders\\' . $config->format)) {
-                $errors['format_not_supported'] = get_string('format_not_supported', 'tool_dataflows', $config->format, true);
+            $format = self::resolve_encoder($config->format);
+            if (!class_exists($format)) {
+                $errors['config_format'] = get_string('format_not_supported', 'tool_dataflows', $config->format, true);
             }
         }
 
         return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Returns a list of encoder options - local and external
+     *
+     * For external encoders, it will use the FQCN, whereas local ones will use
+     * just the basename of the class.
+     *
+     * @return  array of encoder options
+     */
+    public function get_encoder_options(): array {
+        $options = array_reduce(manager::get_encoders(), function ($acc, $encoder) {
+            $classname = get_class($encoder);
+            $basename = substr($classname, strrpos($classname, '\\') + 1);
+            // The format is currently hardcoded to be under the dataflow namespace (not using fqcn).
+            // If the class is not under the local encoder path (e.g. for external encoders), it will store the value as a FQCN.
+            // If it is local, it will only store the basename for conciseness.
+            $key = $classname;
+            if (strpos($classname, self::LOCAL_ENCODER_PATH) !== false) {
+                $key = $basename;
+            }
+            $acc[$key] = $basename;
+            return $acc;
+        }, []);
+
+        return $options;
+    }
+
+    /**
+     * Allows each step type to determine a list of optional/required form
+     * inputs for their configuration
+     *
+     * It's recommended you prefix the additional config related fields to avoid
+     * conflicts with any existing fields.
+     *
+     * @param \MoodleQuickForm &$mform
+     */
+    public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
+        // Stream name.
+        $mform->addElement('text', 'config_streamname', get_string('writer_stream:streamname', 'tool_dataflows'));
+        $mform->addElement('static', 'config_streamname_help', '', get_string('writer_stream:streamname_help', 'tool_dataflows'));
+
+        // Format.
+        $mform->addElement(
+            'select',
+            'config_format',
+            get_string('writer_stream:format', 'tool_dataflows'),
+            $this->get_encoder_options()
+        );
+        $mform->addElement('static', 'config_format_help', '', get_string('writer_stream:format_help', 'tool_dataflows'));
     }
 }

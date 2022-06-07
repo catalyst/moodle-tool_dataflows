@@ -29,7 +29,7 @@ class manager {
     /**
      * Return all dataflow steps available from other plugins and by default
      *
-     * This is defined in lib.php for each plugin, and returned via a dataflow_steps function
+     * This is defined in lib.php for each plugin, and returned via a dataflow_step_types function
      *
      * @return array of step objects
      */
@@ -46,5 +46,19 @@ class manager {
             }
         }
         return $steps;
+    }
+
+    /**
+     * Return all dataflow encoders available from other plugins and by default
+     *
+     * This is defined in lib.php for each plugin, and returned via a dataflow_steps function
+     *
+     * @return array of step objects
+     */
+    public static function get_encoders(): array {
+        $encoders = tool_dataflows_encoders();
+        $moreencoders = get_plugins_with_function('dataflows_encoders', 'lib.php');
+        array_merge($encoders, $moreencoders);
+        return $encoders;
     }
 }
