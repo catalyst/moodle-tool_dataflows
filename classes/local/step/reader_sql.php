@@ -97,7 +97,7 @@ class reader_sql extends reader_step {
             // Check expression evaluation using the current config object
             // first, then failing that, target the dataflow variables.
             $parser = new parser();
-            $value = $parser->evaluate($match['expressionwrapper'], $this->flowenginestep->get_variables());
+            $value = $parser->evaluate_or_fail($match['expressionwrapper'], $this->flowenginestep->get_variables());
 
             // If the expression cannot be evaluated, then the query fragment is ignored entirely.
             if ($match['expressionwrapper'] === $value) {

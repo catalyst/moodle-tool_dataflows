@@ -41,6 +41,28 @@ class parser {
      * @return     mixed
      */
     public function evaluate(string $expression, array $variables) {
+        return $this->internal_evaluator($expression, $variables, false);
+    }
+
+    /**
+     * Evalulates the expression provided and on fail will throw an exception.
+     *
+     * @param      string $expression
+     * @param      array $variables containing anything relevant to the evaluation of the result
+     * @return     mixed
+     */
+    public function evaluate_or_fail(string $expression, array $variables) {
+        return $this->internal_evaluator($expression, $variables, true);
+    }
+
+    /**
+     * Evalulates the expressions in the string provided.
+     *
+     * @param      string $expression
+     * @param      array $variables containing anything relevant to the evaluation of the result
+     * @return     mixed
+     */
+    private function internal_evaluator(string $expression, array $variables, $throwonfail) {
         $evaluatedexpression = $expression;
         preg_match_all('/\${{(?<expression>.*)}}/mU', $expression, $matches, PREG_SET_ORDER);
         if (!empty($matches)) {
@@ -56,7 +78,10 @@ class parser {
                     // Set the evalulated expression to the one that passed through the expression language.
                     $evaluatedexpression = str_replace($match[0], $result, $evaluatedexpression);
                 } catch (\Exception $e) {
-                    mtrace("Issue parsing {$match[0]} - {$e->getMessage()}");
+                    if ($throwonfail) {
+                        mtrace("Issue parsing {$match[0]} - {$e->getMessage()}");
+                        throw $e;
+                    }
                     continue;
                 }
             }
