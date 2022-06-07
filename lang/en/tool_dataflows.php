@@ -87,6 +87,30 @@ $string['field_type'] = 'Type of step';
 $string['update_step'] = 'Update step';
 $string['new_step'] = 'New step';
 
+$string['inputs'] = 'Inputs';
+$string['outputs'] = 'Outputs';
+$string['no_inputs'] = 'No inputs';
+$string['no_outputs'] = 'No outputs';
+
+$string['input_flow_link_limit'] = '{$a} input flow link';
+$string['input_flow_link_limit_plural'] = '{$a} input flow links';
+$string['input_flow_link_limit_range'] = 'between {$a->min} and {$a->max} input flow links';
+$string['input_connector_link_limit'] = '{$a} input connector link';
+$string['input_connector_link_limit_plural'] = '{$a} input connector links';
+$string['input_connector_link_limit_range'] = 'between {$a->min} and {$a->max} connector flow links';
+$string['no_input_allowed'] = 'No inputs allowed';
+
+$string['output_flow_link_limit'] = '{$a} output flow link';
+$string['output_flow_link_limit_plural'] = '{$a} output flow links';
+$string['output_flow_link_limit_range'] = 'between {$a->min} and {$a->max} output flow links';
+$string['output_connector_link_limit'] = '{$a} output connector link';
+$string['output_connector_link_limit_plural'] = '{$a} output connector links';
+$string['output_connector_link_limit_range'] = 'between {$a->min} and {$a->max} connector flow links';
+$string['no_output_allowed'] = 'No outputs allowed';
+
+$string['requires_with_or'] = 'Requires {$a->str1} or {$a->str2}.';
+$string['requires'] = 'Requires {$a}.';
+
 // Step Chooser.
 $string['stepchooser'] = 'Step chooser';
 

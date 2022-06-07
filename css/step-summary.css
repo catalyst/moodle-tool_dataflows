@@ -1,0 +1,31 @@
+
+.dataflow-step-summary {
+    width:700px;
+    margin:auto;
+    border: 1px solid #ced4da;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.dataflow-step-summary > div:first-child {
+    display:flex;
+}
+
+.dataflow-step-summary > div:first-child > div {
+    flex-grow: 1;
+    flex-basis: 100px
+}
+
+.dataflow-step-summary > div > div:nth-child(2) {
+    flex-basis: 300px;
+    text-align: center;
+}
+
+.dataflow-step-summary h6 {
+    text-align: center;
+}
+
+.dataflow-step-summary > div:last-child {
+    padding-top: 5px;
+}
+

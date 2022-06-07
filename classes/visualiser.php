@@ -16,6 +16,8 @@
 
 namespace tool_dataflows;
 
+use tool_dataflows\local\step\base_step;
+
 /**
  * Dataflows visualiser
  *
@@ -311,5 +313,52 @@ class visualiser {
 
         echo $output->footer();
     }
-}
 
+    /**
+     * Helper for get_link_expectations().
+     *
+     * @param base_step $steptype
+     * @param string $inputoutput 'input' or 'output'
+     * @param string $flowconnector 'flow' or 'connector'
+     * @return string
+     * @throws \coding_exception
+     */
+    protected static function get_link_limit(base_step $steptype, string $inputoutput, string $flowconnector): string {
+        $fn = "get_number_of_{$inputoutput}_{$flowconnector}s";
+        list($min, $max) = $steptype->$fn();
+        if ($min == $max) {
+            if ($min > 1) {
+                return get_string("{$inputoutput}_{$flowconnector}_link_limit_plural", 'tool_dataflows', $min);
+            } else if ($min > 0) {
+                return get_string("{$inputoutput}_{$flowconnector}_link_limit", 'tool_dataflows', $min);
+            } else {
+                return '';
+            }
+        } else {
+            return get_string("{$inputoutput}_{$flowconnector}_link_limit_range", 'tool_dataflows', ['min' => $min, 'max' => $max]);
+        }
+    }
+
+    /**
+     * Generate a limit description for step links.
+     *
+     * @param base_step $steptype
+     * @param string $inputoutput
+     * @return string
+     * @throws \coding_exception
+     */
+    public static function get_link_expectations(base_step $steptype, string $inputoutput): string {
+        $str1 = self::get_link_limit($steptype, $inputoutput, 'flow');
+        $str2 = self::get_link_limit($steptype, $inputoutput, 'connector');
+
+        if ($str1 && $str2) {
+            return get_string('requires_with_or', 'tool_dataflows', ['str1' => $str1, 'str2' => $str2]);
+        } else {
+            if ($str1 == '' && $str2 == '') {
+                return get_string("no_{$inputoutput}_allowed", 'tool_dataflows');
+            } else {
+                return get_string('requires', 'tool_dataflows', $str1 . $str2);
+            }
+        }
+    }
+}

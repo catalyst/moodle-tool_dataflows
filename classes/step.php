@@ -204,6 +204,27 @@ class step extends persistent {
     }
 
     /**
+     * Returns a list of steps that depend on this step.
+     *
+     * @return array
+     * @throws \dml_exception
+     */
+    public function dependents() {
+        global $DB;
+        $sql = "SELECT step.id,
+                       step.name,
+                       step.alias
+                  FROM {tool_dataflows_step_depends} sd
+             LEFT JOIN {tool_dataflows_steps} step ON sd.stepid = step.id
+                 WHERE sd.dependson = :stepid";
+
+        $deps = $DB->get_records_sql($sql, [
+            'stepid' => $this->id,
+        ]);
+        return $deps;
+    }
+
+    /**
      * Updates the persistent if the record exists, otherwise creates it
      *
      * @return  $this
