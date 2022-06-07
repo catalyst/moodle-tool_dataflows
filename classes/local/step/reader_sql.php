@@ -38,6 +38,8 @@ class reader_sql extends reader_step {
     protected static function form_define_fields(): array {
         return [
             'sql' => ['type' => PARAM_TEXT],
+            'counterfield' => ['type' => PARAM_TEXT],
+            'countervalue' => ['type' => PARAM_TEXT],
         ];
     }
 
@@ -74,7 +76,49 @@ class reader_sql extends reader_step {
      */
     protected function construct_query(flow_engine_step $step): string {
         $config = $step->stepdef->config;
-        return $config->sql;
+
+        $rawsql = $config->sql;
+        // Check if the counter value is present, and if so remove the
+        // encompassing block for it until it is set / has a value.
+        preg_match_all(
+            '/(?<fragmentwrapper>' .
+            '\[\[(?<fragment>' .
+            '.*(?<expressionwrapper>' .
+            '\${{(?<expression>.*)}}' .
+            ').*' .   // End of expressionwrapper.
+            ')\]\]' . // End of fragment.
+            ')/mU',   // End of fragment wrapper.
+            $rawsql,
+            $matches,
+            PREG_SET_ORDER);
+
+        // Remove all optional fragments from the raw sql, unless the expressed values are available.
+        $finalsql = $rawsql;
+        foreach ($matches as $match) {
+            // If the expression cannot be evaluated, then the query fragment is ignored entirely.
+            $expression = $match['expression'] ?? '';
+            if (!isset($config->{$expression}) || $config->{$expression} === '') {
+                $finalsql = str_replace($match['fragmentwrapper'], '', $finalsql);
+                continue;
+            }
+
+            // If the expression can be matched, replace the expression with its value, then it's wrapper, etc.
+            $parsedmatch = $match;
+            $parsedmatch['expressionwrapper'] = $config->{$expression};
+            $parsedmatch['fragment'] = str_replace(
+                $match['expressionwrapper'],
+                $parsedmatch['expressionwrapper'],
+                $match['fragment']
+            );
+            $parsedmatch['fragmentwrapper'] = $parsedmatch['fragment'];
+            $finalsql = str_replace(
+                $match['fragmentwrapper'],
+                $parsedmatch['fragmentwrapper'],
+                $finalsql
+            );
+        }
+
+        return $finalsql;
     }
 
     /**
@@ -103,5 +147,28 @@ class reader_sql extends reader_step {
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // SQL.
         $mform->addElement('textarea', 'config_sql', get_string('reader_sql:sql', 'tool_dataflows'), ['cols' => 50, 'rows' => 7]);
+        // Counter field.
+        $mform->addElement('text', 'config_counterfield', get_string('reader_sql:counterfield', 'tool_dataflows'));
+        $mform->addElement('static', 'config_counterfield_help', '', get_string('reader_sql:counterfield_help', 'tool_dataflows'));
+        // Counter value.
+        $mform->addElement('text', 'config_countervalue', get_string('reader_sql:countervalue', 'tool_dataflows'));
+        $mform->addElement('static', 'config_countervalue_help', '', get_string('reader_sql:countervalue_help', 'tool_dataflows'));
+    }
+
+    /**
+     * Step callback handler
+     *
+     * Updates the counter value if a counterfield is supplied, but otherwise does nothing special to the data.
+     */
+    public function execute($value) {
+        // Check the config for the counterfield.
+        $config = $this->flowenginestep->stepdef->config;
+        $counterfield = $config->counterfield ?? null;
+        if (isset($counterfield)) {
+            // Updates the countervalue based on the current counterfield value.
+            $this->flowenginestep->set_var('countervalue', $value->{$counterfield});
+        }
+
+        return $value;
     }
 }

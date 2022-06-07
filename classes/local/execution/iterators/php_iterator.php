@@ -79,6 +79,15 @@ class php_iterator implements iterator {
         if ($this->finished) {
             return false;
         }
+
+        // Only performs this check on the first iteration, and aborts if the
+        // iterator's position is valid (e.g. has no data).
+        if ($this->iterationcount === 0 && !$this->input->valid()) {
+            $this->step->log('Aborting at iteration ' . $this->iterationcount . '. No data?');
+            $this->abort();
+            return false;
+        }
+
         $value = $this->input->current();
         $this->input->next();
         if (!$this->input->valid()) {

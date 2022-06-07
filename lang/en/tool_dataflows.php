@@ -146,3 +146,7 @@ $string['writer_stream:format_help'] = 'The output format of the contents writte
 
 // Reader SQL.
 $string['reader_sql:sql'] = 'SQL';
+$string['reader_sql:counterfield'] = 'Counter field';
+$string['reader_sql:counterfield_help'] = 'Field in which the counter value is derived from. For example, the userid field in user related query';
+$string['reader_sql:countervalue'] = 'Counter Value';
+$string['reader_sql:countervalue_help'] = 'Current value from the counter field';

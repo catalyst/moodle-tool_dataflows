@@ -153,10 +153,14 @@ class engine {
      */
     protected function create_flow_caps() {
         // TODO Currently assumes flow blocks have no branches.
+        $flowcaps = 0;
         foreach ($this->enginesteps as $enginestep) {
             if ($enginestep->is_flow() && count($enginestep->downstreams) == 0) {
                 $steptype = new flow_cap();
-                $flowcap = $steptype->get_engine_step($this, new \tool_dataflows\step());
+                $step = new \tool_dataflows\step();
+                $flowcaps++;
+                $step->name = "flowcap-{$flowcaps}";
+                $flowcap = $steptype->get_engine_step($this, $step);
                 $this->flowcaps[] = $flowcap;
                 $enginestep->downstreams['puller'] = $flowcap;
                 $flowcap->upstreams[$enginestep->id] = $enginestep;

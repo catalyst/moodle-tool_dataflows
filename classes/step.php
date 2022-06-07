@@ -458,4 +458,21 @@ class step extends persistent {
 
         return $dotscript;
     }
+
+    /**
+     * Updates the value stored in the step's config
+     *
+     * @param      string name or path to name of field e.g. 'some.nested.fieldname'
+     * @param      mixed value
+     */
+    public function set_var($name, $value) {
+        // Grabs the current config.
+        $config = $this->config;
+
+        // Updates the field in question.
+        $config->{$name} = $value;
+
+        // Updates the stored config.
+        $this->config = Yaml::dump((array) $config);
+    }
 }
