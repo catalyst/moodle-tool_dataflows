@@ -85,7 +85,7 @@ class flow_engine_step extends engine_step {
         return array_merge(
             $this->engine->get_variables(),
             ['step' => $this->stepdef],
-            (array) $this->stepdef->config,
+            (array) $this->stepdef->config
         );
     }
 }
