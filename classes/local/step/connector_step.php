@@ -78,8 +78,9 @@ abstract class connector_step extends base_step {
         $basestyles = parent::get_node_styles();
 
         if ($this->has_side_effect()) {
-            $styles['shape'] = 'parallelogram';
-            $styles['style'] = 'filled';
+            $styles['shape']     = 'rect';
+            $styles['style']     = 'filled';
+            $styles['fillcolor'] = '#ffc107';
         }
 
         return array_merge($basestyles, $styles);

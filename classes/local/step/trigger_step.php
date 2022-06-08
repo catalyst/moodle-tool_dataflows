@@ -80,9 +80,10 @@ abstract class trigger_step extends connector_step {
      */
     final public function get_node_styles(): array {
         return [
-            'shape'     => 'oval',
+            'shape'     => 'rarrow',
             'fillcolor' => '#357a32',
             'fontcolor' => 'white',
+            'height'    => '0.6',
         ];
     }
 }
