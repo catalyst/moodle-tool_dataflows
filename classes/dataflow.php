@@ -163,13 +163,19 @@ class dataflow extends persistent {
         $steps = $this->steps;
         $adjacencylist = graph::to_adjacency_list($edges);
 
+        // Prepare an array of steps by id, which makes local lookups instantaneous.
+        $stepidhashmap = [];
+        foreach ($steps as $step) {
+            $stepidhashmap[$step->id] = $step;
+        }
+
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
         foreach ($steps as $step) {
+            $prefix = \html_writer::tag('b', $step->name). ': ';
             $stepvalidation = $step->validate_step();
             if ($stepvalidation !== true) {
                 // Additionally, prefix all step validation with something to
                 // make it easier to identify from the dataflow details page.
-                $prefix = \html_writer::tag('b', $step->name). ': ';
                 $prefixed = preg_filter('/^/', $prefix, $stepvalidation);
                 $prefixed = array_unique($prefixed);
                 $prefixed = array_combine(
@@ -179,50 +185,96 @@ class dataflow extends persistent {
                     $prefixed);
 
                 $errors = array_merge($errors, $prefixed);
+            }
 
-                // The following validation relies on a correctly defined type,
-                // so skip the rest if this is missing.
-                if (isset($stepvalidation['type'])) {
-                    continue;
+            // The following validation relies on a correctly defined type,
+            // so skip the rest if this is missing.
+            if (isset($stepvalidation['type'])) {
+                continue;
+            }
+
+            // Validate step connections going in and out based on their step
+            // type and their expected flow and connection input/output amounts.
+            $steptype = $step->type;
+            $steptype = new $steptype();
+            $counts = [
+                'inputs' => ['flows' => 0, 'connectors' => 0],
+                'outputs' => ['flows' => 0, 'connectors' => 0],
+            ];
+            foreach ($adjacencylist as $sourcestepid => $destinations) {
+                // If this the current step is a 'destination', increment the number of relevant inputs.
+                if (in_array($step->id, $destinations)) {
+                    $key = 'connectors';
+                    if (new $stepidhashmap[$sourcestepid]->type() instanceof flow_step) {
+                        $key = 'flows';
+                    }
+                    $counts['inputs'][$key]++;
                 }
 
-                // Validate step connections going in and out based on their step type.
-                $steptype = $step->type;
-                $steptype = new $steptype();
-                // Check inputs - ensure the item's occurance across the items in the adjacency list is within range.
-                $srccount = 0;
-                foreach ($adjacencylist as $destinations) {
-                    if (in_array($step->id, $destinations)) {
-                        $srccount++;
+                // If the sourcestepid is the current step, increment its output count.
+                if ($sourcestepid === $step->id) {
+                    foreach ($destinations as $destinationstepid) {
+                        $key = 'connectors';
+                        if (new $stepidhashmap[$destinationstepid]->type() instanceof flow_step) {
+                            $key = 'flows';
+                        }
+                        $counts['outputs'][$key]++;
                     }
                 }
-                [$min, $max] = $steptype->get_number_of_input_flows();
-                if ($srccount < $min || $srccount > $max) {
-                    $errors["invalid_count_inputflows_{$step->id}"] = $prefix . get_string(
-                        'stepinvalidinputflowcount',
-                        'tool_dataflows',
-                        (object) [
-                            'found' => $srccount,
-                            'min' => $min,
-                            'max' => $max,
-                        ]
-                    );
-                }
+            }
+            // Inputs.
+            [$miniflows, $maxiflows] = $steptype->get_number_of_input_flows();
+            [$miniconnectors, $maxiconnectors] = $steptype->get_number_of_input_connectors();
+            // Outputs.
+            [$minoflows, $maxoflows] = $steptype->get_number_of_output_flows();
+            [$minoconnectors, $maxoconnectors] = $steptype->get_number_of_output_connectors();
 
-                // Check outputs - for the item in the adjacency list, ensure the count of destinations is valid.
-                [$min, $max] = $steptype->get_number_of_output_flows();
-                $destcount = isset($adjacencylist[$step->id]) ? count($adjacencylist[$step->id]) : 0;
-                if ($destcount < $min || $destcount > $max) {
-                    $errors["invalid_count_outputflows_{$step->id}"] = $prefix . get_string(
-                        'stepinvalidoutputflowcount',
-                        'tool_dataflows',
-                        (object) [
-                            'found' => $destcount,
-                            'min' => $min,
-                            'max' => $max,
-                        ]
-                    );
-                }
+            // Input flow check.
+            $found = $counts['inputs']['flows'];
+            $min = $miniflows;
+            $max = $maxiflows;
+            if ($found < $min || $found > $max) {
+                $errors["stepinvalidinputflowcount_{$step->id}"] = $prefix . get_string(
+                    'stepinvalidinputflowcount',
+                    'tool_dataflows',
+                    (object) ['found' => $found, 'min' => $min, 'max' => $max]
+                );
+            }
+
+            // Output flow check.
+            $found = $counts['outputs']['flows'];
+            $min = $minoflows;
+            $max = $maxoflows;
+            if ($found < $min || $found > $max) {
+                $errors["stepinvalidoutputflowcount_{$step->id}"] = $prefix . get_string(
+                    'stepinvalidoutputflowcount',
+                    'tool_dataflows',
+                    (object) ['found' => $found, 'min' => $min, 'max' => $max]
+                );
+            }
+
+            // Input connectors check.
+            $found = $counts['inputs']['connectors'];
+            $min = $miniconnectors;
+            $max = $maxiconnectors;
+            if ($found < $min || $found > $max) {
+                $errors["stepinvalidinputconnectorcount_{$step->id}"] = $prefix . get_string(
+                    'stepinvalidinputconnectorcount',
+                    'tool_dataflows',
+                    (object) ['found' => $found, 'min' => $min, 'max' => $max]
+                );
+            }
+
+            // Output connectors check.
+            $found = $counts['outputs']['connectors'];
+            $min = $minoconnectors;
+            $max = $maxoconnectors;
+            if ($found < $min || $found > $max) {
+                $errors["stepinvalidoutputconnectorcount_{$step->id}"] = $prefix . get_string(
+                    'stepinvalidoutputconnectorcount',
+                    'tool_dataflows',
+                    (object) ['found' => $found, 'min' => $min, 'max' => $max]
+                );
             }
         }
 
