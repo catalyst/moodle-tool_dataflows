@@ -98,15 +98,15 @@ abstract class flow_step extends base_step {
     public function get_node_styles(): array {
         $basestyles = parent::get_node_styles();
         $styles = [
-            'shape'     => 'record',
-            'fillcolor' => '#008196',
-            'fontcolor' => '#ffffff',
+            'shape'     => 'rect',
+            'fillcolor' => '#8cd0db',
+            'fontcolor' => '#000000',
             'style'     => 'filled,rounded',
         ];
 
         if ($this->has_side_effect()) {
-            $styles['shape'] = 'parallelogram';
-            $styles['style'] = 'filled';
+            $styles['fillcolor'] = '#008196';
+            $styles['fontcolor'] = '#ffffff';
         }
 
         return array_merge($basestyles, $styles);

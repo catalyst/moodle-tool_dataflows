@@ -332,7 +332,7 @@ abstract class base_step {
      * @return  array containing the base styles
      */
     public static function get_base_node_styles(): array {
-        return [
+        $styles = [
             'color'     => 'none',
             'shape'     => 'record',
             'fillcolor' => '#ced4da',
@@ -340,6 +340,9 @@ abstract class base_step {
             'fontname'  => 'Arial',
             'style'     => 'filled',
         ];
+        // TODO The border color is reserved so we can make it red for steps with errors.
+        // $styles['color'] = 'red';
+        return $styles;
     }
 
     /**

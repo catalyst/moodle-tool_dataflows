@@ -333,7 +333,7 @@ class dataflow extends persistent {
         $connections = [];
         $edges = $this->edges;
         $baseconnectionstyles = [
-            'color' => '#1d2125',
+            'color' => '#333333',
             'arrowsize' => '0.7',
             'penwidth' => 2,
         ];
