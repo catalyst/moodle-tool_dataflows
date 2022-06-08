@@ -189,7 +189,13 @@ abstract class engine_step {
      */
     public function set_var($name, $value) {
         // Check if this is an available field to set in the step type.
-        // TODO: implement.
+        if (!$this->steptype->is_field_valid($name)) {
+            $stepurl = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->stepdef->id]);
+            throw new \moodle_exception('variablefieldnotexpected', 'tool_dataflows', $stepurl, (object) [
+                'field' => $name,
+                'steptype' => $this->steptype->get_id(),
+            ]);
+        }
 
         // Check if this field can be updated or not, e.g. if this was forced in config, it should not be updatable.
         // TODO: implement.

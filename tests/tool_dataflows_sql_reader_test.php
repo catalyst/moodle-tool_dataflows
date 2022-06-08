@@ -120,10 +120,6 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
      */
     public function test_expressions_within_a_run() {
         global $DB;
-        // The gist:
-        // - Read some records,
-        // - ensure the counter (iterator checkpoint) is set after each iteration, based on & if the field is provided.
-        // - Perform the run again, and this time, expect the record to start from the next value, according to the SQL defined.
 
         // Insert test records.
         $template = ['plugin' => '--phantom_plugin--'];
@@ -134,11 +130,14 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
             ]);
             $DB->insert_record('config_plugins', (object) $input);
         }
+
+        // Prepare query, with an optional fragment which is included if the
+        // expression field is present. Otherwise it is skipped.
         $sql = 'SELECT *
                   FROM {config_plugins}
                  WHERE plugin = \'' . $template['plugin'] . '\'
-                 [[ AND CAST(value as int) > ${{countervalue}} ]]
-                 ORDER BY CAST(value as int) ASC
+                [[ AND CAST(value as int) > ${{countervalue}} ]]
+              ORDER BY CAST(value as int) ASC
                  LIMIT 3';
 
         // Create the dataflow.

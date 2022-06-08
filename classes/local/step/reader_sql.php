@@ -31,8 +31,6 @@ use tool_dataflows\parser;
  */
 class reader_sql extends reader_step {
 
-    private $flowenginestep;
-
     /**
      * Return the definition of the fields available in this form.
      *
@@ -54,8 +52,8 @@ class reader_sql extends reader_step {
      * @throws \moodle_exception
      */
     public function get_iterator(flow_engine_step $step): iterator {
-        $this->flowenginestep = $step;
-        $query = $this->construct_query($step);
+        $this->enginestep = $step;
+        $query = $this->construct_query();
         return new class($step, $query) extends php_iterator {
 
             public function __construct(flow_engine_step $step, string $query) {
@@ -78,7 +76,7 @@ class reader_sql extends reader_step {
      * @throws \moodle_exception
      */
     protected function construct_query(): string {
-        $config = $this->flowenginestep->stepdef->config;
+        $config = $this->enginestep->stepdef->config;
 
         $rawsql = $config->sql;
         // Parses the query, removing any optional blocks which cannot be resolved by the containing expression.
@@ -100,7 +98,7 @@ class reader_sql extends reader_step {
             // Check expression evaluation using the current config object
             // first, then failing that, target the dataflow variables.
             $parser = new parser();
-            $value = $parser->evaluate_or_fail($match['expressionwrapper'], $this->flowenginestep->get_variables());
+            $value = $parser->evaluate_or_fail($match['expressionwrapper'], $this->enginestep->get_variables());
 
             // If the expression cannot be evaluated (or evaluates to an empty
             // string), then the query fragment is ignored entirely.
@@ -169,11 +167,11 @@ class reader_sql extends reader_step {
      */
     public function execute($value) {
         // Check the config for the counterfield.
-        $config = $this->flowenginestep->stepdef->config;
+        $config = $this->enginestep->stepdef->config;
         $counterfield = $config->counterfield ?? null;
         if (isset($counterfield)) {
             // Updates the countervalue based on the current counterfield value.
-            $this->flowenginestep->set_var('countervalue', $value->{$counterfield});
+            $this->enginestep->set_var('countervalue', $value->{$counterfield});
         }
 
         return $value;

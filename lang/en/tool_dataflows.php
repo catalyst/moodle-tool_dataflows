@@ -91,6 +91,7 @@ $string['new_step'] = 'New step';
 $string['stepchooser'] = 'Step chooser';
 
 // Warnings / Errors.
+$string['variablefieldnotexpected'] = 'The field \'{$a->field}\' cannot be set as it is not an expected field for step type \'{$a->steptype}\'.';
 $string['invalidyaml'] = 'The content provided is invalid YAML.';
 $string['hassideeffect'] = 'Has a side effect';
 $string['nodataflowfile'] = 'No dataflow file found.';
