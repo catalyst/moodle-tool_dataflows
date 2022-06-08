@@ -30,6 +30,9 @@ use tool_dataflows\local\execution\engine_step;
  */
 abstract class base_step {
 
+    /** @var engine_step */
+    protected $enginestep;
+
     /**
      * This is autopopulated by the dataflows manager.
      *
@@ -337,5 +340,15 @@ abstract class base_step {
             'fontname'  => 'Arial',
             'style'     => 'filled',
         ];
+    }
+
+    /**
+     * Returns whether or not a field is defined in the form
+     *
+     * @param      string $fieldname name of the field
+     * @return     bool whether or not the provided field is defined
+     */
+    public function is_field_valid(string $fieldname): bool {
+        return isset(static::form_define_fields()[$fieldname]);
     }
 }

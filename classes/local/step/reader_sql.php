@@ -19,6 +19,7 @@ namespace tool_dataflows\local\step;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\php_iterator;
+use tool_dataflows\parser;
 
 /**
  * SQL reader step
@@ -38,6 +39,8 @@ class reader_sql extends reader_step {
     protected static function form_define_fields(): array {
         return [
             'sql' => ['type' => PARAM_TEXT],
+            'counterfield' => ['type' => PARAM_TEXT],
+            'countervalue' => ['type' => PARAM_TEXT],
         ];
     }
 
@@ -49,7 +52,8 @@ class reader_sql extends reader_step {
      * @throws \moodle_exception
      */
     public function get_iterator(flow_engine_step $step): iterator {
-        $query = $this->construct_query($step);
+        $this->enginestep = $step;
+        $query = $this->construct_query();
         return new class($step, $query) extends php_iterator {
 
             public function __construct(flow_engine_step $step, string $query) {
@@ -68,13 +72,58 @@ class reader_sql extends reader_step {
     /**
      * Constructs the SQL query from the configuration options.
      *
-     * @param flow_engine_step $step
      * @return string
      * @throws \moodle_exception
      */
-    protected function construct_query(flow_engine_step $step): string {
-        $config = $step->stepdef->config;
-        return $config->sql;
+    protected function construct_query(): string {
+        $config = $this->enginestep->stepdef->config;
+
+        $rawsql = $config->sql;
+        // Parses the query, removing any optional blocks which cannot be resolved by the containing expression.
+        preg_match_all(
+            '/(?<fragmentwrapper>' .
+            '\[\[(?<fragment>' .
+            '.*(?<expressionwrapper>' .
+            '\${{(?<expression>.*)}}' .
+            ').*' .   // End of expressionwrapper.
+            ')\]\]' . // End of fragment.
+            ')/mU',   // End of fragment wrapper.
+            $rawsql,
+            $matches,
+            PREG_SET_ORDER);
+
+        // Remove all optional fragments from the raw sql, unless the expressed values are available.
+        $finalsql = $rawsql;
+        foreach ($matches as $match) {
+            // Check expression evaluation using the current config object
+            // first, then failing that, target the dataflow variables.
+            $parser = new parser();
+            $value = $parser->evaluate_or_fail($match['expressionwrapper'], $this->enginestep->get_variables());
+
+            // If the expression cannot be evaluated (or evaluates to an empty
+            // string), then the query fragment is ignored entirely.
+            if ($match['expressionwrapper'] === $value || $value === '') {
+                $finalsql = str_replace($match['fragmentwrapper'], '', $finalsql);
+                continue;
+            }
+
+            // If the expression can be matched, replace the expression with its value, then it's wrapper, etc.
+            $parsedmatch = $match;
+            $parsedmatch['expressionwrapper'] = $value;
+            $parsedmatch['fragment'] = str_replace(
+                $match['expressionwrapper'],
+                $parsedmatch['expressionwrapper'],
+                $match['fragment']
+            );
+            $parsedmatch['fragmentwrapper'] = $parsedmatch['fragment'];
+            $finalsql = str_replace(
+                $match['fragmentwrapper'],
+                $parsedmatch['fragmentwrapper'],
+                $finalsql
+            );
+        }
+
+        return $finalsql;
     }
 
     /**
@@ -103,5 +152,28 @@ class reader_sql extends reader_step {
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // SQL.
         $mform->addElement('textarea', 'config_sql', get_string('reader_sql:sql', 'tool_dataflows'), ['cols' => 50, 'rows' => 7]);
+        // Counter field.
+        $mform->addElement('text', 'config_counterfield', get_string('reader_sql:counterfield', 'tool_dataflows'));
+        $mform->addElement('static', 'config_counterfield_help', '', get_string('reader_sql:counterfield_help', 'tool_dataflows'));
+        // Counter value.
+        $mform->addElement('text', 'config_countervalue', get_string('reader_sql:countervalue', 'tool_dataflows'));
+        $mform->addElement('static', 'config_countervalue_help', '', get_string('reader_sql:countervalue_help', 'tool_dataflows'));
+    }
+
+    /**
+     * Step callback handler
+     *
+     * Updates the counter value if a counterfield is supplied, but otherwise does nothing special to the data.
+     */
+    public function execute($value) {
+        // Check the config for the counterfield.
+        $config = $this->enginestep->stepdef->config;
+        $counterfield = $config->counterfield ?? null;
+        if (isset($counterfield)) {
+            // Updates the countervalue based on the current counterfield value.
+            $this->enginestep->set_var('countervalue', $value->{$counterfield});
+        }
+
+        return $value;
     }
 }

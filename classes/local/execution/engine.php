@@ -153,10 +153,14 @@ class engine {
      */
     protected function create_flow_caps() {
         // TODO Currently assumes flow blocks have no branches.
+        $flowcaps = 0;
         foreach ($this->enginesteps as $enginestep) {
             if ($enginestep->is_flow() && count($enginestep->downstreams) == 0) {
                 $steptype = new flow_cap();
-                $flowcap = $steptype->get_engine_step($this, new \tool_dataflows\step());
+                $step = new \tool_dataflows\step();
+                $flowcaps++;
+                $step->name = "flowcap-{$flowcaps}";
+                $flowcap = $steptype->get_engine_step($this, $step);
                 $this->flowcaps[] = $flowcap;
                 $enginestep->downstreams['puller'] = $flowcap;
                 $flowcap->upstreams[$enginestep->id] = $enginestep;
@@ -268,6 +272,7 @@ class engine {
             case 'status':
             case 'exception':
             case 'isdryrun':
+            case 'dataflow':
                 return $this->$parameter;
             case 'name':
                 return $this->dataflow->name;
@@ -278,5 +283,18 @@ class engine {
                     '',
                     ['parameter' => $parameter, 'classname' => self::class]);
         }
+    }
+
+    /**
+     * Returns an array with all the variables available through the dataflow engine.
+     *
+     * Note: ideally, you could check a value set in another step via this
+     * function, and returning the dataflow->variables might not always be the
+     * correct choice, thus the need for this function should things be updated.
+     *
+     * @return  array
+     */
+    public function get_variables(): array {
+        return $this->dataflow->variables;
     }
 }

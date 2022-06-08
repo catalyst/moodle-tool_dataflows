@@ -56,7 +56,7 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
      * @throws \moodle_exception
      */
     public function test_in_and_out() {
-        // Crate the dataflow.
+        // Create the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'two-step';
         $dataflow->save();

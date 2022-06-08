@@ -91,6 +91,7 @@ $string['new_step'] = 'New step';
 $string['stepchooser'] = 'Step chooser';
 
 // Warnings / Errors.
+$string['variablefieldnotexpected'] = 'The field \'{$a->field}\' cannot be set as it is not an expected field for step type \'{$a->steptype}\'.';
 $string['invalidyaml'] = 'The content provided is invalid YAML.';
 $string['hassideeffect'] = 'Has a side effect';
 $string['nodataflowfile'] = 'No dataflow file found.';
@@ -146,3 +147,7 @@ $string['writer_stream:format_help'] = 'The output format of the contents writte
 
 // Reader SQL.
 $string['reader_sql:sql'] = 'SQL';
+$string['reader_sql:counterfield'] = 'Counter field';
+$string['reader_sql:counterfield_help'] = 'Field in which the counter value is derived from. For example, the userid field in user related query';
+$string['reader_sql:countervalue'] = 'Counter Value';
+$string['reader_sql:countervalue_help'] = 'Current value from the counter field';
