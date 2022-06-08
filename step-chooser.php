@@ -67,13 +67,17 @@ echo $OUTPUT->heading($pageheading);
 $icon = $OUTPUT->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
 $steptypes = manager::get_steps_types();
 $items = array_reduce($steptypes, function ($acc, $steptype) use ($dataflow) {
+    $name = get_class($steptype);
+    $name = explode('\\', $name);
+    $name = end($name);
+
     $acc[$steptype->get_group()] = $acc[$steptype->get_group()] ?? [];
     $acc[$steptype->get_group()][] = [
         'href' => new \moodle_url(
             '/admin/tool/dataflows/step.php',
             ['dataflowid' => $dataflow->id, 'type' => get_class($steptype)]
         ),
-        'label' => get_class($steptype),
+        'label' => $name,
     ];
     return $acc;
 }, []);

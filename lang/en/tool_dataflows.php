@@ -74,9 +74,9 @@ $string['stepgroupconnectors'] = 'Connectors';
 $string['stepgroupconnectorlogics'] = 'Connector Logics';
 $string['stepgroupwriters'] = 'Writers';
 $string['stepgroupflowtransformers'] = 'Flow Transformers';
-$string['stepgroupflowlogics'] = 'Flow Logics';
+$string['stepgroupflowlogics'] = 'Flow steps';
 $string['stepgroupflows'] = 'Flows';
-$string['stepgroupreaders'] = 'Readers';
+$string['stepgroupreaders'] = 'Reader steps';
 
 // Step (form).
 $string['field_description'] = 'Description';
