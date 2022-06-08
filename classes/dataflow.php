@@ -76,8 +76,11 @@ class dataflow extends persistent {
      * @return     array of variables typically passed to the expression parser
      */
     public function get_variables(): array {
+        $globalconfig = Yaml::parse(get_config('tool_dataflows', 'config'), Yaml::PARSE_OBJECT_FOR_MAP) ?: new \stdClass;
+
         // Test reading a value directly.
         $variables = [
+            'global' => $globalconfig,
             'env' => (object) [
                 'DATAFLOW_ID' => $this->id,
                 'DATAFLOW_RUN_NUMBER' => 0,
@@ -491,5 +494,22 @@ class dataflow extends persistent {
         }
 
         return $yaml;
+    }
+
+    /**
+     * Updates the value stored in the dataflow's config
+     *
+     * @param  string name or path to name of field e.g. 'some.nested.fieldname'
+     * @param  mixed value
+     */
+    public function set_var($name, $value) {
+        // Grabs the current config.
+        $config = $this->config;
+
+        // Updates the field in question.
+        $config->{$name} = $value;
+
+        // Updates the stored config.
+        $this->config = Yaml::dump((array) $config);
     }
 }

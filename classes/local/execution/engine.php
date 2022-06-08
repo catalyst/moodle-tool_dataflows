@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\local\execution;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\local\step\flow_cap;
 
@@ -296,5 +297,58 @@ class engine {
      */
     public function get_variables(): array {
         return $this->dataflow->variables;
+    }
+
+    /**
+     * Sets a variable at the dataflow level
+     *
+     * Almost 'anything goes' here. Since the dataflow itself doesn't have any
+     * particular restriction on config. Anything value can be set here and
+     * referenced from other steps.
+     *
+     * TODO: add instance support.
+     *
+     * @param      string name of the field
+     * @param      mixed value
+     */
+    public function set_dataflow_var($name, $value) {
+        // Check if this field can be updated or not, e.g. if this was forced in config, it should not be updatable.
+        // TODO: implement.
+
+        $dataflow = $this->dataflow;
+        $previous = $dataflow->config->{$name} ?? '';
+        $this->log("Setting dataflow '$name' to '$value' (from '{$previous}')");
+        $this->dataflow->set_var($name, $value);
+
+        // Persists the variable to the dataflow config.
+        // NOTE: This is skipped during a dry-run. Variables 'should' still be accessible as per normal.
+        if (!$this->isdryrun) {
+            $this->dataflow->save();
+        }
+    }
+
+    /**
+     * Sets a variable at the global plugin level
+     *
+     * Values here are - similar to the dataflow and step scope - set against a
+     * config field. This however is stored via set_config and there is no
+     * instance only support.
+     *
+     * @param      string name of the field
+     * @param      mixed value
+     */
+    public function set_global_var($name, $value) {
+        // Grabs the current config.
+        $config = get_config('tool_dataflows', 'config');
+        $config = Yaml::parse($config, Yaml::PARSE_OBJECT_FOR_MAP) ?: new \stdClass;
+
+        // Updates the field in question.
+        $previous = $config->{$name} ?? '';
+        $config->{$name} = $value;
+
+        // Updates the stored config.
+        $config = Yaml::dump((array) $config);
+        $this->log("Setting global '$name' to '$value' (from '{$previous}')");
+        set_config('config', $config, 'tool_dataflows');
     }
 }

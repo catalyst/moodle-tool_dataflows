@@ -36,7 +36,7 @@ class array_in_type extends reader_step {
     /** @var int[] number of input flows (min, max), zero for readers. */
     protected $inputflows = [0, 0];
 
-    /** @var array The source. Place dat here before use. */
+    /** @var array The source. Place data here before use. */
     public static $source = [];
 
     public function get_iterator(flow_engine_step $step): iterator {
