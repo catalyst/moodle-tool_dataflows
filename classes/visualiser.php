@@ -315,12 +315,12 @@ class visualiser {
     }
 
     /**
-     * Helper for get_link_expectations().
+     * Get a description of the link count requirements, for a step.
      *
      * @param base_step $steptype
      * @param string $inputoutput 'input' or 'output'
      * @param string $flowconnector 'flow' or 'connector'
-     * @return string
+     * @return string Returns a description for the link requirements, or '' when no links are allowed.
      * @throws \coding_exception
      */
     protected static function get_link_limit(base_step $steptype, string $inputoutput, string $flowconnector): string {
@@ -340,7 +340,7 @@ class visualiser {
     }
 
     /**
-     * Generate a limit description for step links.
+     * Generate a description for step link requirements.
      *
      * @param base_step $steptype
      * @param string $inputoutput
@@ -348,16 +348,24 @@ class visualiser {
      * @throws \coding_exception
      */
     public static function get_link_expectations(base_step $steptype, string $inputoutput): string {
-        $str1 = self::get_link_limit($steptype, $inputoutput, 'flow');
-        $str2 = self::get_link_limit($steptype, $inputoutput, 'connector');
+        $flowmsg = self::get_link_limit($steptype, $inputoutput, 'flow');
+        $connectormsg = self::get_link_limit($steptype, $inputoutput, 'connector');
 
-        if ($str1 && $str2) {
-            return get_string('requires_with_or', 'tool_dataflows', ['str1' => $str1, 'str2' => $str2]);
+        if ($flowmsg && $connectormsg) {
+            return get_string('requires_with_or', 'tool_dataflows', ['str1' => $flowmsg, 'str2' => $connectormsg]);
         } else {
-            if ($str1 == '' && $str2 == '') {
+            if ($flowmsg == '' && $connectormsg == '') {
                 return get_string("no_{$inputoutput}_allowed", 'tool_dataflows');
             } else {
-                return get_string('requires', 'tool_dataflows', $str1 . $str2);
+                // Combine a non-zero requirement with a zero requirement, but put the non-zero requirement first.
+                if ($flowmsg == '') {
+                    $str1 = $connectormsg;
+                    $str2 = get_string("no_{$inputoutput}_flows", 'tool_dataflows');
+                } else {
+                    $str1 = $flowmsg;
+                    $str2 = get_string("no_{$inputoutput}_connectors", 'tool_dataflows');
+                }
+                return get_string('requires', 'tool_dataflows', ['str1' => $str1, 'str2' => $str2]);
             }
         }
     }

@@ -166,13 +166,26 @@ class dataflow extends persistent {
         $steps = $this->steps;
         $adjacencylist = graph::to_adjacency_list($edges);
 
+        // Prepare an array of steps by id, which makes local lookups instantaneous.
+        $stepidhashmap = [];
+        foreach ($steps as $step) {
+            $stepidhashmap[$step->id] = $step;
+        }
+        $inputlist = [];
+        $outputlist = [];
+        foreach ($edges as $edge) {
+            $step = $stepidhashmap[$edge[0]];
+            $inputlist[$edge[1]][] = (object) [ 'id' => $step->id, 'name' => $step->name, 'alias' => $step->alias, 'type' => $step->type ];
+            $step = $stepidhashmap[$edge[1]];
+            $outputlist[$edge[0]][] = (object) [ 'id' => $step->id, 'name' => $step->name, 'alias' => $step->alias, 'type' => $step->type ];
+        }
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
         foreach ($steps as $step) {
             $stepvalidation = $step->validate_step();
+            $prefix = \html_writer::tag('b', $step->name). ': ';
             if ($stepvalidation !== true) {
                 // Additionally, prefix all step validation with something to
                 // make it easier to identify from the dataflow details page.
-                $prefix = \html_writer::tag('b', $step->name). ': ';
                 $prefixed = preg_filter('/^/', $prefix, $stepvalidation);
                 $prefixed = array_unique($prefixed);
                 $prefixed = array_combine(
@@ -188,43 +201,19 @@ class dataflow extends persistent {
                 if (isset($stepvalidation['type'])) {
                     continue;
                 }
+            }
 
-                // Validate step connections going in and out based on their step type.
-                $steptype = $step->type;
-                $steptype = new $steptype();
-                // Check inputs - ensure the item's occurance across the items in the adjacency list is within range.
-                $srccount = 0;
-                foreach ($adjacencylist as $destinations) {
-                    if (in_array($step->id, $destinations)) {
-                        $srccount++;
-                    }
+            $validate = $step->validate_inputs($inputlist[$step->id] ?? []);
+            if ($validate !== true) {
+                foreach ($validate as $error) {
+                    $errors[] = $prefix . $error;
                 }
-                [$min, $max] = $steptype->get_number_of_input_flows();
-                if ($srccount < $min || $srccount > $max) {
-                    $errors["invalid_count_inputflows_{$step->id}"] = $prefix . get_string(
-                        'stepinvalidinputflowcount',
-                        'tool_dataflows',
-                        (object) [
-                            'found' => $srccount,
-                            'min' => $min,
-                            'max' => $max,
-                        ]
-                    );
-                }
+            }
 
-                // Check outputs - for the item in the adjacency list, ensure the count of destinations is valid.
-                [$min, $max] = $steptype->get_number_of_output_flows();
-                $destcount = isset($adjacencylist[$step->id]) ? count($adjacencylist[$step->id]) : 0;
-                if ($destcount < $min || $destcount > $max) {
-                    $errors["invalid_count_outputflows_{$step->id}"] = $prefix . get_string(
-                        'stepinvalidoutputflowcount',
-                        'tool_dataflows',
-                        (object) [
-                            'found' => $destcount,
-                            'min' => $min,
-                            'max' => $max,
-                        ]
-                    );
+            $validate = $step->validate_outputs($outputlist[$step->id] ?? []);
+            if ($validate !== true) {
+                foreach ($validate as $error) {
+                    $errors[] = $prefix . $error;
                 }
             }
         }

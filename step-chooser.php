@@ -78,7 +78,7 @@ $items = array_reduce($steptypes, function ($acc, $steptype) use ($dataflow) {
             '/admin/tool/dataflows/step.php',
             ['dataflowid' => $dataflow->id, 'type' => get_class($steptype)]
         ),
-        'label' => visualiser::generate($step->get_dotscript(false, false), 'svg'),
+        'label' => visualiser::generate($step->get_dotscript(false), 'svg'),
     ];
     return $acc;
 }, []);

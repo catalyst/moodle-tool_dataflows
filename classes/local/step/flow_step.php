@@ -32,8 +32,11 @@ use tool_dataflows\local\execution\flow_engine_step;
  */
 abstract class flow_step extends base_step {
 
-    /** @var int[] number of input flows (min, max). Flow steps default to min 1 input. */
+    /** @var int[] number of input flows (min, max). */
     protected $inputflows = [1, 1];
+
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [1, 1];
 
     /**
      * Does this type define a flow step?
