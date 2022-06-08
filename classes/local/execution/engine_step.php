@@ -201,7 +201,7 @@ abstract class engine_step {
         // TODO: implement.
 
         $previous = $this->stepdef->config->{$name};
-        $this->log("Setting '$name' to '$value' (from '{$previous}')");
+        $this->log("Setting step '$name' to '$value' (from '{$previous}')");
         $this->stepdef->set_var($name, $value);
 
         // Persists the variable to the dataflow step config.
@@ -209,5 +209,30 @@ abstract class engine_step {
         if (!$this->engine->isdryrun) {
             $this->stepdef->save();
         }
+    }
+
+    /**
+     * Sets a variable at the dataflow level
+     *
+     * This is a proxy to the engine's implementation.
+     * TODO: add instance support.
+     *
+     * @param  string name of the field
+     * @param  mixed value
+     */
+    public function set_dataflow_var($name, $value) {
+        $this->engine->set_dataflow_var($name, $value);
+    }
+
+    /**
+     * Sets a variable at the global (plugin) level
+     *
+     * This is a proxy to the engine's implementation.
+     *
+     * @param  string name of the field
+     * @param  mixed value
+     */
+    public function set_global_var($name, $value) {
+        $this->engine->set_global_var($name, $value);
     }
 }
