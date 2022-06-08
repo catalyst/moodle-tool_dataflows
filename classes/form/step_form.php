@@ -101,7 +101,10 @@ class step_form extends \core\form\persistent {
             'dependson',
             get_string('field_dependson', 'tool_dataflows'),
             $options,
-            ['class' => empty($options) ? 'hidden' : ''] // Hidden if there are no options to select from.
+            [
+                'class' => empty($options) ? 'hidden' : '', // Hidden if there are no options to select from.
+                'size' => count($options),
+            ]
         );
         $select->setMultiple(true);
 
