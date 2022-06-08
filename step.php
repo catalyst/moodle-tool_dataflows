@@ -48,6 +48,7 @@ if (!empty($id)) {
     $persistent = new step($id);
     $dataflowid = $persistent->dataflowid;
     $dependencies = $persistent->dependencies();
+    $type = $persistent->type;
 }
 
 require_login();
@@ -73,6 +74,8 @@ try {
 // Set the PAGE URL (and mandatory context). Note the ID being recorded, this is important.
 $PAGE->set_context($context);
 $PAGE->set_url($url);
+
+$PAGE->requires->css('/admin/tool/dataflows/css/step-summary.css');
 
 // Render the specific dataflow form.
 $customdata = [
@@ -164,6 +167,29 @@ echo $OUTPUT->header();
 
 // Output headings.
 echo $OUTPUT->heading($heading);
+
+$output = $PAGE->get_renderer('tool_dataflows');
+
+// Step summary including existing links and link requirements.
+$steptype = new $type();
+$classname = get_class($steptype);
+$data = [
+    'inputlist' => array_values(array_map(
+            function($v) {
+                return ['href' => new moodle_url('/admin/tool/dataflows/step.php', ['id' => $v->id]), 'label' => $v->name];
+            }, $dependencies)),
+    'outputlist' => array_values(array_map(
+            function($v) {
+                return ['href' => new moodle_url('/admin/tool/dataflows/step.php', ['id' => $v->id]), 'label' => $v->name];
+            }, $persistent->dependents())),
+    'dotimage' => visualiser::generate($persistent->get_dotscript(), 'svg'),
+    'classname' => $classname,
+    'basename' => substr($classname, strrpos($classname, '\\') + 1),
+    'inputrequirements' => visualiser::get_link_expectations($steptype, 'input'),
+    'outputrequirements' => visualiser::get_link_expectations($steptype, 'output'),
+];
+
+echo $output->render_from_template('tool_dataflows/step-summary', $data);
 
 // And display the form, and its validation errors if there are any.
 $form->display();
