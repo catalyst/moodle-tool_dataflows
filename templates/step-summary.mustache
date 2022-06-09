@@ -30,8 +30,7 @@
     * inputlist List of input links, each element including href link and label.
     * outputlist List of ouput links, each element including href link and label.
     * dotimage SVG image of teh step.
-    * classname The full class name.
-    * basename The shorter class name.
+    * typename The name of the step type.
     * inputrequirements An input requirements statement.
     * outputrequirements An output requirements statement.
 
@@ -45,8 +44,7 @@
             { "href": "", "label": "No outputs" }
         ],
         "dotimage": "...",
-        "classname": "\tool_dataflows\sql_reader",
-        "basename": "sql_reader",
+        "classname": "SQL reader",
         "inputrequirements": "Requies between 0 and 2 flow inputs.",
         "outputrequiremens": "No outputs allowed."
     }
@@ -64,8 +62,7 @@
         </div>
         <div>
             {{{dotimage}}}<br/>
-            {{basename}}<br/>
-            <span class="text-muted small">({{classname}})</span>
+            {{typename}}<br/>
         </div>
         <div>
             <h6>{{#str}} outputs, tool_dataflows {{/str}}</h6>

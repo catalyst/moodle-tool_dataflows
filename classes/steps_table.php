@@ -104,7 +104,6 @@ class steps_table extends \table_sql {
         // Icons relating to the step type and its functions. Currently
         // colours/shapes which will match up closely with the current dataflow
         // diagram.
-        $classname = $record->type;
         $icons = [];
         if (class_exists($classname)) {
             $steptype = new $classname();
@@ -112,20 +111,21 @@ class steps_table extends \table_sql {
             $steptype->has_side_effect() && $icons[] = \html_writer::tag('span', '⚡', [
                 'title' => get_string('hassideeffect', 'tool_dataflows'),
             ]);
+            $basename = $steptype->get_name();
         } else {
             $icons[] = \html_writer::tag('span', '❓', [
                 'title' => get_string('steptypedoesnotexist', 'tool_dataflows', $record->type),
             ]);
         }
-        $icons = implode(' ', $icons);
 
         // For readability, opting to show the name of the type of step first, and FQCN afterwards.
         // TODO: When downloading, display as below, otherwise split into next line for web view.
         // Example: writer_debugging (tool_dataflows\local\step\writer_debugging).
         $str = '';
-        $str .= \html_writer::tag('span', "$icons", ['class' => 'text-muted small mr-1']);
+        if (count($icons)) {
+            $str .= \html_writer::tag('span', implode(' ', $icons), ['class' => 'text-muted small mr-1']);
+        }
         $str .= $basename;
-        $str .= \html_writer::tag('div', "($classname)", ['class' => 'text-muted small']);
         return $str;
     }
 
