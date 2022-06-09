@@ -44,6 +44,7 @@ if (empty($id)) {
 
 // If a step id is provided, then the dataflowid should be from the stored step.
 $persistent = null;
+$dependencies = [];
 if (!empty($id)) {
     $persistent = new step($id);
     $dataflowid = $persistent->dataflowid;
@@ -172,7 +173,9 @@ $output = $PAGE->get_renderer('tool_dataflows');
 
 // Step summary including existing links and link requirements.
 $steptype = new $type();
-$classname = get_class($steptype);
+$summarystep = new step();
+$summarystep->name = $persistent->name ?? get_string('new_step', 'tool_dataflows');
+$summarystep->type = $type;
 $data = [
     'inputlist' => array_values(array_map(
             function($v) {
@@ -181,10 +184,10 @@ $data = [
     'outputlist' => array_values(array_map(
             function($v) {
                 return ['href' => new moodle_url('/admin/tool/dataflows/step.php', ['id' => $v->id]), 'label' => $v->name];
-            }, $persistent->dependents())),
-    'dotimage' => visualiser::generate($persistent->get_dotscript(), 'svg'),
-    'classname' => $classname,
-    'basename' => substr($classname, strrpos($classname, '\\') + 1),
+            }, $persistent ? $persistent->dependents() : [])),
+    'dotimage' => visualiser::generate($summarystep->get_dotscript(), 'svg'),
+    'classname' => $type,
+    'basename' => substr($type, strrpos($type, '\\') + 1),
     'inputrequirements' => visualiser::get_link_expectations($steptype, 'input'),
     'outputrequirements' => visualiser::get_link_expectations($steptype, 'output'),
 ];
