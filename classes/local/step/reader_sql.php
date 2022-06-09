@@ -169,7 +169,7 @@ class reader_sql extends reader_step {
         // Check the config for the counterfield.
         $config = $this->enginestep->stepdef->config;
         $counterfield = $config->counterfield ?? null;
-        if (isset($counterfield)) {
+        if (!empty($counterfield)) {
             // Updates the countervalue based on the current counterfield value.
             $this->enginestep->set_var('countervalue', $value->{$counterfield});
         }
