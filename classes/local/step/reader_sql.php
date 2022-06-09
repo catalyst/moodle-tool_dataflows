@@ -94,33 +94,40 @@ class reader_sql extends reader_step {
         $finalsql = $rawsql;
         $parser = new parser();
         $variables = $this->enginestep->get_variables();
-        foreach ($matches as $match) {
-            // Check expression evaluation using the current config object
-            // first, then failing that, target the dataflow variables.
-            $value = $parser->evaluate_or_fail($match['expressionwrapper'], $variables);
+        // echo"<pre>";print_r($variables['steps']->sql->config);die;
+        try {
+            foreach ($matches as $match) {
+                // Check expression evaluation using the current config object
+                // first, then failing that, target the dataflow variables.
+                $value = $parser->evaluate_or_fail($match['expressionwrapper'], $variables);
 
-            // If the expression cannot be evaluated (or evaluates to an empty
-            // string), then the query fragment is ignored entirely.
-            if ($match['expressionwrapper'] === $value || $value === '') {
-                $finalsql = str_replace($match['fragmentwrapper'], '', $finalsql);
-                continue;
+                // If the expression cannot be evaluated (or evaluates to an empty
+                // string), then the query fragment is ignored entirely.
+                if ($match['expressionwrapper'] === $value || $value === '') {
+                    $finalsql = str_replace($match['fragmentwrapper'], '', $finalsql);
+                    continue;
+                }
+
+                // If the expression can be matched, replace the expression with its value, then it's wrapper, etc.
+                $parsedmatch = $match;
+                $parsedmatch['expressionwrapper'] = $value;
+                $parsedmatch['fragment'] = str_replace(
+                    $match['expressionwrapper'],
+                    $parsedmatch['expressionwrapper'],
+                    $match['fragment']
+                );
+                $parsedmatch['fragmentwrapper'] = $parsedmatch['fragment'];
+                $finalsql = str_replace(
+                    $match['fragmentwrapper'],
+                    $parsedmatch['fragmentwrapper'],
+                    $finalsql
+                );
             }
-
-            // If the expression can be matched, replace the expression with its value, then it's wrapper, etc.
-            $parsedmatch = $match;
-            $parsedmatch['expressionwrapper'] = $value;
-            $parsedmatch['fragment'] = str_replace(
-                $match['expressionwrapper'],
-                $parsedmatch['expressionwrapper'],
-                $match['fragment']
-            );
-            $parsedmatch['fragmentwrapper'] = $parsedmatch['fragment'];
-            $finalsql = str_replace(
-                $match['fragmentwrapper'],
-                $parsedmatch['fragmentwrapper'],
-                $finalsql
-            );
+        } catch (\Throwable $e) {
+            mtrace("in the following query:\n\n{$config->sql}\n");
+            throw $e;
         }
+
 
         // Evalulate any remaining expressions as per normal.
         // NOTE: The expression statement itself MUST be on a single line (currently).

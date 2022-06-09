@@ -89,7 +89,7 @@ class engine {
     protected $flowcaps = [];
 
     /** @var int The status of the execution. */
-    protected $status = self::STATUS_NEW;
+    protected $status;
 
     /** @var \Throwable The exception generated when abort occurred. */
     protected $exception = null;
@@ -110,9 +110,10 @@ class engine {
     public function __construct(dataflow $dataflow, bool $isdryrun = false, $automated = true) {
         $this->dataflow = $dataflow;
         $this->dataflow->set_engine($this);
-
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
+
+        $this->set_status(self::STATUS_NEW);
 
         // Refuse to run if dataflow is not enabled.
         if (!($dataflow->enabled || !$automated || $isdryrun)) {
@@ -152,8 +153,6 @@ class engine {
 
         // Find the flow blocks.
         $this->create_flow_caps();
-
-        $this->log('Created');
     }
 
     public function initialise() {
@@ -167,7 +166,6 @@ class engine {
             // Add sinks to the execution queue.
             $this->queue = $this->sinks;
             $this->set_status(self::STATUS_INITIALISED);
-            $this->log('Initialised. Dry run: ' . ($this->isdryrun ? 'Yes' : 'No'));
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
         }
@@ -223,7 +221,6 @@ class engine {
         }
         if (count($this->queue) == 0) {
             $this->set_status(self::STATUS_FINISHED);
-            $this->log('Finished');
         } else {
             $currentstep = array_shift($this->queue);
             $result = $currentstep->go();
@@ -251,7 +248,6 @@ class engine {
                 case self::STATUS_ABORTED:
                     $this->abort($currentstep->exception);
             }
-            $currentstep->log('status ' . get_string('engine_status:' . self::STATUS_LABELS[$result], 'tool_dataflows'));
         }
     }
 
@@ -261,12 +257,10 @@ class engine {
     public function finalise() {
         try {
             $this->status_check(self::STATUS_FINISHED);
-
             foreach ($this->enginesteps as $enginestep) {
                 $enginestep->finalise();
             }
             $this->set_status(self::STATUS_FINALISED);
-            $this->log('Finalised');
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
         }
@@ -410,6 +404,15 @@ class engine {
         // Record the timestamp of the state change against the dataflow persistent,
         // which exposes this info through its variables.
         $this->dataflow->set_state_timestamp($status, microtime(true));
+
+        if ($status === self::STATUS_INITIALISED) {
+            $this->log('status: ' . self::STATUS_LABELS[$status] . ', config: ' . json_encode(['isdryrun' => $this->isdryrun]));
+        } else if ($status === self::STATUS_FINALISED) {
+            $this->log('status: ' . self::STATUS_LABELS[$status]);
+            $this->log("dumping state..\n" . json_encode($this->get_variables(), JSON_PRETTY_PRINT));
+        } else {
+            $this->log('status: ' . self::STATUS_LABELS[$status]);
+        }
     }
 
     /**

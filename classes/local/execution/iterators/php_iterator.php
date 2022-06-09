@@ -68,6 +68,7 @@ class php_iterator implements iterator {
      */
     public function abort() {
         $this->finished = true;
+        $this->step->set_status(engine::STATUS_FINISHED);
     }
 
     /**

@@ -46,6 +46,94 @@ class tool_dataflows_variables_test extends \advanced_testcase {
     }
 
     /**
+     * TODO: later add tests for indirect self recursion (and fail gracefully).
+     */
+    public function test_variable_parsing_involving_self_recursion() {
+        // Create the dataflow.
+        $dataflow = new dataflow();
+        $dataflow->name = 'readwrite';
+        $dataflow->save();
+
+        $reader = new step();
+        $reader->name = 'reader';
+        $reader->type = execution\reader_sql_variable_setter::class;
+
+        // Set the SQL query via a YAML config string.
+        $reader->config = Yaml::dump([
+            'sql' => 'select ${{ steps.reader.config.something + steps.reader.config.countervalue }}',
+            'countervalue' => '${{ steps.reader.config.counterfield + steps.reader.config.counterfield }}',
+            'counterfield' => '${{ steps.reader.config.something + 10 }}',
+            'something' => '1',
+        ]);
+        $dataflow->add_step($reader);
+
+        // Init the engine.
+        $engine = new engine($dataflow);
+        $variables = $engine->get_variables();
+
+        $expressionlanguage = new ExpressionLanguage();
+        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.something', $variables);
+        $this->assertEquals(1, $expressedvalue);
+        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.counterfield', $variables);
+        $this->assertEquals(11, $expressedvalue);
+        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.countervalue', $variables);
+        $this->assertEquals(11 * 2, $expressedvalue);
+        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.sql', $variables);
+        $this->assertEquals('select 23', $expressedvalue);
+    }
+
+    /**
+     * TODO: later add tests for indirect self recursion (and fail gracefully).
+     */
+    public function test_variable_parsing_involving_indirect_self_recursion() {
+        // Create the dataflow.
+        $dataflow = new dataflow();
+        $dataflow->name = 'selfinflicted';
+        $dataflow->save();
+
+        $reader = new step();
+        $reader->name = 'reader';
+        $reader->type = execution\reader_sql_variable_setter::class;
+
+        // Set the SQL query via a YAML config string.
+        $reader->config = Yaml::dump([
+            'sql' => 'select ${{ steps.reader.config.something + steps.reader.config.countervalue }}',
+            'countervalue' => '${{ steps.reader.config.counterfield + steps.reader.config.counterfield }}',
+            'something' => '${{ steps.writer.config.varb }}',
+            'counterfield' => '${{ steps.reader.config.something + 10 }}',
+        ]);
+        $dataflow->add_step($reader);
+
+        $writer = new step();
+        $writer->name = 'writer';
+        $writer->type = 'tool_dataflows\local\step\writer_debugging';
+        $writer->config = Yaml::dump([
+            // 'vara' => '1', // This is a valid entry.
+            // 'vara' => '${{ steps.reader.config.something }}', // This is not, since it references something in a loop.
+            'vara' => '${{ steps.writer.config.varc }}', // This is not, since it references something in a loop.
+            'varb' => '${{ steps.writer.config.vara }}',
+            // 'varc' => '1',
+            'varc' => '${{ steps.existnope.config.vara + steps.existnope.config.varb }}',
+        ]);
+        $writer->depends_on([$reader]);
+        $dataflow->add_step($writer);
+
+        // Init the engine.
+        $engine = new engine($dataflow);
+        $variables = $engine->get_variables();
+
+        $expressionlanguage = new ExpressionLanguage();
+        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.something', $variables);
+        $this->assertEquals(1, $expressedvalue);
+        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.counterfield', $variables);
+        $this->assertEquals(11, $expressedvalue);
+        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.countervalue', $variables);
+        $this->assertEquals(11 * 2, $expressedvalue);
+        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.sql', $variables);
+        $this->assertEquals('select 23', $expressedvalue);
+    }
+
+    /**
      * Test variables being set within a dataflow engine run, at different scopes
      */
     public function test_variables_set_at_different_scopes() {
