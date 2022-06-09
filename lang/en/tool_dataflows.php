@@ -68,6 +68,16 @@ $string['remove_step_successful'] = 'Removed step \'{$a}\' successfully.';
 $string['remove_step'] = 'Remove step';
 $string['steps'] = 'Steps';
 
+// Step names.
+$string['step_name_connector_curl'] = 'Curl connector';
+$string['step_name_connector_debugging'] = 'Debugging connector';
+$string['step_name_flow_logic_join'] = 'Flow join';
+$string['step_name_flow_transformer_filter'] = 'Filter transformer';
+$string['step_name_reader_sql'] = 'SQL reader';
+$string['step_name_trigger_cron'] = 'Scheduled task trigger';
+$string['step_name_writer_debugging'] = 'Debugging writer';
+$string['step_name_writer_stream'] = 'Stream writer';
+
 // Step (type) groups.
 $string['stepgrouptriggers'] = 'Triggers';
 $string['stepgroupconnectors'] = 'Connectors';

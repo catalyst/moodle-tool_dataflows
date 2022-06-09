@@ -26,6 +26,7 @@
 use tool_dataflows\visualiser;
 use tool_dataflows\dataflow;
 use tool_dataflows\manager;
+use tool_dataflows\step;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -67,9 +68,9 @@ echo $OUTPUT->heading($pageheading);
 $icon = $OUTPUT->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
 $steptypes = manager::get_steps_types();
 $items = array_reduce($steptypes, function ($acc, $steptype) use ($dataflow) {
-    $name = get_class($steptype);
-    $name = explode('\\', $name);
-    $name = end($name);
+    $step = new step();
+    $step->name = $steptype->get_name();
+    $step->type = get_class($steptype);
 
     $acc[$steptype->get_group()] = $acc[$steptype->get_group()] ?? [];
     $acc[$steptype->get_group()][] = [
@@ -77,7 +78,7 @@ $items = array_reduce($steptypes, function ($acc, $steptype) use ($dataflow) {
             '/admin/tool/dataflows/step.php',
             ['dataflowid' => $dataflow->id, 'type' => get_class($steptype)]
         ),
-        'label' => $name,
+        'label' => visualiser::generate($step->get_dotscript(false, false), 'svg'),
     ];
     return $acc;
 }, []);

@@ -39,31 +39,31 @@
         "items": {
             "triggers": [ {
                     "href": {},
-                    "label": "tool_dataflows\\step\\trigger_cron"
+                    "label": <SVG>
                 } ],
             "readers": [ {
                     "href": {},
-                    "label": "tool_dataflows\\step\\reader_sql"
+                    "label": <SVG>
                 } ],
             "writers": [ {
                     "href": {},
-                    "label": "tool_dataflows\\step\\writer_debugging"
+                    "label": <SVG>
                 },
                 {
                     "href": {},
-                    "label": "tool_dataflows\\step\\writer_stream"
+                    "label": <SVG>
                 } ],
             "flowlogics": [ {
                     "href": {},
-                    "label": "tool_dataflows\\step\\flow_logic_join"
+                    "label": <SVG>
                 } ],
             "connectors": [ {
                     "href": {},
-                    "label": "tool_dataflows\\step\\connector_debugging"
+                    "label": <SVG>
                 } ],
             "flows": [ {
                     "href": {},
-                    "label": "local_aws\\step\\example"
+                    "label": <SVG>
                 } ]
         },
         "hastriggers": true,
@@ -81,7 +81,7 @@
             <div class="col-sm">
                 <h6 class="dropdown-header">{{#str}} stepgrouptriggers, tool_dataflows {{/str}}</h6>
                 {{#items.triggers}}
-                    <a class="dropdown-item" href="{{{href}}}">{{label}}</a>
+                    <a class="dropdown-item" href="{{{href}}}">{{{label}}}</a>
                 {{/items.triggers}}
             </div>
         {{/hastriggers}}
@@ -91,7 +91,7 @@
             <div class="col-sm">
                 <h6 class="dropdown-header">{{#str}} stepgroupconnectors, tool_dataflows {{/str}}</h6>
                 {{#items.connectors}}
-                    <a class="dropdown-item" href="{{{href}}}">{{label}}</a>
+                    <a class="dropdown-item" href="{{{href}}}">{{{label}}}</a>
                 {{/items.connectors}}
             </div>
         {{/hasconnectors}}
@@ -101,7 +101,7 @@
             <div class="col-sm">
                 <h6 class="dropdown-header">{{#str}} stepgroupconnectorlogics, tool_dataflows {{/str}}</h6>
                 {{#items.connectorlogics}}
-                    <a class="dropdown-item" href="{{{href}}}">{{label}}</a>
+                    <a class="dropdown-item" href="{{{href}}}">{{{label}}}</a>
                 {{/items.connectorlogics}}
             </div>
         {{/hasconnectorlogics}}
@@ -111,7 +111,7 @@
             <div class="col-sm">
                 <h6 class="dropdown-header">{{#str}} stepgroupreaders, tool_dataflows {{/str}}</h6>
                 {{#items.readers}}
-                    <a class="dropdown-item" href="{{{href}}}">{{label}}</a>
+                    <a class="dropdown-item" href="{{{href}}}">{{{label}}}</a>
                 {{/items.readers}}
             </div>
         {{/hasreaders}}
@@ -121,7 +121,7 @@
             <div class="col-sm">
                 <h6 class="dropdown-header">{{#str}} stepgroupflowlogics, tool_dataflows {{/str}}</h6>
                 {{#items.flowlogics}}
-                    <a class="dropdown-item" href="{{{href}}}">{{label}}</a>
+                    <a class="dropdown-item" href="{{{href}}}">{{{label}}}</a>
                 {{/items.flowlogics}}
             </div>
         {{/hasflowlogics}}
@@ -131,7 +131,7 @@
             <div class="col-sm">
                 <h6 class="dropdown-header">{{#str}} stepgroupflowtransformers, tool_dataflows {{/str}}</h6>
                 {{#items.flowtransformers}}
-                   <a class="dropdown-item" href="{{{href}}}">{{label}}</a>
+                   <a class="dropdown-item" href="{{{href}}}">{{{label}}}</a>
                 {{/items.flowtransformers}}
             </div>
         {{/hasflowtransformers}}
@@ -141,7 +141,7 @@
             <div class="col-sm">
                 <h6 class="dropdown-header">{{#str}} stepgroupwriters, tool_dataflows {{/str}}</h6>
                 {{#items.writers}}
-                 <a class="dropdown-item" href="{{{href}}}">{{label}}</a>
+                 <a class="dropdown-item" href="{{{href}}}">{{{label}}}</a>
                 {{/items.writers}}
             </div>
         {{/haswriters}}

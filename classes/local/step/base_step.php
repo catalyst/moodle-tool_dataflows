@@ -146,7 +146,7 @@ abstract class base_step {
      */
     public function get_name(): string {
         $id = $this->get_id();
-        return get_string("step{$id}", $this->get_component());
+        return get_string("step_name_{$id}", $this->get_component());
     }
 
     /**
@@ -341,7 +341,6 @@ abstract class base_step {
             'style'     => 'filled',
         ];
         // TODO The border color is reserved so we can make it red for steps with errors.
-        // $styles['color'] = 'red';
         return $styles;
     }
 

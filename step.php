@@ -186,8 +186,7 @@ $data = [
                 return ['href' => new moodle_url('/admin/tool/dataflows/step.php', ['id' => $v->id]), 'label' => $v->name];
             }, $persistent ? $persistent->dependents() : [])),
     'dotimage' => visualiser::generate($summarystep->get_dotscript(), 'svg'),
-    'classname' => $type,
-    'basename' => substr($type, strrpos($type, '\\') + 1),
+    'typename' => $steptype->get_name(),
     'inputrequirements' => visualiser::get_link_expectations($steptype, 'input'),
     'outputrequirements' => visualiser::get_link_expectations($steptype, 'output'),
 ];

@@ -432,14 +432,15 @@ class step extends persistent {
      * NOTE: this returns the fragment by default
      *
      * @param      bool $contentonly whether or not to return only the relevant contents vs a full dotscript
+     * @param      bool $includelink Will add an HTTP link to the step if true.
      * @return     string
      */
-    public function get_dotscript($contentonly = false): string {
-        $url = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->id]))->out();
-        $localstyles = [
-            'URL'       => $url,
-            'tooltip'   => $this->description ?: $this->name,
-        ];
+    public function get_dotscript($contentonly = false, $includelink = true): string {
+        $localstyles = ['tooltip'   => $this->description ?: $this->name];
+        if ($includelink) {
+            $localstyles['URL'] = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->id]))->out();
+        }
+
         // If the class exists, use the styles from that step type.
         // Otherwise, add styles to indicate this is an invalidly configured step.
         $classname = $this->type;
