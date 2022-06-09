@@ -37,6 +37,37 @@ class step extends persistent {
     /** @var array $dependson */
     private $dependson = [];
 
+    /** @var \stdClass of engine step states and timestamps */
+    private $states;
+
+    /**
+     * When initialising the persistent, ensure some internal fields have been set up.
+     */
+    public function __construct(...$args) {
+        parent::__construct(...$args);
+        $this->states = new \stdClass;
+    }
+
+    /**
+     * Description of what this does
+     *
+     * @param      int
+     * @return     void
+     */
+    public function get_states() {
+        return $this->states;
+    }
+
+    /**
+     * Description of what this does
+     *
+     * @param      int
+     * @return     void
+     */
+    public function set_state_timestamp($state, $timestamp) {
+        $this->states->{$state} = $timestamp;
+    }
+
     /**
      * Return the definition of the properties of this model.
      *

@@ -33,6 +33,37 @@ class dataflow extends persistent {
 
     const TABLE = 'tool_dataflows';
 
+    /** @var array of engine step states and timestamps */
+    private $states;
+
+    /**
+     * When initialising the persistent, ensure some internal fields have been set up.
+     */
+    public function __construct(...$args) {
+        parent::__construct(...$args);
+        $this->states = new \stdClass;
+    }
+
+    /**
+     * Description of what this does
+     *
+     * @param      int
+     * @return     void
+     */
+    public function set_state_timestamp($state, $timestamp) {
+        $this->states->{$state} = $timestamp;
+    }
+
+    /**
+     * Description of what this does
+     *
+     * @param      int
+     * @return     void
+     */
+    public function get_states() {
+        return $this->states;
+    }
+
     /**
      * Return the definition of the properties of this model.
      *

@@ -55,7 +55,7 @@ abstract class engine_step {
     public $downstreams = [];
 
     /** @var int The step's current status */
-    protected $status = engine::STATUS_NEW;
+    protected $status;
 
     /** @var \moodle_exception  Any exception that was thrown by this step. */
     protected $exception = null;
@@ -72,6 +72,7 @@ abstract class engine_step {
         $this->stepdef = $stepdef;
         $this->steptype = $steptype;
         $this->id = $stepdef->id;
+        $this->set_status(engine::STATUS_NEW);
     }
 
     /**
@@ -85,14 +86,14 @@ abstract class engine_step {
      * Initialises the step.
      */
     public function initialise() {
-        $this->status = engine::STATUS_INITIALISED;
+        $this->set_status(engine::STATUS_INITIALISED);
     }
 
     /**
      * Finalises the step.
      */
     public function finalise() {
-        $this->status = engine::STATUS_FINALISED;
+        $this->set_status(engine::STATUS_FINALISED);
     }
 
     /**
@@ -234,5 +235,20 @@ abstract class engine_step {
      */
     public function set_global_var($name, $value) {
         $this->engine->set_global_var($name, $value);
+    }
+
+    /**
+     * Updates the status of this engine's step
+     *
+     * This also records some metadata in the relevant objects e.g. the step's state.
+     *
+     * @param  int $status a status from the engine class
+     */
+    public function set_status(int $status) {
+        $this->status = $status;
+
+        // Record the timestamp of the state change against the step persistent,
+        // which exposes this info through its variables.
+        $this->stepdef->set_state_timestamp($status, microtime());
     }
 }
