@@ -215,7 +215,6 @@ class dataflow extends persistent {
 
         // Prepare to validate steps.
         $steps = $this->steps;
-        $adjacencylist = graph::to_adjacency_list($edges);
 
         // Prepare an array of steps by id, which makes local lookups instantaneous.
         $stepidhashmap = [];
