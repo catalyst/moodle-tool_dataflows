@@ -17,6 +17,7 @@
 namespace tool_dataflows;
 
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\application_trait;
 use tool_dataflows\local\step;
 
@@ -469,5 +470,86 @@ class tool_dataflows_test extends \advanced_testcase {
         // Writer classes should always cause side effects. They perform changes
         // (except when run in dry-mode), and cause some state to change.
         $this->assertTrue($step2->has_side_effect());
+    }
+
+    public function test_link_validation() {
+        $dataflow = new dataflow();
+
+        // Test valid inputs (none).
+        $step1 = new \tool_dataflows\step();
+        $step1->name = 'read';
+        $step1->type = local\execution\array_in_type::class;
+        $dataflow->add_step($step1);
+        $this->assertTrue($step1->validate_inputs());
+
+        // Test invalid inputs (1).
+        $step2 = new \tool_dataflows\step();
+        $step2->name = 'read2';
+        $step2->type = local\execution\array_in_type::class;
+        $step2->depends_on([$step1]);
+        $dataflow->add_step($step2);
+        $validate = $step2->validate_inputs();
+        $this->assertNotTrue($validate);
+        $this->assertArrayHasKey("invalid_count_inputflows_{$step2->id}", $validate);
+
+        // Test invalid inputs (0).
+        $step3 = new \tool_dataflows\step();
+        $step3->name = 'write1';
+        $step3->type = local\step\writer_stream::class;
+        $step3->config = Yaml::dump(['format' => 'json', 'streamname' => '']);
+        $dataflow->add_step($step3);
+        $validate = $step3->validate_inputs();
+        $this->assertNotTrue($validate);
+        $this->assertArrayHasKey("must_have_inputs_{$step3->id}", $validate);
+
+        // Test valid inputs (1).
+        $step3->depends_on([$step1]);
+        $step3->upsert();
+        $this->assertTrue($step3->validate_inputs());
+
+        // Test invalid inputs (2).
+        $step3->depends_on([$step1, $step2]);
+        $step3->upsert();
+        $validate = $step3->validate_inputs();
+        $this->assertNotTrue($validate);
+        $this->assertArrayHasKey("invalid_count_inputflows_{$step3->id}", $validate);
+
+        $conn1 = new \tool_dataflows\step();
+        $conn1->name = 'conn1';
+        $conn1->type = local\step\connector_debugging::class;
+        $dataflow->add_step($conn1);
+
+        // Test invalid inputs (mix).
+        $step3->depends_on([$step1, $conn1]);
+        $step3->upsert();
+        $validate = $step3->validate_inputs();
+        $this->assertNotTrue($validate);
+        $this->assertArrayHasKey("inputs_cannot_mix_flow_and_connector_{$step3->id}", $validate);
+
+        // Test invalid connectors (1).
+        $step3->depends_on([$conn1]);
+        $step3->upsert();
+        $validate = $step3->validate_inputs();
+        $this->assertNotTrue($validate);
+        $this->assertArrayHasKey("invalid_count_inputconnectors_{$step3->id}", $validate);
+
+        // Test valid outputs (none).
+        $flow4 = new \tool_dataflows\step();
+        $flow4->name = 'flow4';
+        $flow4->type = local\execution\array_out_type::class;
+        $dataflow->add_step($flow4);
+        $this->assertTrue($flow4->validate_outputs());
+
+        // Test valid outputs (1).
+        $step1->depends_on([$flow4]);
+        $step1->upsert();
+        $this->assertTrue($flow4->validate_outputs());
+
+        // Test invalid outputs (2).
+        $step2->depends_on([$flow4]);
+        $step2->upsert();
+        $validate = $flow4->validate_outputs();
+        $this->assertNotTrue($validate);
+        $this->assertArrayHasKey("invalid_count_outputflows_{$flow4->id}", $validate);
     }
 }

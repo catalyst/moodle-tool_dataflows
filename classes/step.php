@@ -87,6 +87,11 @@ class step extends persistent {
         return $dataflow->variables;
     }
 
+    public function get_steptype() {
+        $classname = $this->type;
+        return new $classname();
+    }
+
     /**
      * Return the configuration of the dataflow, parsed such that any
      * expressions are evaluated at this point in time.
@@ -192,7 +197,8 @@ class step extends persistent {
         global $DB;
         $sql = "SELECT step.id,
                        step.name,
-                       step.alias
+                       step.alias,
+                       step.type
                   FROM {tool_dataflows_step_depends} sd
              LEFT JOIN {tool_dataflows_steps} step ON sd.dependson = step.id
                  WHERE sd.stepid = :stepid";
@@ -213,7 +219,8 @@ class step extends persistent {
         global $DB;
         $sql = "SELECT step.id,
                        step.name,
-                       step.alias
+                       step.alias,
+                       step.type
                   FROM {tool_dataflows_step_depends} sd
              LEFT JOIN {tool_dataflows_steps} step ON sd.stepid = step.id
                  WHERE sd.dependson = :stepid";
@@ -369,7 +376,6 @@ class step extends persistent {
      * @return true|\lang_string true if valid otherwise a lang_string object with the first error
      */
     protected function validate_config() {
-        $classname = $this->type;
         $typevalidation = $this->validate_type();
         if ($typevalidation !== true) {
             return $typevalidation;
@@ -381,14 +387,113 @@ class step extends persistent {
             return new \lang_string('invalidyaml', 'tool_dataflows');
         }
 
-        $steptype = new $classname();
-        $validation = $steptype->validate_config($this->config);
+        $validation = $this->steptype->validate_config($this->config);
         if ($validation !== true) {
             // NOTE: This will only return the first error as the persistent
             // class expects the return value to be an instance of lang_string.
             return reset($validation);
         }
         return true;
+    }
+
+    /**
+     * Validates the number of links.
+     *
+     * @param int $count The number of links.
+     * @param string $inputoutput 'input' or 'output'
+     * @param string $flowconnector 'flow' or 'connector'
+     * @return array|bool true if the validataion suceeded. An array or errors otherwise.
+     * @throws \coding_exception
+     */
+    protected function validate_link_count(int $count, string $inputoutput, string $flowconnector) {
+        $fn = "get_number_of_{$inputoutput}_{$flowconnector}s";
+        $steptype = $this->steptype;
+        [$min, $max] = $steptype->$fn();
+        if ($count < $min || $count > $max) {
+            return ["invalid_count_{$inputoutput}{$flowconnector}s_{$this->id}" => get_string(
+                "stepinvalid{$inputoutput}{$flowconnector}count",
+                'tool_dataflows',
+                $count
+            ) . ' ' . visualiser::get_link_expectations($steptype, $inputoutput)
+            ];
+        }
+        return true;
+    }
+
+    /**
+     * Validates links, either input or output.
+     *
+     * @param array $deps Dependencies or dependents, depending on $inputoutput.
+     * @param string $inputoutput 'input' or 'output'.
+     * @return array|bool true if the validataion suceeded. An array or errors otherwise.
+     * @throws \coding_exception
+     */
+    protected function validate_links(array $deps, string $inputoutput) {
+        $count = count($deps);
+        $errors = [];
+
+        $steptype = $this->steptype;
+
+        if ($count != 0) {
+            $dep = array_shift($deps);
+            $classname = $dep->type;
+            $type = new $classname();
+            $isflow = $type->is_flow();
+
+            // Deps list cannot have a mixture of connector steps and flow steps.
+            foreach ($deps as $dep) {
+                $classname = $dep->type;
+                $type = new $classname();
+                if ($type->is_flow() !== $isflow) {
+                    $errors["{$inputoutput}s_cannot_mix_flow_and_connector_{$this->id}"] =
+                        get_string("{$inputoutput}s_cannot_mix_flow_and_connectors", 'tool_dataflows');
+                    break;
+                }
+            }
+
+            $result = $this->validate_link_count($count, $inputoutput, $isflow ? 'flow' : 'connector');
+            if ($result !== true) {
+                $errors = array_merge($errors, $result);
+            }
+        } else {
+            $fn1 = "get_number_of_{$inputoutput}_flows";
+            $fn2 = "get_number_of_{$inputoutput}_connectors";
+            if ($steptype->$fn1()[0] > 0 || $steptype->$fn2()[0] > 0) {
+                $errors["must_have_{$inputoutput}s_{$this->id}"] =
+                    get_string("must_have_{$inputoutput}s", 'tool_dataflows') . ' ' .
+                    visualiser::get_link_expectations($steptype, $inputoutput);
+            }
+        }
+        return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Validates the input links.
+     *
+     * @param array|null $deps The dependencies. Set to avoid a database read.
+     * @return array|bool true if the validataion suceeded. An array or errors otherwise.
+     * @throws \coding_exception
+     */
+    public function validate_inputs(?array $deps = null) {
+        if (is_null($deps)) {
+            $deps = $this->dependencies();
+        }
+        return $this->validate_links($deps, 'input');
+    }
+
+    /**
+     * Validate the output links.
+     *
+     * @param array|null $deps The dependents. Set to avoid a database read.
+     * @return array|bool
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public function validate_outputs(?array $deps = null) {
+        if (is_null($deps)) {
+            $deps = $this->dependents();
+        }
+        return $this->validate_links($deps, 'output');
     }
 
     /**
@@ -421,9 +526,7 @@ class step extends persistent {
         if ($typevalidation !== true) {
             return false;
         }
-        $classname = $this->type;
-        $steptype = new $classname();
-        return $steptype->has_side_effect();
+        return $this->steptype->has_side_effect();
     }
 
     /**
@@ -432,12 +535,11 @@ class step extends persistent {
      * NOTE: this returns the fragment by default
      *
      * @param      bool $contentonly whether or not to return only the relevant contents vs a full dotscript
-     * @param      bool $includelink Will add an HTTP link to the step if true.
      * @return     string
      */
-    public function get_dotscript($contentonly = false, $includelink = true): string {
+    public function get_dotscript($contentonly = false): string {
         $localstyles = ['tooltip'   => $this->description ?: $this->name];
-        if ($includelink) {
+        if ($this->id !== 0) { // If ID is zero, then there is nothing to link to.
             $localstyles['URL'] = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->id]))->out();
         }
 
@@ -455,16 +557,25 @@ class step extends persistent {
                'fontcolor' => '#ffffff',
             ];
         }
+
+        // TODO. Have a valid/not-valid state so this does not have to be repeated.
+        if ($this->id != 0) { // Do no try to validate a step that has not yet been created.
+            if ($this->validate_step() !== true || $this->validate_inputs() !== true || $this->validate_outputs() !== true) {
+                $stepstyles['fillcolor'] = '#ff0000';
+                $stepstyles['fontcolor'] = '#ffffff';
+            }
+        }
+
         // Apply styles in this order: base, step, local.
         $basestyles = base_step::get_base_node_styles();
         $rawstyles = array_merge($basestyles, $stepstyles, $localstyles);
 
-        $styles = '';
+        $styles = [];
         foreach ($rawstyles as $key => $value) {
             // TODO escape all attributes correctly.
-            $styles .= "$key =\"$value\", ";
+            $styles[] = "$key =\"$value\"";
         }
-        trim($styles);
+        $styles = implode(', ', $styles);
 
         $content = "\"{$this->name}\" [$styles]";
         if ($contentonly) {

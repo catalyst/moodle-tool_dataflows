@@ -30,8 +30,8 @@ use tool_dataflows\local\execution\flow_engine_step;
  */
 abstract class reader_step extends flow_step {
 
-    /** @var int[] number of output flows (min, max). */
-    protected $outputflows = [1, 1];
+    /** @var int[] number of input flows (min, max). */
+    protected $inputflows = [0, 0];
 
     /** @var int[] number of output connectors (min, max). */
     protected $inputconnectors = [0, 1];

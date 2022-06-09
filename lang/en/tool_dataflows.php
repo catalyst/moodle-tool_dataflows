@@ -107,7 +107,7 @@ $string['input_flow_link_limit_plural'] = '{$a} input flow links';
 $string['input_flow_link_limit_range'] = 'between {$a->min} and {$a->max} input flow links';
 $string['input_connector_link_limit'] = '{$a} input connector link';
 $string['input_connector_link_limit_plural'] = '{$a} input connector links';
-$string['input_connector_link_limit_range'] = 'between {$a->min} and {$a->max} connector flow links';
+$string['input_connector_link_limit_range'] = 'between {$a->min} and {$a->max} input connector links';
 $string['no_input_allowed'] = 'No inputs allowed';
 
 $string['output_flow_link_limit'] = '{$a} output flow link';
@@ -115,11 +115,11 @@ $string['output_flow_link_limit_plural'] = '{$a} output flow links';
 $string['output_flow_link_limit_range'] = 'between {$a->min} and {$a->max} output flow links';
 $string['output_connector_link_limit'] = '{$a} output connector link';
 $string['output_connector_link_limit_plural'] = '{$a} output connector links';
-$string['output_connector_link_limit_range'] = 'between {$a->min} and {$a->max} connector flow links';
+$string['output_connector_link_limit_range'] = 'between {$a->min} and {$a->max} output connector links';
 $string['no_output_allowed'] = 'No outputs allowed';
 
 $string['requires_with_or'] = 'Requires {$a->str1} or {$a->str2}.';
-$string['requires'] = 'Requires {$a}.';
+$string['requires'] = 'Requires {$a->str1} and {$a->str2}.';
 
 // Step Chooser.
 $string['stepchooser'] = 'Step chooser';
@@ -133,8 +133,18 @@ $string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Gr
 $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
 $string['steptypedoesnotexist'] = 'The step type "{$a}" does not exist.';
 $string['stepdependencydoesnotexist'] = 'The step dependency "{$a}" does not exist.';
-$string['stepinvalidinputflowcount'] = 'Invalid number of input flows (Found: {$a->found}, Expected between {$a->min} and {$a->max}).';
-$string['stepinvalidoutputflowcount'] = 'Invalid number of output flows (Found: {$a->found}, Expected between {$a->min} and {$a->max}).';
+$string['stepinvalidinputflowcount'] = 'Invalid number of input flows (Found: {$a}).';
+$string['stepinvalidinputconnectorcount'] = 'Invalid number of input connectors (Found: {$a}).';
+$string['stepinvalidoutputflowcount'] = 'Invalid number of output flows (Found: {$a}).';
+$string['stepinvalidoutputconnectorcount'] = 'Invalid number of output connectors (Found: {$a}).';
+$string['inputs_cannot_mix_flow_and_connectors'] = 'Dependencies cannot be a mixture flow and connector steps.';
+$string['outputs_cannot_mix_flow_and_connectors'] = 'Dependents cannot be a mixture flow and connector steps.';
+$string['must_have_inputs'] = 'Cannot have zero input links.';
+$string['must_have_outputs'] = 'Cannot have zero output links.';
+$string['no_input_flows'] = 'no input flows';
+$string['no_input_connectors'] = 'no input connectors';
+$string['no_output_flows'] = 'no output flows';
+$string['no_output_connectors'] = 'no output connectors';
 $string['bad_parameter'] = 'Parameter \'{$a->parameter}\' not supported in \'{$a->classname}\'.';
 $string['config_field_missing'] = 'Config \'{$a}\' missing.';
 $string['invalid_config'] = 'Invalid configuration';

@@ -173,9 +173,11 @@ $output = $PAGE->get_renderer('tool_dataflows');
 
 // Step summary including existing links and link requirements.
 $steptype = new $type();
-$summarystep = new step();
-$summarystep->name = $persistent->name ?? get_string('new_step', 'tool_dataflows');
-$summarystep->type = $type;
+if (is_null($persistent)) {
+    $persistent = new step();
+    $persistent->name = get_string('new_step', 'tool_dataflows');
+    $persistent->type = $type;
+}
 $data = [
     'inputlist' => array_values(array_map(
             function($v) {
@@ -184,8 +186,8 @@ $data = [
     'outputlist' => array_values(array_map(
             function($v) {
                 return ['href' => new moodle_url('/admin/tool/dataflows/step.php', ['id' => $v->id]), 'label' => $v->name];
-            }, $persistent ? $persistent->dependents() : [])),
-    'dotimage' => visualiser::generate($summarystep->get_dotscript(), 'svg'),
+            }, $persistent->dependents())),
+    'dotimage' => visualiser::generate($persistent->get_dotscript(), 'svg'),
     'typename' => $steptype->get_name(),
     'inputrequirements' => visualiser::get_link_expectations($steptype, 'input'),
     'outputrequirements' => visualiser::get_link_expectations($steptype, 'output'),
