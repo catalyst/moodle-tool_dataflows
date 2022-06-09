@@ -38,7 +38,11 @@ require_once(dirname(__FILE__) . '/../../../config.php');
  * @param string $eol End of line character
  */
 function tool_dataflows_mtrace_wrapper($message, $eol) {
-    echo s($message . $eol);
+    $time = microtime(true);
+    $parts = sscanf($time, '%d%f');
+    $display = userdate($time, '%Y %b %e, %H:%M:%S');
+    $micro = substr(sprintf("%0.3f", $parts[1]), 1);
+    echo sprintf("%s%s %s %s", $display, $micro, s($message), $eol);
 }
 
 // Allow execution of single dataflow. This requires login and has different rules.
@@ -91,6 +95,9 @@ if (!$confirm) {
 require_sesskey();
 
 \core\session\manager::write_close();
+
+// Re-run the specified flow (this will output an error if it doesn't exist).
+echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'), 'post', ['class' => 'mb-3']);
 
 // Prepare to handle output via mtrace.
 echo html_writer::start_tag('pre');
