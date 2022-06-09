@@ -61,6 +61,6 @@ class json extends encoder_base {
      * @return string
      */
     public function close_output(): string {
-        return ']';
+        return ']' . PHP_EOL;
     }
 }
