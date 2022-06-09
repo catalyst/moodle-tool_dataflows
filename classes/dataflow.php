@@ -226,9 +226,19 @@ class dataflow extends persistent {
         $outputlist = [];
         foreach ($edges as $edge) {
             $step = $stepidhashmap[$edge[0]];
-            $inputlist[$edge[1]][] = (object) [ 'id' => $step->id, 'name' => $step->name, 'alias' => $step->alias, 'type' => $step->type ];
+            $inputlist[$edge[1]][] = (object) [
+                'id' => $step->id,
+                'name' => $step->name,
+                'alias' => $step->alias,
+                'type' => $step->type,
+            ];
             $step = $stepidhashmap[$edge[1]];
-            $outputlist[$edge[0]][] = (object) [ 'id' => $step->id, 'name' => $step->name, 'alias' => $step->alias, 'type' => $step->type ];
+            $outputlist[$edge[0]][] = (object) [
+                'id' => $step->id,
+                'name' => $step->name,
+                'alias' => $step->alias,
+                'type' => $step->type,
+            ];
         }
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
         foreach ($steps as $step) {
