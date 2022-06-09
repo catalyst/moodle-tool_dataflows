@@ -249,6 +249,6 @@ abstract class engine_step {
 
         // Record the timestamp of the state change against the step persistent,
         // which exposes this info through its variables.
-        $this->stepdef->set_state_timestamp($status, microtime());
+        $this->stepdef->set_state_timestamp($status, microtime(true));
     }
 }

@@ -61,16 +61,16 @@ class engine {
 
     /** @var string[] Maps statuses to string indexes. */
     const STATUS_LABELS = [
-        self::STATUS_NEW => 'engine_status_new',
-        self::STATUS_INITIALISED => 'engine_status_initialised',
-        self::STATUS_BLOCKED => 'engine_status_blocked',
-        self::STATUS_WAITING => 'engine_status_waiting',
-        self::STATUS_PROCESSING => 'engine_status_processing',
-        self::STATUS_FLOWING => 'engine_status_flowing',
-        self::STATUS_FINISHED => 'engine_status_finished',
-        self::STATUS_CANCELLED => 'engine_status_cancelled',
-        self::STATUS_ABORTED => 'engine_status_aborted',
-        self::STATUS_FINALISED => 'engine_status_finalised',
+        self::STATUS_NEW => 'new',
+        self::STATUS_INITIALISED => 'initialised',
+        self::STATUS_BLOCKED => 'blocked',
+        self::STATUS_WAITING => 'waiting',
+        self::STATUS_PROCESSING => 'processing',
+        self::STATUS_FLOWING => 'flowing',
+        self::STATUS_FINISHED => 'finished',
+        self::STATUS_CANCELLED => 'cancelled',
+        self::STATUS_ABORTED => 'aborted',
+        self::STATUS_FINALISED => 'finalised',
     ];
 
     /** @var  array The queue of steps to be given a run. */
@@ -109,6 +109,7 @@ class engine {
      */
     public function __construct(dataflow $dataflow, bool $isdryrun = false, $automated = true) {
         $this->dataflow = $dataflow;
+        $this->dataflow->set_engine($this);
 
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
@@ -241,7 +242,7 @@ class engine {
                 case self::STATUS_ABORTED:
                     $this->abort($currentstep->exception);
             }
-            $currentstep->log('status ' . get_string(self::STATUS_LABELS[$result], 'tool_dataflows'));
+            $currentstep->log('status ' . get_string('engine_status:' . self::STATUS_LABELS[$result], 'tool_dataflows'));
         }
     }
 
@@ -381,6 +382,6 @@ class engine {
 
         // Record the timestamp of the state change against the dataflow persistent,
         // which exposes this info through its variables.
-        $this->dataflow->set_state_timestamp($status, microtime());
+        $this->dataflow->set_state_timestamp($status, microtime(true));
     }
 }

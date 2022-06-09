@@ -18,6 +18,7 @@ namespace tool_dataflows;
 
 use core\persistent;
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\flow_step;
 
 /**
@@ -33,8 +34,14 @@ class dataflow extends persistent {
 
     const TABLE = 'tool_dataflows';
 
-    /** @var array of engine step states and timestamps */
+    /** @var \stdClass of engine step states and timestamps */
     private $states;
+
+    /** @var engine dataflow engine this dataflow is part of. Note: not always set. */
+    private $engine;
+
+    /** @var steps[] cache of steps connected to this dataflow */
+    private $stepscache = [];
 
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
@@ -45,13 +52,26 @@ class dataflow extends persistent {
     }
 
     /**
+     * Links the dataflow up to the relevant engine
+     *
+     * This is typically set when the engine is initialised, such that any
+     * references made thereafter are directly connected to the engine's instance being used.
+     *
+     * @param  dataflow
+     */
+    public function set_engine(engine $engine) {
+        $this->engine = $engine;
+    }
+
+    /**
      * Description of what this does
      *
      * @param      int
      * @return     void
      */
     public function set_state_timestamp($state, $timestamp) {
-        $this->states->{$state} = $timestamp;
+        $label = engine::STATUS_LABELS[$state];
+        $this->states->{$label} = $timestamp;
     }
 
     /**
@@ -261,10 +281,10 @@ class dataflow extends persistent {
     public function get_steps(): \stdClass {
         $stepsbyalias = [];
         foreach ($this->step_order as $stepid) {
-            $steppersistent = new step($stepid);
+            $this->stepscache[$stepid] = $this->stepscache[$stepid] ?? new step($stepid);
+            $steppersistent = $this->stepscache[$stepid];
             $stepsbyalias[$steppersistent->alias] = $steppersistent;
         }
-
         return (object) $stepsbyalias;
     }
 

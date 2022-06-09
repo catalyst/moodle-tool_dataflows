@@ -20,6 +20,7 @@ use tool_dataflows\local\step\base_step;
 use core\persistent;
 use moodle_exception;
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\local\execution\engine;
 
 /**
  * Dataflow Step persistent class
@@ -39,6 +40,9 @@ class step extends persistent {
 
     /** @var \stdClass of engine step states and timestamps */
     private $states;
+
+    /** @var dataflow this step is connected to. Note: not always set. */
+    private $dataflow;
 
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
@@ -65,7 +69,8 @@ class step extends persistent {
      * @return     void
      */
     public function set_state_timestamp($state, $timestamp) {
-        $this->states->{$state} = $timestamp;
+        $label = engine::STATUS_LABELS[$state];
+        $this->states->{$label} = $timestamp;
     }
 
     /**
@@ -114,13 +119,25 @@ class step extends persistent {
     }
 
     public function get_variables() {
-        $dataflow = new dataflow($this->dataflowid);
+        $dataflow = $this->dataflow ?? new dataflow($this->dataflowid);
         return $dataflow->variables;
     }
 
     public function get_steptype() {
         $classname = $this->type;
         return new $classname();
+    }
+
+    /**
+     * Links the step up to the relevant dataflow
+     *
+     * This is typically set when the engine is initialised, such that any
+     * references are directly connected to the engine's instance.
+     *
+     * @param  dataflow
+     */
+    public function set_dataflow(dataflow $dataflow) {
+        $this->dataflow = $dataflow;
     }
 
     /**

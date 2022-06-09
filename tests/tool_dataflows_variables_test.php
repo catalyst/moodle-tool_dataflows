@@ -111,6 +111,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         execution\reader_sql_variable_setter::$globalvar = $globalvalue;
         // Execute.
         $engine->execute();
+        $this->assertDebuggingCalledCount(5);
 
         // Check expected after state.
         $variables = $engine->get_variables();
@@ -133,7 +134,34 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $expressedstepvalue = $expressionlanguage->evaluate('steps.reader.config.countervalue', $variables);
         $this->assertEquals(5, $expressedstepvalue);
 
-        $this->assertDebuggingCalledCount(5);
+        // Get and check state timings of the dataflow.
+        $expressedstepvalue = $expressionlanguage->evaluate('dataflow.states.initialised', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('dataflow.states.processing', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('dataflow.states.finished', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('dataflow.states.finalised', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+
+        // State timings of each step. Just ensure they aren't empty.
+        $expressedstepvalue = $expressionlanguage->evaluate('steps.reader.states.new', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('steps.reader.states.initialised', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('steps.reader.states.flowing', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('steps.reader.states.finalised', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('steps.writer.states.new', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('steps.writer.states.initialised', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('steps.writer.states.flowing', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+        $expressedstepvalue = $expressionlanguage->evaluate('steps.writer.states.finalised', $variables);
+        $this->assertNotEmpty($expressedstepvalue);
+
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
 }
