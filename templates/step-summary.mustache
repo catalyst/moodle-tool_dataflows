@@ -49,32 +49,32 @@
         "outputrequiremens": "No outputs allowed."
     }
 }}
-<div class='dataflow-step-summary'>
-    <div>
-        <div>
-            <h6>{{#str}} inputs, tool_dataflows {{/str}}</h6>
+<div class="card shadow w-75 container mb-3">
+    <div class="card-header row">
+        <div class="col-sm">
+            <h6 class="text-center">{{#str}} inputs, tool_dataflows {{/str}}</h6>
             {{#inputlist}}
-                <a href="{{{href}}}">{{label}}</a>
+                <a href="{{{href}}}">{{label}}</a><br/>
             {{/inputlist}}
             {{^inputlist}}
                 <p>{{#str}} no_inputs, tool_dataflows {{/str}}</p>
             {{/inputlist}}
         </div>
-        <div>
+        <div class="col-sm text-center border-right border-left">
             {{{dotimage}}}<br/>
             {{typename}}<br/>
         </div>
-        <div>
-            <h6>{{#str}} outputs, tool_dataflows {{/str}}</h6>
+        <div class="col-sm">
+            <h6 class="text-center">{{#str}} outputs, tool_dataflows {{/str}}</h6>
             {{#outputlist}}
-                <a href="{{{href}}}">{{label}}</a>
+                <a href="{{{href}}}">{{label}}</a><br/>
             {{/outputlist}}
             {{^outputlist}}
                 <p>{{#str}} no_outputs, tool_dataflows {{/str}}</p>
             {{/outputlist}}
         </div>
     </div>
-    <div>
+    <div class="card-body">
         {{inputrequirements}}<br/>
         {{outputrequirements}}
     </div>
