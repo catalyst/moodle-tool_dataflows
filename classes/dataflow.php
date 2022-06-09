@@ -64,21 +64,20 @@ class dataflow extends persistent {
     }
 
     /**
-     * Description of what this does
+     * Updates the timestamp for a particular state that is stored locally on the instance
      *
-     * @param      int
-     * @return     void
+     * @param  int $state a status constant from the engine class
+     * @param  float $timestamp typically from a microtime(true) call
      */
-    public function set_state_timestamp($state, $timestamp) {
+    public function set_state_timestamp(int $state, float $timestamp) {
         $label = engine::STATUS_LABELS[$state];
         $this->states->{$label} = $timestamp;
     }
 
     /**
-     * Description of what this does
+     * Returns the states and their timestamps for this step
      *
-     * @param      int
-     * @return     void
+     * @return  \stdClass
      */
     public function get_states() {
         return $this->states;
