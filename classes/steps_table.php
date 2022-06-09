@@ -107,10 +107,6 @@ class steps_table extends \table_sql {
         $icons = [];
         if (class_exists($classname)) {
             $steptype = new $classname();
-            // Add lightning to all steps with side effects.
-            $steptype->has_side_effect() && $icons[] = \html_writer::tag('span', '⚡', [
-                'title' => get_string('hassideeffect', 'tool_dataflows'),
-            ]);
             $basename = $steptype->get_name();
         } else {
             $icons[] = \html_writer::tag('span', '❓', [
