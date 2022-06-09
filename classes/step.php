@@ -561,8 +561,8 @@ class step extends persistent {
         // TODO. Have a valid/not-valid state so this does not have to be repeated.
         if ($this->id != 0) { // Do no try to validate a step that has not yet been created.
             if ($this->validate_step() !== true || $this->validate_inputs() !== true || $this->validate_outputs() !== true) {
-                $stepstyles['fillcolor'] = '#ff0000';
-                $stepstyles['fontcolor'] = '#ffffff';
+                $stepstyles['color'] = '#ff0000';
+                $stepstyles['style'] = isset($stepstyles['style']) ? $stepstyles['style'] . ',bold' : 'bold';
             }
         }
 
