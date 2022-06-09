@@ -94,11 +94,12 @@ class reader_sql extends reader_step {
 
         // Remove all optional fragments from the raw sql, unless the expressed values are available.
         $finalsql = $rawsql;
+        $parser = new parser();
+        $variables = $this->enginestep->get_variables();
         foreach ($matches as $match) {
             // Check expression evaluation using the current config object
             // first, then failing that, target the dataflow variables.
-            $parser = new parser();
-            $value = $parser->evaluate_or_fail($match['expressionwrapper'], $this->enginestep->get_variables());
+            $value = $parser->evaluate_or_fail($match['expressionwrapper'], $variables);
 
             // If the expression cannot be evaluated (or evaluates to an empty
             // string), then the query fragment is ignored entirely.
@@ -123,6 +124,9 @@ class reader_sql extends reader_step {
             );
         }
 
+        // Evalulate any remaining expressions as per normal.
+        // NOTE: The expression statement itself MUST be on a single line (currently).
+        $finalsql = $parser->evaluate_or_fail($finalsql, $variables);
         return $finalsql;
     }
 
