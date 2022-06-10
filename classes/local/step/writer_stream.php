@@ -94,18 +94,25 @@ class writer_stream extends writer_step {
         return new class($step, $config->streamname, $config->format, $upstream->iterator) extends map_iterator {
             /** @var resource stream handle. */
             private $handle;
+            /** @var string name of the stream. */
+            private $streamname;
             /** @var object dataformat writer. */
             private $writer;
 
             public function __construct(flow_engine_step $step, string $streamname, string $format, iterator $input) {
+                $this->streamname = $streamname;
                 $this->handle = fopen($streamname, 'a');
                 if ($this->handle === false) {
-                    throw new \moodle_exception(get_string('unable_to_open_stream', 'tool_dataflows', $streamname));
+                    $step->log(error_get_last()['message']);
+                    throw new \moodle_exception(get_string('writer_stream:failed_to_open_stream', 'tool_dataflows', $streamname));
                 }
                 $classname = writer_stream::resolve_encoder($format);
                 $this->writer = new $classname();
 
-                fwrite($this->handle, $this->writer->start_output());
+                if (fwrite($this->handle, $this->writer->start_output()) === false) {
+                    $step->log(error_get_last()['message']);
+                    throw new \moodle_exception(get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $streamname));
+                }
 
                 parent::__construct($step, $input);
             }
@@ -124,11 +131,17 @@ class writer_stream extends writer_step {
                 ++$this->iterationcount;
 
                 if ($value !== false) {
-                    fwrite($this->handle, $this->writer->encode_record($value, $this->iterationcount));
+                    if (fwrite($this->handle, $this->writer->encode_record($value, $this->iterationcount)) === false) {
+                        $this->step->log(error_get_last()['message']);
+                        throw new \moodle_exception(get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname));
+                    }
                 }
 
                 if ($this->input->is_finished()) {
-                    fwrite($this->handle, $this->writer->close_output());
+                    if (fwrite($this->handle, $this->writer->close_output()) === false) {
+                        $this->step->log(error_get_last()['message']);
+                        throw new \moodle_exception(get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname));
+                    }
                     $this->abort();
                 }
                 $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($value));

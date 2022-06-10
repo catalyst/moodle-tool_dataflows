@@ -251,7 +251,7 @@ class engine {
             $enginestep->abort();
         }
         $this->status = self::STATUS_ABORTED;
-        $this->log('Aborted');
+        $this->log('Aborted: ' . $exception->getMessage());
         // TODO: We may want to make this the responsibility of the caller.
         throw $exception;
     }
