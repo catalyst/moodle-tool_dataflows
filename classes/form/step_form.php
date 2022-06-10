@@ -72,13 +72,12 @@ class step_form extends \core\form\persistent {
 
         // Show a list of other steps as options for depends on.
         $dataflow = new dataflow($dataflowid);
-        $steps = $dataflow->raw_steps();
-        $options = array_reduce($steps, function ($acc, $step) {
-            if ((int) $step->id !== $this->get_persistent()->id) {
-                $acc[$step->id] = $step->name;
-            }
-            return $acc;
-        }, []);
+        $steps = $dataflow->steps;
+        $options = [];
+        foreach ($steps as $step) {
+            $options[$step->id] = $step->name;
+        }
+        unset($options[$this->get_persistent()->id]); // We never want a step to depend on itself.
 
         $select = $mform->addElement(
             'select',
