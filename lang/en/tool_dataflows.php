@@ -151,6 +151,10 @@ $string['invalid_config'] = 'Invalid configuration';
 $string['non_reader_steps_must_have_flow_upstreams'] = 'Non reader steps must have at least one flow step dependency.';
 $string['format_not_supported'] = 'The format \'{$a}\' is not supported.';
 
+// Stream errors.
+$string['writer_stream:failed_to_open_stream'] = 'Failed to open stream "{$a}".';
+$string['writer_stream:failed_to_write_stream'] = 'Failed to write to stream "{$a}".';
+
 // Capabilities.
 $string['dataflows:managedataflows'] = 'Create and configure dataflows';
 $string['dataflows:exportdataflowhistory'] = 'Download / export history of dataflows';
