@@ -96,21 +96,24 @@ class step extends persistent {
      * Return the configuration of the dataflow, parsed such that any
      * expressions are evaluated at this point in time.
      *
-     * @return     \stdClass configuration object
+     * @param   bool $expressions whether or not to parse expressions when returning the config
+     * @return  \stdClass configuration object
      */
-    protected function get_config(): \stdClass {
+    protected function get_config($expressions = true): \stdClass {
         $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
         if (empty($yaml)) {
             return new \stdClass();
         }
 
-        // Prepare this as a php object (stdClass), as it makes expressions easier to write.
-        $parser = new parser();
-        foreach ($yaml as $key => &$string) {
-            // TODO: Perhaps some keys should not be evaluated?
+        if ($expressions) {
+            // Prepare this as a php object (stdClass), as it makes expressions easier to write.
+            $parser = new parser();
+            foreach ($yaml as $key => &$string) {
+                // TODO: Perhaps some keys should not be evaluated?
 
-            // NOTE: This does not support nested expressions.
-            $string = $parser->evaluate($string, $this->variables);
+                // NOTE: This does not support nested expressions.
+                $string = $parser->evaluate($string, $this->variables);
+            }
         }
 
         return $yaml;
@@ -293,7 +296,7 @@ class step extends persistent {
         }
 
         // Conditionally export the configuration if it has content.
-        $config = (array) $this->config;
+        $config = (array) $this->get_config(false);
         if (!empty($config)) {
             $yaml['config'] = $config;
         }
@@ -387,7 +390,7 @@ class step extends persistent {
             return new \lang_string('invalidyaml', 'tool_dataflows');
         }
 
-        $validation = $this->steptype->validate_config($this->config);
+        $validation = $this->steptype->validate_config($yaml);
         if ($validation !== true) {
             // NOTE: This will only return the first error as the persistent
             // class expects the return value to be an instance of lang_string.
