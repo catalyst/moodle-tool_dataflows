@@ -23,7 +23,7 @@ use tool_dataflows\local\step\flow_cap;
 /**
  * Executes a dataflow.
  *
- * Once an engien has been created, it can be executed in one action, or stepped through.
+ * Once an engine has been created, it can be executed in one action, or stepped through.
  * Call execute() to run the engine completely through, or execute_step() to execute one
  * step.
  * Regardless of the method of execution, you will need to check for an aborted status.
@@ -97,16 +97,21 @@ class engine {
     /** @var bool True if executing a dry run. */
     protected $isdryrun = false;
 
+    /** @var bool True if executing via automation. */
+    protected $automated = true;
+
     /**
      * Constructs the engine.
      *
      * @param dataflow $dataflow The dataflow to be executed, as defined in the editor.
-     * @param bool $trace Set to true to enable log output.
+     * @param bool $isdryrun global dryrun exection flag.
+     * @param bool $automated Execution of this run was an automated trigger.
      */
-    public function __construct(dataflow $dataflow, bool $isdryrun = false) {
+    public function __construct(dataflow $dataflow, bool $isdryrun = false, $automated = true) {
         $this->dataflow = $dataflow;
 
         $this->isdryrun = $isdryrun;
+        $this->automated = $automated;
 
         // Create engine steps for each step in the dataflow.
         foreach ($dataflow->steps as $stepdef) {
@@ -175,12 +180,24 @@ class engine {
      */
     public function execute() {
         $this->initialise();
-        while ($this->status != self::STATUS_FINISHED) {
-            $this->execute_step();
-            if ($this->status == self::STATUS_ABORTED) {
-                return;
+
+        // Check the execution conditions to ensure we can safely execute.
+        $execute = $this->dataflow->get('enabled');
+        // If not enabled, we can only execute under certain conditions.
+        if (!$execute) {
+            // We can only execute in a manual (non-automated) run, or a dry run.
+            $execute = !$this->automated || $this->isdryrun;
+        }
+
+        if ($execute) {
+            while ($this->status != self::STATUS_FINISHED) {
+                $this->execute_step();
+                if ($this->status == self::STATUS_ABORTED) {
+                    return;
+                }
             }
         }
+
         $this->finalise();
     }
 
