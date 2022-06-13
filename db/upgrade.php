@@ -46,8 +46,8 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
 
         // Define index enabled (not unique) to be added to tool_dataflows.
         $index = new xmldb_index('enabled', XMLDB_INDEX_NOTUNIQUE, ['enabled']);
-         // Conditionally launch add index enabled.
-         if (!$dbman->index_exists($table, $index)) {
+        // Conditionally launch add index enabled.
+        if (!$dbman->index_exists($table, $index)) {
             $dbman->add_index($table, $index);
         }
 

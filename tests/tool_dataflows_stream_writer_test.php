@@ -53,6 +53,7 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
         // Crate the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'array-to-stream';
+        $dataflow->enabled = true;
         $dataflow->save();
 
         $reader = new step();
