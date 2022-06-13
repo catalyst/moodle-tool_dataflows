@@ -45,6 +45,10 @@ class dataflow_form extends \core\form\persistent {
         // Name of the dataflow.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
 
+        // Enable/Disable control.
+        $mform->addElement('advcheckbox', 'enabled', get_string('enabled', 'tool_dataflows'));
+        $mform->setDefault('enabled', 0);
+
         // Configuration - YAML format.
         $mform->addElement(
             'textarea',

@@ -48,6 +48,7 @@ $string['run_now'] = 'Run now';
 $string['dry_run'] = 'Dry run';
 $string['export'] = 'Export';
 $string['import'] = 'Import';
+$string['enabled'] = 'Dataflow enabled';
 
 // Dataflows (form).
 $string['field_name'] = 'Name';
