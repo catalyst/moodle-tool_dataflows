@@ -31,6 +31,29 @@
  */
 function xmldb_tool_dataflows_upgrade($oldversion) {
     global $DB;
+    $dbman = $DB->get_manager();
+
+    if ($oldversion < 2022052303) {
+
+        // Define field enabled to be added to tool_dataflows.
+        $table = new xmldb_table('tool_dataflows');
+        $field = new xmldb_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'name');
+
+        // Conditionally launch add field enabled.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define index enabled (not unique) to be added to tool_dataflows.
+        $index = new xmldb_index('enabled', XMLDB_INDEX_NOTUNIQUE, ['enabled']);
+         // Conditionally launch add index enabled.
+         if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022052303, 'tool', 'dataflows');
+    }
 
     return true;
 }
