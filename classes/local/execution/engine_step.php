@@ -171,7 +171,7 @@ abstract class engine_step {
      * @param string $message
      */
     public function log(string $message) {
-        mtrace('Engine \'' . $this->engine->name . '\', step \'' . $this->name . '\': ' . $message);
+        (new logging_context($this))->log($message);
     }
 
     /**
