@@ -262,7 +262,7 @@ class engine {
      * @param string $message
      */
     public function log(string $message) {
-        mtrace('Engine \'' . $this->name . '\': ' . $message);
+        (new logging_context($this))->log($message);
     }
 
     /**
