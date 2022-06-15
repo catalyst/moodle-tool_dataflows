@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_dataflows\local\step;
+use tool_dataflows\local\execution\engine_step;
 
 /**
  * Debugging connector step type
@@ -31,10 +32,10 @@ class connector_debugging extends connector_step {
      *
      * This will logs the input via debugging and passes the input value as-is to the output.
      *
-     * @param mixed $input
-     * @return mixed $output
+     * @param engine_step $enginestep the execution engine parent step context
+     * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(): bool {
+    public function execute(engine_step $enginestep): bool {
         // TODO: Reach in and output the result of an expression via a debugging call.
         return true;
     }

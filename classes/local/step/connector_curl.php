@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_dataflows\local\step;
+use tool_dataflows\local\execution\engine_step;
 
 /**
  * CURL connector step type
@@ -34,10 +35,10 @@ class connector_curl extends connector_step {
      *
      * TODO: This will perform a curl call
      *
-     * @param mixed $input
-     * @return mixed $output
+     * @param engine_step $enginestep the execution engine parent step context
+     * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(): bool {
+    public function execute(engine_step $enginestep): bool {
         // TODO: Implement.
         return true;
     }

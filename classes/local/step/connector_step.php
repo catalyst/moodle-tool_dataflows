@@ -40,9 +40,10 @@ abstract class connector_step extends base_step {
     /**
      * Perform the task required by this connector.
      *
+     * @param engine_step $enginestep the execution engine parent step context
      * @return bool Returns true if successful, false otherwise.
      */
-    abstract public function execute(): bool;
+    abstract public function execute(engine_step $enginestep): bool;
 
     /**
      * {@inheritdoc}

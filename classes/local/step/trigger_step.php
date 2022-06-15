@@ -19,6 +19,7 @@ namespace tool_dataflows\local\step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\map_iterator;
 use tool_dataflows\local\execution\flow_engine_step;
+use tool_dataflows\local\execution\engine_step;
 
 /**
  * Base class for trigger step types.
@@ -47,9 +48,10 @@ abstract class trigger_step extends connector_step {
      * example if the event doesn't contain the expected fields, then it would
      * return false potentially.
      *
+     * @param engine_step $enginestep the execution engine parent step context
      * @return true for now, since this will be configured differently per step
      */
-    public function execute(): bool {
+    public function execute(engine_step $enginestep): bool {
         return true;
     }
 
