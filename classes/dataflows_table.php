@@ -144,11 +144,7 @@ class dataflows_table extends \table_sql {
         $exportactionurl = new \moodle_url(
             '/admin/tool/dataflows/export.php',
             ['dataflowid' => $record->id, 'sesskey' => sesskey()]);
-        $btnuid = 'exportbuttoncontents';
-        $btn = $OUTPUT->single_button($exportactionurl, $btnuid, 'post');
-        $exportbtn = str_replace($btnuid, $icon, $btn);
-        $exportbtn = str_replace('btn-secondary', 'btn-link bn-sm p-0', $exportbtn);
-        $content .= $exportbtn;
+        $content .= \html_writer::link($exportactionurl, $icon, ['class' => 'action-icon']);
 
         // Display the standard enable and disable icon.
         if ($record->enabled) {
@@ -160,11 +156,7 @@ class dataflows_table extends \table_sql {
         }
         $url = new \moodle_url('/admin/tool/dataflows/dataflow-action.php',
             ['id' => $record->id, 'action' => $action, 'sesskey' => sesskey()]);
-        $btnuid = 'enablebuttoncontents';
-        $btn = $OUTPUT->single_button($url, $btnuid, 'post');
-        $enablebtn = str_replace($btnuid, $icon, $btn);
-        $enablebtn = str_replace('btn-secondary', 'btn-link bn-sm p-0', $enablebtn);
-        $content .= $enablebtn;
+        $content .= \html_writer::link($url, $icon, ['class' => 'action-icon']);
 
         // Delete dataflow icon.
         $deleteurl = new \moodle_url('/admin/tool/dataflows/dataflow-action.php',
@@ -195,7 +187,7 @@ class dataflows_table extends \table_sql {
      */
     public function get_row_class($row): string {
         if (!$row->enabled) {
-            return 'table-dark';
+            return 'dimmed_text';
         }
         return '';
     }
