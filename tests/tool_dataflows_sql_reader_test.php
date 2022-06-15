@@ -66,6 +66,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         // Crate the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'sql-step';
+        $dataflow->enabled = true;
         $dataflow->save();
 
         $reader = new step();
@@ -143,6 +144,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         // Create the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'readwrite';
+        $dataflow->enabled = true;
         $dataflow->save();
 
         $reader = new step();

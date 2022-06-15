@@ -64,6 +64,7 @@ class dataflows_table extends \table_sql {
         foreach (self::NOSORT_COLUMNS ?? [] as $column) {
             $this->no_sorting($column);
         }
+        $this->sortable(false, 'name', SORT_DESC);
         $this->define_columns($columns);
         $this->define_headers($headers);
     }
@@ -144,14 +145,23 @@ class dataflows_table extends \table_sql {
         $exportactionurl = new \moodle_url(
             '/admin/tool/dataflows/export.php',
             ['dataflowid' => $record->id, 'sesskey' => sesskey()]);
-        $btnuid = 'exportbuttoncontents';
-        $btn = $OUTPUT->single_button($exportactionurl, $btnuid, 'post');
-        $exportbtn = str_replace($btnuid, $icon, $btn);
-        $exportbtn = str_replace('btn-secondary', 'btn-link bn-sm p-0', $exportbtn);
-        $content .= $exportbtn;
+        $content .= \html_writer::link($exportactionurl, $icon, ['class' => 'action-icon']);
+
+        // Display the standard enable and disable icon.
+        if ($record->enabled) {
+            $icon = $OUTPUT->render(new \pix_icon('t/show', get_string('disable'), 'moodle'));
+            $action = 'disable';
+        } else {
+            $icon = $OUTPUT->render(new \pix_icon('t/hide', get_string('enable'), 'moodle'));
+            $action = 'enable';
+        }
+        $url = new \moodle_url('/admin/tool/dataflows/dataflow-action.php',
+            ['id' => $record->id, 'action' => $action, 'sesskey' => sesskey()]);
+        $content .= \html_writer::link($url, $icon, ['class' => 'action-icon']);
 
         // Delete dataflow icon.
-        $deleteurl = new \moodle_url('/admin/tool/dataflows/remove-dataflow.php', ['id' => $record->id, 'sesskey' => sesskey()]);
+        $deleteurl = new \moodle_url('/admin/tool/dataflows/dataflow-action.php',
+            ['id' => $record->id, 'action' => 'remove', 'sesskey' => sesskey()]);
         $confirmaction = new \confirm_action(get_string('remove_dataflow_confirm', 'tool_dataflows', $record->name));
         $deleteicon = new \pix_icon('t/delete', get_string('remove_dataflow', 'tool_dataflows'));
         $link = new \action_link($deleteurl, '', $confirmaction, null,  $deleteicon);
@@ -168,5 +178,18 @@ class dataflows_table extends \table_sql {
      */
     public function col_config(\stdClass $record): string {
         return \html_writer::tag('pre', $record->config);
+    }
+
+    /**
+     * Get row level classes for output
+     *
+     * @param \stdClass $row
+     * @return string
+     */
+    public function get_row_class($row): string {
+        if (!$row->enabled) {
+            return 'dimmed_text';
+        }
+        return '';
     }
 }

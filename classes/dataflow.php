@@ -41,6 +41,7 @@ class dataflow extends persistent {
     protected static function define_properties(): array {
         return [
             'name' => ['type' => PARAM_TEXT],
+            'enabled' => ['type' => PARAM_BOOL, 'default' => false],
             'config' => ['type' => PARAM_TEXT, 'default' => ''],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],

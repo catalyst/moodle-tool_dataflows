@@ -59,6 +59,7 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
         // Create the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'two-step';
+        $dataflow->enabled = true;
         $dataflow->save();
 
         $reader = new step();

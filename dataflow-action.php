@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Removes a dataflow.
+ * Manage a dataflow from form actions.
  *
  * @package    tool_dataflows
  * @author     Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -29,6 +29,8 @@ require_once(dirname(__FILE__) . '/../../../config.php');
 
 // Prepare and accept page params.
 $id = required_param('id', PARAM_INT);
+$action = required_param('action', PARAM_TEXT);
+$returnview = optional_param('retview', 0, PARAM_BOOL);
 
 // Action requires session key.
 require_sesskey();
@@ -42,11 +44,36 @@ require_capability('tool/dataflows:managedataflows', $context);
 // Find and set the dataflow, if not found, it will throw an exception.
 $dataflow = new dataflow($id);
 
-$returnurl = new moodle_url('/admin/tool/dataflows/index.php');
+$returnurl = $returnview
+    ? new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflow->id])
+    : new moodle_url('/admin/tool/dataflows/index.php');
 
-// Remove the dataflow.
-$dataflow->delete();
+$notifystring = null;
+switch ($action) {
+    case 'remove':
+        // Remove the dataflow.
+        $dataflow->delete();
+        $notifystring = get_string('remove_dataflow_successful', 'tool_dataflows', $dataflow->name);
+        break;
+
+    case 'enable':
+        $dataflow->set('enabled', 1);
+        $dataflow->update();
+        break;
+
+    case 'disable':
+        $dataflow->set('enabled', 0);
+        $dataflow->update();
+        break;
+
+    default:
+        break;
+}
+
 
 // Redirect to the dataflows details page.
-redirect($returnurl, get_string('remove_dataflow_successful', 'tool_dataflows', $dataflow->name),
+if ($notifystring !== null) {
+    redirect($returnurl, get_string($action.'_dataflow_successful', 'tool_dataflows', $dataflow->name),
     0, \core\output\notification::NOTIFY_SUCCESS);
+}
+redirect($returnurl);

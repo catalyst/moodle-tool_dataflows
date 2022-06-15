@@ -103,7 +103,7 @@ echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'
 echo html_writer::start_tag('pre');
 $CFG->mtrace_wrapper = 'tool_dataflows_mtrace_wrapper';
 try {
-    $engine = new engine($dataflow, $dryrun);
+    $engine = new engine($dataflow, $dryrun, false);
     // TODO: Validate it can run.
     // Run the specified flow (this will output an error if it doesn't exist).
     $engine->execute();

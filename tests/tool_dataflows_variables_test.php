@@ -73,6 +73,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Create the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'readwrite';
+        $dataflow->enabled = true;
         $dataflow->save();
 
         $reader = new step();
