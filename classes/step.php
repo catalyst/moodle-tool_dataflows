@@ -314,6 +314,8 @@ class step extends persistent {
         // Update the local dependencies to the database.
         $this->update_depends_on();
 
+        $this->steptype->on_save($this);
+
         return $this;
     }
 
@@ -405,6 +407,9 @@ class step extends persistent {
         // TODO: this should check and attempt to rewire/connect steps previously linked to this step.
         $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
         $DB->delete_records('tool_dataflows_step_depends', ['dependson' => $this->id]);
+
+        $this->steptype->on_delete($this);
+
     }
 
     /**

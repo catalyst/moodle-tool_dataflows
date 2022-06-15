@@ -148,7 +148,8 @@ $string['no_input_connectors'] = 'no input connectors';
 $string['no_output_flows'] = 'no output flows';
 $string['no_output_connectors'] = 'no output connectors';
 $string['bad_parameter'] = 'Parameter \'{$a->parameter}\' not supported in \'{$a->classname}\'.';
-$string['config_field_missing'] = 'Config \'{$a}\' missing.';
+$string['config_field_missing'] = 'Config \'{$a}\' is missing.';
+$string['config_field_invalid'] = 'Config \'{$a}\' is invalid.';
 $string['invalid_config'] = 'Invalid configuration';
 $string['non_reader_steps_must_have_flow_upstreams'] = 'Non reader steps must have at least one flow step dependency.';
 $string['format_not_supported'] = 'The format \'{$a}\' is not supported.';
@@ -156,6 +157,10 @@ $string['local_aws_missing'] = 'Failed to load AWS dependencies. Please ensure l
 $string['s3_copy_failed'] = 'S3 copy failed. Please ensure you have getObject and putObject permissions on the target bucket.';
 $string['s3_configuration_error'] = 'S3 client creation failed with provided configuration. Check values are valid.';
 $string['missing_source_file'] = 'Unable to open local file for copying.';
+$string['running_disabled_dataflow'] = 'Trying to run a disabled dataflow.';
+$string['running_invalid_dataflow'] = 'Trying to run an invalid dataflow.';
+$string['change_state_after_concluded'] = 'Attempting to change the status of a dataflow engine after it has concluded.';
+$string['bad_status'] = 'Bad status, had "{$a->status}", expected "{$a->expected}"';
 
 // Stream errors.
 $string['writer_stream:failed_to_open_stream'] = 'Failed to open stream "{$a}".';
@@ -191,7 +196,7 @@ $string['engine_status:flowing'] = 'Flowing';
 $string['engine_status:finished'] = 'Finished';
 $string['engine_status:cancelled'] = 'Cancelled';
 $string['engine_status:aborted'] = 'Aborted';
-$string['engine_status:finialised'] = 'Finalised';
+$string['engine_status:finalised'] = 'Finalised';
 
 // Writer stream.
 $string['writer_stream:streamname'] = 'Stream Name';
@@ -205,3 +210,8 @@ $string['reader_sql:counterfield'] = 'Counter field';
 $string['reader_sql:counterfield_help'] = 'Field in which the counter value is derived from. For example, the userid field in user related query';
 $string['reader_sql:countervalue'] = 'Counter Value';
 $string['reader_sql:countervalue_help'] = 'Current value from the counter field';
+
+// Cron trigger.
+$string['trigger_cron:cron'] = 'Scheduled task';
+$string['trigger_cron:timestr'] = 'Time schedule';
+$string['trigger_cron:timestr_help'] = 'A time string to determine the next time the dataflow would run, using the PHP function strtotime() format. For example "+5 minutes" would run the dataflow every 5 miunutes, or "tomorrow 2:00 am" would run the dataflow 2:00 am each day. The string must always be able to resolve to a future time.';

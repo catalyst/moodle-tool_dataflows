@@ -54,5 +54,17 @@
         <KEY NAME="dependson" TYPE="foreign" FIELDS="dependson" REFTABLE="tool_dataflows_steps" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="tool_dataflows_schedule" COMMENT="Times for last run, and the next scheduled run.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="dataflowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timelastscheduledrun" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time the dataflow was last scheduled to be run"/>
+        <FIELD NAME="timenextscheduledrun" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time the dataflow is next scheduled to be run"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="dataflowid" TYPE="unique" FIELDS="dataflowid"/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>

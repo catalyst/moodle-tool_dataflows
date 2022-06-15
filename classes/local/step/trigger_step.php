@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\local\step;
 
+use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\map_iterator;
 use tool_dataflows\local\execution\flow_engine_step;
@@ -89,6 +90,7 @@ abstract class trigger_step extends connector_step {
             'fillcolor' => '#357a32',
             'fontcolor' => 'white',
             'height'    => '0.6',
+            'style'     => 'filled',
         ];
     }
 }

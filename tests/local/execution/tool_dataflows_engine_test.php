@@ -150,6 +150,7 @@ class tool_dataflows_engine_test extends \advanced_testcase {
     public function dataflow_provider(): array {
         $dataflow = new dataflow();
         $dataflow->name = 'two-step';
+        $dataflow->enabled = true;
         $dataflow->save();
 
         $steps = [];
@@ -173,5 +174,63 @@ class tool_dataflows_engine_test extends \advanced_testcase {
         $expectedflowsinks = [[$writer->id]];
 
         return [$dataflow, $steps, $expectedsinks, $expectedflowsinks];
+    }
+
+    /**
+     * Tests that you cannot run an invalid dataflow.
+     */
+    public function test_invalid_engine() {
+        $dataflow = new dataflow();
+        $dataflow->name = 'invalid-step';
+        $dataflow->enabled = true;
+        $dataflow->save();
+
+        $reader = new step();
+        $reader->name = 'reader2';
+        $reader->type = 'tool_dataflows\local\step\reader_sql';
+        $reader->config = '{sql: SELECT 2}';
+        $dataflow->add_step($reader);
+
+        $dataflow->save();
+        $this->expectException(\moodle_exception::class);
+        $this->expectExceptionMessage(get_string('running_invalid_dataflow', 'tool_dataflows'));
+        $engine = new engine($dataflow);
+    }
+
+    /**
+     * Tests that you cannot run a disabled dataflow.
+     */
+    public function test_disabled_engine() {
+        list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
+        $dataflow->enabled = false;
+         $dataflow->save();
+        $this->expectException(\moodle_exception::class);
+        $this->expectExceptionMessage(get_string('running_disabled_dataflow', 'tool_dataflows'));
+        $engine = new engine($dataflow);
+    }
+
+    /**
+     * Tests that you cannot reuse an engine after it has concluded.
+     */
+    public function test_finished_engine() {
+        list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
+        $engine = new engine($dataflow);
+        $engine->set_status(engine::STATUS_FINALISED);
+        $this->expectException(\moodle_exception::class);
+        $this->expectExceptionMessage(get_string('change_state_after_concluded', 'tool_dataflows'));
+        $engine->set_status(engine::STATUS_INITIALISED);
+    }
+
+    public function test_bad_status() {
+        list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
+        $engine = new engine($dataflow);
+        $this->expectException(\moodle_exception::class);
+        $this->expectExceptionMessage(get_string('bad_status', 'tool_dataflows',
+            [
+                'status' => get_string('engine_status:'.engine::STATUS_LABELS[engine::STATUS_NEW], 'tool_dataflows'),
+                'expected' => get_string('engine_status:'.engine::STATUS_LABELS[engine::STATUS_FINISHED], 'tool_dataflows'),
+            ]
+        ));
+        $engine->finalise();
     }
 }

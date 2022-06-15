@@ -62,7 +62,8 @@ abstract class connector_step extends base_step {
      * @return engine_step
      */
     public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
-        return new connector_engine_step($engine, $stepdef, $this);
+        $this->enginestep = new connector_engine_step($engine, $stepdef, $this);
+        return $this->enginestep;
     }
 
     /**

@@ -16,10 +16,13 @@
 
 namespace tool_dataflows\local\step;
 
+use tool_dataflows\step;
+use tool_dataflows\local\scheduler;
+use tool_dataflows\local\execution\engine_step;
+
+
 /**
  * CRON trigger class
- *
- * TODO Implement scheduling related logic.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
@@ -33,4 +36,91 @@ class trigger_cron extends trigger_step {
 
     /** @var int[] number of output connectors (min, max). */
     protected $outputconnectors = [0, 1];
+
+    protected static function form_define_fields(): array {
+        return [
+            'timestr' => ['type' => PARAM_TEXT],
+        ];
+    }
+
+    /**
+     * Allows each step type to determine a list of optional/required form
+     * inputs for their configuration
+     *
+     * It's recommended you prefix the additional config related fields to avoid
+     * conflicts with any existing fields.
+     *
+     * @param \MoodleQuickForm &$mform
+     */
+    public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
+        $mform->addElement('text', 'config_timestr', get_string('trigger_cron:timestr', 'tool_dataflows'));
+        $mform->addRule('config_timestr', 'This field is required', 'required');
+        $mform->addElement('static', 'config_timestr_help', '', get_string('trigger_cron:timestr_help', 'tool_dataflows'));
+    }
+
+    /**
+     * Validate the configuration settings.
+     *
+     * @param object $config
+     * @return true|\lang_string[] true if valid, an array of errors otherwise
+     */
+    public function validate_config($config) {
+        $errors = [];
+        if (empty($config->timestr)) {
+            $errors['config_timestr'] = get_string('config_field_missing', 'tool_dataflows', 'timestr', true);
+        } else {
+            if (strtotime($config->timestr) === false) {
+                $errors['config_timestr'] = get_string('config_field_invalid', 'tool_dataflows', 'timestr', true);
+            }
+        }
+        return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Hook function that gets called when a step has been saved.
+     *
+     * @param step $stepdef
+     */
+    public function on_save(step $stepdef) {
+        $newtime = scheduler::determine_next_scheduled_time(
+            $stepdef->config->timestr,
+            scheduler::get_last_scheduled_time($stepdef->dataflowid) ?: time()
+        );
+
+        scheduler::update_next_scheduled_time(
+            $stepdef->dataflowid,
+            $newtime
+        );
+    }
+
+    /**
+     * Hook function that gets called when a step has been saved.
+     *
+     * @param step $stepdef
+     */
+    public function on_delete(step $stepdef) {
+        global $DB;
+
+        $DB->delete_records(scheduler::TABLE, ['dataflowid' => $stepdef->dataflowid]);
+    }
+
+    /**
+     * Hook function that gets called when an engine step has been finalised.
+     *
+     * @throws \dml_exception
+     */
+    public function on_finalise() {
+        if (!$this->enginestep->engine->isdryrun) {
+            $dataflowid = $this->enginestep->stepdef->dataflowid;
+            $newtime = scheduler::get_next_scheduled_time($dataflowid);
+            scheduler::update_next_scheduled_time(
+                $dataflowid,
+                scheduler::determine_next_scheduled_time(
+                    $this->enginestep->stepdef->config->timestr,
+                    $newtime
+                ),
+                $newtime
+            );
+        }
+    }
 }

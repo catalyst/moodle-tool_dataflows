@@ -110,7 +110,7 @@ class connector_s3 extends connector_step {
                 return false;
             }
         } else {
-            // copy FROM remote.
+            // Copy FROM remote.
             try {
                 $s3client->getObject([
                     'Bucket' => $config->bucket,

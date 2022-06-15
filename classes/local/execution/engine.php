@@ -114,6 +114,18 @@ class engine {
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
 
+        // Refuse to run if dataflow is not enabled.
+        if (!($dataflow->enabled || !$automated || $isdryrun)) {
+            $this->abort(new \moodle_exception('running_disabled_dataflow', 'tool_dataflows'));
+            return;
+        }
+
+        // Refuse to run if dataflow is invalid.
+        if ($dataflow->validate_dataflow() !== true) {
+            $this->abort(new \moodle_exception('running_invalid_dataflow', 'tool_dataflows'));
+            return;
+        }
+
         // Create engine steps for each step in the dataflow.
         foreach ($dataflow->steps as $stepdef) {
             $classname = $stepdef->type;
@@ -145,14 +157,20 @@ class engine {
     }
 
     public function initialise() {
-        foreach ($this->enginesteps as $enginestep) {
-            $enginestep->initialise();
-        }
+        try {
+            $this->status_check(self::STATUS_NEW);
 
-        // Add sinks to the execution queue.
-        $this->queue = $this->sinks;
-        $this->set_status(self::STATUS_INITIALISED);
-        $this->log('Initialised. Dry run: ' . ($this->isdryrun ? 'Yes' : 'No'));
+            foreach ($this->enginesteps as $enginestep) {
+                $enginestep->initialise();
+            }
+
+            // Add sinks to the execution queue.
+            $this->queue = $this->sinks;
+            $this->set_status(self::STATUS_INITIALISED);
+            $this->log('Initialised. Dry run: ' . ($this->isdryrun ? 'Yes' : 'No'));
+        } catch (\Throwable $thrown) {
+            $this->abort($thrown);
+        }
     }
 
     /**
@@ -181,21 +199,12 @@ class engine {
      */
     public function execute() {
         $this->initialise();
+        $this->status_check(self::STATUS_INITIALISED);
 
-        // Check the execution conditions to ensure we can safely execute.
-        $execute = $this->dataflow->get('enabled');
-        // If not enabled, we can only execute under certain conditions.
-        if (!$execute) {
-            // We can only execute in a manual (non-automated) run, or a dry run.
-            $execute = !$this->automated || $this->isdryrun;
-        }
-
-        if ($execute) {
-            while ($this->status != self::STATUS_FINISHED) {
-                $this->execute_step();
-                if ($this->status == self::STATUS_ABORTED) {
-                    return;
-                }
+        while ($this->status != self::STATUS_FINISHED) {
+            $this->execute_step();
+            if ($this->status == self::STATUS_ABORTED) {
+                return;
             }
         }
 
@@ -250,28 +259,42 @@ class engine {
      * Finalises the execution. Any remaining resources should be released.
      */
     public function finalise() {
-        foreach ($this->enginesteps as $enginestep) {
-            $enginestep->finalise();
+        try {
+            $this->status_check(self::STATUS_FINISHED);
+
+            foreach ($this->enginesteps as $enginestep) {
+                $enginestep->finalise();
+            }
+            $this->set_status(self::STATUS_FINALISED);
+            $this->log('Finalised');
+        } catch (\Throwable $thrown) {
+            $this->abort($thrown);
         }
-        $this->set_status(self::STATUS_FINALISED);
-        $this->log('Finalised');
     }
 
     /**
      * Stops execution immediately. Gracefully stops all processors and iterators.
      *
-     * @param \Throwable|null $exception
+     * @param \Throwable|null $reason
      * @throws \Throwable
      */
-    public function abort(?\Throwable $exception = null) {
-        $this->exception = $exception;
+    public function abort(?\Throwable $reason = null) {
+        if (!is_null($reason)) {
+            $message = $reason->getMessage();
+        } else {
+            $message = '';
+        }
+        $this->exception = $reason;
         foreach ($this->enginesteps as $enginestep) {
             $enginestep->abort();
         }
         $this->set_status(self::STATUS_ABORTED);
-        $this->log('Aborted: ' . $exception->getMessage());
+        $this->log('Aborted: ' . $message);
+
         // TODO: We may want to make this the responsibility of the caller.
-        throw $exception;
+        if (!is_null($reason)) {
+            throw $reason;
+        }
     }
 
     /**
@@ -378,10 +401,31 @@ class engine {
      * @param  int $status a status from the engine class
      */
     public function set_status(int $status) {
+        // Engines are single use. Once it has concluded, you can no longer change it's state.
+        if ($this->status == self::STATUS_ABORTED || $this->status == self::STATUS_FINALISED) {
+            throw new \moodle_exception('change_state_after_concluded', 'tool_dataflows');
+        }
         $this->status = $status;
 
         // Record the timestamp of the state change against the dataflow persistent,
         // which exposes this info through its variables.
         $this->dataflow->set_state_timestamp($status, microtime(true));
+    }
+
+    /**
+     * Checks the current status against the expected status and throws an exception if they do not match.
+     *
+     * @param int $expected
+     * @throws \moodle_exception
+     */
+    protected function status_check(int $expected) {
+        if ($this->status !== $expected) {
+            throw new \moodle_exception("bad_status", "tool_dataflows", '',
+                [
+                    'status' => get_string('engine_status:'.self::STATUS_LABELS[$this->status], 'tool_dataflows'),
+                    'expected' => get_string('engine_status:'.self::STATUS_LABELS[$expected], 'tool_dataflows'),
+                ]
+            );
+        }
     }
 }
