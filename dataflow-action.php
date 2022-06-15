@@ -30,6 +30,7 @@ require_once(dirname(__FILE__) . '/../../../config.php');
 // Prepare and accept page params.
 $id = required_param('id', PARAM_INT);
 $action = required_param('action', PARAM_TEXT);
+$returnview = optional_param('retview', 0, PARAM_BOOL);
 
 // Action requires session key.
 require_sesskey();
@@ -43,7 +44,10 @@ require_capability('tool/dataflows:managedataflows', $context);
 // Find and set the dataflow, if not found, it will throw an exception.
 $dataflow = new dataflow($id);
 
-$returnurl = new moodle_url('/admin/tool/dataflows/index.php');
+$returnurl = $returnview
+    ? new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflow->id])
+    : new moodle_url('/admin/tool/dataflows/index.php');
+
 $notifystring = null;
 switch ($action) {
     case 'remove':

@@ -252,6 +252,23 @@ class visualiser {
         );
         echo \html_writer::link($importurl, $exportbtn);
 
+        // Display the standard enable and disable icon.
+        if ($dataflow->enabled) {
+            $icon = $output->render(new \pix_icon('t/show', get_string('disable'), 'moodle'));
+            $action = 'disable';
+        } else {
+            $icon = $output->render(new \pix_icon('t/hide', get_string('enable'), 'moodle'));
+            $action = 'enable';
+        }
+        $enableurl = new \moodle_url('/admin/tool/dataflows/dataflow-action.php',
+            ['id' => $dataflow->id, 'action' => $action, 'sesskey' => sesskey(), 'retview' => 1]);
+        $enablebtn = \html_writer::tag(
+                'button',
+                $icon . get_string($action),
+                ['class' => 'btn btn-secondary ml-2']
+            );
+        echo \html_writer::link($enableurl, $enablebtn);
+
         // Remove dataflow button.
         $icon = $output->render(new \pix_icon('t/delete', get_string('delete')));
         $deleteurl = new \moodle_url('/admin/tool/dataflows/remove-dataflow.php', ['id' => $dataflow->id]);

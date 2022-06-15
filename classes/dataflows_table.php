@@ -64,6 +64,7 @@ class dataflows_table extends \table_sql {
         foreach (self::NOSORT_COLUMNS ?? [] as $column) {
             $this->no_sorting($column);
         }
+        $this->sortable(false, 'name', SORT_DESC);
         $this->define_columns($columns);
         $this->define_headers($headers);
     }
