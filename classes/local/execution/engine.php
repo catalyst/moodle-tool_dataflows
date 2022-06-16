@@ -61,16 +61,16 @@ class engine {
 
     /** @var string[] Maps statuses to string indexes. */
     const STATUS_LABELS = [
-        self::STATUS_NEW => 'engine_status_new',
-        self::STATUS_INITIALISED => 'engine_status_initialised',
-        self::STATUS_BLOCKED => 'engine_status_blocked',
-        self::STATUS_WAITING => 'engine_status_waiting',
-        self::STATUS_PROCESSING => 'engine_status_processing',
-        self::STATUS_FLOWING => 'engine_status_flowing',
-        self::STATUS_FINISHED => 'engine_status_finished',
-        self::STATUS_CANCELLED => 'engine_status_cancelled',
-        self::STATUS_ABORTED => 'engine_status_aborted',
-        self::STATUS_FINALISED => 'engine_status_finalised',
+        self::STATUS_NEW => 'new',
+        self::STATUS_INITIALISED => 'initialised',
+        self::STATUS_BLOCKED => 'blocked',
+        self::STATUS_WAITING => 'waiting',
+        self::STATUS_PROCESSING => 'processing',
+        self::STATUS_FLOWING => 'flowing',
+        self::STATUS_FINISHED => 'finished',
+        self::STATUS_CANCELLED => 'cancelled',
+        self::STATUS_ABORTED => 'aborted',
+        self::STATUS_FINALISED => 'finalised',
     ];
 
     /** @var  array The queue of steps to be given a run. */
@@ -109,6 +109,7 @@ class engine {
      */
     public function __construct(dataflow $dataflow, bool $isdryrun = false, $automated = true) {
         $this->dataflow = $dataflow;
+        $this->dataflow->set_engine($this);
 
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
@@ -150,7 +151,7 @@ class engine {
 
         // Add sinks to the execution queue.
         $this->queue = $this->sinks;
-        $this->status = self::STATUS_INITIALISED;
+        $this->set_status(self::STATUS_INITIALISED);
         $this->log('Initialised. Dry run: ' . ($this->isdryrun ? 'Yes' : 'No'));
     }
 
@@ -206,13 +207,13 @@ class engine {
      */
     public function execute_step() {
         if ($this->status === self::STATUS_INITIALISED) {
-            $this->status = self::STATUS_PROCESSING;
+            $this->set_status(self::STATUS_PROCESSING);
         }
         if ($this->status !== self::STATUS_PROCESSING) {
             throw new \moodle_exception("bad_status", "tool_dataflows");
         }
         if (count($this->queue) == 0) {
-            $this->status = self::STATUS_FINISHED;
+            $this->set_status(self::STATUS_FINISHED);
             $this->log('Finished');
         } else {
             $currentstep = array_shift($this->queue);
@@ -241,7 +242,7 @@ class engine {
                 case self::STATUS_ABORTED:
                     $this->abort($currentstep->exception);
             }
-            $currentstep->log('status ' . get_string(self::STATUS_LABELS[$result], 'tool_dataflows'));
+            $currentstep->log('status ' . get_string('engine_status:' . self::STATUS_LABELS[$result], 'tool_dataflows'));
         }
     }
 
@@ -252,7 +253,7 @@ class engine {
         foreach ($this->enginesteps as $enginestep) {
             $enginestep->finalise();
         }
-        $this->status = self::STATUS_FINALISED;
+        $this->set_status(self::STATUS_FINALISED);
         $this->log('Finalised');
     }
 
@@ -267,7 +268,7 @@ class engine {
         foreach ($this->enginesteps as $enginestep) {
             $enginestep->abort();
         }
-        $this->status = self::STATUS_ABORTED;
+        $this->set_status(self::STATUS_ABORTED);
         $this->log('Aborted: ' . $exception->getMessage());
         // TODO: We may want to make this the responsibility of the caller.
         throw $exception;
@@ -367,5 +368,20 @@ class engine {
         $config = Yaml::dump((array) $config);
         $this->log("Setting global '$name' to '$value' (from '{$previous}')");
         set_config('config', $config, 'tool_dataflows');
+    }
+
+    /**
+     * Updates the status of this engine
+     *
+     * This also records some metadata in the relevant objects e.g. the dataflow's state.
+     *
+     * @param  int $status a status from the engine class
+     */
+    public function set_status(int $status) {
+        $this->status = $status;
+
+        // Record the timestamp of the state change against the dataflow persistent,
+        // which exposes this info through its variables.
+        $this->dataflow->set_state_timestamp($status, microtime(true));
     }
 }

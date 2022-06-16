@@ -40,9 +40,9 @@ class engine_flow_cap extends flow_engine_step {
                     $this->iterator->next();
                 }
             }
-            $this->status = engine::STATUS_FINISHED;
+            $this->set_status(engine::STATUS_FINISHED);
         } catch (\Throwable $thrown) {
-            $this->status = engine::STATUS_ABORTED;
+            $this->set_status(engine::STATUS_ABORTED);
             $this->exception = $thrown;
         }
 

@@ -46,20 +46,20 @@ class connector_engine_step extends engine_step {
                 try {
                     $result = $this->steptype->execute($this);
                     if ($result === true) {
-                        $this->status = engine::STATUS_FINISHED;
+                        $this->set_status(engine::STATUS_FINISHED);
                     } else {
-                        $this->status = engine::STATUS_CANCELLED;
+                        $this->set_status(engine::STATUS_CANCELLED);
                     }
                 } catch (\Throwable $thrown) {
-                    $this->status = engine::STATUS_ABORTED;
+                    $this->set_status(engine::STATUS_ABORTED);
                     $this->exception = $thrown;
                 }
                 break;
             case self::PROCEED_STOP:
-                $this->status = engine::STATUS_CANCELLED;
+                $this->set_status(engine::STATUS_CANCELLED);
                 break;
             case self::PROCEED_WAIT:
-                $this->status = engine::STATUS_BLOCKED;
+                $this->set_status(engine::STATUS_BLOCKED);
                 break;
         }
         return $this->status;

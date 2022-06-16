@@ -20,6 +20,7 @@ use tool_dataflows\local\step\base_step;
 use core\persistent;
 use moodle_exception;
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\local\execution\engine;
 
 /**
  * Dataflow Step persistent class
@@ -36,6 +37,40 @@ class step extends persistent {
 
     /** @var array $dependson */
     private $dependson = [];
+
+    /** @var \stdClass of engine step states and timestamps */
+    private $states;
+
+    /** @var dataflow this step is connected to. Note: not always set. */
+    private $dataflow;
+
+    /**
+     * When initialising the persistent, ensure some internal fields have been set up.
+     */
+    public function __construct(...$args) {
+        parent::__construct(...$args);
+        $this->states = new \stdClass;
+    }
+
+    /**
+     * Returns the states and their timestamps for this step
+     *
+     * @return  \stdClass
+     */
+    public function get_states(): \stdClass {
+        return $this->states;
+    }
+
+    /**
+     * Updates the timestamp for a particular state that is stored locally on the instance
+     *
+     * @param  int $state a status constant from the engine class
+     * @param  float $timestamp typically from a microtime(true) call
+     */
+    public function set_state_timestamp(int $state, float $timestamp) {
+        $label = engine::STATUS_LABELS[$state];
+        $this->states->{$label} = $timestamp;
+    }
 
     /**
      * Return the definition of the properties of this model.
@@ -82,14 +117,47 @@ class step extends persistent {
         return $this->set($name, $value);
     }
 
-    public function get_variables() {
-        $dataflow = new dataflow($this->dataflowid);
+    /**
+     * Returns the variables available for this step
+     *
+     * @return  array of variables
+     */
+    public function get_variables(): array {
+        $dataflow = $this->get_dataflow();
         return $dataflow->variables;
     }
 
+    /**
+     * Returns the referenced dataflow of this step, otherwise initialises one
+     *
+     * @return dataflow
+     */
+    public function get_dataflow(): dataflow {
+        if (!isset($this->dataflow)) {
+            $dataflow = new dataflow($this->dataflowid);
+            $this->set_dataflow($dataflow);
+        }
+        return $this->dataflow;
+    }
+
+    /**
+     * Returns the step type associated with this step
+     */
     public function get_steptype() {
         $classname = $this->type;
         return new $classname();
+    }
+
+    /**
+     * Links the step up to the relevant dataflow
+     *
+     * This is typically set when the engine is initialised, such that any
+     * references are directly connected to the engine's instance.
+     *
+     * @param  dataflow
+     */
+    public function set_dataflow(dataflow $dataflow) {
+        $this->dataflow = $dataflow;
     }
 
     /**

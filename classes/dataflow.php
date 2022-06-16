@@ -18,6 +18,7 @@ namespace tool_dataflows;
 
 use core\persistent;
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\flow_step;
 
 /**
@@ -32,6 +33,55 @@ class dataflow extends persistent {
     use exportable;
 
     const TABLE = 'tool_dataflows';
+
+    /** @var \stdClass of engine step states and timestamps */
+    private $states;
+
+    /** @var engine dataflow engine this dataflow is part of. Note: not always set. */
+    private $engine;
+
+    /** @var steps[] cache of steps connected to this dataflow */
+    private $stepscache = [];
+
+    /**
+     * When initialising the persistent, ensure some internal fields have been set up.
+     */
+    public function __construct(...$args) {
+        parent::__construct(...$args);
+        $this->states = new \stdClass;
+    }
+
+    /**
+     * Links the dataflow up to the relevant engine
+     *
+     * This is typically set when the engine is initialised, such that any
+     * references made thereafter are directly connected to the engine's instance being used.
+     *
+     * @param  dataflow
+     */
+    public function set_engine(engine $engine) {
+        $this->engine = $engine;
+    }
+
+    /**
+     * Updates the timestamp for a particular state that is stored locally on the instance
+     *
+     * @param  int $state a status constant from the engine class
+     * @param  float $timestamp typically from a microtime(true) call
+     */
+    public function set_state_timestamp(int $state, float $timestamp) {
+        $label = engine::STATUS_LABELS[$state];
+        $this->states->{$label} = $timestamp;
+    }
+
+    /**
+     * Returns the states and their timestamps for this step
+     *
+     * @return  \stdClass
+     */
+    public function get_states() {
+        return $this->states;
+    }
 
     /**
      * Return the definition of the properties of this model.
@@ -165,7 +215,6 @@ class dataflow extends persistent {
 
         // Prepare to validate steps.
         $steps = $this->steps;
-        $adjacencylist = graph::to_adjacency_list($edges);
 
         // Prepare an array of steps by id, which makes local lookups instantaneous.
         $stepidhashmap = [];
@@ -176,9 +225,19 @@ class dataflow extends persistent {
         $outputlist = [];
         foreach ($edges as $edge) {
             $step = $stepidhashmap[$edge[0]];
-            $inputlist[$edge[1]][] = (object) [ 'id' => $step->id, 'name' => $step->name, 'alias' => $step->alias, 'type' => $step->type ];
+            $inputlist[$edge[1]][] = (object) [
+                'id' => $step->id,
+                'name' => $step->name,
+                'alias' => $step->alias,
+                'type' => $step->type,
+            ];
             $step = $stepidhashmap[$edge[1]];
-            $outputlist[$edge[0]][] = (object) [ 'id' => $step->id, 'name' => $step->name, 'alias' => $step->alias, 'type' => $step->type ];
+            $outputlist[$edge[0]][] = (object) [
+                'id' => $step->id,
+                'name' => $step->name,
+                'alias' => $step->alias,
+                'type' => $step->type,
+            ];
         }
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
         foreach ($steps as $step) {
@@ -230,10 +289,10 @@ class dataflow extends persistent {
     public function get_steps(): \stdClass {
         $stepsbyalias = [];
         foreach ($this->step_order as $stepid) {
-            $steppersistent = new step($stepid);
+            $this->stepscache[$stepid] = $this->stepscache[$stepid] ?? new step($stepid);
+            $steppersistent = $this->stepscache[$stepid];
             $stepsbyalias[$steppersistent->alias] = $steppersistent;
         }
-
         return (object) $stepsbyalias;
     }
 
