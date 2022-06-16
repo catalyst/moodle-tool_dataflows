@@ -17,7 +17,7 @@
 namespace tool_dataflows\local\execution;
 
 use tool_dataflows\local\execution\iterators\iterator;
-use tool_dataflows\local\execution\iterators\php_iterator;
+use tool_dataflows\local\execution\iterators\dude_iterator;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\step\reader_step;
 
@@ -40,7 +40,7 @@ class array_in_type extends reader_step {
     public static $source = [];
 
     public function get_iterator(): iterator {
-        return new php_iterator($this->enginestep, new \ArrayIterator(self::$source));
+        return new dude_iterator($this->enginestep, new \ArrayIterator(self::$source));
     }
 
     public function execute($input) {

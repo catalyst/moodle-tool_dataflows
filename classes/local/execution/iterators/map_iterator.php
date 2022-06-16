@@ -68,6 +68,7 @@ class map_iterator implements iterator {
      */
     public function abort() {
         $this->finished = true;
+        $this->step->set_status(engine::STATUS_FINISHED);
     }
 
     /**
@@ -76,6 +77,7 @@ class map_iterator implements iterator {
      * @return object|bool A JSON compatible object, or false if nothing returned.
      */
     public function next() {
+        $this->step->log('next');
         if ($this->finished) {
             return false;
         }

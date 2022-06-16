@@ -17,7 +17,7 @@
 namespace tool_dataflows\local\execution;
 
 use tool_dataflows\local\execution\iterators\iterator;
-use tool_dataflows\local\execution\iterators\map_iterator;
+use tool_dataflows\local\execution\iterators\dude_iterator;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\step\writer_step;
 
@@ -37,7 +37,7 @@ class array_out_type extends writer_step {
 
     public function get_iterator(): iterator {
         $input = current($this->enginestep->upstreams)->iterator;
-        return new map_iterator($this->enginestep, $input);
+        return new dude_iterator($this->enginestep, $input);
     }
 
     public function execute($input) {

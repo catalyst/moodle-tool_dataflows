@@ -18,7 +18,7 @@ namespace tool_dataflows\local\step;
 
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\iterators\iterator;
-use tool_dataflows\local\execution\iterators\map_iterator;
+use tool_dataflows\local\execution\iterators\dude_iterator;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\engine_step;
 
@@ -60,7 +60,7 @@ abstract class trigger_step extends connector_step {
         if ($upstream === false || !$upstream->is_flow()) {
             throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
         }
-        return new map_iterator($this->enginestep, $upstream->iterator);
+        return new dude_iterator($this->enginestep, $upstream->iterator);
     }
 
     /**

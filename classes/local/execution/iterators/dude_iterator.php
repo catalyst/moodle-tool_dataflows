@@ -27,19 +27,20 @@ use tool_dataflows\local\execution\flow_engine_step;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class php_iterator implements iterator {
+class dude_iterator implements iterator {
     protected $steptype;
     protected $finished = false;
     protected $input;
     protected $step;
+    protected $value = null;
 
     protected $iterationcount = 0;
 
     /**
      * @param flow_engine_step $step The step the iterator is for.
-     * @param \Iterator $input The source for this reader, as a PHP iterator.
+     * @param \Iterator|iterator|moodle_recordset $input An iterator of some sort
      */
-    public function __construct(flow_engine_step $step, \Iterator $input) {
+    public function __construct(flow_engine_step $step, $input) {
         $this->step = $step;
         $this->input = $input;
         $this->steptype = $step->steptype;
@@ -66,11 +67,42 @@ class php_iterator implements iterator {
     /**
      * Terminate the iterator immediately.
      */
-    public function abort() {
+    final public function abort() {
         $this->finished = true;
-        $this->step->log('todofinished');
+        $this->on_abort();
         $this->step->set_status(engine::STATUS_FINISHED);
-        $this->step->log('donefinished');
+    }
+
+    /**
+     * Any custom handling for on_abort
+     */
+    public function on_abort() {
+        // Do nothing by default.
+    }
+
+    /**
+     * Return the current element
+     *
+     * @return mixed can return any type
+     */
+    public function current() {
+        return $this->value;
+    }
+
+    /**
+     * Checks if current position is valid
+     *
+     * @return bool The return value will be casted to boolean and then evaluated. Returns true on success or false on failure.
+     */
+    public function valid(): bool {
+        return $this->input->valid();
+    }
+
+    /**
+     * This is where you define your custom iterator handling, if needed.
+     */
+    public function on_next() {
+        // Do nothing by default.
     }
 
     /**
@@ -78,29 +110,32 @@ class php_iterator implements iterator {
      *
      * @return object|bool A JSON compatible object, or false if nothing returned.
      */
-    public function next() {
-        $this->step->log('next');
+    final public function next() {
         if ($this->finished) {
             return false;
         }
 
-        $value = $this->input->current();
+        // Do not call this for the initial pull (of data) for a reader.
+        if (!empty($this->pulled) || $this->steptype->get_group() !== 'readers') {
+            $this->input->next();
+        }
+        $this->pulled = true;
 
-        // Only performs this check on the first iteration, and aborts if the
-        // iterator's position is valid (e.g. has no data).
+        // Validate if input is valid before grabbing it.
         if (!$this->input->valid()) {
-            // $this->step->log('Aborting at iteration ' . $this->iterationcount . '. No data?');
             $this->abort();
-            return $value;
+            return null;
         }
 
-        $this->input->next();
-        // if (!$this->input->valid()) {
-        //     $this->abort();
-        // }
-        $newvalue = $this->steptype->execute($value);
+        // Grabs the current value if valid.
+        $this->value = $this->input->current();
+
+        // Processes it.
+        $this->on_next();
+        $newvalue = $this->steptype->execute($this->value);
         ++$this->iterationcount;
         $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
+
         return $newvalue;
     }
 }

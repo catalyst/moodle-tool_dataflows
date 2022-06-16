@@ -18,7 +18,7 @@ namespace tool_dataflows\local\step;
 
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
-use tool_dataflows\local\execution\iterators\php_iterator;
+use tool_dataflows\local\execution\iterators\dude_iterator;
 use tool_dataflows\parser;
 
 /**
@@ -52,7 +52,7 @@ class reader_sql extends reader_step {
      */
     public function get_iterator(): iterator {
         $query = $this->construct_query();
-        return new class($this->enginestep, $query) extends php_iterator {
+        return new class($this->enginestep, $query) extends dude_iterator {
 
             public function __construct(flow_engine_step $step, string $query) {
                 global $DB;
@@ -60,9 +60,8 @@ class reader_sql extends reader_step {
                 parent::__construct($step, $input);
             }
 
-            public function abort() {
+            public function on_abort() {
                 $this->input->close();
-                $this->finished = true;
             }
         };
     }

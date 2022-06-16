@@ -134,6 +134,7 @@ class dataflow extends persistent {
         $steps = [];
         foreach ($this->steps as $key => $step) {
             $steps[$key] = $step->get_export_data();
+            $steps[$key]['alias'] = $key;
         }
         foreach ($steps as &$step) {
             foreach ($step as &$field) {

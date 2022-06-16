@@ -201,11 +201,6 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         // Reload the step from the DB, the counter value should stay the same since it's a dry run.
         $reader->read();
         $this->assertEquals($previousvalue, $reader->config->countervalue);
-
-        // Recreate and complete the run.
-        $engine = new engine($dataflow);
-        $engine->execute();
-        $this->assertDebuggingCalledCount(1);
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
 }
