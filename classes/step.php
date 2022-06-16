@@ -117,11 +117,32 @@ class step extends persistent {
         return $this->set($name, $value);
     }
 
-    public function get_variables() {
-        $dataflow = $this->dataflow ?? new dataflow($this->dataflowid);
+    /**
+     * Returns the variables available for this step
+     *
+     * @return  array of variables
+     */
+    public function get_variables(): array {
+        $dataflow = $this->get_dataflow();
         return $dataflow->variables;
     }
 
+    /**
+     * Returns the referenced dataflow of this step, otherwise initialises one
+     *
+     * @return dataflow
+     */
+    public function get_dataflow(): dataflow {
+        if (!isset($this->dataflow)) {
+            $dataflow = new dataflow($this->dataflowid);
+            $this->set_dataflow($dataflow);
+        }
+        return $this->dataflow;
+    }
+
+    /**
+     * Returns the step type associated with this step
+     */
     public function get_steptype() {
         $classname = $this->type;
         return new $classname();
