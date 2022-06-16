@@ -336,7 +336,7 @@ class step extends persistent {
         $this->alias = $stepdata['id'];
 
         // Set the config as a valid YAML string.
-        $this->config = isset($stepdata['config']) ? Yaml::dump($stepdata['config']) : '';
+        $this->config = isset($stepdata['config']) ? Yaml::dump($stepdata['config'], 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK) : '';
 
         // Set up the dependencies, connected to each other via their step aliases.
         if (!empty($stepdata['depends_on'])) {
@@ -677,6 +677,6 @@ class step extends persistent {
         $config->{$name} = $value;
 
         // Updates the stored config.
-        $this->config = Yaml::dump((array) $config);
+        $this->config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
     }
 }

@@ -284,6 +284,8 @@ abstract class base_step {
             }
 
             $config[$fieldname] = $data->{$datafield};
+            // Use '\n' instead of '\r\n' for new lines to allow YAML multi-line literals to work.
+            $config[$fieldname] = str_replace("\r\n", "\n", $config[$fieldname]);
             unset($data->{$datafield});
         }
 
@@ -292,7 +294,7 @@ abstract class base_step {
             $inline = 4;
             // 2 spaces per level of indentation.
             $indent = 2;
-            $data->config = Yaml::dump($config, $inline, $indent);
+            $data->config = Yaml::dump($config, $inline, $indent, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
         }
 
         return $data;
