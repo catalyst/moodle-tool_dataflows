@@ -76,7 +76,7 @@ class reader_sql extends reader_step {
     protected function construct_query(): string {
         $config = $this->enginestep->stepdef->config;
 
-        $rawsql = $config->sql;
+        $rawsql = trim($config->sql);
         // Parses the query, removing any optional blocks which cannot be resolved by the containing expression.
         preg_match_all(
             '/(?<fragmentwrapper>' .
@@ -94,12 +94,23 @@ class reader_sql extends reader_step {
         $finalsql = $rawsql;
         $parser = new parser();
         $variables = $this->enginestep->get_variables();
-        // echo"<pre>";print_r($variables['steps']->sql->config);die;
         try {
+            $errormsg = '';
             foreach ($matches as $match) {
                 // Check expression evaluation using the current config object
                 // first, then failing that, target the dataflow variables.
-                $value = $parser->evaluate_or_fail($match['expressionwrapper'], $variables);
+                $value = $parser->evaluate_or_fail(
+                    $match['expressionwrapper'],
+                    $variables,
+                    function ($message, $e = null) use ($config, &$errormsg) {
+                        if (isset($e)) {
+                            $errormsg = $message;
+                            throw $e;
+                        } else {
+                            $this->enginestep->log($message . " in the following query:\n{$config->sql}");
+                        }
+                    }
+                );
 
                 // If the expression cannot be evaluated (or evaluates to an empty
                 // string), then the query fragment is ignored entirely.
@@ -124,10 +135,13 @@ class reader_sql extends reader_step {
                 );
             }
         } catch (\Throwable $e) {
-            mtrace("in the following query:\n\n{$config->sql}\n");
+            $message = "in query:\n{$rawsql}";
+            if (!empty($errormsg)) {
+                $message = "$errormsg $message";
+            }
+            $this->enginestep->log($message);
             throw $e;
         }
-
 
         // Evalulate any remaining expressions as per normal.
         // NOTE: The expression statement itself MUST be on a single line (currently).

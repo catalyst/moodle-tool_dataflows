@@ -41,7 +41,7 @@ class parser {
      * @return     mixed
      */
     public function evaluate(string $expression, array $variables) {
-        return $this->internal_evaluator($expression, $variables, false);
+        return $this->internal_evaluator($expression, $variables, null);
     }
 
     /**
@@ -51,8 +51,8 @@ class parser {
      * @param      array $variables containing anything relevant to the evaluation of the result
      * @return     mixed
      */
-    public function evaluate_or_fail(string $expression, array $variables) {
-        return $this->internal_evaluator($expression, $variables, true);
+    public function evaluate_or_fail(string $expression, array $variables, $failcallback = null) {
+        return $this->internal_evaluator($expression, $variables, $failcallback);
     }
 
     /**
@@ -71,9 +71,10 @@ class parser {
      *
      * @param      string $string
      * @param      array $variables containing anything relevant to the evaluation of the result
+     * @param      ?callable $failcallback containing anything relevant to the evaluation of the result
      * @return     mixed
      */
-    private function internal_evaluator(string $string, array $variables, $throwonfail) {
+    private function internal_evaluator(string $string, array $variables, ?callable $failcallback) {
         // TODO: lint expressions before storing them. https://symfony.com/blog/new-in-symfony-5-1-expressionlanguage-validator
         $evaluatedexpression = $string;
         [$hasexpression, $matches] = $this->has_expression($string);
@@ -90,17 +91,16 @@ class parser {
                         $variables
                     );
                     error_reporting();
-                    if ($result === null && $throwonfail) {
-                        throw new \Exception('Could not evaluate the expression ${{ ' . $parsethis . ' }}');
+                    if ($result === null && $failcallback) {
+                        $failcallback('Could not evaluate the expression ${{ ' . $parsethis . ' }}');
                     }
                     // Set the evalulated expression to the one that passed through the expression language.
                     if (isset($result)) {
                         $evaluatedexpression = str_replace($match['expressionwrapper'], $result, $evaluatedexpression);
                     }
                 } catch (\Throwable $e) {
-                    if ($throwonfail) {
-                        mtrace("Issue: {$e->getMessage()}\nin the following string:\n\n$string\n");
-                        throw $e;
+                    if (isset($failcallback)) {
+                        $failcallback("{$e->getMessage()}. for expression $string", $e);
                     }
                     continue;
                 }
