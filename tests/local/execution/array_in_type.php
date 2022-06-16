@@ -39,8 +39,8 @@ class array_in_type extends reader_step {
     /** @var array The source. Place data here before use. */
     public static $source = [];
 
-    public function get_iterator(flow_engine_step $step): iterator {
-        return new php_iterator($step, new \ArrayIterator(self::$source));
+    public function get_iterator(): iterator {
+        return new php_iterator($this->enginestep, new \ArrayIterator(self::$source));
     }
 
     public function execute($input) {

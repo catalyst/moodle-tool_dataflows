@@ -81,14 +81,14 @@ class trigger_cron extends trigger_step {
      *
      * @param step $stepdef
      */
-    public function on_save(step $stepdef) {
+    public function on_save() {
         $newtime = scheduler::determine_next_scheduled_time(
-            $stepdef->config->timestr,
-            scheduler::get_last_scheduled_time($stepdef->dataflowid) ?: time()
+            $this->stepdef->config->timestr,
+            scheduler::get_last_scheduled_time($this->stepdef->dataflowid) ?: time()
         );
 
         scheduler::update_next_scheduled_time(
-            $stepdef->dataflowid,
+            $this->stepdef->dataflowid,
             $newtime
         );
     }
@@ -98,10 +98,10 @@ class trigger_cron extends trigger_step {
      *
      * @param step $stepdef
      */
-    public function on_delete(step $stepdef) {
+    public function on_delete() {
         global $DB;
 
-        $DB->delete_records(scheduler::TABLE, ['dataflowid' => $stepdef->dataflowid]);
+        $DB->delete_records(scheduler::TABLE, ['dataflowid' => $this->stepdef->dataflowid]);
     }
 
     /**

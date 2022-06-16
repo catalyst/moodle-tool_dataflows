@@ -129,8 +129,8 @@ class engine {
         // Create engine steps for each step in the dataflow.
         foreach ($dataflow->steps as $stepdef) {
             $classname = $stepdef->type;
-            $steptype = new $classname();
-            $this->enginesteps[$stepdef->id] = $steptype->get_engine_step($this, $stepdef);
+            $steptype = new $classname($stepdef, $this);
+            $this->enginesteps[$stepdef->id] = $steptype->get_engine_step();
         }
 
         // Create the links between engine step.
@@ -181,11 +181,11 @@ class engine {
         $flowcaps = 0;
         foreach ($this->enginesteps as $enginestep) {
             if ($enginestep->is_flow() && count($enginestep->downstreams) == 0) {
-                $steptype = new flow_cap();
                 $step = new \tool_dataflows\step();
+                $steptype = new flow_cap($step, $this);
                 $flowcaps++;
                 $step->name = "flowcap-{$flowcaps}";
-                $flowcap = $steptype->get_engine_step($this, $step);
+                $flowcap = $steptype->get_engine_step();
                 $this->flowcaps[] = $flowcap;
                 $enginestep->downstreams['puller'] = $flowcap;
                 $flowcap->upstreams[$enginestep->id] = $enginestep;

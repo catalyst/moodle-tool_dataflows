@@ -34,10 +34,9 @@ final class flow_cap extends flow_step {
      * Generates an engine step for this type.
      *
      * @param engine $engine
-     * @param \tool_dataflows\step $stepdef
      * @return engine_step
      */
-    public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
-        return new engine_flow_cap($engine, $stepdef, $this);
+    protected function generate_engine_step(engine $engine): engine_step {
+        return new engine_flow_cap($engine, $this->stepdef, $this);
     }
 }

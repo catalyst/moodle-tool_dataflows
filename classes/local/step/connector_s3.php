@@ -52,13 +52,11 @@ class connector_s3 extends connector_step {
      *
      * This will take the input and perform S3 interaction functions.
      *
-     * @param engine_step $enginestep the execution engine parent step context
      * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(engine_step $enginestep): bool {
+    public function execute(): bool {
         global $CFG;
         // Engine step contains the execution context, configuration, variables etc.
-        $this->enginestep = $enginestep;
 
         try {
             // Only autoload the AWS SDK at runtime.
