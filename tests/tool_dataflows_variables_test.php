@@ -139,6 +139,12 @@ class tool_dataflows_variables_test extends \advanced_testcase {
 
     /**
      * Test variables being set within a dataflow engine run, at different scopes
+     *
+     * @covers \tool_dataflows\local\execution\engine_step::set_var
+     * @covers \tool_dataflows\local\execution\engine_step::set_global_var
+     * @covers \tool_dataflows\local\execution\engine_step::set_dataflow_var
+     * @covers \tool_dataflows\local\execution\engine::set_global_var
+     * @covers \tool_dataflows\local\execution\engine::set_dataflow_var
      */
     public function test_variables_set_at_different_scopes() {
         global $DB;

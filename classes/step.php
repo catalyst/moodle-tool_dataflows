@@ -41,12 +41,6 @@ class step extends persistent {
     /** @var \stdClass of engine step states and timestamps */
     private $states;
 
-    /** @var dataflow this step is connected to. Note: not always set. */
-    // private $dataflow;
-
-    /** @var bool whether it is currently parsing expressions */
-    public $isparsing = false;
-
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      */
@@ -381,7 +375,9 @@ class step extends persistent {
         $this->alias = $stepdata['id'];
 
         // Set the config as a valid YAML string.
-        $this->config = isset($stepdata['config']) ? Yaml::dump($stepdata['config'], 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK) : '';
+        $this->config = isset($stepdata['config'])
+            ? Yaml::dump($stepdata['config'], 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK)
+            : '';
 
         // Set up the dependencies, connected to each other via their step aliases.
         if (!empty($stepdata['depends_on'])) {

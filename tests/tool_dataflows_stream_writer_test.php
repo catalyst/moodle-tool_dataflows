@@ -46,7 +46,8 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
     /**
      * Test the stream writer with json formatting.
      *
-     * @dataProvider test_writer_data_provider
+     * @covers \tool_dataflows\local\step\writer_step
+     * @dataProvider data_provider
      * @param $inputdata
      */
     public function test_writer_json($inputdata, $isdryrun) {
@@ -96,7 +97,7 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function test_writer_data_provider(): array {
+    public function data_provider(): array {
         return [
             [[['a' => 1, 'b' => 2, 'c' => 3], ['a' => 4, 'b' => 5, 'c' => 6]], false],
             [[['a' => 1], ['b' => 5], ['c' => 6]], true],

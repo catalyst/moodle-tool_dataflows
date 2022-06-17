@@ -43,8 +43,6 @@ class dataflow extends persistent {
     /** @var steps[] cache of steps connected to this dataflow */
     private $stepscache = [];
 
-    public $rlevel = 0;
-
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      */
