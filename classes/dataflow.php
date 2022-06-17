@@ -150,15 +150,19 @@ class dataflow extends persistent {
 
         $variables = ['steps' => $steps];
 
-        $placeholder = 'PLACEHOLDER';
+        $placeholder = '__PLACEHOLDER__';
         $max = 100;
         $foundexpression = true;
-        $cnr = [];
+        $counter = [];
         while ($foundexpression && $max) {
             $max--;
             $foundexpression = false;
             foreach ($steps as &$step) {
-                foreach ($step->config ?? [] as &$field) {
+                foreach ($step->config ?? [] as $key => &$field) {
+                    if (!isset($field)) {
+                        continue;
+                    }
+
                     [$hasexpression] = $parser->has_expression($field);
                     if ($hasexpression) {
                         $foundexpression = true;
@@ -166,15 +170,13 @@ class dataflow extends persistent {
                         $field = $placeholder;
                         $resolved = $parser->evaluate($fieldvalue, $variables);
                         if ($resolved === $placeholder) {
-                            echo"<pre>";print_r('Seems like an self reference loop bruv');die;
-                            // echo"<pre>";print_r([$fieldvalue, $variables]);die;
+                            $link = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $step->id]);
+                            throw new \moodle_exception('recursiveexpressiondetected', 'tool_dataflows', $link, ['field' => $key, 'steptype' => $step->type]);
                         }
                         if ($resolved !== $fieldvalue) {
                             [$hasexpression] = $parser->has_expression($resolved);
                             if ($hasexpression) {
-                                $cnr[$resolved] = ($cnr[$resolved] ?? 0) + 1;
-                                // echo"<pre>";print_r([$max, $steps]);
-                                // echo "Could not resolve $resolved\n";
+                                $counter[$resolved] = ($counter[$resolved] ?? 0) + 1;
                             }
                         }
                         if (isset($resolved)) {
@@ -182,16 +184,10 @@ class dataflow extends persistent {
                         } else {
                             $field = $fieldvalue;
                         }
-                        // echo"<pre>";print_r($fieldvalue);die;
-                        // echo"<pre>";print_r($field);die;
                     }
                 }
             }
-            // sleep(1);
-            // echo "1";
         }
-            // echo"<pre>";print_r([$cnr, $steps]);
-        // die;
 
         // Test reading a value directly.
         $variables = [
