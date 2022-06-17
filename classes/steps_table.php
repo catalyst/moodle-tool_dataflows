@@ -41,7 +41,7 @@ class steps_table extends \table_sql {
     ];
 
     const NOSORT_COLUMNS = [
-        'manage',
+        'actions',
         'dependson',
     ];
 
@@ -53,7 +53,7 @@ class steps_table extends \table_sql {
     protected function get_columns(): array {
         $columns = self::COLUMNS;
         if (!$this->is_downloading()) {
-            $columns[] = 'manage';
+            $columns[] = 'actions';
         }
         return $columns;
     }
@@ -173,7 +173,7 @@ class steps_table extends \table_sql {
      * @param \stdClass $record
      * @return string
      */
-    public function col_manage(\stdClass $record): string {
+    public function col_actions(\stdClass $record): string {
         global $OUTPUT;
 
         // Display the remove_step button.
