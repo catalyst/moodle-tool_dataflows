@@ -131,10 +131,12 @@ class dataflow extends persistent {
     public function get_variables(): array {
         $globalconfig = Yaml::parse(get_config('tool_dataflows', 'config'), Yaml::PARSE_OBJECT_FOR_MAP) ?: new \stdClass;
 
+        // Prepare the list of variables available from each step.
         $steps = [];
         foreach ($this->steps as $key => $step) {
             $steps[$key] = $step->get_export_data();
             $steps[$key]['alias'] = $key;
+            $steps[$key]['states'] = $step->states;
         }
         foreach ($steps as &$step) {
             foreach ($step as &$field) {
@@ -171,7 +173,12 @@ class dataflow extends persistent {
                         $resolved = $parser->evaluate($fieldvalue, $variables);
                         if ($resolved === $placeholder) {
                             $link = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $step->id]);
-                            throw new \moodle_exception('recursiveexpressiondetected', 'tool_dataflows', $link, ['field' => $key, 'steptype' => $step->type]);
+                            throw new \moodle_exception(
+                                'recursiveexpressiondetected',
+                                'tool_dataflows',
+                                $link,
+                                ['field' => $key, 'steptype' => $step->type]
+                            );
                         }
                         if ($resolved !== $fieldvalue) {
                             [$hasexpression] = $parser->has_expression($resolved);
@@ -197,7 +204,6 @@ class dataflow extends persistent {
                 'DATAFLOW_RUN_NUMBER' => 0,
             ],
             'dataflow' => $this,
-            // 'steps' => $this->steps,
             'steps' => $steps
         ];
         return $variables;

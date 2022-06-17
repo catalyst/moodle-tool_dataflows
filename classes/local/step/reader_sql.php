@@ -73,9 +73,9 @@ class reader_sql extends reader_step {
      * @throws \moodle_exception
      */
     protected function construct_query(): string {
-        $config = $this->enginestep->stepdef->config;
+        $variables = $this->enginestep->get_variables();
+        $rawsql = trim($variables['step']->config->sql);
 
-        $rawsql = trim($config->sql);
         // Parses the query, removing any optional blocks which cannot be resolved by the containing expression.
         preg_match_all(
             '/(?<fragmentwrapper>' .
@@ -92,7 +92,6 @@ class reader_sql extends reader_step {
         // Remove all optional fragments from the raw sql, unless the expressed values are available.
         $finalsql = $rawsql;
         $parser = new parser();
-        $variables = $this->enginestep->get_variables();
         try {
             $errormsg = '';
             foreach ($matches as $match) {
@@ -101,12 +100,12 @@ class reader_sql extends reader_step {
                 $value = $parser->evaluate_or_fail(
                     $match['expressionwrapper'],
                     $variables,
-                    function ($message, $e = null) use ($config, &$errormsg) {
+                    function ($message, $e = null) use ($rawsql, &$errormsg) {
                         if (isset($e)) {
                             $errormsg = $message;
                             throw $e;
                         } else {
-                            $this->enginestep->log($message . " in the following query:\n{$config->sql}");
+                            $this->enginestep->log($message . " in the following query:\n{$rawsql}");
                         }
                     }
                 );
@@ -144,7 +143,10 @@ class reader_sql extends reader_step {
 
         // Evalulate any remaining expressions as per normal.
         // NOTE: The expression statement itself MUST be on a single line (currently).
-        $finalsql = $parser->evaluate_or_fail($finalsql, $variables);
+        $finalsql = $parser->evaluate_or_fail($finalsql, $variables, function ($message, $e) {
+            $this->enginestep->log($message);
+            throw $e;
+        });
         return $finalsql;
     }
 
@@ -199,9 +201,24 @@ class reader_sql extends reader_step {
         // Check the config for the counterfield.
         $config = $this->enginestep->stepdef->config;
         $counterfield = $config->counterfield ?? null;
-        if (!empty($counterfield)) {
-            // Updates the countervalue based on the current counterfield value.
-            $this->enginestep->set_var('countervalue', $value->{$counterfield});
+
+        if (isset($counterfield)) {
+            $parser = new parser();
+            [$hasexpression] = $parser->has_expression($counterfield);
+            if ($hasexpression) {
+                $resolvedcounterfield = $parser->evaluate(
+                    $counterfield,
+                    $this->enginestep->get_variables()
+                );
+                $counterfield = null;
+                if ($resolvedcounterfield !== $counterfield) {
+                    $counterfield = $resolvedcounterfield;
+                }
+            }
+            if (!empty($counterfield)) {
+                // Updates the countervalue based on the current counterfield value.
+                $this->enginestep->set_var('countervalue', $value->{$counterfield});
+            }
         }
 
         return $value;

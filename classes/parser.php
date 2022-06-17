@@ -41,7 +41,9 @@ class parser {
      * @return     mixed
      */
     public function evaluate(string $expression, array $variables) {
-        return $this->internal_evaluator($expression, $variables, null);
+        return $this->internal_evaluator($expression, $variables, function () {
+            // Do nothing.
+        });
     }
 
     /**
@@ -75,7 +77,7 @@ class parser {
      * @return     mixed
      */
     private function internal_evaluator(string $string, array $variables, ?callable $failcallback) {
-        // TODO: lint expressions before storing them. https://symfony.com/blog/new-in-symfony-5-1-expressionlanguage-validator
+        // TODO: lint expressions before storing them. https://symfony.com/blog/new-in-symfony-5-1-expressionlanguage-validator .
         $evaluatedexpression = $string;
         [$hasexpression, $matches] = $this->has_expression($string);
         if ($hasexpression) {
@@ -91,8 +93,12 @@ class parser {
                         $variables
                     );
                     error_reporting();
-                    if ($result === null && $failcallback) {
-                        $failcallback('Could not evaluate the expression ${{ ' . $parsethis . ' }}');
+                    if ($result === null) {
+                        if ($failcallback) {
+                            $failcallback('Could not evaluate the expression ${{ ' . $parsethis . ' }}');
+                        } else {
+                            throw new \Exception('Could not evaluate the expression ${{ ' . $parsethis . ' }}');
+                        }
                     }
                     // Set the evalulated expression to the one that passed through the expression language.
                     if (isset($result)) {
@@ -101,6 +107,8 @@ class parser {
                 } catch (\Throwable $e) {
                     if (isset($failcallback)) {
                         $failcallback("{$e->getMessage()}. for expression $string", $e);
+                    } else {
+                        throw $e;
                     }
                     continue;
                 }

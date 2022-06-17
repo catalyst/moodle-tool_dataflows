@@ -82,7 +82,9 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
 
         // Execute.
         $engine = new engine($dataflow);
+        ob_start();
         $engine->execute();
+        ob_get_clean();
 
         $this->assertEquals(json_encode(array_in_type::$source), json_encode(array_out_type::$dest));
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);

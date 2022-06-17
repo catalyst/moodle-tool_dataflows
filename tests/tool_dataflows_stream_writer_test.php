@@ -75,7 +75,9 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
 
         // Execute.
         $engine = new engine($dataflow, $isdryrun);
+        ob_start();
         $engine->execute();
+        ob_get_clean();
 
         if ($isdryrun) {
             // Dry runs should produce no output.

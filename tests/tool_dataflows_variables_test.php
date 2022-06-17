@@ -46,7 +46,10 @@ class tool_dataflows_variables_test extends \advanced_testcase {
     }
 
     /**
-     * TODO: later add tests for indirect self recursion (and fail gracefully).
+     * Test self referencing variables, (but with valid and complete values)
+     *
+     * @covers \tool_dataflows\dataflow::get_variables
+     * @covers \tool_dataflows\local\execution\engine::get_variables
      */
     public function test_variable_parsing_involving_self_recursion() {
         // Create the dataflow.
@@ -83,7 +86,10 @@ class tool_dataflows_variables_test extends \advanced_testcase {
     }
 
     /**
-     * TODO: later add tests for indirect self recursion (and fail gracefully).
+     * Testing for indirect self recursion, e.g. interdependant steps, one expected to pass, one expected to fail.
+     *
+     * @covers \tool_dataflows\dataflow::get_variables
+     * @covers \tool_dataflows\local\execution\engine::get_variables
      */
     public function test_variable_parsing_involving_indirect_self_recursion() {
         // Create the dataflow.
@@ -97,7 +103,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
 
         // Set the SQL query via a YAML config string.
         $reader->config = Yaml::dump([
-            'sql' => 'select ${{ steps.reader.config.something + steps.reader.config.countervalue }}',
+            'sql' => 'select ${{ steps.reader.config.countervalue }}',
             'countervalue' => '${{ steps.reader.config.counterfield + steps.reader.config.counterfield }}',
             'something' => '${{ steps.writer.config.varb }}',
             'counterfield' => '${{ steps.reader.config.something + 10 }}',
@@ -108,29 +114,27 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $writer->name = 'writer';
         $writer->type = 'tool_dataflows\local\step\writer_debugging';
         $writer->config = Yaml::dump([
-            // 'vara' => '1', // This is a valid entry.
-            // 'vara' => '${{ steps.reader.config.something }}', // This is not, since it references something in a loop.
             'vara' => '${{ steps.writer.config.varc }}', // This is not, since it references something in a loop.
             'varb' => '${{ steps.writer.config.vara }}',
-            // 'varc' => '1',
             'varc' => '${{ steps.existnope.config.vara + steps.existnope.config.varb }}',
         ]);
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);
+        $dataflow->enabled = true;
 
         // Init the engine.
         $engine = new engine($dataflow);
-        $variables = $engine->get_variables();
 
-        $expressionlanguage = new ExpressionLanguage();
-        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.something', $variables);
-        $this->assertEquals(1, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.counterfield', $variables);
-        $this->assertEquals(11, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.countervalue', $variables);
-        $this->assertEquals(11 * 2, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.sql', $variables);
-        $this->assertEquals('select 23', $expressedvalue);
+        // Expecting it to throw an exception during execution, particularly
+        // when preparing the SQL and finding out it contains an unparsed
+        // expression.
+        $this->expectError();
+        try {
+            ob_start();
+            $engine->execute();
+        } finally {
+            ob_get_clean();
+        }
     }
 
     /**
@@ -198,7 +202,9 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         execution\reader_sql_variable_setter::$dataflowvar = $dataflowvalue;
         execution\reader_sql_variable_setter::$globalvar = $globalvalue;
         // Execute.
+        ob_start();
         $engine->execute();
+        ob_get_clean();
         $this->assertDebuggingCalledCount(5);
 
         // Check expected after state.
