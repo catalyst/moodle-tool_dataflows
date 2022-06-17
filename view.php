@@ -60,10 +60,9 @@ $table->make_columns();
 
 // Configure the breadcrumb navigation.
 $dataflow = new dataflow($id);
-visualiser::breadcrumb_navigation([
-    // Dataflows > Manage Flows > :dataflow->name (details page).
-    [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
-    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id])],
-]);
+
+// Add the current page to the breadcrumb trail.
+// We are unable to use breadcrumb_navigation() here because admin_externalpage_setup() already sets up a breadcrumb trail.
+$PAGE->navbar->add($dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id]));
 
 visualiser::display_steps_table($id, $table, $url, get_string('steps', 'tool_dataflows'));
