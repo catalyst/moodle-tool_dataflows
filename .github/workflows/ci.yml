@@ -5,7 +5,7 @@ on: [push, pull_request]
 
 jobs:
   ci:
-    uses: catalyst/catalyst-moodle-workflows/.github/workflows/ci.yml@main
+    uses: catalyst/catalyst-moodle-workflows/.github/workflows/ci.yml@fix-release-input-handling
     #secrets:
       # Required if you plan to publish (uncomment the below)
       # moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}
