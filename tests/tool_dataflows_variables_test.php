@@ -26,6 +26,7 @@ use tool_dataflows\local\execution;
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/local/execution/reader_sql_variable_setter.php');
+require_once(__DIR__ . '/application_trait.php');
 
 /**
  * Unit tests for dataflow variables and setting them via the dataflow engine.
@@ -36,6 +37,7 @@ require_once(__DIR__ . '/local/execution/reader_sql_variable_setter.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_variables_test extends \advanced_testcase {
+    use application_trait;
 
     /**
      * Set up before each test
@@ -55,6 +57,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Create the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'readwrite';
+        $dataflow->enabled = true;
         $dataflow->save();
 
         $reader = new step();
@@ -69,6 +72,12 @@ class tool_dataflows_variables_test extends \advanced_testcase {
             'something' => '1',
         ]);
         $dataflow->add_step($reader);
+
+        $writer = new step();
+        $writer->name = 'do-nothing-writer';
+        $writer->type = 'tool_dataflows\local\step\writer_debugging';
+        $writer->depends_on([$reader]);
+        $dataflow->add_step($writer);
 
         // Init the engine.
         $engine = new engine($dataflow);
@@ -128,7 +137,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Expecting it to throw an exception during execution, particularly
         // when preparing the SQL and finding out it contains an unparsed
         // expression.
-        $this->expectError();
+        $this->compatible_expectError();
         try {
             ob_start();
             $engine->execute();
