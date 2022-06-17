@@ -45,7 +45,7 @@ trait exportable {
         $inline = 4;
         // 2 spaces per level of indentation.
         $indent = 2;
-        $contents = Yaml::dump($this->get_export_data(), $inline, $indent);
+        $contents = Yaml::dump($this->get_export_data(), $inline, $indent, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
 
         return $contents;
     }

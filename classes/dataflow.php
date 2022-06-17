@@ -492,7 +492,7 @@ class dataflow extends persistent {
      */
     public function import(array $yaml) {
         $this->name = $yaml['name'] ?? '';
-        $this->config = isset($yaml['config']) ? Yaml::dump($yaml['config']) : '';
+        $this->config = isset($yaml['config']) ? Yaml::dump($yaml['config'], 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK) : '';
         $this->save();
 
         // Import any provided steps.
@@ -559,6 +559,6 @@ class dataflow extends persistent {
         $config->{$name} = $value;
 
         // Updates the stored config.
-        $this->config = Yaml::dump((array) $config);
+        $this->config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
     }
 }
