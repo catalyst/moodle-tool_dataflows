@@ -529,9 +529,9 @@ class dataflow extends persistent {
      */
     public function add_step(step $step) {
         $step->dataflowid = $this->id;
-        // $step->set_dataflow($this);
+        $step->set_dataflow($this);
         $step->upsert();
-        // $this->stepscache[$step->id] = $step;
+        $this->stepscache[$step->id] = $step;
         return $this;
     }
 
