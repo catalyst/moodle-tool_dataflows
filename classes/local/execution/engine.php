@@ -382,7 +382,7 @@ class engine {
         $config->{$name} = $value;
 
         // Updates the stored config.
-        $config = Yaml::dump((array) $config);
+        $config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
         $this->log("Setting global '$name' to '$value' (from '{$previous}')");
         set_config('config', $config, 'tool_dataflows');
     }
@@ -409,7 +409,9 @@ class engine {
             $this->log('status: ' . self::STATUS_LABELS[$status] . ', config: ' . json_encode(['isdryrun' => $this->isdryrun]));
         } else if ($status === self::STATUS_FINALISED) {
             $this->log('status: ' . self::STATUS_LABELS[$status]);
-            $this->log("dumping state..\n" . json_encode($this->get_variables(), JSON_PRETTY_PRINT));
+            $cleanvariables = json_decode(json_encode($this->get_variables()), true);
+            $variabledump = Yaml::dump($cleanvariables, 4, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+            $this->log("dumping state..\n" . $variabledump);
         } else {
             $this->log('status: ' . self::STATUS_LABELS[$status]);
         }
