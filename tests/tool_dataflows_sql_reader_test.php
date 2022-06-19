@@ -172,6 +172,9 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         // Reload the step from the DB, the counter value should be updated.
         $reader->read();
         $this->assertEquals(3, $reader->config->countervalue);
+
+        // Repeat.
+        $engine = new engine($dataflow);
         $engine->execute();
         $this->assertDebuggingCalledCount(3);
         // Reload the step from the DB, the counter value should be updated again.

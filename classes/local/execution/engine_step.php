@@ -94,6 +94,7 @@ abstract class engine_step {
      */
     public function finalise() {
         $this->set_status(engine::STATUS_FINALISED);
+        $this->steptype->on_finalise();
     }
 
     /**

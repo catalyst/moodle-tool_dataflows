@@ -19,6 +19,7 @@ namespace tool_dataflows\local\step;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
+use tool_dataflows\step;
 
 /**
  * Base class for steps
@@ -354,5 +355,27 @@ abstract class base_step {
      */
     public function is_field_valid(string $fieldname): bool {
         return isset(static::form_define_fields()[$fieldname]);
+    }
+
+    /**
+     * Hook function that gets called when a step has been saved.
+     *
+     * @param step $stepdef
+     */
+    public function on_save(step $stepdef) {
+    }
+
+    /**
+     * Hook function that gets called when a step is deleted.
+     *
+     * @param step $stepdef
+     */
+    public function on_delete(step $stepdef) {
+    }
+
+    /**
+     * Hook function that gets called when an engine step has been finalised.
+     */
+    public function on_finalise() {
     }
 }

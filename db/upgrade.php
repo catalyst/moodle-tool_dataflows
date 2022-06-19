@@ -55,5 +55,27 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022052303, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2022061500) {
+
+        $table = new xmldb_table('tool_dataflows_schedule');
+
+        // Adding fields to table tool_dataflows_schedule.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('dataflowid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timelastscheduledrun', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timenextscheduledrun', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table tool_dataflows_schedule.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('dataflowid', XMLDB_KEY_UNIQUE, array('dataflowid'));
+
+        // Conditionally launch create table for tool_dataflows_schedule.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022061500, 'tool', 'dataflows');
+    }
     return true;
 }

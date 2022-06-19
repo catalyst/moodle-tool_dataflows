@@ -16,6 +16,12 @@
 
 namespace tool_dataflows\task;
 
+use tool_dataflows\dataflow;
+use tool_dataflows\manager;
+use tool_dataflows\local\execution\engine;
+use tool_dataflows\local\scheduler;
+use tool_dataflows\local\step\trigger_cron;
+
 /**
  * Process queued dataflows.
  *
@@ -39,6 +45,18 @@ class process_dataflows extends \core\task\scheduled_task {
      * Processes dataflows.
      */
     public function execute() {
-        // TODO: Process dataflows.
+        $dataflowids = scheduler::get_due_dataflows();
+        foreach ($dataflowids as $id) {
+            try {
+                $dataflow = new dataflow($id);
+                if ($dataflow->enabled) {
+                    mtrace("Running dataflow $dataflow->name (ID: $id), time due: " . scheduler::get_next_scheduled_time($id));
+                    $engine = new engine($dataflow, false);
+                    $engine->execute();
+                }
+            } catch (\Throwable $thrown) {
+                mtrace("Dataflow run failed for ID: $id, " . $thrown->getMessage());
+            }
+        }
     }
 }
