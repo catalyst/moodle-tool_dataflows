@@ -29,6 +29,7 @@ use tool_dataflows\dataflow;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -36,9 +37,9 @@ require_login();
 
 $id = required_param('id', PARAM_INT);
 
-admin_externalpage_setup('tool_dataflows_overview', '', null, '', ['pagelayout' => 'report']);
-
 $context = context_system::instance();
+$PAGE->set_context($context);
+$PAGE->set_url($url);
 
 // Check for caps.
 require_capability('tool/dataflows:managedataflows', $context);
@@ -60,9 +61,9 @@ $table->make_columns();
 
 // Configure the breadcrumb navigation.
 $dataflow = new dataflow($id);
-
-// Add the current page to the breadcrumb trail.
-// We are unable to use breadcrumb_navigation() here because admin_externalpage_setup() already sets up a breadcrumb trail.
-$PAGE->navbar->add($dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id]));
-
+visualiser::breadcrumb_navigation([
+    // Dataflows > Manage Flows > :dataflow->name (details page).
+    [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
+    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id])],
+]);
 visualiser::display_steps_table($id, $table, $url, get_string('steps', 'tool_dataflows'));

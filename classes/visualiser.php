@@ -171,11 +171,6 @@ class visualiser {
     public static function display_steps_table(int $dataflowid, steps_table $table, \moodle_url $url, string $pageheading) {
         global $PAGE;
 
-        $context = \context_system::instance();
-
-        $PAGE->set_context($context);
-        $PAGE->set_url($url);
-
         $output = $PAGE->get_renderer('tool_dataflows');
         $pluginname = get_string('pluginname', 'tool_dataflows');
 
