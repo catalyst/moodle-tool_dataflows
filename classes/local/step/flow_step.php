@@ -63,12 +63,10 @@ abstract class flow_step extends base_step {
      * This should be sufficient for most cases. Override this function if needed.
      *
      * @param engine $engine
-     * @param \tool_dataflows\step $stepdef
      * @return engine_step
      */
-    public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step {
-        $this->enginestep = new flow_engine_step($engine, $stepdef, $this);
-        return $this->enginestep;
+    protected function generate_engine_step(engine $engine): engine_step {
+        return new flow_engine_step($engine, $this->stepdef, $this);
     }
 
     /**
@@ -77,13 +75,13 @@ abstract class flow_step extends base_step {
      * @param flow_engine_step $step
      * @return iterator
      */
-    public function get_iterator(flow_engine_step $step): iterator {
+    public function get_iterator(): iterator {
         // Default is to simply map.
-        $upstream = current($step->upstreams);
+        $upstream = current($this->enginestep->upstreams);
         if ($upstream === false || !$upstream->is_flow()) {
             throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
         }
-        return new map_iterator($step, $upstream->iterator);
+        return new map_iterator($this->enginestep, $upstream->iterator);
     }
 
     /**

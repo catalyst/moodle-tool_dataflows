@@ -47,13 +47,12 @@ class reader_sql extends reader_step {
     /**
      * Get the iterator for the step, based on configurations.
      *
-     * @param flow_engine_step $step
      * @return iterator
      * @throws \moodle_exception
      */
-    public function get_iterator(flow_engine_step $step): iterator {
+    public function get_iterator(): iterator {
         $query = $this->construct_query();
-        return new class($step, $query) extends php_iterator {
+        return new class($this->enginestep, $query) extends php_iterator {
 
             public function __construct(flow_engine_step $step, string $query) {
                 global $DB;

@@ -31,8 +31,10 @@ use tool_dataflows\step;
  */
 abstract class base_step {
 
-    /** @var engine_step */
-    protected $enginestep;
+    /** @var engine_step Engine step made by this class for an execution. */
+    protected $enginestep = null;
+    /** @var step The step definition use to create the engien step.  */
+    protected $stepdef = null;
 
     /**
      * This is autopopulated by the dataflows manager.
@@ -57,6 +59,20 @@ abstract class base_step {
 
     /** @var bool whether or not this step type (potentially) contains a side effect or not */
     protected $hassideeffect = false;
+
+    /**
+     * @param step|null $stepdef A stepdef of this type. Pass null if step type is to be used without a context.
+     * @param engine|null $engine An engine that is to execute the step of this type. stepdef must be defined. Leave as null if not in an execution.
+     */
+    public function __construct(?step $stepdef = null, ?engine $engine = null) {
+        $this->stepdef = $stepdef;
+        if (!is_null($engine)) {
+            if (is_null($stepdef)) {
+                throw new \moodle_exception('must_have_a_step_def_defined', '', 'tool_dataflows');
+            }
+            $this->enginestep = $this->generate_engine_step($engine);
+        }
+    }
 
     /**
      * Returns whether or not the step configured, has a side effect
@@ -306,11 +322,19 @@ abstract class base_step {
      *
      * This should be sufficient for most cases. Override this function if needed.
      *
-     * @param engine $engine
-     * @param \tool_dataflows\step $stepdef
      * @return engine_step
      */
-    abstract public function get_engine_step(engine $engine, \tool_dataflows\step $stepdef): engine_step;
+    final public function get_engine_step(): engine_step {
+        return $this->enginestep;
+    }
+
+    /**
+     * Generate the engine step for the step type.
+     *
+     * @param engine $engine
+     * @return engine_step
+     */
+    abstract protected function generate_engine_step(engine $engine): engine_step;
 
     /**
      * Returns the group (string) this step type is categorised under.
@@ -362,7 +386,7 @@ abstract class base_step {
      *
      * @param step $stepdef
      */
-    public function on_save(step $stepdef) {
+    public function on_save() {
     }
 
     /**
@@ -370,7 +394,7 @@ abstract class base_step {
      *
      * @param step $stepdef
      */
-    public function on_delete(step $stepdef) {
+    public function on_delete() {
     }
 
     /**

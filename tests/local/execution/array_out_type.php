@@ -35,9 +35,9 @@ class array_out_type extends writer_step {
     /** @var array The output array that the dat is written into. Make sure it is empty before use. */
     public static $dest = [];
 
-    public function get_iterator(flow_engine_step $step): iterator {
-        $input = current($step->upstreams)->iterator;
-        return new map_iterator($step, $input);
+    public function get_iterator(): iterator {
+        $input = current($this->enginestep->upstreams)->iterator;
+        return new map_iterator($this->enginestep, $input);
     }
 
     public function execute($input) {

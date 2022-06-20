@@ -35,10 +35,9 @@ class connector_curl extends connector_step {
      *
      * TODO: This will perform a curl call
      *
-     * @param engine_step $enginestep the execution engine parent step context
      * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(engine_step $enginestep): bool {
+    public function execute(): bool {
         // TODO: Implement.
         return true;
     }

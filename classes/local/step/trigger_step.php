@@ -49,26 +49,24 @@ abstract class trigger_step extends connector_step {
      * example if the event doesn't contain the expected fields, then it would
      * return false potentially.
      *
-     * @param engine_step $enginestep the execution engine parent step context
      * @return true for now, since this will be configured differently per step
      */
-    public function execute(engine_step $enginestep): bool {
+    public function execute(): bool {
         return true;
     }
 
     /**
      * Get the iterator for the step, based on configurations.
      *
-     * @param flow_engine_step $step
      * @return iterator
      */
-    public function get_iterator(flow_engine_step $step): iterator {
+    public function get_iterator(): iterator {
         // Default is to simply map.
-        $upstream = current($step->upstreams);
+        $upstream = current($this->enginestep->upstreams);
         if ($upstream === false || !$upstream->is_flow()) {
             throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
         }
-        return new map_iterator($step, $upstream->iterator);
+        return new map_iterator($this->enginestep, $upstream->iterator);
     }
 
     /**

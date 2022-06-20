@@ -72,26 +72,25 @@ class writer_stream extends writer_step {
     /**
      * Get the iterator for the step, based on configurations.
      *
-     * @param flow_engine_step $step
      * @return iterator
      */
-    public function get_iterator(flow_engine_step $step): iterator {
-        $upstream = current($step->upstreams);
+    public function get_iterator(): iterator {
+        $upstream = current($this->enginestep->upstreams);
         if ($upstream === false || !$upstream->is_flow()) {
             throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
         }
 
-        $config = $step->stepdef->config;
+        $config = $this->enginestep->stepdef->config;
 
         // We make no output in a dry run.
-        if ($step->engine->isdryrun) {
-            return new map_iterator($step, $upstream->iterator);
+        if ($this->enginestep->engine->isdryrun) {
+            return new map_iterator($this->enginestep, $upstream->iterator);
         }
 
         /*
          * Iterator class to write out to the stream.
          */
-        return new class($step, $config->streamname, $config->format, $upstream->iterator) extends map_iterator {
+        return new class($this->enginestep, $config->streamname, $config->format, $upstream->iterator) extends map_iterator {
             /** @var resource stream handle. */
             private $handle;
             /** @var string name of the stream. */

@@ -145,7 +145,7 @@ class step extends persistent {
      */
     public function get_steptype() {
         $classname = $this->type;
-        return new $classname();
+        return new $classname($this);
     }
 
     /**
@@ -314,7 +314,7 @@ class step extends persistent {
         // Update the local dependencies to the database.
         $this->update_depends_on();
 
-        $this->steptype->on_save($this);
+        $this->steptype->on_save();
 
         return $this;
     }
@@ -408,7 +408,7 @@ class step extends persistent {
         $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
         $DB->delete_records('tool_dataflows_step_depends', ['dependson' => $this->id]);
 
-        $this->steptype->on_delete($this);
+        $this->steptype->on_delete();
 
     }
 
@@ -499,7 +499,7 @@ class step extends persistent {
     /**
      * Validates links, either input or output.
      *
-     * @param array $deps Dependencies or dependents, depending on $inputoutput.
+     * @param array $deps List of database records for dependencies or dependents, depending on $inputoutput.
      * @param string $inputoutput 'input' or 'output'.
      * @return array|bool true if the validataion suceeded. An array or errors otherwise.
      * @throws \coding_exception

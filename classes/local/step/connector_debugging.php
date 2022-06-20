@@ -32,10 +32,9 @@ class connector_debugging extends connector_step {
      *
      * This will logs the input via debugging and passes the input value as-is to the output.
      *
-     * @param engine_step $enginestep the execution engine parent step context
      * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(engine_step $enginestep): bool {
+    public function execute(): bool {
         // TODO: Reach in and output the result of an expression via a debugging call.
         return true;
     }
