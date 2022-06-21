@@ -225,6 +225,15 @@ class step extends persistent {
     }
 
     /**
+     * Return the raw config without parsing of expressions
+     *
+     * @return  \stdClass
+     */
+    public function get_raw_config(): \stdClass {
+        return $this->get_config(false);
+    }
+
+    /**
      * Sets the step's name
      *
      * Also sets the alias based on the new name, if the property is unset.

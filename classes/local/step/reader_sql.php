@@ -74,7 +74,8 @@ class reader_sql extends reader_step {
      */
     protected function construct_query(): string {
         $variables = $this->enginestep->get_variables();
-        $rawsql = trim($variables['step']->config->sql);
+        $rawconfig = $this->enginestep->stepdef->get_raw_config();
+        $rawsql = $rawconfig->sql;
 
         // Parses the query, removing any optional blocks which cannot be resolved by the containing expression.
         preg_match_all(
