@@ -18,7 +18,7 @@ namespace tool_dataflows\local\step;
 
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
-use tool_dataflows\local\execution\iterators\dude_iterator;
+use tool_dataflows\local\execution\iterators\dataflow_iterator;
 use tool_dataflows\manager;
 
 /**
@@ -84,13 +84,13 @@ class writer_stream extends writer_step {
 
         // We make no output in a dry run.
         if ($this->enginestep->engine->isdryrun) {
-            return new dude_iterator($this->enginestep, $upstream->iterator);
+            return new dataflow_iterator($this->enginestep, $upstream->iterator);
         }
 
         /*
          * Iterator class to write out to the stream.
          */
-        return new class($this->enginestep, $config->streamname, $config->format, $upstream->iterator) extends dude_iterator {
+        return new class($this->enginestep, $config->streamname, $config->format, $upstream->iterator) extends dataflow_iterator {
             /** @var resource stream handle. */
             private $handle;
             /** @var string name of the stream. */

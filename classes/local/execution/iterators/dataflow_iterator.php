@@ -24,10 +24,11 @@ use tool_dataflows\local\execution\flow_engine_step;
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2022, Catalyst IT
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright Catalyst IT, 2022
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class dude_iterator implements iterator {
+class dataflow_iterator implements iterator {
     protected $steptype;
     protected $finished = false;
     protected $input;

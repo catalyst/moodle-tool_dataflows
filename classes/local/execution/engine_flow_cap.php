@@ -35,7 +35,6 @@ class engine_flow_cap extends flow_engine_step {
         $status = parent::go();
 
         try {
-            $this->engine->log('go');
             if ($status === engine::STATUS_FLOWING) {
                 while (!$this->iterator->is_finished()) {
                     $this->iterator->next();
