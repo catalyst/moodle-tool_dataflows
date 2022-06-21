@@ -69,11 +69,18 @@ class reader_sql extends reader_step {
     /**
      * Constructs the SQL query from the configuration options.
      *
+     * Optional query fragments denoted by [[ ${{ expression }} ]], must have an
+     * expression linking to a variable / field that does NOT contain another
+     * expression as this is not currently supported.
+     *
      * @return string
      * @throws \moodle_exception
      */
     protected function construct_query(): string {
+        // Get variables.
         $variables = $this->enginestep->get_variables();
+
+        // Get raw SQL (because we need to know when to and when not to use the query fragments).
         $rawconfig = $this->enginestep->stepdef->get_raw_config();
         $rawsql = $rawconfig->sql;
 
@@ -91,8 +98,8 @@ class reader_sql extends reader_step {
             PREG_SET_ORDER);
 
         // Remove all optional fragments from the raw sql, unless the expressed values are available.
-        $finalsql = $rawsql;
         $parser = new parser();
+        $finalsql = $rawsql;
         try {
             $errormsg = '';
             foreach ($matches as $match) {
@@ -144,10 +151,17 @@ class reader_sql extends reader_step {
 
         // Evalulate any remaining expressions as per normal.
         // NOTE: The expression statement itself MUST be on a single line (currently).
-        $finalsql = $parser->evaluate_or_fail($finalsql, $variables, function ($message, $e) {
-            $this->enginestep->log($message);
-            throw $e;
-        });
+        $hasexpression = true;
+        $max = 5;
+        while ($hasexpression && $max) {
+            $finalsql = $parser->evaluate_or_fail($finalsql, $variables, function ($message, $e) {
+                $this->enginestep->log($message);
+                throw $e;
+            });
+            [$hasexpression] = $parser->has_expression($finalsql);
+            $max--;
+        }
+
         return $finalsql;
     }
 
