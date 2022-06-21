@@ -31,12 +31,6 @@ use tool_dataflows\local\execution\engine_step;
  */
 class trigger_cron extends trigger_step {
 
-    /** @var int[] number of output flows (min, max). */
-    protected $outputflows = [0, 1];
-
-    /** @var int[] number of output connectors (min, max). */
-    protected $outputconnectors = [0, 1];
-
     protected static function form_define_fields(): array {
         return [
             'timestr' => ['type' => PARAM_TEXT],
