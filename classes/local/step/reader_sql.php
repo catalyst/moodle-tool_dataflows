@@ -85,7 +85,7 @@ class reader_sql extends reader_step {
             '\${{(?<expression>.*)}}' .
             ').*' .   // End of expressionwrapper.
             ')\]\]' . // End of fragment.
-            ')/mU',   // End of fragment wrapper.
+            ')/msU',   // End of fragment wrapper.
             $rawsql,
             $matches,
             PREG_SET_ORDER);

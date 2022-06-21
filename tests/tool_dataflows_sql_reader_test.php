@@ -137,7 +137,9 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $sql = 'SELECT *
                   FROM {config_plugins}
                  WHERE plugin = \'' . $template['plugin'] . '\'
-                [[ AND CAST(value as int) > ${{countervalue}} ]]
+                [[
+                    AND CAST(value as int) > ${{countervalue}}
+                ]]
               ORDER BY CAST(value as int) ASC
                  LIMIT 3';
 
