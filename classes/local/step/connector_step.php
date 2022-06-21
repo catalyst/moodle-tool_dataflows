@@ -37,6 +37,9 @@ abstract class connector_step extends base_step {
     /** @var int[] number of output connectors (min, max) */
     protected $outputconnectors = [0, 1];
 
+    /** @var int[] number of output flows (min, max) */
+    protected $outputflows = [0, 1];
+
     /**
      * Perform the task required by this connector.
      *

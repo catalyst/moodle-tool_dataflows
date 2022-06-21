@@ -32,14 +32,8 @@ use tool_dataflows\local\execution\engine_step;
  */
 abstract class trigger_step extends connector_step {
 
-    /** @var int[] number of output flows (min, max). */
-    protected $outputflows = [0, 1];
-
     /** @var int[] number of input connectors (min, max) */
     protected $inputconnectors = [0, 0];
-
-    /** @var int[] number of output connectors (min, max). */
-    protected $outputconnectors = [0, 1];
 
     /**
      * Trigger step task
