@@ -76,8 +76,6 @@ try {
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 
-$PAGE->requires->css('/admin/tool/dataflows/css/step-summary.css');
-
 // Render the specific dataflow form.
 $customdata = [
     'persistent' => $persistent ?? null, // An instance, or null.
