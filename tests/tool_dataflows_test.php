@@ -472,6 +472,13 @@ class tool_dataflows_test extends \advanced_testcase {
         $this->assertTrue($step2->has_side_effect());
     }
 
+    /**
+     * Testing step link validation (flow + connectors)
+     *
+     * @covers \tool_dataflows\step::validate_inputs
+     * @covers \tool_dataflows\step::validate_outputs
+     * @covers \tool_dataflows\step::validate_links
+     */
     public function test_link_validation() {
         $dataflow = new dataflow();
 

@@ -89,8 +89,10 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $dataflow->add_step($writer);
 
         // Execute.
+        ob_start();
         $engine = new engine($dataflow);
         $engine->execute();
+        ob_get_clean();
         $this->assertDebuggingCalledCount(2, [json_encode($input[0]), json_encode($input[1])]);
     }
 
@@ -168,24 +170,32 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $dataflow->add_step($writer);
 
         // Execute.
+        ob_start();
         $engine = new engine($dataflow);
         $engine->execute();
+        ob_get_clean();
         $this->assertDebuggingCalledCount(3);
         // Reload the step from the DB, the counter value should be updated.
         $reader->read();
         $this->assertEquals(3, $reader->config->countervalue);
 
         // Repeat.
+        ob_start();
         $engine = new engine($dataflow);
         $engine->execute();
+        ob_get_clean();
+
         $this->assertDebuggingCalledCount(3);
         // Reload the step from the DB, the counter value should be updated again.
         $reader->read();
         $this->assertEquals(6, $reader->config->countervalue);
 
         // Recreate the engine and rerun the flow, it should be the same result.
+        ob_start();
         $engine = new engine($dataflow);
         $engine->execute();
+        ob_get_clean();
+
         $this->assertDebuggingCalledCount(3);
         // Reload the step from the DB, the counter value should be updated again.
         $reader->read();
@@ -194,18 +204,16 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
 
         // Now test out a dry-run, it should not persist anything, but everything else should appear as expected.
         $isdryrun = true;
+        ob_start();
         $engine = new engine($dataflow, $isdryrun);
         $engine->execute();
+        ob_get_clean();
+
         // Since there are only 10 records in total, this last batch should only yield one result.
         $this->assertDebuggingCalledCount(1);
         // Reload the step from the DB, the counter value should stay the same since it's a dry run.
         $reader->read();
         $this->assertEquals($previousvalue, $reader->config->countervalue);
-
-        // Recreate and complete the run.
-        $engine = new engine($dataflow);
-        $engine->execute();
-        $this->assertDebuggingCalledCount(1);
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
 }

@@ -41,9 +41,6 @@ class step extends persistent {
     /** @var \stdClass of engine step states and timestamps */
     private $states;
 
-    /** @var dataflow this step is connected to. Note: not always set. */
-    private $dataflow;
-
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      */
@@ -114,6 +111,10 @@ class step extends persistent {
      * @return     $this
      */
     public function __set($name, $value) {
+        $methodname = 'set_' . $name;
+        if (method_exists($this, $methodname)) {
+            return $this->$methodname($value);
+        }
         return $this->set($name, $value);
     }
 
@@ -168,7 +169,12 @@ class step extends persistent {
      * @return  \stdClass configuration object
      */
     protected function get_config($expressions = true): \stdClass {
-        $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
+        $rawconfig = $this->raw_get('config');
+        $yaml = $rawconfig;
+        if (gettype($rawconfig) === 'string') {
+            $yaml = Yaml::parse($rawconfig, Yaml::PARSE_OBJECT_FOR_MAP);
+        }
+
         if (empty($yaml)) {
             return new \stdClass();
         }
@@ -176,15 +182,55 @@ class step extends persistent {
         if ($expressions) {
             // Prepare this as a php object (stdClass), as it makes expressions easier to write.
             $parser = new parser();
+
+            $variables = $this->variables;
+            $resolvedvalues = new \stdClass;
+            $unresolvedvalues = new \stdClass;
             foreach ($yaml as $key => &$string) {
                 // TODO: Perhaps some keys should not be evaluated?
+                [$hasexpression] = $parser->has_expression($string);
+                if (!$hasexpression) {
+                    $resolvedvalues->{$key} = $string;
+                } else {
+                    $unresolvedvalues->{$key} = $string;
+                }
+            }
+            // NOTE: Assumption that doing this does not corrupt the state in any way.
+            $variables['steps']->{$this->alias}->config = $resolvedvalues;
+            $max = 1;
+            while ($max) {
+                $max--;
+                foreach ($unresolvedvalues as $key => &$string) {
+                    [$hasexpression] = $parser->has_expression($string);
+                    if ($hasexpression) {
+                        $resolved = $parser->evaluate($string, $variables);
+                        if ($resolved !== $string) {
+                            $yaml->{$key} = $resolved;
+                            $resolvedvalues->{$key} = $resolved;
+                            $max++;
 
-                // NOTE: This does not support nested expressions.
-                $string = $parser->evaluate($string, $this->variables);
+                            // If it doesn't have an expression, then it is resolved so no longer needed.
+                            [$hasexpression] = $parser->has_expression($resolved);
+                            unset($unresolvedvalues->{$key});
+                            if ($hasexpression) {
+                                $unresolvedvalues->{$key} = $resolved;
+                            }
+                        }
+                    }
+                }
             }
         }
 
         return $yaml;
+    }
+
+    /**
+     * Return the raw config without parsing of expressions
+     *
+     * @return  \stdClass
+     */
+    public function get_raw_config(): \stdClass {
+        return $this->get_config(false);
     }
 
     /**
@@ -338,7 +384,9 @@ class step extends persistent {
         $this->alias = $stepdata['id'];
 
         // Set the config as a valid YAML string.
-        $this->config = isset($stepdata['config']) ? Yaml::dump($stepdata['config'], 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK) : '';
+        $this->config = isset($stepdata['config'])
+            ? Yaml::dump($stepdata['config'], 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK)
+            : '';
 
         // Set up the dependencies, connected to each other via their step aliases.
         if (!empty($stepdata['depends_on'])) {

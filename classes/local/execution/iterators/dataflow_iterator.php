@@ -20,26 +20,28 @@ use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\flow_engine_step;
 
 /**
- * A mapping iterator that takes in a value from another iterator, passes it to a function, and then
- * passes the return value to the output.
+ * A mapping iterator that takes a PHP iterator as a source.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2022, Catalyst IT
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright Catalyst IT, 2022
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class map_iterator implements iterator {
+class dataflow_iterator implements iterator {
     protected $steptype;
     protected $finished = false;
     protected $input;
+    protected $step;
+    protected $value = null;
 
     protected $iterationcount = 0;
 
     /**
      * @param flow_engine_step $step The step the iterator is for.
-     * @param iterator $input The iterator that serves as input to this one.
+     * @param \Iterator|iterator|moodle_recordset $input An iterator of some sort
      */
-    public function __construct(flow_engine_step $step, iterator $input) {
+    public function __construct(flow_engine_step $step, $input) {
         $this->step = $step;
         $this->input = $input;
         $this->steptype = $step->steptype;
@@ -60,14 +62,48 @@ class map_iterator implements iterator {
      * @return bool
      */
     public function is_ready(): bool {
-        return !$this->finished && $this->input->is_ready();
+        return !$this->finished && $this->input->valid();
     }
 
     /**
      * Terminate the iterator immediately.
      */
-    public function abort() {
+    final public function abort() {
         $this->finished = true;
+        $this->on_abort();
+        $this->step->set_status(engine::STATUS_FINISHED);
+    }
+
+    /**
+     * Any custom handling for on_abort
+     */
+    public function on_abort() {
+        // Do nothing by default.
+    }
+
+    /**
+     * Return the current element
+     *
+     * @return mixed can return any type
+     */
+    public function current() {
+        return $this->value;
+    }
+
+    /**
+     * Checks if current position is valid
+     *
+     * @return bool The return value will be casted to boolean and then evaluated. Returns true on success or false on failure.
+     */
+    public function valid(): bool {
+        return $this->input->valid();
+    }
+
+    /**
+     * This is where you define your custom iterator handling, if needed.
+     */
+    public function on_next() {
+        // Do nothing by default.
     }
 
     /**
@@ -75,18 +111,32 @@ class map_iterator implements iterator {
      *
      * @return object|bool A JSON compatible object, or false if nothing returned.
      */
-    public function next() {
+    final public function next() {
         if ($this->finished) {
             return false;
         }
 
-        $value = $this->input->next();
-        if ($this->input->is_finished()) {
-            $this->abort();
+        // Do not call this for the initial pull (of data) for a reader.
+        if (!empty($this->pulled) || $this->steptype->get_group() !== 'readers') {
+            $this->input->next();
         }
-        $newvalue = $this->steptype->execute($value);
+        $this->pulled = true;
+
+        // Validate if input is valid before grabbing it.
+        if (!$this->input->valid()) {
+            $this->abort();
+            return null;
+        }
+
+        // Grabs the current value if valid.
+        $this->value = $this->input->current();
+
+        // Processes it.
+        $this->on_next();
+        $newvalue = $this->steptype->execute($this->value);
         ++$this->iterationcount;
         $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
+
         return $newvalue;
     }
 }

@@ -18,7 +18,7 @@ namespace tool_dataflows\local\step;
 
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
-use tool_dataflows\local\execution\iterators\php_iterator;
+use tool_dataflows\local\execution\iterators\dataflow_iterator;
 use tool_dataflows\parser;
 
 /**
@@ -52,7 +52,7 @@ class reader_sql extends reader_step {
      */
     public function get_iterator(): iterator {
         $query = $this->construct_query();
-        return new class($this->enginestep, $query) extends php_iterator {
+        return new class($this->enginestep, $query) extends dataflow_iterator {
 
             public function __construct(flow_engine_step $step, string $query) {
                 global $DB;
@@ -60,9 +60,8 @@ class reader_sql extends reader_step {
                 parent::__construct($step, $input);
             }
 
-            public function abort() {
+            public function on_abort() {
                 $this->input->close();
-                $this->finished = true;
             }
         };
     }
@@ -70,13 +69,21 @@ class reader_sql extends reader_step {
     /**
      * Constructs the SQL query from the configuration options.
      *
+     * Optional query fragments denoted by [[ ${{ expression }} ]], must have an
+     * expression linking to a variable / field that does NOT contain another
+     * expression as this is not currently supported.
+     *
      * @return string
      * @throws \moodle_exception
      */
     protected function construct_query(): string {
-        $config = $this->enginestep->stepdef->config;
+        // Get variables.
+        $variables = $this->enginestep->get_variables();
 
-        $rawsql = $config->sql;
+        // Get raw SQL (because we need to know when to and when not to use the query fragments).
+        $rawconfig = $this->enginestep->stepdef->get_raw_config();
+        $rawsql = $rawconfig->sql;
+
         // Parses the query, removing any optional blocks which cannot be resolved by the containing expression.
         preg_match_all(
             '/(?<fragmentwrapper>' .
@@ -91,40 +98,70 @@ class reader_sql extends reader_step {
             PREG_SET_ORDER);
 
         // Remove all optional fragments from the raw sql, unless the expressed values are available.
-        $finalsql = $rawsql;
         $parser = new parser();
-        $variables = $this->enginestep->get_variables();
-        foreach ($matches as $match) {
-            // Check expression evaluation using the current config object
-            // first, then failing that, target the dataflow variables.
-            $value = $parser->evaluate_or_fail($match['expressionwrapper'], $variables);
+        $finalsql = $rawsql;
+        try {
+            $errormsg = '';
+            foreach ($matches as $match) {
+                // Check expression evaluation using the current config object
+                // first, then failing that, target the dataflow variables.
+                $value = $parser->evaluate_or_fail(
+                    $match['expressionwrapper'],
+                    $variables,
+                    function ($message, $e = null) use ($rawsql, &$errormsg) {
+                        if (isset($e)) {
+                            $errormsg = $message;
+                            throw $e;
+                        } else {
+                            $this->enginestep->log($message . " in the following query:\n{$rawsql}");
+                        }
+                    }
+                );
 
-            // If the expression cannot be evaluated (or evaluates to an empty
-            // string), then the query fragment is ignored entirely.
-            if ($match['expressionwrapper'] === $value || $value === '') {
-                $finalsql = str_replace($match['fragmentwrapper'], '', $finalsql);
-                continue;
+                // If the expression cannot be evaluated (or evaluates to an empty
+                // string), then the query fragment is ignored entirely.
+                if ($match['expressionwrapper'] === $value || $value === '') {
+                    $finalsql = str_replace($match['fragmentwrapper'], '', $finalsql);
+                    continue;
+                }
+
+                // If the expression can be matched, replace the expression with its value, then it's wrapper, etc.
+                $parsedmatch = $match;
+                $parsedmatch['expressionwrapper'] = $value;
+                $parsedmatch['fragment'] = str_replace(
+                    $match['expressionwrapper'],
+                    $parsedmatch['expressionwrapper'],
+                    $match['fragment']
+                );
+                $parsedmatch['fragmentwrapper'] = $parsedmatch['fragment'];
+                $finalsql = str_replace(
+                    $match['fragmentwrapper'],
+                    $parsedmatch['fragmentwrapper'],
+                    $finalsql
+                );
             }
-
-            // If the expression can be matched, replace the expression with its value, then it's wrapper, etc.
-            $parsedmatch = $match;
-            $parsedmatch['expressionwrapper'] = $value;
-            $parsedmatch['fragment'] = str_replace(
-                $match['expressionwrapper'],
-                $parsedmatch['expressionwrapper'],
-                $match['fragment']
-            );
-            $parsedmatch['fragmentwrapper'] = $parsedmatch['fragment'];
-            $finalsql = str_replace(
-                $match['fragmentwrapper'],
-                $parsedmatch['fragmentwrapper'],
-                $finalsql
-            );
+        } catch (\Throwable $e) {
+            $message = "in query:\n{$rawsql}";
+            if (!empty($errormsg)) {
+                $message = "$errormsg $message";
+            }
+            $this->enginestep->log($message);
+            throw $e;
         }
 
         // Evalulate any remaining expressions as per normal.
         // NOTE: The expression statement itself MUST be on a single line (currently).
-        $finalsql = $parser->evaluate_or_fail($finalsql, $variables);
+        $hasexpression = true;
+        $max = 5;
+        while ($hasexpression && $max) {
+            $finalsql = $parser->evaluate_or_fail($finalsql, $variables, function ($message, $e) {
+                $this->enginestep->log($message);
+                throw $e;
+            });
+            [$hasexpression] = $parser->has_expression($finalsql);
+            $max--;
+        }
+
         return $finalsql;
     }
 
@@ -179,9 +216,24 @@ class reader_sql extends reader_step {
         // Check the config for the counterfield.
         $config = $this->enginestep->stepdef->config;
         $counterfield = $config->counterfield ?? null;
-        if (!empty($counterfield)) {
-            // Updates the countervalue based on the current counterfield value.
-            $this->enginestep->set_var('countervalue', $value->{$counterfield});
+
+        if (isset($counterfield)) {
+            $parser = new parser();
+            [$hasexpression] = $parser->has_expression($counterfield);
+            if ($hasexpression) {
+                $resolvedcounterfield = $parser->evaluate(
+                    $counterfield,
+                    $this->enginestep->get_variables()
+                );
+                $counterfield = null;
+                if ($resolvedcounterfield !== $counterfield) {
+                    $counterfield = $resolvedcounterfield;
+                }
+            }
+            if (!empty($counterfield)) {
+                // Updates the countervalue based on the current counterfield value.
+                $this->enginestep->set_var('countervalue', $value->{$counterfield});
+            }
         }
 
         return $value;

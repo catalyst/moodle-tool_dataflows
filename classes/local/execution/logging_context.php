@@ -16,6 +16,8 @@
 
 namespace tool_dataflows\local\execution;
 
+use tool_dataflows\local\step\flow_cap;
+
 /**
  * An environment for logging information about dataflow execution.
  *
@@ -40,6 +42,11 @@ class logging_context {
     }
 
     public function log($message) {
+        // Do not log anything for flowcaps as they are virtual.
+        if (isset($this->enginestep) && $this->enginestep->steptype instanceof flow_cap) {
+            return;
+        }
+
         $logstr = 'Engine "' . $this->engine->name . '"';
         if (!is_null($this->enginestep)) {
             $logstr .= ', step "' . $this->enginestep->name . '"';

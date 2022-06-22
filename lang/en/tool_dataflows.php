@@ -127,6 +127,7 @@ $string['requires'] = 'Requires {$a->str1} and {$a->str2}.';
 $string['stepchooser'] = 'Step chooser';
 
 // Warnings / Errors.
+$string['recursiveexpressiondetected'] = 'The field \'{$a->field}\' contains or is part of, a self referencing expression \'{$a->steptype}\'.';
 $string['variablefieldnotexpected'] = 'The field \'{$a->field}\' cannot be set as it is not an expected field for step type \'{$a->steptype}\'.';
 $string['invalidyaml'] = 'The content provided is invalid YAML.';
 $string['hassideeffect'] = 'Has a side effect';

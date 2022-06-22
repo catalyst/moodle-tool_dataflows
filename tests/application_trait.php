@@ -75,5 +75,13 @@ trait application_trait {
             $this->assertNotRegExp(...$args);
         }
     }
+
+    public function compatible_expectError(): void {
+        if (method_exists($this, 'expectError')) {
+            $this->expectError();
+        } else {
+            $this->expectException(\PHPUnit\Framework\Error\Error::class);
+        }
+    }
     // @codingStandardsIgnoreEnd
 }

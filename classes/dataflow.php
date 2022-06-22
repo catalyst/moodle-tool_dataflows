@@ -129,6 +129,71 @@ class dataflow extends persistent {
     public function get_variables(): array {
         $globalconfig = Yaml::parse(get_config('tool_dataflows', 'config'), Yaml::PARSE_OBJECT_FOR_MAP) ?: new \stdClass;
 
+        // Prepare the list of variables available from each step.
+        $steps = [];
+        foreach ($this->steps as $key => $step) {
+            $steps[$key] = $step->get_export_data();
+            $steps[$key]['alias'] = $key;
+            $steps[$key]['states'] = $step->states;
+        }
+        foreach ($steps as &$step) {
+            foreach ($step as &$field) {
+                if (is_array($field)) {
+                    $field = (object) $field;
+                }
+            }
+            $step = (object) $step;
+            $step->config = $step->config ?? new \stdClass;
+        }
+        $steps = (object) $steps;
+        $parser = new parser();
+
+        $variables = ['steps' => $steps];
+
+        $placeholder = '__PLACEHOLDER__';
+        $max = 100;
+        $foundexpression = true;
+        $counter = [];
+        while ($foundexpression && $max) {
+            $max--;
+            $foundexpression = false;
+            foreach ($steps as &$step) {
+                foreach ($step->config ?? [] as $key => &$field) {
+                    if (!isset($field)) {
+                        continue;
+                    }
+
+                    [$hasexpression] = $parser->has_expression($field);
+                    if ($hasexpression) {
+                        $foundexpression = true;
+                        $fieldvalue = $field;
+                        $field = $placeholder;
+                        $resolved = $parser->evaluate($fieldvalue, $variables);
+                        if ($resolved === $placeholder) {
+                            $link = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $step->id]);
+                            throw new \moodle_exception(
+                                'recursiveexpressiondetected',
+                                'tool_dataflows',
+                                $link,
+                                ['field' => $key, 'steptype' => $step->type]
+                            );
+                        }
+                        if ($resolved !== $fieldvalue) {
+                            [$hasexpression] = $parser->has_expression($resolved);
+                            if ($hasexpression) {
+                                $counter[$resolved] = ($counter[$resolved] ?? 0) + 1;
+                            }
+                        }
+                        if (isset($resolved)) {
+                            $field = $resolved;
+                        } else {
+                            $field = $fieldvalue;
+                        }
+                    }
+                }
+            }
+        }
+
         // Test reading a value directly.
         $variables = [
             'global' => $globalconfig,
@@ -137,7 +202,7 @@ class dataflow extends persistent {
                 'DATAFLOW_RUN_NUMBER' => 0,
             ],
             'dataflow' => $this,
-            'steps' => $this->steps
+            'steps' => $steps
         ];
         return $variables;
     }
@@ -290,6 +355,7 @@ class dataflow extends persistent {
         $stepsbyalias = [];
         foreach ($this->step_order as $stepid) {
             $this->stepscache[$stepid] = $this->stepscache[$stepid] ?? new step($stepid);
+            $this->stepscache[$stepid]->set_dataflow($this);
             $steppersistent = $this->stepscache[$stepid];
             $stepsbyalias[$steppersistent->alias] = $steppersistent;
         }
@@ -461,7 +527,9 @@ class dataflow extends persistent {
      */
     public function add_step(step $step) {
         $step->dataflowid = $this->id;
+        $step->set_dataflow($this);
         $step->upsert();
+        $this->stepscache[$step->id] = $step;
         return $this;
     }
 

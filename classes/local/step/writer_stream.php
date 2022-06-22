@@ -18,7 +18,7 @@ namespace tool_dataflows\local\step;
 
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
-use tool_dataflows\local\execution\iterators\map_iterator;
+use tool_dataflows\local\execution\iterators\dataflow_iterator;
 use tool_dataflows\manager;
 
 /**
@@ -84,13 +84,13 @@ class writer_stream extends writer_step {
 
         // We make no output in a dry run.
         if ($this->enginestep->engine->isdryrun) {
-            return new map_iterator($this->enginestep, $upstream->iterator);
+            return new dataflow_iterator($this->enginestep, $upstream->iterator);
         }
 
         /*
          * Iterator class to write out to the stream.
          */
-        return new class($this->enginestep, $config->streamname, $config->format, $upstream->iterator) extends map_iterator {
+        return new class($this->enginestep, $config->streamname, $config->format, $upstream->iterator) extends dataflow_iterator {
             /** @var resource stream handle. */
             private $handle;
             /** @var string name of the stream. */
@@ -121,35 +121,26 @@ class writer_stream extends writer_step {
              *
              * @return object|bool A JSON compatible object, or false if nothing returned.
              */
-            public function next() {
-                if ($this->finished) {
-                    return false;
-                }
-
-                $value = $this->input->next();
-                ++$this->iterationcount;
-
+            public function on_next() {
+                $value = $this->input->current();
                 if ($value !== false) {
                     if (fwrite($this->handle, $this->writer->encode_record($value, $this->iterationcount)) === false) {
                         $this->step->log(error_get_last()['message']);
-                        throw new \moodle_exception(get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname));
+                        throw new \moodle_exception(
+                            get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname)
+                        );
                     }
                 }
-
-                if ($this->input->is_finished()) {
-                    if (fwrite($this->handle, $this->writer->close_output()) === false) {
-                        $this->step->log(error_get_last()['message']);
-                        throw new \moodle_exception(get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname));
-                    }
-                    $this->abort();
-                }
-                $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($value));
-                return $value;
             }
 
-            public function abort() {
+            public function on_abort() {
+                if (fwrite($this->handle, $this->writer->close_output()) === false) {
+                    $this->step->log(error_get_last()['message']);
+                    throw new \moodle_exception(
+                        get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname)
+                    );
+                }
                 fclose($this->handle);
-                $this->finished = true;
             }
         };
     }
