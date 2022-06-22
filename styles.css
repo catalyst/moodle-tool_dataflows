@@ -1,0 +1,24 @@
+.dataflow_invalid_step polygon {
+    animation: dataflow_invalid_step 1s ease-out infinite alternate;
+}
+
+@keyframes dataflow_invalid_step {
+    0% {
+        stroke-opacity: 0%;
+    }
+    100% {
+        stroke-opacity: 100%;
+    }
+}
+
+
+.dataflow_running_step polygon {
+    stroke-dasharray: 7;
+    animation: dataflow_running_step 100s linear infinite;
+}
+@keyframes dataflow_running_step {
+    to {
+        stroke-dashoffset: 1000;
+    }
+}
+
