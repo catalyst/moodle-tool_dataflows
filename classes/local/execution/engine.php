@@ -18,6 +18,7 @@ namespace tool_dataflows\local\execution;
 
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
+use tool_dataflows\exportable;
 use tool_dataflows\local\step\flow_cap;
 
 /**
@@ -34,6 +35,7 @@ use tool_dataflows\local\step\flow_cap;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class engine {
+    use exportable;
 
     /**
      * Defines the execution status used by the engine and the engine steps.
@@ -409,12 +411,20 @@ class engine {
             $this->log('status: ' . self::STATUS_LABELS[$status] . ', config: ' . json_encode(['isdryrun' => $this->isdryrun]));
         } else if ($status === self::STATUS_FINALISED) {
             $this->log('status: ' . self::STATUS_LABELS[$status]);
-            $cleanvariables = json_decode(json_encode($this->get_variables()), true);
-            $variabledump = Yaml::dump($cleanvariables, 4, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
-            $this->log("dumping state..\n" . $variabledump);
+            $this->log("dumping state..\n" . $this->export());
         } else {
             $this->log('status: ' . self::STATUS_LABELS[$status]);
         }
+    }
+
+    /**
+     * Returns the data that should be included in an export
+     *
+     * @return  array
+     */
+    public function get_export_data(): array {
+        $cleanvariables = json_decode(json_encode($this->get_variables()), true);
+        return $cleanvariables;
     }
 
     /**
