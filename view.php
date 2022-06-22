@@ -37,14 +37,13 @@ require_login();
 
 $id = required_param('id', PARAM_INT);
 
+$url = new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id]);
 $context = context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 
 // Check for caps.
 require_capability('tool/dataflows:managedataflows', $context);
-
-$url = new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id]);
 
 // Configure any table specifics.
 $table = new steps_table('dataflows_table');
