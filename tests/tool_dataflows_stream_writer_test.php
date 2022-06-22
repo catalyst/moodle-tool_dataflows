@@ -75,8 +75,8 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
         \tool_dataflows\local\execution\array_in_type::$source = $inputdata;
 
         // Execute.
-        $engine = new engine($dataflow, $isdryrun);
         ob_start();
+        $engine = new engine($dataflow, $isdryrun);
         $engine->execute();
         ob_get_clean();
 

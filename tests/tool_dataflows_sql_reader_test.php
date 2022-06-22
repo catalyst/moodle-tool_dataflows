@@ -89,8 +89,8 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $dataflow->add_step($writer);
 
         // Execute.
-        $engine = new engine($dataflow);
         ob_start();
+        $engine = new engine($dataflow);
         $engine->execute();
         ob_get_clean();
         $this->assertDebuggingCalledCount(2, [json_encode($input[0]), json_encode($input[1])]);
@@ -170,8 +170,8 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $dataflow->add_step($writer);
 
         // Execute.
-        $engine = new engine($dataflow);
         ob_start();
+        $engine = new engine($dataflow);
         $engine->execute();
         ob_get_clean();
         $this->assertDebuggingCalledCount(3);
@@ -180,8 +180,8 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $this->assertEquals(3, $reader->config->countervalue);
 
         // Repeat.
-        $engine = new engine($dataflow);
         ob_start();
+        $engine = new engine($dataflow);
         $engine->execute();
         ob_get_clean();
 
@@ -191,8 +191,8 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $this->assertEquals(6, $reader->config->countervalue);
 
         // Recreate the engine and rerun the flow, it should be the same result.
-        $engine = new engine($dataflow);
         ob_start();
+        $engine = new engine($dataflow);
         $engine->execute();
         ob_get_clean();
 
@@ -204,8 +204,8 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
 
         // Now test out a dry-run, it should not persist anything, but everything else should appear as expected.
         $isdryrun = true;
-        $engine = new engine($dataflow, $isdryrun);
         ob_start();
+        $engine = new engine($dataflow, $isdryrun);
         $engine->execute();
         ob_get_clean();
 

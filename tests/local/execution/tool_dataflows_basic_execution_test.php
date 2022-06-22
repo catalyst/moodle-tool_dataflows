@@ -81,8 +81,8 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
         array_out_type::$dest = [];
 
         // Execute.
-        $engine = new engine($dataflow);
         ob_start();
+        $engine = new engine($dataflow);
         $engine->execute();
         ob_get_clean();
 

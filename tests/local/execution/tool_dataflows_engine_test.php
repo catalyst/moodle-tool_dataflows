@@ -71,7 +71,9 @@ class tool_dataflows_engine_test extends \advanced_testcase {
         list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
 
         // Create the engine.
+        ob_start();
         $engine = new test_engine($dataflow);
+        ob_get_clean();
 
         // Test that the engine has been created correctly.
         $this->assertEquals(engine::STATUS_NEW, $engine->status);
@@ -136,7 +138,9 @@ class tool_dataflows_engine_test extends \advanced_testcase {
         }
 
         // Test initialisation.
+        ob_start();
         $engine->initialise();
+        ob_get_clean();
         foreach ($engine->enginesteps as $id => $enginestep) {
             $this->assertEquals(engine::STATUS_INITIALISED, $enginestep->status);
         }
@@ -194,7 +198,12 @@ class tool_dataflows_engine_test extends \advanced_testcase {
         $dataflow->save();
         $this->expectException(\moodle_exception::class);
         $this->expectExceptionMessage(get_string('running_invalid_dataflow', 'tool_dataflows'));
-        $engine = new engine($dataflow);
+        ob_start();
+        try {
+            new engine($dataflow);
+        } finally {
+            ob_get_clean();
+        }
     }
 
     /**
@@ -203,10 +212,16 @@ class tool_dataflows_engine_test extends \advanced_testcase {
     public function test_disabled_engine() {
         list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
         $dataflow->enabled = false;
-         $dataflow->save();
+        $dataflow->save();
         $this->expectException(\moodle_exception::class);
         $this->expectExceptionMessage(get_string('running_disabled_dataflow', 'tool_dataflows'));
-        $engine = new engine($dataflow);
+
+        ob_start();
+        try {
+            new engine($dataflow);
+        } finally {
+            ob_get_clean();
+        }
     }
 
     /**
@@ -214,23 +229,35 @@ class tool_dataflows_engine_test extends \advanced_testcase {
      */
     public function test_finished_engine() {
         list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
-        $engine = new engine($dataflow);
-        $engine->set_status(engine::STATUS_FINALISED);
-        $this->expectException(\moodle_exception::class);
-        $this->expectExceptionMessage(get_string('change_state_after_concluded', 'tool_dataflows'));
-        $engine->set_status(engine::STATUS_INITIALISED);
+
+        ob_start();
+        try {
+            $engine = new engine($dataflow);
+            $engine->set_status(engine::STATUS_FINALISED);
+            $this->expectException(\moodle_exception::class);
+            $this->expectExceptionMessage(get_string('change_state_after_concluded', 'tool_dataflows'));
+            $engine->set_status(engine::STATUS_INITIALISED);
+        } finally {
+            ob_get_clean();
+        }
     }
 
     public function test_bad_status() {
         list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
-        $engine = new engine($dataflow);
-        $this->expectException(\moodle_exception::class);
-        $this->expectExceptionMessage(get_string('bad_status', 'tool_dataflows',
-            [
-                'status' => get_string('engine_status:'.engine::STATUS_LABELS[engine::STATUS_NEW], 'tool_dataflows'),
-                'expected' => get_string('engine_status:'.engine::STATUS_LABELS[engine::STATUS_FINISHED], 'tool_dataflows'),
-            ]
-        ));
-        $engine->finalise();
+
+        ob_start();
+        try {
+            $engine = new engine($dataflow);
+            $this->expectException(\moodle_exception::class);
+            $this->expectExceptionMessage(get_string('bad_status', 'tool_dataflows',
+                [
+                    'status' => get_string('engine_status:'.engine::STATUS_LABELS[engine::STATUS_NEW], 'tool_dataflows'),
+                    'expected' => get_string('engine_status:'.engine::STATUS_LABELS[engine::STATUS_FINISHED], 'tool_dataflows'),
+                ]
+            ));
+            $engine->finalise();
+        } finally {
+            ob_get_clean();
+        }
     }
 }

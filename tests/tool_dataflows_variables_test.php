@@ -80,8 +80,10 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $dataflow->add_step($writer);
 
         // Init the engine.
+        ob_start();
         $engine = new engine($dataflow);
         $variables = $engine->get_variables();
+        ob_get_clean();
 
         $expressionlanguage = new ExpressionLanguage();
         $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.something', $variables);
@@ -132,6 +134,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $dataflow->enabled = true;
 
         // Init the engine.
+        ob_start();
         $engine = new engine($dataflow);
 
         // Expecting it to throw an exception during execution, particularly
@@ -139,7 +142,6 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // expression.
         $this->compatible_expectError();
         try {
-            ob_start();
             $engine->execute();
         } finally {
             ob_get_clean();
@@ -202,6 +204,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $dataflow->add_step($writer);
 
         // Init the engine.
+        ob_start();
         $engine = new engine($dataflow);
 
         // Check before state.
@@ -217,7 +220,6 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         execution\reader_sql_variable_setter::$dataflowvar = $dataflowvalue;
         execution\reader_sql_variable_setter::$globalvar = $globalvalue;
         // Execute.
-        ob_start();
         $engine->execute();
         ob_get_clean();
         $this->assertDebuggingCalledCount(5);
