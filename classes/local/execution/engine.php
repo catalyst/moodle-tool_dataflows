@@ -210,7 +210,7 @@ class engine {
         if (!$this->isdryrun) {
             $this->run = new run;
             $this->run->dataflowid = $this->dataflow->id;
-            $this->run->initialise($this->export());
+            $this->run->initialise($this->status, $this->export());
         }
 
         while ($this->status != self::STATUS_FINISHED) {
@@ -221,7 +221,7 @@ class engine {
             // very very similar to) the current state of the run.
             if (isset($this->run)) {
                 // Stores a dump of the current engine state.
-                $this->run->snapshot($this->export());
+                $this->run->snapshot($this->status, $this->export());
             }
 
             if ($this->status == self::STATUS_ABORTED) {
@@ -288,7 +288,7 @@ class engine {
 
             // Stores a dump of the current engine state as the finalstate of the run.
             if (isset($this->run)) {
-                $this->run->finalise($this->export());
+                $this->run->finalise($this->status, $this->export());
             }
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
@@ -334,10 +334,11 @@ class engine {
      */
     public function __get($parameter) {
         switch ($parameter) {
-            case 'status':
+            case 'dataflow':
             case 'exception':
             case 'isdryrun':
-            case 'dataflow':
+            case 'run':
+            case 'status':
                 return $this->$parameter;
             case 'name':
                 return $this->dataflow->name;

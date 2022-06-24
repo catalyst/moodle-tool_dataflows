@@ -40,12 +40,12 @@ class run extends persistent {
             'name' => ['type' => PARAM_TEXT],
             'userid' => ['type' => PARAM_INT],
             'status' => ['type' => PARAM_TEXT],
-            'timestarted' => ['type' => PARAM_INT],
-            'timepaused' => ['type' => PARAM_INT],
-            'timefinished' => ['type' => PARAM_INT],
-            'startstate' => ['type' => PARAM_TEXT],
-            'currentstate' => ['type' => PARAM_TEXT],
-            'endstate' => ['type' => PARAM_TEXT],
+            'timestarted' => ['type' => PARAM_INT, 'default' => 0],
+            'timepaused' => ['type' => PARAM_INT, 'default' => 0],
+            'timefinished' => ['type' => PARAM_INT, 'default' => 0],
+            'startstate' => ['type' => PARAM_TEXT, 'default' => ''],
+            'currentstate' => ['type' => PARAM_TEXT, 'default' => ''],
+            'endstate' => ['type' => PARAM_TEXT, 'default' => ''],
         ];
     }
 
@@ -83,10 +83,11 @@ class run extends persistent {
     /**
      * Generates the 'name' of the run, and persists it in the DB.
      *
+     * @param  string $status the engine's status
      * @param  string $startstate the yaml string representation of the state of the dataflow
      */
-    public function initialise(string $startstate) {
-        global $DB;
+    public function initialise(string $status, string $startstate) {
+        global $DB, $USER;
         // If this run is based on current settings (default behaviour until
         // re-run support is added), always increment the run counter by 1 (as a
         // whole number).
@@ -95,15 +96,27 @@ class run extends persistent {
         $currentcount = $DB->get_field_sql($sql, ['dataflowid' => $this->dataflowid]);
         $this->name = $currentcount + 1;
         $this->startstate = $startstate;
+
+        // Sets the user to the current user (e.g. if manually run), and
+        // defaults to the site admin user (e.g. if the run is triggered via
+        // something like cron).
+        $userid = $USER->id ?? get_admin()->id;
+        $this->userid = $userid;
+
+        // Set the engine's status.
+        $this->status = $status;
+
         $this->save();
     }
 
     /**
      * Sets the snapshot of the current state of the run
      *
+     * @param  string $status the engine's status
      * @param  string $currentstate the yaml string representation of the state of the dataflow
      */
-    public function snapshot(string $currentstate) {
+    public function snapshot(string $status, string $currentstate) {
+        $this->status = $status;
         $this->currentstate = $currentstate;
         // TODO: Determine how often this is updated to the DB (per step by
         // default), or only on finalise / shutdown, as this is likely to be
@@ -114,10 +127,12 @@ class run extends persistent {
     /**
      * Stores the endstate in the run record
      *
+     * @param  string $status the engine's status
      * @param  string $endstate the yaml string representation of the state of the dataflow
      */
-    public function finalise(string $endstate) {
+    public function finalise(string $status, string $endstate) {
         $this->endstate = $endstate;
+        $this->status = $status;
         $this->save();
     }
 
