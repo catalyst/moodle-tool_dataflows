@@ -45,7 +45,7 @@ class import_form extends \moodleform {
             'userfile',
             get_string('dataflow_file', 'tool_dataflows'),
             null,
-            ['maxbytes' => 256000, 'accepted_types' => ['.yml', '.yaml']]
+            ['maxbytes' => 256000, 'accepted_types' => ['.yml', '.yaml', '.txt']]
         );
         $mform->addRule('userfile', get_string('required'), 'required');
 
