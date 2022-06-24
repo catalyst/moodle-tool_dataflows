@@ -58,6 +58,14 @@ class provider implements \core_privacy\local\metadata\provider,
             ],
             'privacy:metadata:steps'
         );
+        $collection->add_database_table(
+            'tool_dataflows_runs',
+            [
+                'userid' => 'privacy:metadata:runs:userid',
+                'timestarted' => 'privacy:metadata:runs:timestarted',
+            ],
+            'privacy:metadata:runs'
+        );
         return $collection;
     }
 
@@ -134,6 +142,21 @@ class provider implements \core_privacy\local\metadata\provider,
                     [get_string('privacy:metadata:dataflows', 'tool_dataflows_steps')],
                     (object) $list
                 );
+
+                // Dataflow run with a matching userid.
+                $rows = $DB->get_records('tool_dataflows_runs', ['userid' => $userid]);
+                foreach ($rows as $row) {
+                    $list[] = [
+                        'name' => $row->name,
+                        'userid' => $userid,
+                        'timestarted' => $row->timestarted,
+                        'status' => $row->status,
+                    ];
+                }
+                writer::with_context($context)->export_data(
+                    [get_string('privacy:metadata:dataflows', 'tool_dataflows_runs')],
+                    (object) $list
+                );
             }
         }
     }
@@ -146,6 +169,7 @@ class provider implements \core_privacy\local\metadata\provider,
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
         if ($context->contextlevel == CONTEXT_SYSTEM) {
+            $DB->delete_records('tool_dataflows_runs', []);
             $DB->delete_records('tool_dataflows_step_depends', []); // Must be deleted to ensure steps are deletable and so forth.
             $DB->delete_records('tool_dataflows_steps', []);
             $DB->delete_records('tool_dataflows', []);
@@ -195,15 +219,22 @@ class provider implements \core_privacy\local\metadata\provider,
         $records = $DB->get_records('tool_dataflows_steps', ['usermodified' => $userid]);
         $stepids = array_merge($stepids, array_column($records, 'id'));
 
+        // Delete any dataflow runs records.
+        $sql = "dataflowid $insql";
+        $DB->delete_records_select('tool_dataflows_runs', $sql, $inparams);
+        $DB->delete_records('tool_dataflows_runs', ['userid' => $userid]);
+
         // Delete any related step_depends records.
         list($insql, $inparams) = $DB->get_in_or_equal($stepids);
         $sql = "stepid $insql";
         $DB->delete_records_select('tool_dataflows_step_depends', $sql, $inparams);
         $sql = "dependson $insql";
         $DB->delete_records_select('tool_dataflows_step_depends', $sql, $inparams);
+
         // Delete any related step records.
         $sql = "id $insql";
         $DB->delete_records_select('tool_dataflows_steps', $sql, $inparams);
+
         // Delete any related dataflow records.
         list($insql, $inparams) = $DB->get_in_or_equal($dataflowids);
         $sql = "id $insql";
@@ -226,6 +257,8 @@ class provider implements \core_privacy\local\metadata\provider,
             $userlist->add_from_sql('userid', $sql, []);
             $sql = "SELECT * FROM {tool_dataflows_steps}";
             $userlist->add_from_sql('usermodified', $sql, []);
+            $sql = "SELECT * FROM {tool_dataflows_runs}";
+            $userlist->add_from_sql('userid', $sql, []);
         }
     }
 
