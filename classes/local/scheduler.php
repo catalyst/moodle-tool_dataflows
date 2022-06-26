@@ -42,64 +42,6 @@ class scheduler {
     }
 
     /**
-     * Get the last time a dataflow was scheduled to run.
-     *
-     * @param int $dataflowid
-     * @return int Timestamp. Defaults to zero (effectively never) if no entry exists.
-     * @throws \dml_exception
-     */
-    public static function get_last_scheduled_time(int $dataflowid): int {
-        global $DB;
-
-        $record = $DB->get_record( self::TABLE, ['dataflowid' => $dataflowid]);
-        if ($record === false) {
-            return 0; // 1st Jan 1970 is far enough in the past to be equivalent to 'never'.
-        } else {
-            return $record->lastruntime;
-        }
-    }
-
-    /**
-     * Get the next time a dataflow is scheduled to run.
-     *
-     * @param int $dataflowid
-     * @return int Timestamp. Defaults to current time if no entry exists.
-     * @throws \dml_exception
-     */
-    public static function get_next_scheduled_time(int $dataflowid): int {
-        global $DB;
-
-        $record = $DB->get_record( self::TABLE, ['dataflowid' => $dataflowid]);
-        if ($record === false) {
-            return time();
-        } else {
-            return $record->nextruntime;
-        }
-    }
-
-    /**
-     * Determine the next time a dataflow should run. Skips forward using the timestring until a time after cutoff is reached.
-     *
-     * @param string $timestr strtotime() compatible string.
-     * @param int|null $oldtime Reference time. If null, the current time is used.
-     * @param int|null $curtime Cutoff time. If null, the current time is used.
-     * @return int|false Timestamp or false on failure.
-     */
-    public static function determine_next_scheduled_time(string $timestr, ?int $oldtime = null, ?int $curtime = null) {
-        $curtime = $curtime ?? time();
-        $oldtime = $oldtime ?? $curtime;
-
-        do {
-            $newtime = strtotime($timestr, $oldtime);
-            if ($newtime <= $oldtime) {
-                return false;
-            }
-            $oldtime = $newtime;
-        } while ($newtime <= $curtime);
-        return $newtime;
-    }
-
-    /**
      * Update an entry in the database for a dataflow.
      *
      * @param int $dataflowid
@@ -124,10 +66,10 @@ class scheduler {
     }
 
     /**
-     * Gets a list of dataflows that are due to run based on the given reference time.
+     * Gets a list of dataflows and timestamps that are due to run based on the given reference time.
      *
      * @param int|null $reftime The time to determine the list on. Will default to current time if null.
-     * @return array List of dataflow IDs.
+     * @return array List of timestamps, indexed by dataflow ID.
      * @throws \dml_exception
      */
     public static function get_due_dataflows(?int $reftime = null): array {
@@ -135,6 +77,6 @@ class scheduler {
         if (is_null($reftime)) {
             $reftime = time();
         }
-        return $DB->get_records_select_menu(self::TABLE, 'nextruntime <= :time', ['time' => $reftime], '', 'id, dataflowid');
+        return $DB->get_records_select_menu(self::TABLE, 'nextruntime <= :time', ['time' => $reftime], '', 'dataflowid, nextruntime');
     }
 }

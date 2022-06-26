@@ -46,11 +46,11 @@ class process_dataflows extends \core\task\scheduled_task {
      */
     public function execute() {
         $dataflowids = scheduler::get_due_dataflows();
-        foreach ($dataflowids as $id) {
+        foreach ($dataflowids as $id => $nextruntime) {
             try {
                 $dataflow = new dataflow($id);
                 if ($dataflow->enabled) {
-                    mtrace("Running dataflow $dataflow->name (ID: $id), time due: " . scheduler::get_next_scheduled_time($id));
+                    mtrace("Running dataflow $dataflow->name (ID: $id), time due: " . userdate($nextruntime));
                     $engine = new engine($dataflow, false);
                     $engine->execute();
                 }
