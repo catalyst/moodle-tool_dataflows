@@ -22,3 +22,32 @@
     }
 }
 
+/* Dataflow Run buttons */
+.tool_dataflow-top-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.tool_dataflow-runs-bar {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 8px;
+}
+
+:where(.tool_dataflow-runs-bar, [id^="dataflow_runs_table"]) .btn-run-default {
+    font-family: monospace;
+    background-color: #e9e7e7 !important;
+    color: black !important;
+    border-radius: 0 !important;
+}
+
+
+/* Dataflow 'run' table */
+.table-run td {
+    padding: 4px 6px;
+}
+
+tr:where(.field_timestarted, .field_timefinished) {
+    text-align: right;
+}
+

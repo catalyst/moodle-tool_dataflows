@@ -40,9 +40,9 @@ class run extends persistent {
             'name' => ['type' => PARAM_TEXT],
             'userid' => ['type' => PARAM_INT],
             'status' => ['type' => PARAM_TEXT],
-            'timestarted' => ['type' => PARAM_INT, 'default' => 0],
-            'timepaused' => ['type' => PARAM_INT, 'default' => 0],
-            'timefinished' => ['type' => PARAM_INT, 'default' => 0],
+            'timestarted' => ['type' => PARAM_FLOAT, 'default' => 0],
+            'timepaused' => ['type' => PARAM_FLOAT, 'default' => 0],
+            'timefinished' => ['type' => PARAM_FLOAT, 'default' => 0],
             'startstate' => ['type' => PARAM_TEXT, 'default' => ''],
             'currentstate' => ['type' => PARAM_TEXT, 'default' => ''],
             'endstate' => ['type' => PARAM_TEXT, 'default' => ''],
@@ -88,6 +88,10 @@ class run extends persistent {
      */
     public function initialise(string $status, string $startstate) {
         global $DB, $USER;
+
+        // Sets the time intialised.
+        $this->timestarted = microtime(true);
+
         // If this run is based on current settings (default behaviour until
         // re-run support is added), always increment the run counter by 1 (as a
         // whole number).
@@ -115,9 +119,14 @@ class run extends persistent {
      * @param  string $status the engine's status
      * @param  string $currentstate the yaml string representation of the state of the dataflow
      */
-    public function snapshot(string $status, string $currentstate) {
+    public function snapshot(string $status, ?string $currentstate = null) {
         $this->status = $status;
-        $this->currentstate = $currentstate;
+
+        // Updates the state of the current run if provided.
+        if (isset($currentstate)) {
+            $this->currentstate = $currentstate;
+        }
+
         // TODO: Determine how often this is updated to the DB (per step by
         // default), or only on finalise / shutdown, as this is likely to be
         // updated VERY often.
@@ -131,6 +140,7 @@ class run extends persistent {
      * @param  string $endstate the yaml string representation of the state of the dataflow
      */
     public function finalise(string $status, string $endstate) {
+        $this->timefinished = microtime(true);
         $this->endstate = $endstate;
         $this->status = $status;
         $this->save();

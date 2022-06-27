@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Trigger dataflow settings.
+ * Runs (list) for a dataflow page
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
@@ -23,9 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use tool_dataflows\steps_table;
 use tool_dataflows\visualiser;
 use tool_dataflows\dataflow;
+use tool_dataflows\runs_table;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -37,7 +37,7 @@ require_login();
 
 $id = required_param('id', PARAM_INT);
 
-$url = new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id]);
+$url = new moodle_url('/admin/tool/dataflows/runs.php', ['id' => $id]);
 $context = context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_url($url);
@@ -46,13 +46,13 @@ $PAGE->set_url($url);
 require_capability('tool/dataflows:managedataflows', $context);
 
 // Configure any table specifics.
-$table = new steps_table('dataflows_table');
-$sqlfields = 'step.id,
+$table = new runs_table('dataflow_runs_table');
+$sqlfields = 'run.id,
               usr.*,
-              step.*';
-$sqlfrom = '{tool_dataflows_steps} step
+              run.*';
+$sqlfrom = '{tool_dataflows_runs} run
   LEFT JOIN {user} usr
-         ON usr.id = step.userid';
+         ON usr.id = run.userid';
 $sqlwhere = 'dataflowid = :dataflowid';
 $sqlparams = ['dataflowid' => $id];
 $table->set_sql($sqlfields, $sqlfrom, $sqlwhere, $sqlparams);
@@ -64,5 +64,38 @@ visualiser::breadcrumb_navigation([
     // Dataflows > Manage Flows > :dataflow->name (details page).
     [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
     [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id])],
+    [get_string('all_runs', 'tool_dataflows'), $url],
 ]);
-visualiser::display_dataflows_view_page($id, $table, $url, get_string('steps', 'tool_dataflows'));
+
+// Page basic setup.
+$output = $PAGE->get_renderer('tool_dataflows');
+$pluginname = get_string('pluginname', 'tool_dataflows');
+
+$table->define_baseurl($url);
+
+$pageheading = get_string('all_runs', 'tool_dataflows');
+$dataflow = new dataflow($dataflow->id);
+$PAGE->set_title($dataflow->name . ': ' . $pageheading);
+$PAGE->set_pagelayout('admin');
+$PAGE->set_heading($dataflow->name . ': ' . $pageheading);
+echo $output->header();
+
+
+// No hide/show links under each column.
+$table->collapsible(false);
+// Columns are presorted.
+$table->sortable(false);
+// Table does not show download options by default, an import/export option will be available instead.
+$table->is_downloadable(false);
+
+// Query the data and prepare the output.
+$table->setup();
+$table->query_db(0); // No limit, fetch all rows.
+$table->pageable(false);
+$table->close_recordset();
+
+// Render the table.
+$table->build_table();
+$table->finish_output();
+
+echo $output->footer();

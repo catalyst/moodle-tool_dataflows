@@ -438,6 +438,11 @@ class engine {
         }
         $this->status = $status;
 
+        // Updates the run's state when the engine status changes.
+        if (isset($this->run)) {
+            $this->run->snapshot($this->status);
+        }
+
         // Record the timestamp of the state change against the dataflow persistent,
         // which exposes this info through its variables.
         $this->dataflow->set_state_timestamp($status, microtime(true));

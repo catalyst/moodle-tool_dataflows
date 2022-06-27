@@ -27,6 +27,7 @@ use tool_dataflows\local\scheduler;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_scheduler_test extends \advanced_testcase {
+
     /**
      * Set up before each test
      */
