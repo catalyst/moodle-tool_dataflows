@@ -33,8 +33,28 @@ class trigger_cron extends trigger_step {
 
     protected static function form_define_fields(): array {
         return [
-            'timestr' => ['type' => PARAM_TEXT],
+            'minute' => ['type' => PARAM_TEXT],
+            'hour' => ['type' => PARAM_TEXT],
+            'day' => ['type' => PARAM_TEXT],
+            'month' => ['type' => PARAM_TEXT],
+            'dayofweek' => ['type' => PARAM_TEXT],
+            'disabled' => ['type' => PARAM_TEXT],
         ];
+    }
+
+    /**
+     * Get the default data.
+     *
+     * @return stdClass
+     */
+    public function form_get_default_data(&$data) {
+        parent::form_get_default_data($data);
+        $fields = array('minute', 'hour', 'day', 'month', 'dayofweek');
+        foreach ($fields as $field) {
+            if (!isset($data->{"config_$field"})) {
+                $data->{"config_$field"} = '*';
+            }
+        }
     }
 
     /**
@@ -47,9 +67,46 @@ class trigger_cron extends trigger_step {
      * @param \MoodleQuickForm &$mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
-        $mform->addElement('text', 'config_timestr', get_string('trigger_cron:timestr', 'tool_dataflows'));
-        $mform->addRule('config_timestr', 'This field is required', 'required');
-        $mform->addElement('static', 'config_timestr_help', '', get_string('trigger_cron:timestr_help', 'tool_dataflows'));
+        $mform->addElement('static', 'schedule_header', '', 'Schedule');
+
+        if ($this->stepdef) {
+            $times = scheduler::get_scheduled_times($this->stepdef->dataflowid);
+            if (!(bool)$this->stepdef->dataflow->enabled) {
+                $nextrun = get_string('trigger_cron:flow_disabled', 'tool_dataflows');
+            } else if ($times->nextruntime > time()) {
+                $nextrun = userdate($times->nextruntime);
+            } else {
+                $nextrun = get_string('asap', 'tool_task');
+            }
+
+            $mform->addElement('static', 'lastrun', get_string('lastruntime', 'tool_task'), $times->lastruntime ? userdate($times->lastruntime) : get_string('never'));
+            $mform->addElement('static', 'nextrun', get_string('nextruntime', 'tool_task'), $nextrun);
+        }
+
+        $crontab = [];
+
+        $element = $mform->createElement('text', 'config_minute', get_string('taskscheduleminute', 'tool_task'), ['size' => '5']);
+        $element->setType(PARAM_RAW);
+        $crontab[] = $element;
+
+        $element = $mform->createElement('text', 'config_hour', get_string('taskschedulehour', 'tool_task'), ['size' => '5']);
+        $element->setType(PARAM_RAW);
+        $crontab[] = $element;
+
+        $element = $mform->createElement('text', 'config_day', get_string('taskscheduleday', 'tool_task'), ['size' => '5']);
+        $element->setType(PARAM_RAW);
+        $crontab[] = $element;
+
+        $element = $mform->createElement('text', 'config_month', get_string('taskschedulemonth', 'tool_task'), ['size' => '5']);
+        $element->setType(PARAM_RAW);
+        $crontab[] = $element;
+
+        $element = $mform->createElement('text', 'config_dayofweek', get_string('taskscheduledayofweek', 'tool_task'), ['size' => '5']);
+        $element->setType(PARAM_RAW);
+        $crontab[] = $element;
+
+        $mform->addGroup($crontab, 'crontab', get_string('trigger_cron:crontab', 'tool_dataflows'), '&nbsp;', false);
+        $mform->addElement('static', 'crontab_desc', '', get_string('trigger_cron:crontab_desc', 'tool_dataflows'));
     }
 
     /**
@@ -60,11 +117,11 @@ class trigger_cron extends trigger_step {
      */
     public function validate_config($config) {
         $errors = [];
-        if (empty($config->timestr)) {
-            $errors['config_timestr'] = get_string('config_field_missing', 'tool_dataflows', 'timestr', true);
-        } else {
-            if (strtotime($config->timestr) === false) {
-                $errors['config_timestr'] = get_string('config_field_invalid', 'tool_dataflows', 'timestr', true);
+
+        $fields = array('minute', 'hour', 'day', 'month', 'dayofweek');
+        foreach ($fields as $field) {
+            if (!\tool_task_edit_scheduled_task_form::validate_fields($field, $config->$field)) {
+                $errors['config_' . $field] = get_string('trigger_cron:invalid', 'tool_dataflows', '', true);
             }
         }
         return empty($errors) ? true : $errors;
@@ -76,12 +133,20 @@ class trigger_cron extends trigger_step {
      * @param step $stepdef
      */
     public function on_save() {
-        $newtime = scheduler::determine_next_scheduled_time(
-            $this->stepdef->config->timestr,
-            scheduler::get_last_scheduled_time($this->stepdef->dataflowid) ?: time()
-        );
+        $config = $this->stepdef->config;
+        $config->classname = 'tool_dataflows\task\process_dataflows';
+        $times = scheduler::get_scheduled_times($this->stepdef->dataflowid);
+        if ($times === false) {
+            $config->lastruntime = 0;
+            $config->nextruntime = 0;
+        } else {
+            $config = (object) array_merge((array) $config, (array) $times);
+        }
 
-        scheduler::update_next_scheduled_time(
+        $task = \core\task\manager::scheduled_task_from_record($config);
+        $newtime = $task->get_next_scheduled_time();
+
+        scheduler::set_scheduled_times(
             $this->stepdef->dataflowid,
             $newtime
         );
@@ -106,14 +171,24 @@ class trigger_cron extends trigger_step {
     public function on_finalise() {
         if (!$this->enginestep->engine->isdryrun) {
             $dataflowid = $this->enginestep->stepdef->dataflowid;
-            $newtime = scheduler::get_next_scheduled_time($dataflowid);
-            scheduler::update_next_scheduled_time(
+
+            $config = $this->stepdef->config;
+            $config->classname = 'tool_dataflows\task\process_dataflows';
+            $times = scheduler::get_scheduled_times($this->stepdef->dataflowid);
+            if ($times === false) {
+                $config->lastruntime = 0;
+                $config->nextruntime = 0;
+            } else {
+                $config = (object) array_merge((array) $config, (array) $times);
+            }
+
+            $task = \core\task\manager::scheduled_task_from_record($config);
+            $newtime = $task->get_next_scheduled_time();
+
+            scheduler::set_scheduled_times(
                 $dataflowid,
-                scheduler::determine_next_scheduled_time(
-                    $this->enginestep->stepdef->config->timestr,
-                    $newtime
-                ),
-                $newtime
+                $newtime,
+                $config->nextruntime
             );
         }
     }

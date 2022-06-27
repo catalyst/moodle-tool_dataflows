@@ -146,7 +146,11 @@ class step extends persistent {
      */
     public function get_steptype() {
         $classname = $this->type;
-        return new $classname($this);
+        if (!empty($classname)) {
+            return new $classname($this);
+        } else {
+            return null;
+        }
     }
 
     /**
