@@ -16,6 +16,7 @@
 
 namespace tool_dataflows;
 
+use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\base_step;
 
 /**
@@ -297,8 +298,8 @@ class visualiser {
         // Show up to the last 10 runs.
         foreach ($runs as $run) {
             $runurl = new \moodle_url('/admin/tool/dataflows/view-run.php', ['id' => $run->id]);
-            $runlabel = \html_writer::tag('button', $run->name, ['class' => 'btn btn-run-default']);
-            echo \html_writer::link($runurl, $runlabel);
+            $runstate = engine::STATUS_LABELS[$run->status];
+            echo \html_writer::link($runurl, $run->name, ['class' => "btn btn-run-default run-state-{$runstate}"]);
         }
 
         // Recent runs label (no recent, or recent runs to describe the list).

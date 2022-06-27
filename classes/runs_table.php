@@ -76,8 +76,8 @@ class runs_table extends \table_sql {
      */
     public function col_name(\stdClass $record): string {
         $url = new \moodle_url('/admin/tool/dataflows/view-run.php', ['id' => $record->id]);
-        $btn = \html_writer::tag('button', $record->name, ['class' => 'btn btn-run-default']);
-        return \html_writer::link($url, $btn);
+        $runstate = engine::STATUS_LABELS[$record->status];
+        return \html_writer::link($url, $record->name, ['class' => "btn btn-run-default run-state-{$runstate}"]);
     }
 
     /**
