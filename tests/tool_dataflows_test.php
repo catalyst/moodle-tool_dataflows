@@ -307,6 +307,7 @@ class tool_dataflows_test extends \advanced_testcase {
         $config = $dataflow->config;
         $this->assertNotEquals($yaml['config']['expression'],  $config->expression);
         $this->assertEquals($dataflow->id,  $config->expression_test_id);
+        $this->assertEquals($dataflow->name,  $config->expression_dataflow_name);
         $this->assertEquals($dataflow->id + 777,  $config->expression_math); // Adding an fixed number.
         $this->assertEquals('notifyread_value',  $config->expression_concat); // Using the ~ operator.
         $this->compatible_assertStringContainsString('steps notify and Read a value',  $config->expression);

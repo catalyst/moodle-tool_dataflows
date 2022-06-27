@@ -184,6 +184,9 @@ $string['privacy:metadata:steps:userid'] = 'The id of the user who created this 
 $string['privacy:metadata:steps:timecreated'] = 'The timestamp of when the step was created';
 $string['privacy:metadata:steps:usermodified'] = 'The id of the user who modified this step';
 $string['privacy:metadata:steps:timemodified'] = 'The timestamp of when the step was modified';
+$string['privacy:metadata:runs'] = 'Data from the dataflow run';
+$string['privacy:metadata:runs:userid'] = 'The id of the user who triggered the run';
+$string['privacy:metadata:runs:timestarted'] = 'The timestamp of when the run was started';
 
 // Tasks.
 $string['task:processdataflows'] = 'Process dataflows scheduled task.';

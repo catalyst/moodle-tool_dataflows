@@ -20,6 +20,7 @@ use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\exportable;
 use tool_dataflows\local\step\flow_cap;
+use tool_dataflows\run;
 
 /**
  * Executes a dataflow.
@@ -80,6 +81,9 @@ class engine {
 
     /** @var dataflow The dataflow defined by the user. */
     protected $dataflow;
+
+    /** @var run The run linked to this engine's instance. */
+    protected $run;
 
     /** @var array The engine steps in the dataflow. */
     protected $enginesteps = [];
@@ -201,11 +205,29 @@ class engine {
         $this->initialise();
         $this->status_check(self::STATUS_INITIALISED);
 
+        // Initalise a new run (only for non-dry runs). This should only be
+        // created when the engine is executed.
+        if (!$this->isdryrun) {
+            $this->run = new run;
+            $this->run->dataflowid = $this->dataflow->id;
+            $this->run->initialise($this->status, $this->export());
+        }
+
         while ($this->status != self::STATUS_FINISHED) {
             $this->execute_step();
+
+            // A dataflow run should store the state of the run during
+            // execution. By the end, the final state should be the same as (or
+            // very very similar to) the current state of the run.
+            if (isset($this->run)) {
+                // Stores a dump of the current engine state.
+                $this->run->snapshot($this->status, $this->export());
+            }
+
             if ($this->status == self::STATUS_ABORTED) {
                 return;
             }
+
         }
 
         $this->finalise();
@@ -263,6 +285,11 @@ class engine {
                 $enginestep->finalise();
             }
             $this->set_status(self::STATUS_FINALISED);
+
+            // Stores a dump of the current engine state as the finalstate of the run.
+            if (isset($this->run)) {
+                $this->run->finalise($this->status, $this->export());
+            }
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
         }
@@ -307,10 +334,11 @@ class engine {
      */
     public function __get($parameter) {
         switch ($parameter) {
-            case 'status':
+            case 'dataflow':
             case 'exception':
             case 'isdryrun':
-            case 'dataflow':
+            case 'run':
+            case 'status':
                 return $this->$parameter;
             case 'name':
                 return $this->dataflow->name;

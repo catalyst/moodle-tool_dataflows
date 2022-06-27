@@ -194,14 +194,21 @@ class dataflow extends persistent {
             }
         }
 
+        // Prepare variable data for the dataflow key.
+        $dataflow = (object) $this->get_export_data();
+        unset($dataflow->steps);
+        $dataflow->config = $this->get_config(false);
+        $dataflow->states = $this->states;
+
         // Test reading a value directly.
         $variables = [
             'global' => $globalconfig,
             'env' => (object) [
                 'DATAFLOW_ID' => $this->id,
-                'DATAFLOW_RUN_NUMBER' => 0,
+                'DATAFLOW_RUN_ID' => $this->engine->run->id ?? null,
+                'DATAFLOW_RUN_NAME' => $this->engine->run->name ?? null,
             ],
-            'dataflow' => $this,
+            'dataflow' => $dataflow,
             'steps' => $steps
         ];
         return $variables;
@@ -211,13 +218,19 @@ class dataflow extends persistent {
      * Return the configuration of the dataflow, parsed such that any
      * expressions are evaluated at this point in time.
      *
-     * @return     \stdClass configuration object
+     * @param   bool $expressions whether or not to parse expressions when returning the config
+     * @return  \stdClass configuration object
      */
-    protected function get_config(): \stdClass {
+    protected function get_config($expressions = true): \stdClass {
         $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
         // If there is no config, return an empty object.
         if (empty($yaml)) {
             return new \stdClass();
+        }
+
+        // If no parsing is required, return the raw YAML object early.
+        if (!$expressions) {
+            return $yaml;
         }
 
         // Prepare this as a php object (stdClass), as it makes expressions easier to write.
@@ -588,9 +601,9 @@ class dataflow extends persistent {
     }
 
     /**
-     * Exports a dataflow
+     * Exports data for a dataflow
      *
-     * @return      string $contents of the exported yaml file
+     * @return  array $yaml data for the export
      */
     public function get_export_data() {
         // Exportable fields for dataflows.

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220613" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
+<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220624" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -64,6 +64,44 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="dataflowid" TYPE="unique" FIELDS="dataflowid"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="tool_dataflows_runs" COMMENT="Stores the dataflow runs, point in time configuration, state and other fields used for reporting">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="dataflowid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="This is the dataflow that this run is originally based on."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The user who started this particular run"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The current state of the run as a string, e.g. running, pausing, paused, finished, etc."/>
+        <FIELD NAME="timestarted" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp of when the run started"/>
+        <FIELD NAME="timepaused" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timefinished" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="11" NOTNULL="false" SEQUENCE="false" COMMENT="Identifier of the run, typically a single digit per unique run. A semver value, e.g. 1.1 if a run is re-executed using the same inputs"/>
+        <FIELD NAME="startstate" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="currentstate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The current state of this run. This might be persisted after some time has elapsed since it started as a means of recovery, or if the user has paused the dataflow, such that it can be resumed at a later time."/>
+        <FIELD NAME="endstate" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="dataflowid" TYPE="foreign" FIELDS="dataflowid" REFTABLE="tool_dataflows" REFFIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="status" UNIQUE="false" FIELDS="status"/>
+        <INDEX NAME="dataflowid_name" UNIQUE="true" FIELDS="dataflowid, name" COMMENT="Each dataflow should have a run with a unique name"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="tool_dataflows_logs" COMMENT="Stores the logs for the dataflow execution">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="runid" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="level" TYPE="char" LENGTH="5" NOTNULL="false" SEQUENCE="false" COMMENT="The logging level (e.g. DEBUG, INFO, WARN, ERROR, FATAL, TRACE)"/>
+        <FIELD NAME="group" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Grouping for logs. Can be used to filter logs for different steps (e.g. by their alias or similar) using something such as step.alias"/>
+        <FIELD NAME="message" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Content of the logged entry"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp of the log entry"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="runid" TYPE="foreign" FIELDS="runid" REFTABLE="tool_dataflows_runs" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>
