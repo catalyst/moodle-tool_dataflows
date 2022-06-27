@@ -128,6 +128,24 @@ class trigger_cron extends trigger_step {
     }
 
     /**
+     * Return any miscellaneous, step type specific information that the user would be interested in.
+     * For cron triggers, this is the next scheduled time to run the flow.
+     *
+     * @return string
+     */
+    public function get_details(): string {
+        $times = scheduler::get_scheduled_times($this->stepdef->dataflowid);
+        if (!(bool)$this->stepdef->dataflow->enabled) {
+            $nextrun = get_string('trigger_cron:flow_disabled', 'tool_dataflows');
+        } else if ($times->nextruntime > time()) {
+            $nextrun = userdate($times->nextruntime, get_string('trigger_cron:strftime_datetime', 'tool_dataflows'));
+        } else {
+            $nextrun = get_string('asap', 'tool_task');
+        }
+        return get_string('trigger_cron:next_run_time', 'tool_dataflows', $nextrun);
+    }
+
+    /**
      * Hook function that gets called when a step has been saved.
      *
      * @param step $stepdef

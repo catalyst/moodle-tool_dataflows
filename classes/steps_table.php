@@ -38,6 +38,7 @@ class steps_table extends \table_sql {
         'type',
         'config',
         'dependson',
+        'details',
     ];
 
     const NOSORT_COLUMNS = [
@@ -168,7 +169,19 @@ class steps_table extends \table_sql {
     }
 
     /**
-     * Display a list of action links available for a dataflow (e.g. delete, copy, move, etc.)
+     * Display any extra information about the step that doesn't fit into any other column.
+     *
+     * @param \stdClass $record
+     * @return string
+     */
+    public function col_details(\stdClass $record): string {
+        $step = new step($record->id);
+        $steptype = $step->steptype;
+        return $steptype->get_details();
+    }
+
+    /**
+     * Display a list of action links available for the step (e.g. delete, copy, move, etc.)
      *
      * @param \stdClass $record
      * @return string
