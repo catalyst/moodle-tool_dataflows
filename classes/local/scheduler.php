@@ -35,10 +35,10 @@ class scheduler {
      * @return array|false
      * @throws \dml_exception
      */
-    public static function get_scheduled_times(int $dataflowid) {
+    public static function get_scheduled_times(int $stepid) {
         global $DB;
 
-        return $DB->get_record( self::TABLE, ['dataflowid' => $dataflowid], 'lastruntime, nextruntime');
+        return $DB->get_record( self::TABLE, ['stepid' => $stepid], 'lastruntime, nextruntime');
     }
 
     /**
@@ -49,14 +49,14 @@ class scheduler {
      * @param int|null $oldtime The last time the dataflow ran. If null, the value will be unchanged.
      * @throws \dml_exception
      */
-    public static function set_scheduled_times(int $dataflowid, int $newtime, ?int $oldtime = null) {
+    public static function set_scheduled_times(int $dataflowid, int $stepid, int $newtime, ?int $oldtime = null) {
         global $DB;
 
-        $obj = (object) ['nextruntime' => $newtime, 'dataflowid' => $dataflowid];
+        $obj = (object) ['nextruntime' => $newtime, 'dataflowid' => $dataflowid, 'stepid' => $stepid];
         if (!is_null($oldtime)) {
             $obj->lastruntime = $oldtime;
         }
-        $id = $DB->get_field(self::TABLE, 'id', ['dataflowid' => $dataflowid]);
+        $id = $DB->get_field(self::TABLE, 'id', ['dataflowid' => $dataflowid, 'stepid' => $stepid]);
         if ($id === false) {
             $DB->insert_record(self::TABLE, $obj);
         } else {

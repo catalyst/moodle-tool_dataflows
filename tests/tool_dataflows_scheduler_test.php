@@ -45,9 +45,9 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
 
         $this->assertEquals(false, scheduler::get_scheduled_times(23));
 
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'lastruntime' => 123, 'nextruntime' => 150]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'stepid' => 10, 'lastruntime' => 123, 'nextruntime' => 150]);
 
-        $this->assertEquals((object)['lastruntime' => 123, 'nextruntime' => 150], scheduler::get_scheduled_times(23));
+        $this->assertEquals((object)['lastruntime' => 123, 'nextruntime' => 150], scheduler::get_scheduled_times(10));
     }
 
     /**
@@ -56,14 +56,14 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
      * @covers \tool_dataflows\local\scheduler::set_scheduled_times
      */
     public function test_update_next_scheduled_time() {
-        scheduler::set_scheduled_times(33, 160, 120);
-        $this->assertEquals((object)['lastruntime' => 120, 'nextruntime' => 160], scheduler::get_scheduled_times(33));
+        scheduler::set_scheduled_times(33, 11, 160, 120);
+        $this->assertEquals((object)['lastruntime' => 120, 'nextruntime' => 160], scheduler::get_scheduled_times(11));
 
-        scheduler::set_scheduled_times(33, 180);
-        $this->assertEquals((object)['lastruntime' => 120, 'nextruntime' => 180], scheduler::get_scheduled_times(33));
+        scheduler::set_scheduled_times(33, 11, 180);
 
-        scheduler::set_scheduled_times(33, 220, 160);
-        $this->assertEquals((object)['lastruntime' => 160, 'nextruntime' => 220], scheduler::get_scheduled_times(33));
+        scheduler::set_scheduled_times(33, 12, 220, 160);
+        $this->assertEquals((object)['lastruntime' => 120, 'nextruntime' => 180], scheduler::get_scheduled_times(11));
+        $this->assertEquals((object)['lastruntime' => 160, 'nextruntime' => 220], scheduler::get_scheduled_times(12));
     }
 
     /**
@@ -74,10 +74,10 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
     public function test_get_due_dataflows() {
         global $DB;
 
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'lastruntime' => 123, 'nextruntime' => 150]);
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 24, 'lastruntime' => 123, 'nextruntime' => 151]);
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 25, 'lastruntime' => 123, 'nextruntime' => 152]);
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 26, 'lastruntime' => 123, 'nextruntime' => 153]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'stepid' => 1, 'lastruntime' => 123, 'nextruntime' => 150]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 24, 'stepid' => 2, 'lastruntime' => 123, 'nextruntime' => 151]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 25, 'stepid' => 3, 'lastruntime' => 123, 'nextruntime' => 152]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 26, 'stepid' => 4, 'lastruntime' => 123, 'nextruntime' => 153]);
 
         $ids = scheduler::get_due_dataflows(152);
         $this->assertEquals(3, count($ids));
