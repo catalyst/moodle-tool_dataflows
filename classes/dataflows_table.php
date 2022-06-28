@@ -32,6 +32,7 @@ class dataflows_table extends \table_sql {
         'config',
         'userid',
         'stepcount',
+        'details',
     ];
 
     const NOSORT_COLUMNS = [
@@ -114,6 +115,26 @@ class dataflows_table extends \table_sql {
     public function col_stepcount(\stdClass $record): string {
         $dataflowstepsurl = new \moodle_url('/admin/tool/dataflows/view.php', ['id' => $record->id]);
         return \html_writer::link($dataflowstepsurl, $record->stepcount);
+    }
+
+    /**
+     * Display any extra information about the steps that doesn't fit into any other column.
+     * Gathers 'extra' info from each step.
+     *
+     * @param \stdClass $record
+     * @return string
+     */
+    public function col_details(\stdClass $record): string {
+        $content = [];
+        $dataflow = new dataflow($record->id);
+        foreach ($dataflow->steps as $step) {
+            $steptype = $step->steptype;
+            $extrainfo = $steptype->get_details();
+            if (!empty($extrainfo)) {
+                $content[] = $extrainfo;
+            }
+        }
+        return implode('<br/>', $content);
     }
 
     /**

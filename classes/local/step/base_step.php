@@ -382,6 +382,15 @@ abstract class base_step {
     }
 
     /**
+     * Return any miscellaneous, step type specific information that the user would be interested in.
+     *
+     * @return string
+     */
+    public function get_details(): string {
+        return '';
+    }
+
+    /**
      * Hook function that gets called when a step has been saved.
      *
      * @param step $stepdef
