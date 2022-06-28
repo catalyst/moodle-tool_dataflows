@@ -30,6 +30,18 @@ class scheduler {
     public const TABLE = 'tool_dataflows_schedule';
 
     /**
+     * Get the scheduled times for a dataflow.
+     * @param int $dataflowid
+     * @return array|false
+     * @throws \dml_exception
+     */
+    public static function get_scheduled_times(int $dataflowid) {
+        global $DB;
+
+        return $DB->get_record( self::TABLE, ['dataflowid' => $dataflowid], 'lastruntime, nextruntime');
+    }
+
+    /**
      * Get the last time a dataflow was scheduled to run.
      *
      * @param int $dataflowid
@@ -43,7 +55,7 @@ class scheduler {
         if ($record === false) {
             return 0; // 1st Jan 1970 is far enough in the past to be equivalent to 'never'.
         } else {
-            return $record->timelastscheduledrun;
+            return $record->lastruntime;
         }
     }
 
@@ -61,7 +73,7 @@ class scheduler {
         if ($record === false) {
             return time();
         } else {
-            return $record->timenextscheduledrun;
+            return $record->nextruntime;
         }
     }
 
@@ -95,12 +107,12 @@ class scheduler {
      * @param int|null $oldtime The last time the dataflow ran. If null, the value will be unchanged.
      * @throws \dml_exception
      */
-    public static function update_next_scheduled_time(int $dataflowid, int $newtime, ?int $oldtime = null) {
+    public static function set_scheduled_times(int $dataflowid, int $newtime, ?int $oldtime = null) {
         global $DB;
 
-        $obj = (object) ['timenextscheduledrun' => $newtime, 'dataflowid' => $dataflowid];
+        $obj = (object) ['nextruntime' => $newtime, 'dataflowid' => $dataflowid];
         if (!is_null($oldtime)) {
-            $obj->timelastscheduledrun = $oldtime;
+            $obj->lastruntime = $oldtime;
         }
         $id = $DB->get_field(self::TABLE, 'id', ['dataflowid' => $dataflowid]);
         if ($id === false) {
@@ -123,6 +135,6 @@ class scheduler {
         if (is_null($reftime)) {
             $reftime = time();
         }
-        return $DB->get_records_select_menu(self::TABLE, 'timenextscheduledrun <= :time', ['time' => $reftime], '', 'id, dataflowid');
+        return $DB->get_records_select_menu(self::TABLE, 'nextruntime <= :time', ['time' => $reftime], '', 'id, dataflowid');
     }
 }

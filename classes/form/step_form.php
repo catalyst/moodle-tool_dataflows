@@ -72,12 +72,13 @@ class step_form extends \core\form\persistent {
 
         // Show a list of other steps as options for depends on.
         $dataflow = new dataflow($dataflowid);
+        $persistent = $this->get_persistent();
         $steps = $dataflow->steps;
         $options = [];
         foreach ($steps as $step) {
             $options[$step->id] = $step->name;
         }
-        unset($options[$this->get_persistent()->id]); // We never want a step to depend on itself.
+        unset($options[$persistent->id]); // We never want a step to depend on itself.
 
         $select = $mform->addElement(
             'select',
@@ -93,7 +94,7 @@ class step_form extends \core\form\persistent {
 
         // Check and set custom form inputs if required. Defaulting to a
         // textarea config input for those not yet configured.
-        $steptype = new $type();
+        $steptype = $persistent->steptype ?? new $type();
         $steptype->form_set_input_types($mform);
         $steptype->form_add_custom_inputs($mform);
 

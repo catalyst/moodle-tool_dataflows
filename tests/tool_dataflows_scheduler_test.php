@@ -44,9 +44,11 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
         $this->assertEquals(time(), scheduler::get_next_scheduled_time(2));
         $this->assertEquals(0, scheduler::get_last_scheduled_time(2));
 
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'timelastscheduledrun' => 123, 'timenextscheduledrun' => 150]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'lastruntime' => 123, 'nextruntime' => 150]);
         $this->assertEquals(150, scheduler::get_next_scheduled_time(23));
         $this->assertEquals(123, scheduler::get_last_scheduled_time(23));
+
+        $this->assertEquals((object)['lastruntime' => 123, 'nextruntime' => 150], scheduler::get_scheduled_times(23));
     }
 
     /**
@@ -66,15 +68,15 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
      * Tests the update_next_time() function.
      */
     public function test_update_next_scheduled_time() {
-        scheduler::update_next_scheduled_time(33, 160, 120);
+        scheduler::set_scheduled_times(33, 160, 120);
         $this->assertEquals(160, scheduler::get_next_scheduled_time(33));
         $this->assertEquals(120, scheduler::get_last_scheduled_time(33));
 
-        scheduler::update_next_scheduled_time(33, 180);
+        scheduler::set_scheduled_times(33, 180);
         $this->assertEquals(180, scheduler::get_next_scheduled_time(33));
         $this->assertEquals(120, scheduler::get_last_scheduled_time(33));
 
-        scheduler::update_next_scheduled_time(33, 220, 160);
+        scheduler::set_scheduled_times(33, 220, 160);
         $this->assertEquals(220, scheduler::get_next_scheduled_time(33));
         $this->assertEquals(160, scheduler::get_last_scheduled_time(33));
     }
@@ -85,10 +87,10 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
     public function test_get_due_dataflows() {
         global $DB;
 
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'timelastscheduledrun' => 123, 'timenextscheduledrun' => 150]);
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 24, 'timelastscheduledrun' => 123, 'timenextscheduledrun' => 151]);
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 25, 'timelastscheduledrun' => 123, 'timenextscheduledrun' => 152]);
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 26, 'timelastscheduledrun' => 123, 'timenextscheduledrun' => 153]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'lastruntime' => 123, 'nextruntime' => 150]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 24, 'lastruntime' => 123, 'nextruntime' => 151]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 25, 'lastruntime' => 123, 'nextruntime' => 152]);
+        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 26, 'lastruntime' => 123, 'nextruntime' => 153]);
 
         $ids = scheduler::get_due_dataflows(152);
         $this->assertEquals(3, count($ids));

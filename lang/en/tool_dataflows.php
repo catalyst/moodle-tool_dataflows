@@ -221,3 +221,7 @@ $string['reader_sql:countervalue_help'] = 'Current value from the counter field'
 $string['trigger_cron:cron'] = 'Scheduled task';
 $string['trigger_cron:timestr'] = 'Time schedule';
 $string['trigger_cron:timestr_help'] = 'A time string to determine the next time the dataflow would run, using the PHP function strtotime() format. For example "+5 minutes" would run the dataflow every 5 miunutes, or "tomorrow 2:00 am" would run the dataflow 2:00 am each day. The string must always be able to resolve to a future time.';
+$string['trigger_cron:flow_disabled'] = 'Dataflow disabled';
+$string['trigger_cron:invalid'] = 'Schedule configuration is invalid.';
+$string['trigger_cron:crontab'] = 'Schedule in cron tab format';
+$string['trigger_cron:crontab_desc'] = 'The schedule is edited as five values: minute, hour, day, month and day of month, in that order. The values are in crontab format.';
