@@ -45,6 +45,7 @@ function tool_dataflows_step_types() {
         new step\connector_curl,
         new step\trigger_cron,
         new step\reader_sql,
+        new step\reader_json,
         new step\writer_debugging,
         new step\flow_logic_join,
         new step\writer_stream,

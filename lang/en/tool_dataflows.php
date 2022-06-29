@@ -93,6 +93,7 @@ $string['step_name_connector_s3'] = 'S3 file copy connector';
 $string['step_name_flow_logic_join'] = 'Flow join';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
 $string['step_name_reader_sql'] = 'SQL reader';
+$string['step_name_reader_json'] = 'JSON reader';
 $string['step_name_trigger_cron'] = 'Scheduled task trigger';
 $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
@@ -240,6 +241,14 @@ $string['reader_sql:counterfield_help'] = 'Field in which the counter value is d
 $string['reader_sql:countervalue'] = 'Counter Value';
 $string['reader_sql:countervalue_help'] = 'Current value from the counter field';
 $string['reader_sql:variable_not_valid_in_position_replacement_text'] = "Invalid expression \${{ {\$a->expression} }} as `{\$a->expressionpath}` could not be resolved at line {\$a->line} character {\$a->column} in:\n{\$a->sql}"; // phpcs:disable moodle.Strings.ForbiddenStrings.Found
+
+// Reader JSON.
+$string['reader_json:arraykey'] = 'Array Key';
+$string['reader_json:arraykey_help'] = 'Key of array in JSON to be parsed';
+$string['reader_json:arraysort'] = 'Sort by';
+$string['reader_json:arraysort_help'] = 'Value to sort array by';
+$string['reader_json:json'] = 'JSON Array';
+$string['reader_json:json_help'] = 'Needs to be a valid JSON array.';
 
 // Cron trigger.
 $string['trigger_cron:cron'] = 'Scheduled task';
