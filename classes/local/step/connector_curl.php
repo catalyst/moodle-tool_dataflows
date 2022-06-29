@@ -30,6 +30,9 @@ class connector_curl extends connector_step {
     /** @var bool whether or not this step type (potentially) contains a side effect or not */
     protected $hassideeffect = true;
 
+    /** @var int[] number of input connectors (min, max) */
+    protected $inputconnectors = [0, 1];
+
     /**
      * Executes the step
      *
