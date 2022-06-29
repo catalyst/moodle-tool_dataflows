@@ -141,6 +141,7 @@ $string['stepinvalidinputflowcount'] = 'Invalid number of input flows (Found: {$
 $string['stepinvalidinputconnectorcount'] = 'Invalid number of input connectors (Found: {$a}).';
 $string['stepinvalidoutputflowcount'] = 'Invalid number of output flows (Found: {$a}).';
 $string['stepinvalidoutputconnectorcount'] = 'Invalid number of output connectors (Found: {$a}).';
+$string['toomanytriggers'] = 'A dataflow can have at most one trigger step.';
 $string['inputs_cannot_mix_flow_and_connectors'] = 'Dependencies cannot be a mixture flow and connector steps.';
 $string['outputs_cannot_mix_flow_and_connectors'] = 'Dependents cannot be a mixture flow and connector steps.';
 $string['must_have_inputs'] = 'Cannot have zero input links.';

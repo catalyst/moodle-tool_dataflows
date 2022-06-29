@@ -317,8 +317,14 @@ class dataflow extends persistent {
                 'type' => $step->type,
             ];
         }
+
+        $numtriggers = 0;
+
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
         foreach ($steps as $step) {
+            if ($step->steptype->get_group() == 'triggers') {
+                ++$numtriggers;
+            }
             $stepvalidation = $step->validate_step();
             $prefix = \html_writer::tag('b', $step->name). ': ';
             if ($stepvalidation !== true) {
@@ -354,6 +360,10 @@ class dataflow extends persistent {
                     $errors[] = $prefix . $error;
                 }
             }
+        }
+
+        if ($numtriggers > 1) {
+            $errors['toomanytriggers'] = get_string('toomanytriggers', 'tool_dataflows');
         }
 
         return empty($errors) ? true : $errors;

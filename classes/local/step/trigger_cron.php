@@ -70,7 +70,7 @@ class trigger_cron extends trigger_step {
         $mform->addElement('static', 'schedule_header', '', 'Schedule');
 
         if ($this->stepdef) {
-            $times = scheduler::get_scheduled_times($this->stepdef->dataflowid);
+            $times = scheduler::get_scheduled_times($this->stepdef->id);
             if (!(bool)$this->stepdef->dataflow->enabled) {
                 $nextrun = get_string('trigger_cron:flow_disabled', 'tool_dataflows');
             } else if ($times->nextruntime > time()) {
@@ -134,7 +134,7 @@ class trigger_cron extends trigger_step {
      * @return string
      */
     public function get_details(): string {
-        $times = scheduler::get_scheduled_times($this->stepdef->dataflowid);
+        $times = scheduler::get_scheduled_times($this->stepdef->id);
         if (!(bool)$this->stepdef->dataflow->enabled) {
             $nextrun = get_string('trigger_cron:flow_disabled', 'tool_dataflows');
         } else if ($times->nextruntime > time()) {
@@ -153,7 +153,7 @@ class trigger_cron extends trigger_step {
     public function on_save() {
         $config = $this->stepdef->config;
         $config->classname = 'tool_dataflows\task\process_dataflows';
-        $times = scheduler::get_scheduled_times($this->stepdef->dataflowid);
+        $times = scheduler::get_scheduled_times($this->stepdef->id);
         if ($times === false) {
             $config->lastruntime = 0;
             $config->nextruntime = 0;
@@ -166,6 +166,7 @@ class trigger_cron extends trigger_step {
 
         scheduler::set_scheduled_times(
             $this->stepdef->dataflowid,
+            $this->stepdef->id,
             $newtime
         );
     }
@@ -178,7 +179,7 @@ class trigger_cron extends trigger_step {
     public function on_delete() {
         global $DB;
 
-        $DB->delete_records(scheduler::TABLE, ['dataflowid' => $this->stepdef->dataflowid]);
+        $DB->delete_records(scheduler::TABLE, ['stepid' => $this->stepdef->id]);
     }
 
     /**
@@ -188,11 +189,11 @@ class trigger_cron extends trigger_step {
      */
     public function on_finalise() {
         if (!$this->enginestep->engine->isdryrun) {
-            $dataflowid = $this->enginestep->stepdef->dataflowid;
+            $dataflowid = $this->stepdef->dataflowid;
 
             $config = $this->stepdef->config;
             $config->classname = 'tool_dataflows\task\process_dataflows';
-            $times = scheduler::get_scheduled_times($this->stepdef->dataflowid);
+            $times = scheduler::get_scheduled_times($this->stepdef->id);
             if ($times === false) {
                 $config->lastruntime = 0;
                 $config->nextruntime = 0;
@@ -205,6 +206,7 @@ class trigger_cron extends trigger_step {
 
             scheduler::set_scheduled_times(
                 $dataflowid,
+                $this->stepdef->id,
                 $newtime,
                 $config->nextruntime
             );

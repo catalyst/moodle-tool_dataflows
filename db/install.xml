@@ -58,12 +58,13 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="dataflowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="stepid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="lastruntime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time the dataflow was last scheduled to be run"/>
         <FIELD NAME="nextruntime" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time the dataflow is next scheduled to be run"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="dataflowid" TYPE="unique" FIELDS="dataflowid"/>
+        <KEY NAME="dataflow" TYPE="unique" FIELDS="dataflowid, stepid"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="tool_dataflows_runs" COMMENT="Stores the dataflow runs, point in time configuration, state and other fields used for reporting">
