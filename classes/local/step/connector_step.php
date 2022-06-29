@@ -32,10 +32,13 @@ use tool_dataflows\local\execution\engine_step;
 abstract class connector_step extends base_step {
 
     /** @var int[] number of input connectors (min, max) */
-    protected $inputconnectors = [1, 1];
+    protected $inputconnectors = [0, 1];
 
     /** @var int[] number of output connectors (min, max) */
     protected $outputconnectors = [0, 1];
+
+    /** @var int[] number of input flows (min, max) */
+    protected $inputflows = [0, 1];
 
     /** @var int[] number of output flows (min, max) */
     protected $outputflows = [0, 1];
