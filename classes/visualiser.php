@@ -291,8 +291,7 @@ class visualiser {
         // Show this when the number of runs equals the max runs, and the first run in the list is NOT run #1.
         if (count($runs) === $maxrunstoshow && ((int) reset($runs)->name !== 1)) {
             $allrunsurl = new \moodle_url('/admin/tool/dataflows/runs.php', ['id' => $dataflow->id]);
-            $allruns = \html_writer::tag('button', get_string('all_runs', 'tool_dataflows'), ['class' => 'btn btn-run-default']);
-            echo \html_writer::link($allrunsurl, $allruns);
+            echo \html_writer::link($allrunsurl, get_string('all_runs', 'tool_dataflows'), ['class' => 'btn btn-run-default']);
         }
 
         // Show up to the last 10 runs.
