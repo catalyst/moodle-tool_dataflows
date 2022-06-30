@@ -19,6 +19,7 @@ namespace tool_dataflows\local\execution;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\exportable;
+use tool_dataflows\helper;
 use tool_dataflows\local\step\flow_cap;
 use tool_dataflows\run;
 
@@ -106,6 +107,9 @@ class engine {
     /** @var bool True if executing via automation. */
     protected $automated = true;
 
+    /** @var string Scratch directory for temporary files. */
+    protected $scratchdir = null;
+
     /**
      * Constructs the engine.
      *
@@ -172,6 +176,8 @@ class engine {
             // Add sinks to the execution queue.
             $this->queue = $this->sinks;
             $this->set_status(self::STATUS_INITIALISED);
+
+            $this->scratchdir = make_request_directory();
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
         }
@@ -339,6 +345,7 @@ class engine {
             case 'isdryrun':
             case 'run':
             case 'status':
+            case 'scratchdir':
                 return $this->$parameter;
             case 'name':
                 return $this->dataflow->name;
@@ -470,5 +477,21 @@ class engine {
                 ]
             );
         }
+    }
+
+    /**
+     * Resolves the full path name for the givne path. If the directory does nto exist, it will create it.
+     *
+     * @param  string $pathname
+     * @param  string $mode
+     * @return false|resource
+     */
+    public function resolve_path(string $pathname) {
+        $fullpath = helper::path_get_absolute($pathname, $this->scratchdir);
+        $dir = dirname($fullpath);
+        if (!file_exists($dir)) {
+            mkdir($dir);
+        }
+        return $fullpath;
     }
 }

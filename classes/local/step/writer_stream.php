@@ -20,6 +20,7 @@ use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
 use tool_dataflows\manager;
+use tool_dataflows\helper;
 
 /**
  * Stream writer step. Writes to a PHP stream.
@@ -99,8 +100,8 @@ class writer_stream extends writer_step {
             private $writer;
 
             public function __construct(flow_engine_step $step, string $streamname, string $format, iterator $input) {
-                $this->streamname = $streamname;
-                $this->handle = fopen($streamname, 'a');
+                $this->streamname = $step->engine->resolve_path($streamname);
+                $this->handle = fopen($this->streamname, 'a');
                 if ($this->handle === false) {
                     $step->log(error_get_last()['message']);
                     throw new \moodle_exception(get_string('writer_stream:failed_to_open_stream', 'tool_dataflows', $streamname));
@@ -155,6 +156,11 @@ class writer_stream extends writer_step {
         $errors = [];
         if (!isset($config->streamname)) {
             $errors['config_streamname'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
+        } else {
+            $error = helper::path_validate($config->streamname);
+            if ($error !== true) {
+                $errors['config_streamname'] = $error;
+            }
         }
         if (!isset($config->format)) {
             $errors['config_format'] = get_string('config_field_missing', 'tool_dataflows', 'format', true);

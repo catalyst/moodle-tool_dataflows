@@ -34,6 +34,8 @@ $string['dataflows'] = 'Dataflows';
 $string['pluginsettings'] = 'General settings';
 $string['enabled'] = 'Enable/disable this plugin';
 $string['enabled_help'] = '';
+$string['permitted_dirs'] = 'Permitted directories';
+$string['permitted_dirs_desc'] = 'List directories here to allow them to be read from/written to by dataflow steps.';
 
 // Manage flows / Overview.
 $string['overview'] = 'Overview';
@@ -167,6 +169,7 @@ $string['running_invalid_dataflow'] = 'Trying to run an invalid dataflow.';
 $string['change_state_after_concluded'] = 'Attempting to change the status of a dataflow engine after it has concluded.';
 $string['bad_status'] = 'Bad status, had "{$a->status}", expected "{$a->expected}"';
 $string['must_have_a_step_def_defined'] = 'If an engine is passed as a parameter, a step definition must alse be passed.';
+$string['path_invalid'] = 'Path "{$a}" is not permitted.';
 
 // Stream errors.
 $string['writer_stream:failed_to_open_stream'] = 'Failed to open stream "{$a}".';
