@@ -128,6 +128,8 @@ $string['requires'] = 'Requires {$a->str1} and {$a->str2}.';
 $string['stepchooser'] = 'Step chooser';
 
 // Warnings / Errors.
+$string['nametaken'] = 'The name \'{$a}\' is already in use for this dataflow.';
+$string['aliastaken'] = 'The alias \'{$a}\' is already in use for this dataflow.';
 $string['recursiveexpressiondetected'] = 'The field \'{$a->field}\' contains or is part of, a self referencing expression \'{$a->steptype}\'.';
 $string['variablefieldnotexpected'] = 'The field \'{$a->field}\' cannot be set as it is not an expected field for step type \'{$a->steptype}\'.';
 $string['invalidyaml'] = 'The content provided is invalid YAML.';
