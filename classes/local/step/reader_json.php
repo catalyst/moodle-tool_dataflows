@@ -16,6 +16,8 @@
 
 namespace tool_dataflows\local\step;
 
+use core_admin\local\settings\filesize;
+use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
@@ -59,20 +61,44 @@ class reader_json extends reader_step {
      * Parses json string to php array.
      *
      * @return string
+     * @throws \moodle_exception
      */
     protected function parse_json(): array {
+        $config = $this->enginestep->stepdef->config;
+        $jsonstring = $this->get_json_string($config);
 
-        $decodedjson = json_decode($this->enginestep->stepdef->config->json);
-        $arraykey = $this->enginestep->stepdef->config->arraykey;
+        $decodedjson = json_decode($jsonstring);
+        if (is_null($decodedjson)) {
+            throw new \moodle_exception(get_string('reader_json:failed_to_decode_json', 'tool_dataflows', $config->json));
+        }
 
-        // TODO handle $returnarray being null (e.g. not valid JSON or arraykey doesn't exist).
+        $arraykey = $config->arraykey;
         $returnarray = $decodedjson->$arraykey;
+        if (is_null($returnarray)) {
+            throw new \moodle_exception(get_string('reader_json:failed_to_fetch_array', 'tool_dataflows', $config->arraykey));
+        }
 
         // TODO sort by config value.
 
         return $returnarray;
     }
 
+    /**
+     * Parses stream to json string.
+     *
+     * @return string
+     */
+    protected function get_json_string($config): string
+    {
+        $jsonstring = file_get_contents($config->json);
+
+        if ($jsonstring === false) {
+            $this->enginestep->log(error_get_last()['message']);
+            throw new \moodle_exception(get_string('reader_json:failed_to_open_file', 'tool_dataflows', $config->json));
+        }
+
+        return $jsonstring;
+    }
     /**
      * Validate the configuration settings.
      *
@@ -98,7 +124,7 @@ class reader_json extends reader_step {
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // JSON array source.
-        $mform->addElement('textarea', 'config_json', get_string('reader_json:json', 'tool_dataflows'));
+        $mform->addElement('text', 'config_json', get_string('reader_json:json', 'tool_dataflows'));
         $mform->addElement('static', 'config_json_help', '', get_string('reader_json:json_help', 'tool_dataflows'));
 
         // Array iterator value.

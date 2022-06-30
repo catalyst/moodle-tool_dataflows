@@ -92,8 +92,8 @@ $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_s3'] = 'S3 file copy connector';
 $string['step_name_flow_logic_join'] = 'Flow join';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
-$string['step_name_reader_sql'] = 'SQL reader';
 $string['step_name_reader_json'] = 'JSON reader';
+$string['step_name_reader_sql'] = 'SQL reader';
 $string['step_name_trigger_cron'] = 'Scheduled task trigger';
 $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
@@ -188,6 +188,11 @@ $string['bad_status'] = 'Bad status, had "{$a->status}", expected "{$a->expected
 $string['must_have_a_step_def_defined'] = 'If an engine is passed as a parameter, a step definition must alse be passed.';
 $string['path_invalid'] = 'Path "{$a}" is not permitted.';
 
+// JSON errors.
+$string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';
+$string['reader_json:failed_to_fetch_array'] = 'Failed to extract nested JSON array "{$a}".';
+$string['reader_json:failed_to_open_file'] = 'Failed to open JSON file "{$a}".';
+
 // Stream errors.
 $string['writer_stream:failed_to_open_stream'] = 'Failed to open stream "{$a}".';
 $string['writer_stream:failed_to_write_stream'] = 'Failed to write to stream "{$a}".';
@@ -244,11 +249,11 @@ $string['reader_sql:variable_not_valid_in_position_replacement_text'] = "Invalid
 
 // Reader JSON.
 $string['reader_json:arraykey'] = 'Array Key';
-$string['reader_json:arraykey_help'] = 'Key of array in JSON to be parsed';
+$string['reader_json:arraykey_help'] = 'Nested array to extract from JSON. For example, <code>user.tags</code> will parse the tags array. If empty the entire array will be parsed.';
 $string['reader_json:arraysort'] = 'Sort by';
 $string['reader_json:arraysort_help'] = 'Value to sort array by';
-$string['reader_json:json'] = 'JSON Array';
-$string['reader_json:json_help'] = 'Needs to be a valid JSON array.';
+$string['reader_json:json'] = 'Path to JSON Array';
+$string['reader_json:json_help'] = 'For example, setting <code>file:///path/to/file.json</code> will parse the JSON file at the location.';
 
 // Cron trigger.
 $string['trigger_cron:cron'] = 'Scheduled task';
