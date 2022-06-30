@@ -144,10 +144,41 @@ class step_form extends \core\form\persistent {
      * @return array of additional errors, or overridden errors.
      */
     protected function extra_validation($data, $files, array &$errors) {
+        global $DB;
+
+        $errors = [];
+
         // Process and convert the received data back under the config field.
         $steptype = new $data->type();
         $newerrors = $steptype->form_extra_validation($data, $files, $errors);
 
-        return $newerrors;
+        // Fetch name and aliases for existing steps in this dataflow.
+        $records = $DB->get_records(
+            self::$persistentclass::TABLE,
+            ['dataflowid' => $data->dataflowid],
+            '',
+            'id, name, alias'
+        ) ?? [];
+
+        // Existing step update, remove its name and alias from the blocklist.
+        $persistent = $this->get_persistent();
+        $id = $persistent->id;
+        if (!empty($id)) {
+            unset($records[$id]);
+        }
+        $names = array_column($records, 'name');
+        $aliases = array_column($records, 'alias');
+
+        // Check and ensure the name aren't reused in new or by other existing steps.
+        if (in_array($data->name, $names)) {
+            $errors['name'] = get_string('nametaken', 'tool_dataflows', $data->name);
+        }
+
+        // Check and ensure the aliases aren't reused in new or by other existing steps.
+        if (in_array($data->alias, $aliases)) {
+            $errors['alias'] = get_string('aliastaken', 'tool_dataflows', $data->name);
+        }
+
+        return array_merge($errors, $newerrors);
     }
 }
