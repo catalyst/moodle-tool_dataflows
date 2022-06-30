@@ -176,7 +176,7 @@ class step_form extends \core\form\persistent {
 
         // Check and ensure the aliases aren't reused in new or by other existing steps.
         if (in_array($data->alias, $aliases)) {
-            $errors['alias'] = get_string('aliastaken', 'tool_dataflows', $data->name);
+            $errors['alias'] = get_string('aliastaken', 'tool_dataflows', $data->alias);
         }
 
         return array_merge($errors, $newerrors);
