@@ -57,6 +57,7 @@ class step_form extends \core\form\persistent {
 
         // Name of the step.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
+        $mform->addRule('name', get_string('missingfield', 'error', 'name'), 'required', null, 'client');
 
         // Description for the step which may include the purpose for its inclusion, more detail about what it does or how it works.
         $mform->addElement(
