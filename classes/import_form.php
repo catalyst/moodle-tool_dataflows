@@ -16,9 +16,6 @@
 
 namespace tool_dataflows;
 
-use Symfony\Component\Yaml\Exception\ParseException;
-use Symfony\Component\Yaml\Yaml;
-
 /**
  * Import dataflow form class.
  *
@@ -79,10 +76,13 @@ class import_form extends \moodleform {
         $file = reset($files);
 
         // Check if file is valid YAML.
-        try {
-            Yaml::parse($file->get_content());
-        } catch (ParseException $e) {
-            $validationerrors['invalidyaml'] = get_string('invalidyaml', 'tool_dataflows');
+        $content = $file->get_content();
+        if (!empty($content)) {
+            $parser = new parser;
+            $validation = $parser->validate_yaml($content);
+            if ($validation !== true) {
+                $validationerrors['userfile'] = $validation;
+            }
         }
 
         return $validationerrors;

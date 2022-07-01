@@ -17,7 +17,7 @@
 namespace tool_dataflows\form;
 
 use tool_dataflows\dataflow;
-use tool_dataflows\manager;
+use tool_dataflows\parser;
 
 /**
  * Dataflow Step Form
@@ -178,6 +178,15 @@ class step_form extends \core\form\persistent {
         // Check and ensure the aliases aren't reused in new or by other existing steps.
         if (in_array($data->alias, $aliases)) {
             $errors['alias'] = get_string('aliastaken', 'tool_dataflows', $data->alias);
+        }
+
+        // If the config field has been provided, ensure it is in valid YAML.
+        if (isset($data->config)) {
+            $parser = new parser;
+            $validation = $parser->validate_yaml($data->config);
+            if ($validation !== true) {
+                $errors['config'] = $validation;
+            }
         }
 
         return array_merge($errors, $newerrors);
