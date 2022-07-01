@@ -155,7 +155,44 @@ class reader_sql extends reader_step {
         $max = 5;
         while ($hasexpression && $max) {
             $finalsql = $parser->evaluate_or_fail($finalsql, $variables, function ($message, $e) {
+                // Check and massage the message if required.
+                $matches = null;
+                preg_match_all(
+                    // phpcs:disable moodle.Strings.ForbiddenStrings.Found
+                    '/Variable "(?<expressionpath>.*)" is not valid.*`(?<expression>.*)`.*for expression (?<sql>.*)/ms',
+                    $message,
+                    $matches,
+                    PREG_SET_ORDER);
+
+                if (!empty($matches)) {
+                    // Modify the SQL, adding a pointer to the first instance of the usage which resulted in the error.
+                    $match = (object) reset($matches);
+                    // Pinpoint the line and column of the expression in the SQL.
+                    $line = 0;
+                    $column = 0;
+                    $sqlbylines = explode("\n", $match->sql);
+                    foreach ($sqlbylines as $lineindex => $linecontents) {
+                        $position = strpos($linecontents, $match->expression);
+                        if ($position !== false) {
+                            $column = $position + 1;
+                            $line = $lineindex + 1;
+                            break;
+                        }
+                    }
+                    // Insert the characters in the following line.
+                    $sqlwithannotations = $this->draw_arrow_to_string_position($match->sql, $column, $line);
+                    $a = (object) array_merge((array) $match, [
+                        'sql' => $sqlwithannotations,
+                        'column' => $column,
+                        'line' => $line,
+                    ]);
+                    $message = get_string('reader_sql:variable_not_valid_in_position_replacement_text', 'tool_dataflows', $a);
+                }
+
+                // Log the message.
                 $this->enginestep->log($message);
+
+                // Throw the original exception (i.e. for the real stack trace).
                 throw $e;
             });
             [$hasexpression] = $parser->has_expression($finalsql);
@@ -163,6 +200,25 @@ class reader_sql extends reader_step {
         }
 
         return $finalsql;
+    }
+
+    /**
+     * Draws an arrow pointing at the focused position in a string
+     *                                ^
+     * @param   string $string of the original contents
+     * @param   int $column column position to focus on
+     * @param   int $line line position to focus on
+     * @return  string with arrow annotation
+     */
+    private function draw_arrow_to_string_position($string, $column, $line) {
+        // Split by lines to ensure we insert it at the appropriate line.
+        $sqlbylines = explode("\n", $string);
+
+        // Insert the characters in the following line.
+        $arrow = str_pad('', $column - 1, ' ') . '^';
+        array_splice($sqlbylines, $line, 0, $arrow);
+
+        return implode("\n", $sqlbylines);
     }
 
     /**
