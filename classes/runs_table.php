@@ -112,9 +112,7 @@ class runs_table extends \table_sql {
      * @return string
      */
     public function col_timestarted(\stdClass $record): string {
-        $defaulttimezone = date_default_timezone_get();
-        $formatteddate = date_format_string($record->timestarted, get_string('strftimedatetimeaccurate'), $defaulttimezone);
-        return $formatteddate;
+        return userdate($record->timestarted, get_string('strftimedatetimeaccurate'));
     }
 
     /**
@@ -124,9 +122,7 @@ class runs_table extends \table_sql {
      * @return string
      */
     public function col_timefinished(\stdClass $record): string {
-        $defaulttimezone = date_default_timezone_get();
-        $formatteddate = date_format_string($record->timefinished, get_string('strftimedatetimeaccurate'), $defaulttimezone);
-        return $formatteddate;
+        return userdate($record->timefinished, get_string('strftimedatetimeaccurate'));
     }
 
     /**
