@@ -132,7 +132,7 @@ class runs_table extends \table_sql {
      * @return string
      */
     public function col_duration(\stdClass $record): string {
-        $totalsecs = number_format($record->timefinished - $record->timestarted, 4);
+        $totalsecs = number_format($record->timefinished - $record->timestarted, 3);
         return format_time($totalsecs);
     }
 }
