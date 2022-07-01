@@ -17,6 +17,8 @@
 namespace tool_dataflows;
 
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Expression Parsing helper class
@@ -117,5 +119,34 @@ class parser {
             return $evaluatedexpression;
         }
         return $string;
+    }
+
+    /**
+     * Returns whether or not the string content provided is valid YAML
+     *
+     * Note that this method assumes a flat string value (which is valid by
+     * default) is invalid. Instead it must parse and represent some structured
+     * content.
+     *
+     * @param   string $contents
+     * @return  true|string True if the contents is valid yaml, or an error as a string if not
+     */
+    public function validate_yaml($contents) {
+        $invalidyaml = false;
+        try {
+            $yaml = Yaml::parse($contents, Yaml::PARSE_OBJECT_FOR_MAP);
+            if (isset($yaml) && gettype($yaml) !== 'object') {
+                $invalidyaml = true;
+            }
+        } catch (ParseException $e) {
+            $invalidyaml = true;
+        }
+
+        if ($invalidyaml) {
+            return new \lang_string('invalidyaml', 'tool_dataflows');
+        }
+
+        // Contents is valid YAML contents.
+        return true;
     }
 }
