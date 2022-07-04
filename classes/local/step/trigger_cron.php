@@ -120,11 +120,51 @@ class trigger_cron extends trigger_step {
 
         $fields = array('minute', 'hour', 'day', 'month', 'dayofweek');
         foreach ($fields as $field) {
-            if (!\tool_task_edit_scheduled_task_form::validate_fields($field, $config->$field)) {
-                $errors['config_' . $field] = get_string('trigger_cron:invalid', 'tool_dataflows', '', true);
+            if (!self::validate_fields($field, $config->$field)) {
+                return ['crontab' => get_string('trigger_cron:invalid', 'tool_dataflows', '', true)];
             }
         }
-        return empty($errors) ? true : $errors;
+        return true;
+    }
+
+    /**
+     * Helper function that validates the submitted data. Copied over from tool_task_edit_scheduled_task_form, as
+     * it is removed from 4.0 onwards.
+     *
+     * Explanation of the regex:-
+     *
+     * \A\*\z - matches *
+     * \A[0-5]?[0-9]\z - matches entries like 23
+     * \A\*\/[0-5]?[0-9]\z - matches entries like * / 5
+     * \A[0-5]?[0-9](,[0-5]?[0-9])*\z - matches entries like 1,2,3
+     * \A[0-5]?[0-9]-[0-5]?[0-9]\z - matches entries like 2-10
+     *
+     * @param string $field field to validate
+     * @param string $value value
+     *
+     * @return bool true if validation passes, false other wise.
+     */
+    public static function validate_fields($field, $value) {
+        switch ($field) {
+            case 'minute' :
+            case 'hour' :
+                $regex = "/\A\*\z|\A[0-5]?[0-9]\z|\A\*\/[0-5]?[0-9]\z|\A[0-5]?[0-9](,[0-5]?[0-9])*\z|\A[0-5]?[0-9]-[0-5]?[0-9]\z/";
+                break;
+            case 'day':
+                $regex = "/\A\*\z|\A([1-2]?[0-9]|3[0-1])\z|\A\*\/([1-2]?[0-9]|3[0-1])\z|";
+                $regex .= "\A([1-2]?[0-9]|3[0-1])(,([1-2]?[0-9]|3[0-1]))*\z|\A([1-2]?[0-9]|3[0-1])-([1-2]?[0-9]|3[0-1])\z/";
+                break;
+            case 'month':
+                $regex = "/\A\*\z|\A([0-9]|1[0-2])\z|\A\*\/([0-9]|1[0-2])\z|\A([0-9]|1[0-2])(,([0-9]|1[0-2]))*\z|";
+                $regex .= "\A([0-9]|1[0-2])-([0-9]|1[0-2])\z/";
+                break;
+            case 'dayofweek':
+                $regex = "/\A\*\z|\A[0-6]\z|\A\*\/[0-6]\z|\A[0-6](,[0-6])*\z|\A[0-6]-[0-6]\z/";
+                break;
+            default:
+                return false;
+        }
+        return (bool)preg_match($regex, $value);
     }
 
     /**
