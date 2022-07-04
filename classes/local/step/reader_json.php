@@ -18,6 +18,7 @@ namespace tool_dataflows\local\step;
 
 use core_admin\local\settings\filesize;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use tool_dataflows\local\execution\engine_step;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
@@ -73,14 +74,19 @@ class reader_json extends reader_step {
         }
 
         $arraykey = $config->arraykey;
-        $returnarray = $decodedjson->$arraykey;
+        $expressionlanguage = new ExpressionLanguage();
+        $returnarray = $expressionlanguage->evaluate(
+            'data.'.$arraykey,
+            [
+                'data' => $decodedjson,
+            ]
+        );
+
         if (is_null($returnarray)) {
             throw new \moodle_exception(get_string('reader_json:failed_to_fetch_array', 'tool_dataflows', $config->arraykey));
         }
 
-        // TODO sort by config value.
-
-        return $returnarray;
+        return $this->sort_by_config_value($returnarray, $config->arraysort, $this->enginestep);
     }
 
     /**
@@ -99,6 +105,26 @@ class reader_json extends reader_step {
 
         return $jsonstring;
     }
+
+    /**
+     * Sort array by config value.
+     *
+     * @param array $array
+     * @param string $sortby
+     * @param engine_step $enginestep
+     */
+    public static function sort_by_config_value(array $array, string $sortby, engine_step $enginestep): array {
+        if ($sortby !== '') {
+            $keys = array_column($array, $sortby);
+            if (!empty($keys)) {
+                array_multisort($keys, SORT_ASC, $array);
+            } else {
+                $enginestep->log(get_string('reader_json:no_sort_key', 'tool_dataflows', $sortby));
+            }
+        }
+        return $array;
+    }
+
     /**
      * Validate the configuration settings.
      *

@@ -192,6 +192,7 @@ $string['path_invalid'] = 'Path "{$a}" is not permitted.';
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';
 $string['reader_json:failed_to_fetch_array'] = 'Failed to extract nested JSON array "{$a}".';
 $string['reader_json:failed_to_open_file'] = 'Failed to open JSON file "{$a}".';
+$string['reader_json:no_sort_key'] = 'Unable to sort. Sort by value "{$a}" not a key in array.';
 
 // Stream errors.
 $string['writer_stream:failed_to_open_stream'] = 'Failed to open stream "{$a}".';
@@ -249,9 +250,9 @@ $string['reader_sql:variable_not_valid_in_position_replacement_text'] = "Invalid
 
 // Reader JSON.
 $string['reader_json:arraykey'] = 'Array Key';
-$string['reader_json:arraykey_help'] = 'Nested array to extract from JSON. For example, <code>user.tags</code> will parse the tags array. If empty the entire array will be parsed.';
+$string['reader_json:arraykey_help'] = 'Nested array to extract from JSON. For example, <code>data.list.users</code> will return the users array from the following JSON: <code>{"data": {"list": {"users": [{ "id": "1", "username": "User1", "name": "Name1"},{ "id": "2","username": "User2","name": "Name2"} ] } } ,"modified": 1654058940, "errors": []}</code>. If empty it is assumed the starting point of the JSON file is an array.';
 $string['reader_json:arraysort'] = 'Sort by';
-$string['reader_json:arraysort_help'] = 'Value to sort array by';
+$string['reader_json:arraysort_help'] = 'Value to sort array by, this value needs to be present in the return array. For the example above, setting this value to <code>id</code> will return an array sorted by the id value in the users array.';
 $string['reader_json:json'] = 'Path to JSON Array';
 $string['reader_json:json_help'] = 'For example, setting <code>file:///path/to/file.json</code> will parse the JSON file at the location.';
 
