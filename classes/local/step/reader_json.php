@@ -22,6 +22,7 @@ use tool_dataflows\local\execution\engine_step;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
+use tool_dataflows\local\formats\encoders\json;
 use tool_dataflows\parser;
 
 /**
@@ -113,14 +114,20 @@ class reader_json extends reader_step {
      * @param string $sortby
      * @param engine_step $enginestep
      */
-    public static function sort_by_config_value(array $array, string $sortby, engine_step $enginestep): array {
+    public static function sort_by_config_value(array $array, string $sortby): array {
+        $expressionlanguage = new ExpressionLanguage();
         if ($sortby !== '') {
-            $keys = array_column($array, $sortby);
-            if (!empty($keys)) {
-                array_multisort($keys, SORT_ASC, $array);
-            } else {
-                $enginestep->log(get_string('reader_json:no_sort_key', 'tool_dataflows', $sortby));
-            }
+            usort($array, function($a, $b) use ($sortby, $expressionlanguage) {
+                $a = $expressionlanguage->evaluate(
+                    'data.'.$sortby,
+                    ["data" => $a]
+                );
+                $b = $expressionlanguage->evaluate(
+                    'data.'.$sortby,
+                    ["data" => $b]
+                );
+                return strnatcasecmp($a, $b);
+            });
         }
         return $array;
     }
@@ -154,8 +161,21 @@ class reader_json extends reader_step {
         $mform->addElement('static', 'config_json_help', '', get_string('reader_json:json_help', 'tool_dataflows'));
 
         // Array iterator value.
+        $arrayexample = (object) [
+            'data' => (object) [
+                'list' => ['users' => [
+                            [ "id" => "1",  "userdetails" => ["firstname" =>"Bob", "lastname" => "Smith", "name" => "Name1"]],
+                            [ "id" => "2",  "userdetails" => ["firstname" =>"John", "lastname" => "Doe", "name" => "Name2"]],
+                            [ "id" => "3",  "userdetails" => ["firstname" =>"Foo", "lastname" => "Bar", "name" => "Name3"]]
+                        ],
+                    ]
+                ],
+                'modified' => [1654058940],
+                'errors' => [],
+            ];
+        $jsonexample = json_encode($arrayexample,JSON_PRETTY_PRINT);
         $mform->addElement('text', 'config_arraykey', get_string('reader_json:arraykey', 'tool_dataflows'));
-        $mform->addElement('static', 'config_arraykey_help', '', get_string('reader_json:arraykey_help', 'tool_dataflows'));
+        $mform->addElement('static', 'config_arraykey_help', '', get_string('reader_json:arraykey_help', 'tool_dataflows').$jsonexample);
 
         // JSON array sort by.
         $mform->addElement('text', 'config_arraysort', get_string('reader_json:arraysort', 'tool_dataflows'));
