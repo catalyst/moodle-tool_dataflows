@@ -220,6 +220,7 @@ $string['reader_sql:counterfield'] = 'Counter field';
 $string['reader_sql:counterfield_help'] = 'Field in which the counter value is derived from. For example, the user <code>id</code> field in user related query';
 $string['reader_sql:countervalue'] = 'Counter Value';
 $string['reader_sql:countervalue_help'] = 'Current value from the counter field';
+$string['reader_sql:variable_not_valid_in_position_replacement_text'] = "Invalid expression \${{ {\$a->expression} }} as `{\$a->expressionpath}` could not be resolved at line {\$a->line} character {\$a->column} in:\n{\$a->sql}"; // phpcs:disable moodle.Strings.ForbiddenStrings.Found
 
 // Cron trigger.
 $string['trigger_cron:cron'] = 'Scheduled task';
