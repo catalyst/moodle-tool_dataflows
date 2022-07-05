@@ -268,3 +268,16 @@ $string['trigger_cron:crontab'] = 'Schedule in cron tab format';
 $string['trigger_cron:crontab_desc'] = 'The schedule is edited as five values: minute, hour, day, month and day of month, in that order. The values are in crontab format.';
 $string['trigger_cron:strftime_datetime'] = '%d %b %Y, %H:%M';
 $string['trigger_cron:next_run_time'] = 'Next run time: {$a}';
+
+// S3 File Copy.
+$string['connector_s3:bucket'] = 'Bucket';
+$string['connector_s3:region'] = 'Region';
+$string['connector_s3:key'] = 'Key';
+$string['connector_s3:secret'] = 'Secret';
+$string['connector_s3:source'] = 'Source / From';
+$string['connector_s3:source_help'] = 'Path to the source file. This can be a local (e.g. output.csv) or s3 path (e.g. s3://path/to/file).';
+$string['connector_s3:target'] = 'Target / To';
+$string['connector_s3:target_help'] = 'Path to the target file. Similar to the source, it can be a local or s3 path. If a directory is used, the source filename is applied.';
+$string['connector_s3:missing_s3_source_or_target'] = 'At least one source or target path must reference a location in s3';
+$string['connector_s3:source_is_a_directory'] = 'The source path is a directory but a file path is expected.';
+
