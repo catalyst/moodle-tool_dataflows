@@ -1,0 +1,89 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template tool_dataflows/run
+
+    Displays the summary of the run
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * run persistent model
+
+    Example context (json):
+    {
+        "run": {
+            "name": "1.4",
+            "timestarted": "5 May 2022 11:33:01 AM",
+            "timefinished": "5 May 2022 11:33:02 AM",
+            "duration": "1 second",
+            ...
+        }
+    }
+}}
+<div class="accordion" id="dataflowRunStates">
+    <!-- Current State -->
+    {{^hasendstate}}
+    <div class="card">
+        <div class="card-header" id="currentstate">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapse-currentstate" aria-expanded="false" aria-controls="collapse-currentstate">
+                    {{#str}} currentstate, tool_dataflows {{/str}}
+                </button>
+            </h2>
+        </div>
+        <div id="collapse-currentstate" class="collapse show" aria-labelledby="currentstate" data-parent="#dataflowRunStates">
+            <pre class="card-body">{{currentstate}}</pre>
+        </div>
+    </div>
+    {{/hasendstate}}
+
+    <!-- Final state / End state -->
+    {{#hasendstate}}
+    <div class="card">
+        <div class="card-header" id="endstate">
+            <h2 class="mb-0">
+                <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapse-endstate" aria-expanded="false" aria-controls="collapse-endstate">
+                    {{#str}} endstate, tool_dataflows {{/str}}
+                </button>
+            </h2>
+        </div>
+        <div id="collapse-endstate" class="collapse show" aria-labelledby="endstate" data-parent="#dataflowRunStates">
+            <pre class="card-body">{{endstate}}</pre>
+        </div>
+    </div>
+    {{/hasendstate}}
+
+    <!-- Starting state -->
+    <div class="card">
+        <div class="card-header" id="startstate">
+            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse-startstate" aria-expanded="true" aria-controls="collapse-startstate">
+                {{#str}} startstate, tool_dataflows {{/str}}
+            </button>
+        </div>
+
+        <div id="collapse-startstate" class="collapse" aria-labelledby="startstate" data-parent="#dataflowRunStates">
+            <pre class="card-body">{{startstate}}</pre>
+        </div>
+    </div>
+</div>
+
+<!-- TODO: Add run logs underneath -->

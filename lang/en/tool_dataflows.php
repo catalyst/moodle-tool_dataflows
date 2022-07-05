@@ -52,6 +52,9 @@ $string['dry_run'] = 'Dry run';
 $string['export'] = 'Export';
 $string['import'] = 'Import';
 $string['dataflow_enabled'] = 'Dataflow enabled';
+$string['all_runs'] = 'All runs';
+$string['recent_runs'] = 'Recent runs';
+$string['no_recent_runs'] = 'No recent runs';
 
 // Dataflows (form).
 $string['field_name'] = 'Name';
@@ -71,6 +74,17 @@ $string['remove_confirm'] = 'Are you sure you want to remove the step \'{$a}\'? 
 $string['remove_step_successful'] = 'Removed step \'{$a}\' successfully.';
 $string['remove_step'] = 'Remove step';
 $string['steps'] = 'Steps';
+
+// Dataflows runs (table).
+$string['run'] = 'Run';
+$string['runs'] = 'Runs';
+$string['field_status'] = 'Status';
+$string['field_timestarted'] = 'Started';
+$string['field_timefinished'] = 'Finished';
+$string['field_duration'] = 'Duration';
+$string['startstate'] = 'Start state';
+$string['currentstate'] = 'Current state';
+$string['endstate'] = 'End state';
 
 // Step names.
 $string['step_name_connector_curl'] = 'Curl connector';

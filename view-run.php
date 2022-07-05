@@ -26,6 +26,7 @@
 use tool_dataflows\steps_table;
 use tool_dataflows\visualiser;
 use tool_dataflows\dataflow;
+use tool_dataflows\run;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -35,9 +36,12 @@ defined('MOODLE_INTERNAL') || die();
 
 require_login();
 
+// The dataflow run id.
 $id = required_param('id', PARAM_INT);
 
-$url = new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id]);
+$run = new run($id);
+
+$url = new moodle_url('/admin/tool/dataflows/view-run.php', ['id' => $id]);
 $context = context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_url($url);
@@ -59,10 +63,59 @@ $table->set_sql($sqlfields, $sqlfrom, $sqlwhere, $sqlparams);
 $table->make_columns();
 
 // Configure the breadcrumb navigation.
-$dataflow = new dataflow($id);
+$dataflow = new dataflow($run->dataflowid);
 visualiser::breadcrumb_navigation([
-    // Dataflows > Manage Flows > :dataflow->name (details page).
+    // Dataflows > Manage Flows > :dataflow->name (details page) > Runs.
     [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
-    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id])],
+    [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $run->dataflowid])],
+    ["#{$run->name}", $url],
 ]);
-visualiser::display_dataflows_view_page($id, $table, $url, get_string('steps', 'tool_dataflows'));
+
+$context = \context_system::instance();
+
+$PAGE->set_context($context);
+$PAGE->set_url($url);
+
+$output = $PAGE->get_renderer('tool_dataflows');
+$pluginname = get_string('pluginname', 'tool_dataflows');
+
+$table->define_baseurl($url);
+
+$pageheading = "{$dataflow->name} #{$run->name}";
+$PAGE->set_title($pluginname . ': ' . $pageheading);
+$PAGE->set_pagelayout('admin');
+$PAGE->set_heading($pluginname);
+echo $output->header();
+echo $output->heading($pageheading);
+
+// Run Summary information (at the top).
+$defaulttimezone = date_default_timezone_get();
+$table = new html_table();
+$table->attributes['class'] = 'tool_dataflows table-run';
+$duration = number_format($run->timefinished - $run->timestarted, 4);
+$secsstr = get_string('secs');
+$data = [
+    'field_timestarted' => date_format_string($run->timestarted, get_string('strftimedatetimeaccurate'), $defaulttimezone),
+    'field_timefinished' => date_format_string($run->timefinished, get_string('strftimedatetimeaccurate'), $defaulttimezone),
+    'field_duration' => $duration ? format_time($duration) : ("0 {$secsstr}"),
+];
+$tabledata = [];
+foreach ($data as $key => $value) {
+    $row = new html_table_row([
+        get_string($key, 'tool_dataflows'),
+        $value
+    ]);
+    $row->attributes['class'] .= $key;
+    $tabledata[] = $row;
+}
+$table->data = $tabledata;
+echo html_writer::table($table);
+
+// Run state details.
+$data = $run->to_record();
+if (!empty($data->endstate)) {
+    $data->hasendstate = true;
+}
+echo $output->render_from_template('tool_dataflows/run', $data);
+
+echo $output->footer();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220624" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
+<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220630" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -73,9 +73,9 @@
         <FIELD NAME="dataflowid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="This is the dataflow that this run is originally based on."/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The user who started this particular run"/>
         <FIELD NAME="status" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="The current state of the run as a string, e.g. running, pausing, paused, finished, etc."/>
-        <FIELD NAME="timestarted" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp of when the run started"/>
-        <FIELD NAME="timepaused" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="timefinished" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timestarted" TYPE="number" LENGTH="14" NOTNULL="false" SEQUENCE="false" DECIMALS="4" COMMENT="Timestamp of when the run started"/>
+        <FIELD NAME="timepaused" TYPE="number" LENGTH="14" NOTNULL="false" SEQUENCE="false" DECIMALS="4"/>
+        <FIELD NAME="timefinished" TYPE="number" LENGTH="14" NOTNULL="false" SEQUENCE="false" DECIMALS="4"/>
         <FIELD NAME="name" TYPE="char" LENGTH="11" NOTNULL="false" SEQUENCE="false" COMMENT="Identifier of the run, typically a single digit per unique run. A semver value, e.g. 1.1 if a run is re-executed using the same inputs"/>
         <FIELD NAME="startstate" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="currentstate" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The current state of this run. This might be persisted after some time has elapsed since it started as a means of recovery, or if the user has paused the dataflow, such that it can be resumed at a later time."/>

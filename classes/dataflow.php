@@ -370,6 +370,18 @@ class dataflow extends persistent {
     }
 
     /**
+     * Returns a list of runs
+     *
+     * @param   int $limit number of runs to fetch (most recent)
+     * @return  array of run persistents
+     */
+    public function get_runs($limit): array {
+        global $DB;
+        $records = $DB->get_records('tool_dataflows_runs', ['dataflowid' => $this->id], 'id DESC', '*', 0, $limit);
+        return array_reverse($records);
+    }
+
+    /**
      * Returns a list of step (persistent models)
      *
      * @return     \stdClass array of step models, keyed by their alias, ordered by their possible execution order

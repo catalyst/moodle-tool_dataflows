@@ -16,6 +16,7 @@
 
 namespace tool_dataflows;
 
+use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\base_step;
 
 /**
@@ -168,7 +169,7 @@ class visualiser {
         echo $output->footer();
     }
 
-    public static function display_steps_table(int $dataflowid, steps_table $table, \moodle_url $url, string $pageheading) {
+    public static function display_dataflows_view_page(int $dataflowid, steps_table $table, \moodle_url $url, string $pageheading) {
         global $PAGE;
 
         $output = $PAGE->get_renderer('tool_dataflows');
@@ -185,6 +186,9 @@ class visualiser {
         // Validate current dataflow, displaying any reason why the flow is not valid.
         $validation = $dataflow->validate_dataflow();
 
+        echo \html_writer::start_div('tool_dataflow-top-bar');
+
+        echo \html_writer::start_div('tool_dataflow-actions-bar');
         // Display the run now button (disabling it if dataflow is not valid).
         if ($validation === true) {
             $buttoncolour = 'btn-success';
@@ -272,6 +276,43 @@ class visualiser {
         $deletebutton->class .= ' ml-2';
         $content = $output->render($deletebutton);
         echo str_replace($btnuid, $icon . get_string('delete'), $content);
+        echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-actions-bar div.
+
+        echo \html_writer::start_div('tool_dataflow-runs-bar');
+        // Display the most recent runs across the top, if it goes over a
+        // certain amount then it will link to a paginated table listing out the
+        // previous runs. This can have a background color to indicate the
+        // status of the run and only display the run name, etc.
+        // TODO: for now link to the "All runs" (for this dataflow) page containing the table.
+
+        $maxrunstoshow = 10;
+        $runs = $dataflow->get_runs($maxrunstoshow);
+
+        // Show this when the number of runs equals the max runs, and the first run in the list is NOT run #1.
+        if (count($runs) === $maxrunstoshow && ((int) reset($runs)->name !== 1)) {
+            $allrunsurl = new \moodle_url('/admin/tool/dataflows/runs.php', ['id' => $dataflow->id]);
+            echo \html_writer::link($allrunsurl, get_string('all_runs', 'tool_dataflows'), ['class' => 'btn btn-run-default']);
+        }
+
+        // Show up to the last 10 runs.
+        foreach ($runs as $run) {
+            $runurl = new \moodle_url('/admin/tool/dataflows/view-run.php', ['id' => $run->id]);
+            $runstate = engine::STATUS_LABELS[$run->status];
+            echo \html_writer::link($runurl, $run->name, ['class' => "btn btn-run-default run-state-{$runstate}"]);
+        }
+
+        // Recent runs label (no recent, or recent runs to describe the list).
+        if (!empty($runs)) {
+            $recentrunsstr = get_string('recent_runs', 'tool_dataflows');
+        } else {
+            $recentrunsstr = get_string('no_recent_runs', 'tool_dataflows');
+        }
+        $recentrunslabel = \html_writer::tag('span', $recentrunsstr, ['class' => 'btn btn-text']);
+        echo $recentrunslabel;
+
+        echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-runs-bar div.
+
+        echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-top-bar div.
 
         // Generate the image based on the DOT script.
         $contents = self::generate($dataflow->get_dotscript(), 'svg');

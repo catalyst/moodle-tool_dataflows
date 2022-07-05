@@ -33,5 +33,20 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
 
+    if ($oldversion < 2022070501) {
+
+        // Changing type of field timestarted, timepaused, timefinished on table
+        // tool_dataflows_runs to number and precision to (14, 4).
+        $table = new xmldb_table('tool_dataflows_runs');
+
+        foreach (['timestarted', 'timepaused', 'timefinished'] as $fieldname) {
+            $field = new xmldb_field($fieldname, XMLDB_TYPE_NUMBER, '14, 4', null, null, null, null, null);
+            $dbman->change_field_type($table, $field);
+            $dbman->change_field_precision($table, $field);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022070501, 'tool', 'dataflows');
+    }
     return true;
 }
