@@ -39,6 +39,8 @@ class step_form extends \core\form\persistent {
      * Define the form.
      */
     public function definition() {
+        global $OUTPUT;
+
         $mform = $this->_form;
         $dataflowid = $this->_customdata['dataflowid'];
         $type = $this->_customdata['type'];
@@ -93,12 +95,37 @@ class step_form extends \core\form\persistent {
         );
         $select->setMultiple(true);
 
+        // List all the available fields available for configuration, in dot syntax.
+        $variables = $persistent->get_variables();
+        $ritit = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($variables));
+        $fields = [];
+        foreach ($ritit as $leaf) {
+            $keys = [];
+            foreach (range(0, $ritit->getDepth()) as $depth) {
+                $keys[] = $ritit->getSubIterator($depth)->key();
+            }
+            $fields[join('.', $keys)] = $leaf;
+        }
+
+        // Annoyingly, will need to reconvert this into an array so it can be looped over in mustache.
+        $allfields = [];
+        $groupcreated = [];
+        foreach ($fields as $key => $value) {
+            $group = explode('.', $key)[0];
+            if (!isset($groupcreated[$group])) {
+                $groupcreated[$group] = count($groupcreated);
+                $allfields[$groupcreated[$group]]['name'] = $group;
+            }
+            $allfields[$groupcreated[$group]]['fields'][] = ['text' => $key, 'title' => $value];
+        }
+        $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
+        $mform->addElement('html', $fieldhtml);
+
         // Check and set custom form inputs if required. Defaulting to a
         // textarea config input for those not yet configured.
         $steptype = $persistent->steptype ?? new $type();
         $steptype->form_set_input_types($mform);
         $steptype->form_add_custom_inputs($mform);
-
         $this->add_action_buttons();
     }
 
