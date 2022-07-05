@@ -184,7 +184,7 @@ class engine {
         // TODO Currently assumes flow blocks have no branches.
         $flowcaps = 0;
         foreach ($this->enginesteps as $enginestep) {
-            if ($enginestep->is_flow() && count($enginestep->downstreams) == 0) {
+            if ($enginestep->is_flow() && $this->count_flow_steps($enginestep->downstreams) == 0) {
                 $step = new \tool_dataflows\step();
                 $steptype = new flow_cap($step, $this);
                 $flowcaps++;
@@ -195,6 +195,22 @@ class engine {
                 $flowcap->upstreams[$enginestep->id] = $enginestep;
             }
         }
+    }
+
+    /**
+     * Returns the number of flow steps in the step list.
+     *
+     * @param array $list
+     * @return int
+     */
+    protected function count_flow_steps(array $list): int {
+        $count = 0;
+        foreach ($list as $item) {
+            if ($item->is_flow()) {
+                ++$count;
+            }
+        }
+        return $count;
     }
 
     /**
@@ -234,6 +250,18 @@ class engine {
     }
 
     /**
+     * Adds an engine step to the queues for processing.
+     *
+     * @param engine_step $step
+     */
+    public function add_to_queue(engine_step $step) {
+        if (!in_array($step, $this->enginesteps) && !in_array($step, $this->flowcaps)) {
+            throw new \moodle_exception('engine:bad_step', 'tool_dataflows', $step->name);
+        }
+        $this->queue[] = $step;
+    }
+
+    /**
      * Executes a single step. Must be initialised prior to calling. Does not finalise.
      */
     public function execute_step() {
@@ -247,31 +275,7 @@ class engine {
             $this->set_status(self::STATUS_FINISHED);
         } else {
             $currentstep = array_shift($this->queue);
-            $result = $currentstep->go();
-
-            switch ($result) {
-                case self::STATUS_BLOCKED:
-                case self::STATUS_WAITING:
-                    foreach ($currentstep->upstreams as $upstream) {
-                        $this->queue[] = $upstream;
-                    }
-                    break;
-                case self::STATUS_FINISHED:
-                case self::STATUS_CANCELLED:
-                    foreach ($currentstep->downstreams as $downstream) {
-                        $this->queue[] = $downstream;
-                    }
-                    break;
-                case self::STATUS_FLOWING:
-                    foreach ($currentstep->downstreams as $downstream) {
-                        if ($downstream->is_flow()) {
-                            $this->queue[] = $downstream;
-                        }
-                    }
-                    break;
-                case self::STATUS_ABORTED:
-                    $this->abort($currentstep->exception);
-            }
+            $currentstep->go();
         }
     }
 

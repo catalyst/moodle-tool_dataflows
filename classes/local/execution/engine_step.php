@@ -246,11 +246,48 @@ abstract class engine_step {
      * @param  int $status a status from the engine class
      */
     public function set_status(int $status) {
+        if ($status === $this->status) {
+            return;
+        }
         $this->status = $status;
 
         // Record the timestamp of the state change against the step persistent,
         // which exposes this info through its variables.
         $this->stepdef->set_state_timestamp($status, microtime(true));
         $this->log('status: ' . engine::STATUS_LABELS[$status]);
+
+        $this->on_change_status();
+    }
+
+    /**
+     * Performs flow management whenever the status changes.
+     */
+    protected function on_change_status() {
+        switch ($this->status) {
+            case engine::STATUS_BLOCKED:
+            case engine::STATUS_WAITING:
+                foreach ($this->upstreams as $upstream) {
+                    $this->engine->add_to_queue($upstream);
+                }
+                break;
+            case engine::STATUS_FINISHED:
+            case engine::STATUS_CANCELLED:
+                foreach ($this->downstreams as $downstream) {
+                    if (!$downstream->is_flow() || !$this->is_flow()) {
+                        $this->engine->add_to_queue($downstream);
+                    }
+                }
+                break;
+            case engine::STATUS_FLOWING:
+                foreach ($this->downstreams as $downstream) {
+                    if ($downstream->is_flow()) {
+                        $this->engine->add_to_queue($downstream);
+                    }
+                }
+                break;
+            case engine::STATUS_ABORTED:
+                $this->engine->abort($this->exception);
+                break;
+        }
     }
 }
