@@ -32,13 +32,26 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage('tool_dataflows_settings',
         get_string('pluginsettings', 'tool_dataflows'));
 
-    $settings->add(new admin_setting_configcheckbox('tool_dataflows/enabled',
-        get_string('enabled', 'tool_dataflows'),
-        get_string('enabled_help', 'tool_dataflows'), '0'));
-
     $dataflowsettings = new admin_externalpage('tool_dataflows_overview',
         get_string('pluginmanage', 'tool_dataflows'),
         new moodle_url('/admin/tool/dataflows/index.php'));
+
+    if ($ADMIN->fulltree) {
+        $settings->add(new admin_setting_configcheckbox(
+            'tool_dataflows/enabled',
+            get_string('enabled', 'tool_dataflows'),
+            get_string('enabled_help', 'tool_dataflows'),
+            '0'
+        ));
+
+        $settings->add(new admin_setting_configtextarea(
+            'tool_dataflows/permitted_dirs',
+            get_string('permitted_dirs', 'tool_dataflows'),
+            get_string('permitted_dirs_desc', 'tool_dataflows'),
+            '',
+            PARAM_RAW
+        ));
+    }
 
     $ADMIN->add('tool_dataflows', $settings);
     $ADMIN->add('tool_dataflows', $dataflowsettings);
