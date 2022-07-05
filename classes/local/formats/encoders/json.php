@@ -29,12 +29,23 @@ use tool_dataflows\local\formats\encoder_base;
 class json extends encoder_base {
 
     /**
+     * @var string Indent space used for pretty printing. As far as can be determined, 4 spaces for
+     * indenting is hardwired in json_encode() for pretty printing.
+     */
+    protected const INDENT = '    ';
+
+    /**
      * Return the start of the output.
      *
      * @return string
      */
     public function start_output(): string {
-        return '[';
+        $output = '[' . PHP_EOL;
+
+        if ($this->prettyprint) {
+            $output .= self::INDENT;
+        }
+        return $output;
     }
 
     /**
@@ -46,11 +57,17 @@ class json extends encoder_base {
     public function encode_record($record, int $rownum): string {
         $output = '';
         if ($this->sheetdatadded) {
-            $output .= ',';
+            $output .= ',' . PHP_EOL;
         }
 
-        $output .= json_encode($record) . PHP_EOL;
+        // Add encoded record to ouput.
+        $flags = $this->prettyprint ? JSON_PRETTY_PRINT : 0;
+        $output .= json_encode($record, $flags);
 
+        // Add indenting inbetween records as json_encode() will only pretty print the record itself.
+        if ($this->prettyprint) {
+            $output = str_replace(PHP_EOL, PHP_EOL . self::INDENT, $output);
+        }
         $this->sheetdatadded = true;
         return $output;
     }
@@ -61,6 +78,6 @@ class json extends encoder_base {
      * @return string
      */
     public function close_output(): string {
-        return ']' . PHP_EOL;
+        return  PHP_EOL . ']' . PHP_EOL;
     }
 }
