@@ -95,8 +95,7 @@ class reader_json extends reader_step {
      *
      * @return string
      */
-    protected function get_json_string($config): string
-    {
+    protected function get_json_string($config): string {
         $jsonstring = file_get_contents($config->json);
 
         if ($jsonstring === false) {
@@ -164,16 +163,16 @@ class reader_json extends reader_step {
         $arrayexample = (object) [
             'data' => (object) [
                 'list' => ['users' => [
-                            [ "id" => "1",  "userdetails" => ["firstname" =>"Bob", "lastname" => "Smith", "name" => "Name1"]],
-                            [ "id" => "2",  "userdetails" => ["firstname" =>"John", "lastname" => "Doe", "name" => "Name2"]],
-                            [ "id" => "3",  "userdetails" => ["firstname" =>"Foo", "lastname" => "Bar", "name" => "Name3"]]
+                            [ "id" => "1",  "userdetails" => ["firstname" => "Bob", "lastname" => "Smith", "name" => "Name1"]],
+                            [ "id" => "2",  "userdetails" => ["firstname" => "John", "lastname" => "Doe", "name" => "Name2"]],
+                            [ "id" => "3",  "userdetails" => ["firstname" => "Foo", "lastname" => "Bar", "name" => "Name3"]]
                         ],
                     ]
                 ],
                 'modified' => [1654058940],
                 'errors' => [],
             ];
-        $jsonexample = json_encode($arrayexample,JSON_PRETTY_PRINT);
+        $jsonexample = json_encode($arrayexample, JSON_PRETTY_PRINT);
         $mform->addElement('text', 'config_arraykey', get_string('reader_json:arraykey', 'tool_dataflows'));
         $mform->addElement('static', 'config_arraykey_help', '', get_string('reader_json:arraykey_help', 'tool_dataflows').$jsonexample);
 
