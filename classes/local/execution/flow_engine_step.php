@@ -59,8 +59,8 @@ class flow_engine_step extends engine_step {
                     $this->iterator = $this->steptype->get_iterator($this);
                     $this->set_status(engine::STATUS_FLOWING);
                 } catch (\Throwable $thrown) {
-                    $this->set_status(engine::STATUS_ABORTED);
                     $this->exception = $thrown;
+                    $this->set_status(engine::STATUS_ABORTED);
                 }
                 break;
             case self::PROCEED_STOP:
