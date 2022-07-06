@@ -16,15 +16,9 @@
 
 namespace tool_dataflows\local\step;
 
-use core_admin\local\settings\filesize;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
-use tool_dataflows\local\execution\engine_step;
-use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
-use tool_dataflows\local\formats\encoders\json;
-use tool_dataflows\parser;
-
 /**
  * JSON reader step
  *
@@ -62,7 +56,7 @@ class reader_json extends reader_step {
     /**
      * Parses json string to php array.
      *
-     * @return string
+     * @return array
      * @throws \moodle_exception
      */
     protected function parse_json(): array {
@@ -84,10 +78,18 @@ class reader_json extends reader_step {
         );
 
         if (is_null($returnarray)) {
-            throw new \moodle_exception(get_string('reader_json:failed_to_fetch_array', 'tool_dataflows', $config->arrayexpression));
+            throw new \moodle_exception(get_string('reader_json:failed_to_fetch_array',
+                'tool_dataflows', $config->arrayexpression));
         }
 
-        return $this->sort_by_config_value($returnarray, $config->arraysortexpression, $this->enginestep);
+        $sortbyexpression = $config->arraysortexpression;
+
+        // Sort the parsed array if required.
+        if ($sortbyexpression !== '') {
+            return $this->sort_by_config_value($returnarray, $sortbyexpression);
+        }
+
+        return $returnarray;
     }
 
     /**
@@ -111,12 +113,9 @@ class reader_json extends reader_step {
      *
      * @param array $array
      * @param string $sortbyexpression
-     * @param engine_step $enginestep
      */
     public static function sort_by_config_value(array $array, string $sortbyexpression): array {
         $expressionlanguage = new ExpressionLanguage();
-
-        if ($sortbyexpression !== '') {
             usort($array, function($a, $b) use ($sortbyexpression, $expressionlanguage) {
                 $a = $expressionlanguage->evaluate(
                     'data.'.$sortbyexpression,
@@ -128,7 +127,6 @@ class reader_json extends reader_step {
                 );
                 return strnatcasecmp($a, $b);
             });
-        }
         return $array;
     }
 
@@ -163,7 +161,8 @@ class reader_json extends reader_step {
         // Array iterator value.
         $arrayexample = (object) [
             'data' => (object) [
-                'list' => ['users' => [
+                'list' => [
+                    'users' => [
                             [ "id" => "1",  "userdetails" => ["firstname" => "Bob", "lastname" => "Smith", "name" => "Name1"]],
                             [ "id" => "2",  "userdetails" => ["firstname" => "John", "lastname" => "Doe", "name" => "Name2"]],
                             [ "id" => "3",  "userdetails" => ["firstname" => "Foo", "lastname" => "Bar", "name" => "Name3"]]
@@ -175,10 +174,12 @@ class reader_json extends reader_step {
             ];
         $jsonexample = json_encode($arrayexample, JSON_PRETTY_PRINT);
         $mform->addElement('text', 'config_arrayexpression', get_string('reader_json:arrayexpression', 'tool_dataflows'));
-        $mform->addElement('static', 'config_arrayexpression_help', '', get_string('reader_json:arrayexpression_help', 'tool_dataflows').$jsonexample);
+        $mform->addElement('static', 'config_arrayexpression_help', '',
+            get_string('reader_json:arrayexpression_help', 'tool_dataflows').$jsonexample);
 
         // JSON array sort by.
         $mform->addElement('text', 'config_arraysortexpression', get_string('reader_json:arraysortexpression', 'tool_dataflows'));
-        $mform->addElement('static', 'config_arraysortexpression_help', '', get_string('reader_json:arraysortexpression_help', 'tool_dataflows'));
+        $mform->addElement('static', 'config_arraysortexpression_help', '',
+            get_string('reader_json:arraysortexpression_help', 'tool_dataflows'));
     }
 }
