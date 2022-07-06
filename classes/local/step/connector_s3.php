@@ -40,13 +40,12 @@ class connector_s3 extends connector_step {
      */
     protected static function form_define_fields(): array {
         return [
-            'bucket'            => ['type' => PARAM_TEXT],
-            'region'            => ['type' => PARAM_TEXT],
-            'key'               => ['type' => PARAM_TEXT],
-            'secret'            => ['type' => PARAM_TEXT],
-            'source'            => ['type' => PARAM_TEXT],
-            'target'            => ['type' => PARAM_TEXT],
-            'sourceremote'      => ['type' => PARAM_BOOL]
+            'bucket'            => ['type' => PARAM_TEXT, 'required' => true],
+            'region'            => ['type' => PARAM_TEXT, 'required' => true],
+            'key'               => ['type' => PARAM_TEXT, 'required' => true],
+            'secret'            => ['type' => PARAM_TEXT, 'required' => true],
+            'source'            => ['type' => PARAM_TEXT, 'required' => true],
+            'target'            => ['type' => PARAM_TEXT, 'required' => true],
         ];
     }
 
