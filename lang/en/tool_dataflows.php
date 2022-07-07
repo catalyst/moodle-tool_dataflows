@@ -98,6 +98,8 @@ $string['step_name_trigger_cron'] = 'Scheduled task trigger';
 $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
 $string['step_name_connector_debug_file_display'] = 'File contents display';
+$string['step_name_flow_web_service'] = 'Flow web service';
+$string['step_name_flow_tee'] = 'Flow tee';
 
 // Step (type) groups.
 $string['stepgrouptriggers'] = 'Triggers';
@@ -304,3 +306,19 @@ $string['check:dataflows_completed_successfully'] = 'All recent dataflow runs co
 $string['check:dataflows_no_runs'] = 'No dataflow runs executed.';
 $string['check:dataflows_not_enabled'] = 'No dataflows enabled.';
 $string['check:dataflows_run_status'] = 'Run {$a->name} - {$a->state}';
+
+// Flow Web service.
+$string['flow_web_service:webservice'] = 'Web service';
+$string['flow_web_service:webservice_help'] = 'Web service name to call ie: auth_email_get_signup_settings';
+$string['flow_web_service:user'] = 'User calling Web service';
+$string['flow_web_service:selectuser'] = 'Select user';
+$string['flow_web_service:parameters'] = 'Parameters';
+$string['flow_web_service:parameters_help'] = 'Parameters passed to the webservice in JSON format';
+$string['flow_web_service:failure'] = 'Failure processing';
+$string['flow_web_service:failure_help'] = 'In case web service call fails, either record, abort step only or abort entire flow';
+$string['flow_web_service:recordfailure'] = 'Record failure';
+$string['flow_web_service:abortstep'] = 'Abort step';
+$string['flow_web_service:abortflow'] = 'Abort flow';
+$string['flow_web_service:field_parameters_help'] = 'Parameters should be in the following YAML format: {$a->yaml} You can also use the following JSON format <br> Note: Structure depends on webservice called
+<br><br> You can reference a value from JSON with the following : <code>data.customkey <br> ie : data.GUID - data.username</code>';
+$string['flow_web_service:path'] = 'Failure path recording';

@@ -77,7 +77,7 @@ abstract class flow_step extends base_step {
      *
      * @return iterator
      */
-    public function get_iterator(): iterator {
+    public function get_iterator() {
         // Default is to simply map.
         $upstream = current($this->enginestep->upstreams);
         if ($upstream === false || !$upstream->is_flow()) {

@@ -29,6 +29,12 @@ class flow_engine_step extends engine_step {
     /** @var iterator The iterator for this step. */
     protected $iterator = null;
 
+    /** @var array Array of iterators when need */
+    protected $iterators = [];
+
+    /** @var array Pending iterators */
+    protected $iteratorqueue = [];
+
     /**
      * True for flow steps, false for connector steps.
      *
@@ -56,7 +62,7 @@ class flow_engine_step extends engine_step {
         switch ($this->proceed_status()) {
             case self::PROCEED_GO:
                 try {
-                    $this->iterator = $this->steptype->get_iterator($this);
+                    $this->get_iterators();
                     $this->set_status(engine::STATUS_FLOWING);
                 } catch (\Throwable $thrown) {
                     $this->exception = $thrown;
@@ -71,6 +77,26 @@ class flow_engine_step extends engine_step {
                 break;
         }
         return $this->status;
+    }
+
+    /**
+     * Retrieves one or multiple iterators.
+     *
+     */
+    public function get_iterators() {
+        $iterators = $this->steptype->get_iterator($this);
+        if (count($iterators) > 1) {
+            $this->iterators = $iterators;
+            $this->queue_iterators();
+        } else {
+            $this->iterator = $iterators;
+        }
+    }
+
+    public function queue_iterators() {
+        if (count($this->iterators) != 0) {
+            $this->iterator = array_shift($this->iterators);
+        }
     }
 
     /**
