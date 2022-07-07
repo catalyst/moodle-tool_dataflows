@@ -250,11 +250,11 @@ $string['reader_sql:variable_not_valid_in_position_replacement_text'] = "Invalid
 
 // Reader JSON.
 $string['reader_json:arrayexpression'] = 'Array Expression';
-$string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON. For example, <code>data.list.users</code> will return the users array from the following JSON (If empty it is assumed the starting point of the JSON file is an array):</br>';
+$string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON. For example, {$a->expression} will return the users array from the following JSON (If empty it is assumed the starting point of the JSON file is an array):{$a->jsonexample}';
 $string['reader_json:arraysortexpression'] = 'Sort by';
-$string['reader_json:arraysortexpression_help'] = 'Value to sort array by, this value needs to be present in the return array. For the example above, setting this value to <code>userdetails.firstname</code> will return an array sorted by the firstname value in the users array.';
-$string['reader_json:json'] = 'Path to JSON Array';
-$string['reader_json:json_help'] = 'For example, setting <code>file:///path/to/file.json</code> will parse the JSON file at the location.';
+$string['reader_json:arraysortexpression_help'] = 'Value to sort array by, this value needs to be present in the return array. For the example above, setting this value to {$a} will return an array sorted by the firstname value in the users array.';
+$string['reader_json:pathtojson'] = 'Path to JSON Array';
+$string['reader_json:json_path_help'] = 'For example, setting {$a} will parse the JSON file at the location.';
 
 // Cron trigger.
 $string['trigger_cron:cron'] = 'Scheduled task';

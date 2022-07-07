@@ -51,16 +51,19 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
      */
     public function test_validate_config() {
         // Test valid configuration.
-        $config = (object)['json' => '{key:{value:Array[]}}'];
+        $tmpfile = tempnam('', 'tmpjsonfile');
+        $this->assertFileExists($tmpfile);
+
+        $config = (object) ['pathtojson' => $tmpfile];
         $reader = new reader_json();
         $this->assertTrue($reader->validate_config($config));
 
         // Test missing JSON value.
-        $config = (object)['other' => '{key:{value:Array[]}}'];
+        $config = (object) ['other' => $tmpfile];
         $result = $reader->validate_config($config);
         $this->assertTrue(is_array($result));
-        $this->assertArrayHasKey('config_json', $result);
-        $this->assertEquals(get_string('config_field_missing', 'tool_dataflows', 'json'), $result['config_json']);
+        $this->assertArrayHasKey('config_pathtojson', $result);
+        $this->assertEquals(get_string('config_field_missing', 'tool_dataflows', 'pathtojson'), $result['config_pathtojson']);
     }
 
     /**
@@ -80,26 +83,22 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         $reader->name = 'reader';
         $reader->type = 'tool_dataflows\local\step\reader_json';
 
+        // Test unsorted array.
+        $users = [
+            (object) [ "id" => "2",  "userdetails" => (object) ["firstname" => "John", "lastname" => "Doe", "name" => "Name2"]],
+            (object) [ "id" => "1",  "userdetails" => (object) ["firstname" => "Bob", "lastname" => "Smith", "name" => "Name1"]],
+            (object) [ "id" => "3",  "userdetails" => (object) ["firstname" => "Foo", "lastname" => "Bar", "name" => "Name3"]]
+        ];
+
         $json = json_encode((object) [
             'data' => (object) [
                 'list' => [
-                    'users' => [
-                        [ "id" => "2",  "userdetails" => ["firstname" => "John", "lastname" => "Doe", "name" => "Name2"]],
-                        [ "id" => "1",  "userdetails" => ["firstname" => "Bob", "lastname" => "Smith", "name" => "Name1"]],
-                        [ "id" => "3",  "userdetails" => ["firstname" => "Foo", "lastname" => "Bar", "name" => "Name3"]]
-                    ],
+                    'users' => $users
                 ]
             ],
             'modified' => [1654058940],
             'errors' => [],
         ]);
-
-        // Test unsorted array.
-        $expecteduserarray = json_decode('[
-            { "id": "2",  "userdetails": {"firstname": "John", "lastname": "Doe", "name": "Name2"}},
-            { "id": "1",  "userdetails": {"firstname": "Bob", "lastname": "Smith", "name": "Name1"}},
-            { "id": "3",  "userdetails": {"firstname": "Foo", "lastname": "Bar", "name": "Name3"}}
-        ]');
 
         $tmpinput = tempnam('', 'jsoninput');
         $stream = fopen($tmpinput, 'w');
@@ -108,7 +107,7 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
 
         // Set the config data via a YAML config string.
         $reader->config = Yaml::dump([
-            'json' => $tmpinput,
+            'pathtojson' => $tmpinput,
             'arrayexpression' => 'data.list.users',
             'arraysortexpression' => '',
         ]);
@@ -131,25 +130,25 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         ob_get_clean();
 
         $resultdata = json_decode(file_get_contents($tmpoutput));
-        $this->assertEquals($expecteduserarray, $resultdata);
+        $this->assertEquals($users, $resultdata);
 
-        // Test sort function
+        // Test sort function.
 
         // Set the new config data via a YAML config string.
         $reader->config = Yaml::dump([
-            'json' => $tmpinput,
+            'pathtojson' => $tmpinput,
             'arrayexpression' => 'data.list.users',
             'arraysortexpression' => 'userdetails.firstname',
         ]);
 
-        $expecteduserarray = json_decode('[
-            { "id": "1",  "userdetails": {"firstname": "Bob", "lastname": "Smith", "name": "Name1"}},
-            { "id": "3",  "userdetails": {"firstname": "Foo", "lastname": "Bar", "name": "Name3"}},
-            { "id": "2",  "userdetails": {"firstname": "John", "lastname": "Doe", "name": "Name2"}}
-        ]');
+        $sorteduserarray = [
+            (object) [ "id" => "1",  "userdetails" => (object) ["firstname" => "Bob", "lastname" => "Smith", "name" => "Name1"]],
+            (object) [ "id" => "3",  "userdetails" => (object) ["firstname" => "Foo", "lastname" => "Bar", "name" => "Name3"]],
+            (object) [ "id" => "2",  "userdetails" => (object) ["firstname" => "John", "lastname" => "Doe", "name" => "Name2"]]
+        ];
 
-        $tmpoutput2 = tempnam('', 'jsonoutput2');
-        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpoutput2]);
+        $tmpoutputsorted = tempnam('', 'jsonoutputsorted');
+        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpoutputsorted]);
 
         // Execute.
         ob_start();
@@ -157,8 +156,34 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $resultdata = json_decode(file_get_contents($tmpoutput2));
-        $this->assertEquals($expecteduserarray, $resultdata);
+        $sortedresultdata = json_decode(file_get_contents($tmpoutputsorted));
+        $this->assertEquals($sorteduserarray, $sortedresultdata);
+
+        // Test looping over object keys.
+        $singleuser = '{"firstname": "Bob", "lastname": "Smith", "name": "Name"}';
+
+        $tmpinputuser = tempnam('', 'jsonoutputuser');
+        $stream = fopen($tmpinputuser, 'w');
+        fwrite($stream, $singleuser);
+        fclose($stream);
+
+        // Set the new config data via a YAML config string.
+        $reader->config = Yaml::dump([
+            'pathtojson' => $tmpinputuser,
+            'arrayexpression' => '',
+            'arraysortexpression' => '',
+        ]);
+
+        $tmpoutputuser = tempnam('', 'jsonoutputsingleuser');
+        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpoutputuser]);
+
+        // Execute.
+        ob_start();
+        $engine = new engine($dataflow);
+        $engine->execute();
+        ob_get_clean();
+
+        $this->assertEquals(json_decode(file_get_contents($tmpoutputuser)), ['Bob', 'Smith', 'Name']);
 
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
