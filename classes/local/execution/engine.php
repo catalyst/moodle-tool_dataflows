@@ -110,6 +110,12 @@ class engine {
     /** @var string Scratch directory for temporary files. */
     protected $scratchdir = null;
 
+    /** @var \core\lock\lock|null Lock for the dataflow. Only one dataflow of each def should be running at a time. */
+    protected $lock = null;
+
+    /** @var \core\lock\lock_factory Factory to produce locks.  */
+    protected static $lockfactory = null;
+
     /**
      * Constructs the engine.
      *
@@ -165,21 +171,49 @@ class engine {
         $this->create_flow_caps();
     }
 
+    /**
+     * Destructor function.
+     * Releases any locks that are still held.
+     */
+    public function __destruct() {
+        if (isset($this->lock)) {
+            $this->lock->release();
+        }
+    }
+
+    /**
+     * Tries to obtain a lock for this dataflow
+     *
+     * @returns \core\lock\lock|false.
+     */
+    public function get_lock($timeout = 5) {
+        $lockfactory = \core\lock\lock_config::get_lock_factory('tool_dataflows_engine');
+        $this->lock = $lockfactory->get_lock('tool_dataflows_engine_' . $this->dataflow->id, $timeout);
+        return $this->lock;
+    }
+
+    /**
+     * Initialises the dataflow.
+     */
     public function initialise() {
-        try {
-            $this->status_check(self::STATUS_NEW);
+        if ($this->get_lock()) {
+            try {
+                $this->status_check(self::STATUS_NEW);
 
-            foreach ($this->enginesteps as $enginestep) {
-                $enginestep->initialise();
+                foreach ($this->enginesteps as $enginestep) {
+                    $enginestep->initialise();
+                }
+
+                // Add sinks to the execution queue.
+                $this->queue = $this->sinks;
+                $this->set_status(self::STATUS_INITIALISED);
+
+                $this->scratchdir = make_request_directory();
+            } catch (\Throwable $thrown) {
+                $this->abort($thrown);
             }
-
-            // Add sinks to the execution queue.
-            $this->queue = $this->sinks;
-            $this->set_status(self::STATUS_INITIALISED);
-
-            $this->scratchdir = make_request_directory();
-        } catch (\Throwable $thrown) {
-            $this->abort($thrown);
+        } else {
+            throw new \moodle_exception('locktimeout');
         }
     }
 
@@ -300,6 +334,10 @@ class engine {
             if (isset($this->run)) {
                 $this->run->finalise($this->status, $this->export());
             }
+            if (isset($this->lock)) {
+                $this->lock->release();
+                $this->lock = null;
+            }
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
         }
@@ -312,7 +350,7 @@ class engine {
      * @throws \Throwable
      */
     public function abort(?\Throwable $reason = null) {
-        if (!is_null($reason)) {
+        if (isset($reason)) {
             $message = $reason->getMessage();
         } else {
             $message = '';
@@ -323,9 +361,13 @@ class engine {
         }
         $this->set_status(self::STATUS_ABORTED);
         $this->log('Aborted: ' . $message);
+        if (isset($this->lock)) {
+            $this->lock->release();
+            $this->lock = null;
+        }
 
         // TODO: We may want to make this the responsibility of the caller.
-        if (!is_null($reason)) {
+        if (isset($reason)) {
             throw $reason;
         }
     }
