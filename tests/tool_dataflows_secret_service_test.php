@@ -20,6 +20,7 @@ use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\application_trait;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\service\secret_service;
+use tool_dataflows\local\step\connector_s3;
 use tool_dataflows\step;
 
 defined('MOODLE_INTERNAL') || die();
@@ -29,6 +30,36 @@ global $CFG;
 // Include lib.php functions that aren't included automatically for Moodle 37- and below.
 require_once(__DIR__ . '/application_trait.php');
 require_once($CFG->libdir.'/tablelib.php');
+
+/**
+ * Child class of connector_s3 with enforced secrets used for testing
+ */
+class tiny_connector_s3 extends connector_s3 {
+
+    /**
+     * Returns the name of this step.
+     */
+    public function get_name(): string {
+        return 'stepname';
+    }
+
+    /**
+     * Return the definition of the fields available in this form.
+     *
+     * @return array
+     */
+    protected static function form_define_fields(): array {
+        return [
+            'bucket'            => ['type' => PARAM_TEXT],
+            'region'            => ['type' => PARAM_TEXT],
+            'key'               => ['type' => PARAM_TEXT],
+            'secret'            => ['type' => PARAM_TEXT, 'secret' => true],
+            'source'            => ['type' => PARAM_TEXT],
+            'target'            => ['type' => PARAM_TEXT],
+            'sourceremote'      => ['type' => PARAM_BOOL]
+        ];
+    }
+}
 
 /**
  * Secret service tests for tool_dataflows
@@ -65,7 +96,7 @@ class tool_dataflows_secret_service_test extends \advanced_testcase {
         $steps = [];
         $reader = new step();
         $reader->name = 's3copy';
-        $reader->type = 'tool_dataflows\local\step\connector_s3';
+        $reader->type = tiny_connector_s3::class;
         $reader->config = Yaml::dump([
             'bucket' => 'bucket',
             'region' => 'region',
@@ -73,6 +104,7 @@ class tool_dataflows_secret_service_test extends \advanced_testcase {
             'secret' => self::SECRET,
             'source' => 's3://test/source.csv',
             'target' => 's3://test/target.csv',
+            'sourceremote' => true,
         ]);
         $dataflow->add_step($reader);
         $steps[$reader->id] = $reader;
