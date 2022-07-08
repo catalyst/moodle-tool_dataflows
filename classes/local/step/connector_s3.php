@@ -44,8 +44,8 @@ class connector_s3 extends connector_step {
         return [
             'bucket'            => ['type' => PARAM_TEXT, 'required' => true],
             'region'            => ['type' => PARAM_TEXT, 'required' => true],
-            'key'               => ['type' => PARAM_TEXT, 'required' => true],
-            'secret'            => ['type' => PARAM_TEXT, 'required' => true],
+            'key'               => ['type' => PARAM_TEXT], // Empty if using sdk credentials.
+            'secret'            => ['type' => PARAM_TEXT],
             'source'            => ['type' => PARAM_TEXT, 'required' => true],
             'target'            => ['type' => PARAM_TEXT, 'required' => true],
         ];
