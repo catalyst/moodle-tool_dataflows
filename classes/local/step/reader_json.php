@@ -179,7 +179,8 @@ class reader_json extends reader_step {
             'modified' => [1654058940],
             'errors' => [],
         ];
-        $jsonexample = html_writer::empty_tag('br').html_writer::nonempty_tag('code', json_encode($arrayexample, JSON_PRETTY_PRINT));
+        $jsonexample = html_writer::empty_tag('br').
+            html_writer::nonempty_tag('pre', json_encode($arrayexample, JSON_PRETTY_PRINT));
         $expression = html_writer::nonempty_tag('code', 'data.list.users');
 
         $mform->addElement('text', 'config_arrayexpression', get_string('reader_json:arrayexpression', 'tool_dataflows'));
