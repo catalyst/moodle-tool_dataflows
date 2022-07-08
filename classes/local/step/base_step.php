@@ -101,6 +101,23 @@ abstract class base_step {
     }
 
     /**
+     * Get fields containing a 'secret'
+     *
+     * @return  array keys of fields containing secrets
+     */
+    public function get_secret_fields(): array {
+        $fields = $this->form_define_fields();
+        $secrets = [];
+        foreach ($fields as $key => $config) {
+            // The field must be set up as `secret => true`.
+            if (!empty($config['secret'])) {
+                $secrets[] = $key;
+            }
+        }
+        return $secrets;
+    }
+
+    /**
      * Get the frankenstyle component name
      *
      * @return string

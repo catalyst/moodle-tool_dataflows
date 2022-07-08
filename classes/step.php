@@ -21,6 +21,7 @@ use core\persistent;
 use moodle_exception;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
+use tool_dataflows\local\service\secret_service;
 
 /**
  * Dataflow Step persistent class
@@ -172,7 +173,7 @@ class step extends persistent {
      * @param   bool $expressions whether or not to parse expressions when returning the config
      * @return  \stdClass configuration object
      */
-    protected function get_config($expressions = true): \stdClass {
+    protected function get_config($expressions = true, $redacted = false): \stdClass {
         $rawconfig = $this->raw_get('config');
         $yaml = $rawconfig;
         if (gettype($rawconfig) === 'string') {
@@ -183,6 +184,14 @@ class step extends persistent {
             return new \stdClass();
         }
 
+        // Ensure the secret service gets involved to redact any information required.
+        if ($redacted) {
+            $secretservice = new secret_service;
+            $steptype = new $this->type;
+            $yaml = $secretservice->redact_fields($yaml, $steptype->get_secret_fields());
+        }
+
+        // Normally expressions are parsed when evaluating the statement, for use in a dataflow run.
         if ($expressions) {
             // Prepare this as a php object (stdClass), as it makes expressions easier to write.
             $parser = new parser();
@@ -418,7 +427,7 @@ class step extends persistent {
         }
 
         // Conditionally export the configuration if it has content.
-        $config = (array) $this->get_config(false);
+        $config = (array) $this->get_redacted_config(false);
         if (!empty($config)) {
             $yaml['config'] = $config;
         }
@@ -736,5 +745,17 @@ class step extends persistent {
 
         // Updates the stored config.
         $this->config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+    }
+
+    /**
+     * Get the configuration and values but with secrets redacted
+     *
+     * @param   ?bool $expressions whether expressions are parsed or not
+     * @return  \stdClass $redactedconfig
+     */
+    public function get_redacted_config($expressions = true): \stdClass {
+        $redacted = true;
+        $redactedconfig = $this->get_config($expressions, $redacted);
+        return $redactedconfig;
     }
 }

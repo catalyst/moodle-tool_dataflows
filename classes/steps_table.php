@@ -16,6 +16,7 @@
 
 namespace tool_dataflows;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\step\reader_step;
 use tool_dataflows\local\step\trigger_step;
 use tool_dataflows\local\step\connector_step;
@@ -133,7 +134,10 @@ class steps_table extends \table_sql {
      * @return string
      */
     public function col_config(\stdClass $record): string {
-        return \html_writer::tag('pre', $record->config);
+        $step = new step($record->id);
+        $redactedconfig = $step->get_redacted_config(false);
+        $output = Yaml::dump((array) $redactedconfig, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+        return \html_writer::tag('pre', $output);
     }
 
     /**
