@@ -16,6 +16,8 @@
 
 namespace tool_dataflows\local\step;
 
+use tool_dataflows\helper;
+
 /**
  * S3 connector step type
  *
@@ -230,12 +232,30 @@ class connector_s3 extends connector_step {
         // Check source/target has an s3:// path set once both source and targets have been set.
         if (!empty($config->source) && !empty($config->target)) {
             // Check if the source or target is an expression, and evaluate it if required.
-            $hass3path = $this->has_s3_path($config->source) || $this->has_s3_path($config->target);
+            $sourceins3 = $this->has_s3_path($config->source);
+            $targetins3 = $this->has_s3_path($config->target);
+            $hass3path = $sourceins3 || $targetins3;
         }
         if (isset($hass3path) && $hass3path === false) {
             $errormsg = get_string('connector_s3:missing_s3_source_or_target', 'tool_dataflows', null, true);
             $errors['config_source'] = $errors['config_source'] ?? $errormsg;
             $errors['config_target'] = $errors['config_target'] ?? $errormsg;
+        }
+
+        // Confirm the non s3 source is safe to use.
+        if (empty($sourceins3) && !isset($errors['config_source'])) {
+            $error = helper::path_validate($config->source);
+            if ($error !== true) {
+                $errors['config_source'] = $error;
+            }
+        }
+
+        // Confirm the non s3 target is safe to use.
+        if (empty($targetins3) && !isset($errors['config_target'])) {
+            $error = helper::path_validate($config->target);
+            if ($error !== true) {
+                $errors['config_target'] = $error;
+            }
         }
 
         return empty($errors) ? true : $errors;
