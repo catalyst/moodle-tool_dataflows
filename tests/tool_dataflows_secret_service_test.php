@@ -24,8 +24,11 @@ use tool_dataflows\step;
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+
 // Include lib.php functions that aren't included automatically for Moodle 37- and below.
 require_once(__DIR__ . '/application_trait.php');
+require_once($CFG->libdir.'/tablelib.php');
 
 /**
  * Secret service tests for tool_dataflows
