@@ -47,7 +47,6 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
      * Test validate_config().
      *
      * @covers \tool_dataflows\local\step\reader_json::validate_config
-     * @throws \coding_exception
      */
     public function test_validate_config() {
         // Test valid configuration.
@@ -85,9 +84,9 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
 
         // Test unsorted array.
         $users = [
-            (object) [ "id" => "2",  "userdetails" => (object) ["firstname" => "John", "lastname" => "Doe", "name" => "Name2"]],
-            (object) [ "id" => "1",  "userdetails" => (object) ["firstname" => "Bob", "lastname" => "Smith", "name" => "Name1"]],
-            (object) [ "id" => "3",  "userdetails" => (object) ["firstname" => "Foo", "lastname" => "Bar", "name" => "Name3"]]
+            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
+            (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
+            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']]
         ];
 
         $json = json_encode((object) [
@@ -142,9 +141,9 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         ]);
 
         $sorteduserarray = [
-            (object) [ "id" => "1",  "userdetails" => (object) ["firstname" => "Bob", "lastname" => "Smith", "name" => "Name1"]],
-            (object) [ "id" => "3",  "userdetails" => (object) ["firstname" => "Foo", "lastname" => "Bar", "name" => "Name3"]],
-            (object) [ "id" => "2",  "userdetails" => (object) ["firstname" => "John", "lastname" => "Doe", "name" => "Name2"]]
+            (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
+            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
+            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']]
         ];
 
         $tmpoutputsorted = tempnam('', 'jsonoutputsorted');

@@ -16,7 +16,9 @@
 
 namespace tool_dataflows\local\step;
 
+use html_writer;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use tool_dataflows\helper;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
 
@@ -47,7 +49,6 @@ class reader_json extends reader_step {
      * Get the iterator for the step, based on configurations.
      *
      * @return iterator
-     * @throws \moodle_exception
      */
     public function get_iterator(): iterator {
         $jsonarray = $this->parse_json();
@@ -97,6 +98,7 @@ class reader_json extends reader_step {
      * Parses stream to json string.
      *
      * @return string
+     * @throws \moodle_exception
      */
     protected function get_json_string(string $path): string {
         $jsonstring = file_get_contents($this->enginestep->engine->resolve_path($path));
@@ -138,8 +140,13 @@ class reader_json extends reader_step {
      */
     public function validate_config($config) {
         $errors = [];
-        if (empty($config->pathtojson)) {
+        if (!isset($config->pathtojson)) {
             $errors['config_pathtojson'] = get_string('config_field_missing', 'tool_dataflows', 'pathtojson', true);
+        } else {
+            $error = helper::path_validate($config->pathtojson);
+            if ($error !== true) {
+                $errors['config_pathtojson'] = $error;
+            }
         }
         return empty($errors) ? true : $errors;
     }
@@ -157,7 +164,8 @@ class reader_json extends reader_step {
         // JSON array source.
         $mform->addElement('text', 'config_pathtojson', get_string('reader_json:pathtojson', 'tool_dataflows'));
         $mform->addElement('static', 'config_json_path_help', '',
-            get_string('reader_json:json_path_help', 'tool_dataflows', '<code>file:///path/to/file.json</code>'));
+            get_string('reader_json:json_path_help', 'tool_dataflows',
+                html_writer::nonempty_tag('code', 'file:///path/to/file.json')));
 
         // Array iterator value.
         $arrayexample = (object) [
@@ -171,16 +179,18 @@ class reader_json extends reader_step {
             'modified' => [1654058940],
             'errors' => [],
         ];
-        $jsonexample = '<br/><code>'.json_encode($arrayexample, JSON_PRETTY_PRINT).'</code>';
-        $expression = '<code>data.list.users</code>';
+        $jsonexample = html_writer::empty_tag('br').html_writer::nonempty_tag('code', json_encode($arrayexample, JSON_PRETTY_PRINT));
+        $expression = html_writer::nonempty_tag('code', 'data.list.users');
 
         $mform->addElement('text', 'config_arrayexpression', get_string('reader_json:arrayexpression', 'tool_dataflows'));
         $mform->addElement('static', 'config_arrayexpression_help', '',
-            get_string('reader_json:arrayexpression_help', 'tool_dataflows', ['jsonexample' => $jsonexample, 'expression' => $expression]));
+            get_string('reader_json:arrayexpression_help', 'tool_dataflows',
+                ['jsonexample' => $jsonexample, 'expression' => $expression]));
 
         // JSON array sort by.
         $mform->addElement('text', 'config_arraysortexpression', get_string('reader_json:arraysortexpression', 'tool_dataflows'));
         $mform->addElement('static', 'config_arraysortexpression_help', '',
-            get_string('reader_json:arraysortexpression_help', 'tool_dataflows', '<code>userdetails.firstname</code>'));
+            get_string('reader_json:arraysortexpression_help', 'tool_dataflows',
+                html_writer::nonempty_tag('code', 'usersdetails.firstname')));
     }
 }
