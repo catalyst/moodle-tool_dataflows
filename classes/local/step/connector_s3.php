@@ -143,8 +143,9 @@ class connector_s3 extends connector_step {
                 ]);
             } catch (\Aws\S3\Exception\S3Exception $e) {
                 $this->enginestep->log(get_string('s3_copy_failed', 'tool_dataflows'));
-                fclose($stream);
                 return false;
+            } finally {
+                fclose($stream);
             }
         }
 
