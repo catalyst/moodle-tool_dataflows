@@ -15,13 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_dataflows\local\step;
-use tool_dataflows\local\execution\engine_step;
+
+use tool_dataflows\helper;
 
 /**
  * S3 connector step type
  *
  * @package    tool_dataflows
  * @author     Peter Burnettt <peterburnett@catalyst-au.net>
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,6 +32,9 @@ class connector_s3 extends connector_step {
     /** @var bool whether or not this step type (potentially) contains a side effect or not */
     protected $hassideeffect = true;
 
+    /** @var string the prefix identifier for an s3 path, e.g. s3://path/to/file. */
+    const S3_PREFIX = 's3://';
+
     /**
      * Return the definition of the fields available in this form.
      *
@@ -37,14 +42,31 @@ class connector_s3 extends connector_step {
      */
     protected static function form_define_fields(): array {
         return [
-            'bucket'            => ['type' => PARAM_TEXT],
-            'region'            => ['type' => PARAM_TEXT],
-            'key'               => ['type' => PARAM_TEXT],
-            'secret'            => ['type' => PARAM_TEXT],
-            'source'            => ['type' => PARAM_TEXT],
-            'target'            => ['type' => PARAM_TEXT],
-            'sourceremote'      => ['type' => PARAM_BOOL]
+            'bucket'            => ['type' => PARAM_TEXT, 'required' => true],
+            'region'            => ['type' => PARAM_TEXT, 'required' => true],
+            'key'               => ['type' => PARAM_TEXT], // Empty if using sdk credentials.
+            'secret'            => ['type' => PARAM_TEXT, 'secret' => true],
+            'source'            => ['type' => PARAM_TEXT, 'required' => true],
+            'target'            => ['type' => PARAM_TEXT, 'required' => true],
         ];
+    }
+
+    /**
+     * Allows each step type to determine a list of optional/required form
+     * inputs for their configuration
+     *
+     * It's recommended you prefix the additional config related fields to avoid
+     * conflicts with any existing fields.
+     *
+     * @param \MoodleQuickForm &$mform
+     */
+    public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
+        $mform->addElement('text', 'config_bucket', get_string('connector_s3:bucket', 'tool_dataflows'));
+        $mform->addElement('text', 'config_region', get_string('connector_s3:region', 'tool_dataflows'));
+        $mform->addElement('text', 'config_key', get_string('connector_s3:key', 'tool_dataflows'));
+        $mform->addElement('passwordunmask', 'config_secret', get_string('connector_s3:secret', 'tool_dataflows'));
+        $mform->addElement('text', 'config_source', get_string('connector_s3:source', 'tool_dataflows'), ['size' => '50']);
+        $mform->addElement('text', 'config_target', get_string('connector_s3:target', 'tool_dataflows'), ['size' => '50']);
     }
 
     /**
@@ -75,7 +97,7 @@ class connector_s3 extends connector_step {
         if ($config->key !== '') {
             $connectionoptions['credentials'] = [
                 'key' => $config->key,
-                'secret' => $config->secret
+                'secret' => $config->secret,
             ];
         }
 
@@ -87,10 +109,27 @@ class connector_s3 extends connector_step {
             return false;
         }
 
-        // Copy TO remote.
-        if (!$config->sourceremote) {
+        // Check source path.
+        $sourceins3 = $this->has_s3_path($config->source);
+        $source = $this->resolve_path($config->source, $sourceins3);
 
-            @$stream = fopen($config->source, 'r');
+        // Resolve target path.
+        $targetins3 = $this->has_s3_path($config->target);
+        $target = $this->resolve_path($config->target, $targetins3);
+
+        // Fix target (check if it is a directory, and use the source's basename).
+        if (substr($target, -1) === '/') {
+            $target .= basename($source);
+        }
+
+        // Do not execute s3 operations during a dry run.
+        if ($this->enginestep->engine->isdryrun) {
+            return true;
+        }
+
+        // PUT - Handle local source file to s3 path.
+        if (!$sourceins3 && $targetins3) {
+            @$stream = fopen($source, 'r');
             if ($stream === false) {
                 $this->enginestep->log(get_string('missing_source_file', 'tool_dataflows'));
                 return false;
@@ -100,20 +139,24 @@ class connector_s3 extends connector_step {
                 $s3client->putObject([
                     'Bucket' => $config->bucket,
                     'Body' => $stream,
-                    'Key' => $config->target
+                    'Key' => $target,
                 ]);
             } catch (\Aws\S3\Exception\S3Exception $e) {
                 $this->enginestep->log(get_string('s3_copy_failed', 'tool_dataflows'));
-                fclose($stream);
                 return false;
+            } finally {
+                fclose($stream);
             }
-        } else {
+        }
+
+        // GET - Handle s3 path to local source file.
+        if ($sourceins3 && !$targetins3) {
             // Copy FROM remote.
             try {
                 $s3client->getObject([
                     'Bucket' => $config->bucket,
-                    'Key' => $config->source,
-                    'SaveAs' => $config->target
+                    'Key' => $source,
+                    'SaveAs' => $target,
                 ]);
             } catch (\Aws\S3\Exception\S3Exception $e) {
                 $this->enginestep->log(get_string('s3_copy_failed', 'tool_dataflows'));
@@ -121,6 +164,110 @@ class connector_s3 extends connector_step {
             }
         }
 
+        // COPY - Handle s3 to s3 copying.
+        // Ref: https://docs.aws.amazon.com/code-samples/latest/catalog/php-s3-s3-copying-objects.php.html.
+        if ($sourceins3 && $targetins3) {
+            try {
+                $s3client->copyObject([
+                    'Bucket'     => $config->bucket,
+                    'CopySource' => "{$config->bucket}/{$source}",
+                    'Key'        => $target,
+                ]);
+            } catch (\Aws\S3\Exception\S3Exception $e) {
+                $this->enginestep->log(get_string('s3_copy_failed', 'tool_dataflows'));
+                return false;
+            }
+
+        }
+
         return true;
+    }
+
+    /**
+     * Resolves the path provided, based on whether or not it lives in s3.
+     *
+     * @param   string $path
+     * @param   bool $ins3 whether or not the path is a location in s3.
+     * @return  string resolved path
+     */
+    public function resolve_path(string $path, bool $ins3): string {
+        // S3 Path: when the path is in s3, trim the prefix.
+        if ($ins3) {
+            return ltrim($path, self::S3_PREFIX);
+        }
+
+        // Local/other path: resolved using the engine's resolve path method.
+        return $this->enginestep->engine->resolve_path($path);
+    }
+
+    /**
+     * Validate the configuration settings.
+     *
+     * @param object $config
+     * @return true|\lang_string[] true if valid, an array of errors otherwise
+     */
+    public function validate_config($config) {
+        $errors = [];
+
+        // Check mandatory fields.
+        foreach ([
+            'bucket',
+            'region',
+            'key',
+            'secret',
+            'source',
+            'target',
+        ] as $field) {
+            if (empty($config->$field)) {
+                $errors["config_$field"] = get_string('config_field_missing', 'tool_dataflows', "$field", true);
+            }
+        }
+
+        // Ensure the source is a file, not a directory (for now).
+        if (!$this->has_s3_path($config->source) && is_dir($config->source)) {
+            $errormsg = get_string('connector_s3:source_is_a_directory', 'tool_dataflows', null, true);
+            $errors['config_source'] = $errormsg;
+        }
+
+        // Check source/target has an s3:// path set once both source and targets have been set.
+        if (!empty($config->source) && !empty($config->target)) {
+            // Check if the source or target is an expression, and evaluate it if required.
+            $sourceins3 = $this->has_s3_path($config->source);
+            $targetins3 = $this->has_s3_path($config->target);
+            $hass3path = $sourceins3 || $targetins3;
+        }
+        if (isset($hass3path) && $hass3path === false) {
+            $errormsg = get_string('connector_s3:missing_s3_source_or_target', 'tool_dataflows', null, true);
+            $errors['config_source'] = $errors['config_source'] ?? $errormsg;
+            $errors['config_target'] = $errors['config_target'] ?? $errormsg;
+        }
+
+        // Confirm the non s3 source is safe to use.
+        if (empty($sourceins3) && !isset($errors['config_source'])) {
+            $error = helper::path_validate($config->source);
+            if ($error !== true) {
+                $errors['config_source'] = $error;
+            }
+        }
+
+        // Confirm the non s3 target is safe to use.
+        if (empty($targetins3) && !isset($errors['config_target'])) {
+            $error = helper::path_validate($config->target);
+            if ($error !== true) {
+                $errors['config_target'] = $error;
+            }
+        }
+
+        return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Returns whether the path is marked as being in s3
+     *
+     * @param   string $path
+     * @return  bool
+     */
+    public function has_s3_path(string $path) {
+        return strpos($path, self::S3_PREFIX) === 0;
     }
 }

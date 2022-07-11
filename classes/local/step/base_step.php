@@ -231,6 +231,17 @@ abstract class base_step {
     }
 
     /**
+     * Sets up the form fields and inputs.
+     *
+     * @param \MoodleQuickForm &$mform
+     */
+    public function form_setup(\MoodleQuickForm &$mform) {
+        $this->form_add_custom_inputs($mform);
+        $this->form_set_input_types($mform);
+        $this->form_set_input_rules($mform);
+    }
+
+    /**
      * Allows each step type to determine a list of optional/required form
      * inputs for their configuration
      *
@@ -262,6 +273,20 @@ abstract class base_step {
         foreach ($fields as $fieldname => $config) {
             if (isset($config['type'])) {
                 $mform->setType("config_$fieldname", $config['type']);
+            }
+        }
+    }
+
+    /**
+     * Sets rules for each input field defined if supported
+     *
+     * @param \MoodleQuickForm &$mform
+     */
+    public function form_set_input_rules(\MoodleQuickForm &$mform) {
+        $fields = static::form_define_fields();
+        foreach ($fields as $fieldname => $config) {
+            if (!empty($config['required'])) {
+                $mform->addRule("config_$fieldname", get_string('required'), 'required', null, 'client');
             }
         }
     }
