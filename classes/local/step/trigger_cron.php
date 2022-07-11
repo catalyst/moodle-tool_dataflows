@@ -79,8 +79,18 @@ class trigger_cron extends trigger_step {
                 $nextrun = get_string('asap', 'tool_task');
             }
 
-            $mform->addElement('static', 'lastrun', get_string('lastruntime', 'tool_task'), $times->lastruntime ? userdate($times->lastruntime) : get_string('never'));
-            $mform->addElement('static', 'nextrun', get_string('nextruntime', 'tool_task'), $nextrun);
+            $mform->addElement(
+                'static',
+                'lastrun',
+                get_string('lastruntime', 'tool_task'),
+                $times->lastruntime ? userdate($times->lastruntime) : get_string('never')
+            );
+            $mform->addElement(
+                'static',
+                'nextrun',
+                get_string('nextruntime', 'tool_task'),
+                $nextrun
+            );
         }
 
         $crontab = [];
@@ -101,7 +111,12 @@ class trigger_cron extends trigger_step {
         $element->setType(PARAM_RAW);
         $crontab[] = $element;
 
-        $element = $mform->createElement('text', 'config_dayofweek', get_string('taskscheduledayofweek', 'tool_task'), ['size' => '5']);
+        $element = $mform->createElement(
+            'text',
+            'config_dayofweek',
+            get_string('taskscheduledayofweek', 'tool_task'),
+            ['size' => '5']
+        );
         $element->setType(PARAM_RAW);
         $crontab[] = $element;
 

@@ -77,6 +77,12 @@ class scheduler {
         if (is_null($reftime)) {
             $reftime = time();
         }
-        return $DB->get_records_select_menu(self::TABLE, 'nextruntime <= :time', ['time' => $reftime], '', 'dataflowid, nextruntime');
+        return $DB->get_records_select_menu(
+            self::TABLE,
+            'nextruntime <= :time',
+            ['time' => $reftime],
+            '',
+            'dataflowid, nextruntime'
+        );
     }
 }

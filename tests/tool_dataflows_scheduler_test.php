@@ -46,7 +46,10 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
 
         $this->assertEquals(false, scheduler::get_scheduled_times(23));
 
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'stepid' => 10, 'lastruntime' => 123, 'nextruntime' => 150]);
+        $DB->insert_record(
+            scheduler::TABLE,
+            (object) ['dataflowid' => 23, 'stepid' => 10, 'lastruntime' => 123, 'nextruntime' => 150]
+        );
 
         $this->assertEquals((object)['lastruntime' => 123, 'nextruntime' => 150], scheduler::get_scheduled_times(10));
     }
@@ -75,10 +78,22 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
     public function test_get_due_dataflows() {
         global $DB;
 
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 23, 'stepid' => 1, 'lastruntime' => 123, 'nextruntime' => 150]);
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 24, 'stepid' => 2, 'lastruntime' => 123, 'nextruntime' => 151]);
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 25, 'stepid' => 3, 'lastruntime' => 123, 'nextruntime' => 152]);
-        $DB->insert_record(scheduler::TABLE, (object) ['dataflowid' => 26, 'stepid' => 4, 'lastruntime' => 123, 'nextruntime' => 153]);
+        $DB->insert_record(
+            scheduler::TABLE,
+            (object) ['dataflowid' => 23, 'stepid' => 1, 'lastruntime' => 123, 'nextruntime' => 150]
+        );
+        $DB->insert_record(
+            scheduler::TABLE,
+            (object) ['dataflowid' => 24, 'stepid' => 2, 'lastruntime' => 123, 'nextruntime' => 151]
+        );
+        $DB->insert_record(
+            scheduler::TABLE,
+            (object) ['dataflowid' => 25, 'stepid' => 3, 'lastruntime' => 123, 'nextruntime' => 152]
+        );
+        $DB->insert_record(
+            scheduler::TABLE,
+            (object) ['dataflowid' => 26, 'stepid' => 4, 'lastruntime' => 123, 'nextruntime' => 153]
+        );
 
         $ids = scheduler::get_due_dataflows(152);
         $this->assertEquals(3, count($ids));
