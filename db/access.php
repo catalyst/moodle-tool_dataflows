@@ -28,28 +28,22 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    'tool/dataflows:managedataflows' => array(
+    'tool/dataflows:managedataflows' => [
         'riskbitmask' => RISK_CONFIG | RISK_PERSONAL | RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW
-        ),
-    ),
-    'tool/dataflows:exportdataflowhistory' => array(
+        'archetypes' => ['manager' => CAP_ALLOW],
+    ],
+    'tool/dataflows:exportdataflowhistory' => [
         'riskbitmask' => RISK_CONFIG | RISK_PERSONAL | RISK_SPAM,
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW
-        ),
-    ),
-    'tool/dataflows:exportrundetails' => array(
+        'archetypes' => ['manager' => CAP_ALLOW],
+    ],
+    'tool/dataflows:exportrundetails' => [
         'riskbitmask' => RISK_CONFIG | RISK_PERSONAL | RISK_SPAM,
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => array(
-            'manager' => CAP_ALLOW
-        ),
-    ),
+        'archetypes' => ['manager' => CAP_ALLOW],
+    ],
 ];

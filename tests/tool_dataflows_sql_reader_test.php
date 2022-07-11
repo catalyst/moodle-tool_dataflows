@@ -77,7 +77,8 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $reader->config = Yaml::dump([
             'sql' => "SELECT plugin, name, value
                         FROM {config_plugins}
-                       WHERE plugin = '--phantom_plugin--'"]);
+                       WHERE plugin = '--phantom_plugin--'",
+        ]);
         $dataflow->add_step($reader);
 
         // TODO: When better writers are available, change this to use one.

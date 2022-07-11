@@ -37,9 +37,7 @@ class runs_table extends \table_sql {
         'duration',
     ];
 
-    const NOSORT_COLUMNS = [
-        'actions',
-    ];
+    const NOSORT_COLUMNS = ['actions'];
 
     /**
      * Returns the columns defined for the table.
