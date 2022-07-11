@@ -48,6 +48,7 @@ class writer_stream extends writer_step {
         return [
             'streamname' => ['type' => PARAM_TEXT],
             'format' => ['type' => PARAM_TEXT],
+            'prettyprint' => ['type' => PARAM_BOOL],
         ];
     }
 
@@ -91,7 +92,7 @@ class writer_stream extends writer_step {
         /*
          * Iterator class to write out to the stream.
          */
-        return new class($this->enginestep, $config->streamname, $config->format, $upstream->iterator) extends dataflow_iterator {
+        return new class($this->enginestep, $config, $upstream->iterator) extends dataflow_iterator {
             /** @var resource stream handle. */
             private $handle;
             /** @var string name of the stream. */
@@ -99,15 +100,18 @@ class writer_stream extends writer_step {
             /** @var object dataformat writer. */
             private $writer;
 
-            public function __construct(flow_engine_step $step, string $streamname, string $format, iterator $input) {
-                $this->streamname = $step->engine->resolve_path($streamname);
+            public function __construct(flow_engine_step $step, $config, iterator $input) {
+                $this->streamname = $step->engine->resolve_path($config->streamname);
+
                 $this->handle = fopen($this->streamname, 'a');
                 if ($this->handle === false) {
                     $step->log(error_get_last()['message']);
                     throw new \moodle_exception(get_string('writer_stream:failed_to_open_stream', 'tool_dataflows', $streamname));
                 }
-                $classname = writer_stream::resolve_encoder($format);
+
+                $classname = writer_stream::resolve_encoder($config->format);
                 $this->writer = new $classname();
+                $this->writer->set_prettyprint($config->prettyprint ?? false);
 
                 if (fwrite($this->handle, $this->writer->start_output()) === false) {
                     $step->log(error_get_last()['message']);
@@ -222,5 +226,8 @@ class writer_stream extends writer_step {
             $this->get_encoder_options()
         );
         $mform->addElement('static', 'config_format_help', '', get_string('writer_stream:format_help', 'tool_dataflows'));
+
+        $mform->addElement('checkbox', 'config_prettyprint', get_string('writer_stream:prettyprint', 'tool_dataflows'));
+        $mform->addElement('static', 'config_prettyprint_help', '', get_string('writer_stream:prettyprint_help', 'tool_dataflows'));
     }
 }

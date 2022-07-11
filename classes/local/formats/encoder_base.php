@@ -27,6 +27,7 @@ namespace tool_dataflows\local\formats;
 abstract class encoder_base {
     /** @var bool Has data been added yet? */
     protected $sheetdatadded = false;
+    protected $prettyprint = false;
 
     /**
      * Return the start of the output.
@@ -52,5 +53,14 @@ abstract class encoder_base {
      */
     public function close_output(): string {
         return '';
+    }
+
+    /**
+     * Set to use/not use pretty print for suppported formats.
+     *
+     * @param bool $prettyprint
+     */
+    public function set_prettyprint(bool $prettyprint) {
+        $this->prettyprint = $prettyprint;
     }
 }

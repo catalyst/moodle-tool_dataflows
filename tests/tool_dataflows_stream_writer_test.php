@@ -50,7 +50,7 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
      * @dataProvider data_provider
      * @param $inputdata
      */
-    public function test_writer_json($inputdata, $isdryrun) {
+    public function test_writer_json($inputdata, $isdryrun, $prettyprint) {
         // Crate the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'array-to-stream';
@@ -67,7 +67,7 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
         $writer = new step();
         $writer->name = 'stream-writer';
         $writer->type = 'tool_dataflows\local\step\writer_stream';
-        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpfilename]);
+        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpfilename, 'prettyprint' => $prettyprint]);
 
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);
@@ -85,8 +85,12 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
             $resultdata = file_get_contents($tmpfilename);
             $this->assertTrue(empty($resultdata));
         } else {
-            $resultdata = json_decode(file_get_contents($tmpfilename), true);
+            $filecontents = trim(file_get_contents($tmpfilename));
+            $resultdata = json_decode($filecontents, true);
             $this->assertEquals($inputdata, $resultdata);
+            if ($prettyprint) {
+                $this->assertEquals(json_encode($resultdata, JSON_PRETTY_PRINT), $filecontents);
+            }
         }
 
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
@@ -99,9 +103,9 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
      */
     public function data_provider(): array {
         return [
-            [[['a' => 1, 'b' => 2, 'c' => 3], ['a' => 4, 'b' => 5, 'c' => 6]], false],
-            [[['a' => 1], ['b' => 5], ['c' => 6]], true],
-            [[['a' => 1], ['b' => 5], ['c' => 7]], false],
+            [[['a' => 1, 'b' => 2, 'c' => 3], ['a' => 4, 'b' => 5, 'c' => 6]], false, true],
+            [[['a' => 1], ['b' => 5], ['c' => 6]], true, false],
+            [[['a' => 1], ['b' => 5], ['c' => 7]], false, false],
         ];
     }
 }
