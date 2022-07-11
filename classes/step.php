@@ -675,7 +675,7 @@ class step extends persistent {
      * @return     string
      */
     public function get_dotscript($contentonly = false): string {
-        $localstyles = ['tooltip'   => $this->description ?: $this->name];
+        $localstyles = ['tooltip' => $this->description ?: $this->name];
         if ($this->id !== 0) { // If ID is zero, then there is nothing to link to.
             $localstyles['URL'] = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->id]))->out();
         }

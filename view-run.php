@@ -103,7 +103,7 @@ $tabledata = [];
 foreach ($data as $key => $value) {
     $row = new html_table_row([
         get_string($key, 'tool_dataflows'),
-        $value
+        $value,
     ]);
     $row->attributes['class'] .= $key;
     $tabledata[] = $row;

@@ -86,14 +86,12 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         $users = [
             (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
             (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
-            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']]
+            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
         ];
 
         $json = json_encode((object) [
             'data' => (object) [
-                'list' => [
-                    'users' => $users
-                ]
+                'list' => ['users' => $users],
             ],
             'modified' => [1654058940],
             'errors' => [],
@@ -143,7 +141,7 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         $sorteduserarray = [
             (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
             (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
-            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']]
+            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
         ];
 
         $tmpoutputsorted = tempnam('', 'jsonoutputsorted');

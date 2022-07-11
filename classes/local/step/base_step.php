@@ -61,8 +61,12 @@ abstract class base_step {
     protected $hassideeffect = false;
 
     /**
+     * Constructs the step type
+     *
+     * If used during execution this will link the execution engine which requires a stepdef to be defined.
+     *
      * @param step|null $stepdef A stepdef of this type. Pass null if step type is to be used without a context.
-     * @param engine|null $engine An engine that is to execute the step of this type. stepdef must be defined. Leave as null if not in an execution.
+     * @param engine|null $engine An engine that executes this step type, null if not in an execution.
      */
     public function __construct(?step $stepdef = null, ?engine $engine = null) {
         $this->stepdef = $stepdef;
