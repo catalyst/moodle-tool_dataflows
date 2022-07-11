@@ -322,7 +322,7 @@ class dataflow extends persistent {
 
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
         foreach ($steps as $step) {
-            if ($step->steptype->get_group() == 'triggers') {
+            if (isset($step->steptype) && $step->steptype->get_group() == 'triggers') {
                 ++$numtriggers;
             }
             $stepvalidation = $step->validate_step();

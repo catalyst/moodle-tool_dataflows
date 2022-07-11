@@ -181,6 +181,9 @@ class steps_table extends \table_sql {
     public function col_details(\stdClass $record): string {
         $step = new step($record->id);
         $steptype = $step->steptype;
+        if (!isset($steptype)) {
+            return '';
+        }
         return $steptype->get_details();
     }
 
