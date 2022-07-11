@@ -80,7 +80,7 @@ visualiser::breadcrumb_navigation([
 
 $title = implode(': ', array_filter([
     get_string('pluginname', 'tool_dataflows'),
-    $heading
+    $heading,
 ]));
 $PAGE->set_title($title);
 $PAGE->set_heading(get_string('pluginname', 'tool_dataflows'));

@@ -74,9 +74,7 @@ class reader_json extends reader_step {
         $expressionlanguage = new ExpressionLanguage();
         $returnarray = $expressionlanguage->evaluate(
             $arrayexpression != '' ? 'data.'.$arrayexpression : 'data',
-            [
-                'data' => $decodedjson,
-            ]
+            ['data' => $decodedjson]
         );
 
         if (is_null($returnarray)) {
@@ -174,7 +172,7 @@ class reader_json extends reader_step {
                     'users' => [
                         [ "id" => "1",  "userdetails" => ["firstname" => "Bob", "lastname" => "Smith", "name" => "Name1"]],
                     ],
-                ]
+                ],
             ],
             'modified' => [1654058940],
             'errors' => [],

@@ -60,7 +60,7 @@ class import_form extends \moodleform {
     public function validation($data, $files) {
         global $USER;
 
-        $validationerrors = array();
+        $validationerrors = [];
 
         // Get the file from the filestystem. $files will always be empty.
         $fs = get_file_storage();

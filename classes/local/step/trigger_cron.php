@@ -49,7 +49,7 @@ class trigger_cron extends trigger_step {
      */
     public function form_get_default_data(&$data) {
         parent::form_get_default_data($data);
-        $fields = array('minute', 'hour', 'day', 'month', 'dayofweek');
+        $fields = ['minute', 'hour', 'day', 'month', 'dayofweek'];
         foreach ($fields as $field) {
             if (!isset($data->{"config_$field"})) {
                 $data->{"config_$field"} = '*';
@@ -118,7 +118,7 @@ class trigger_cron extends trigger_step {
     public function validate_config($config) {
         $errors = [];
 
-        $fields = array('minute', 'hour', 'day', 'month', 'dayofweek');
+        $fields = ['minute', 'hour', 'day', 'month', 'dayofweek'];
         foreach ($fields as $field) {
             if (!self::validate_fields($field, $config->$field)) {
                 return ['crontab' => get_string('trigger_cron:invalid', 'tool_dataflows', '', true)];

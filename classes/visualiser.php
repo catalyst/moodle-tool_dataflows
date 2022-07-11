@@ -82,7 +82,7 @@ class visualiser {
            // The stdout is a pipe that the child will write to.
            1 => ['pipe', 'w'],
            // The stderr is a pipe that the child will write to.
-           2 => ['pipe', 'w']
+           2 => ['pipe', 'w'],
         ];
 
         $cmd = (!empty($CFG->pathtodot) ? $CFG->pathtodot : 'dot') . ' -T' . $type;
