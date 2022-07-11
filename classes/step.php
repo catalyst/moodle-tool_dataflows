@@ -547,11 +547,12 @@ class step extends persistent {
         $steptype = $this->steptype;
         [$min, $max] = $steptype->$fn();
         if ($count < $min || $count > $max) {
-            return ["invalid_count_{$inputoutput}{$flowconnector}s_{$this->id}" => get_string(
-                "stepinvalid{$inputoutput}{$flowconnector}count",
-                'tool_dataflows',
-                $count
-            ) . ' ' . visualiser::get_link_expectations($steptype, $inputoutput)
+            return [
+                "invalid_count_{$inputoutput}{$flowconnector}s_{$this->id}" => get_string(
+                    "stepinvalid{$inputoutput}{$flowconnector}count",
+                    'tool_dataflows',
+                    $count
+                ) . ' ' . visualiser::get_link_expectations($steptype, $inputoutput),
             ];
         }
         return true;

@@ -56,7 +56,7 @@ if (!empty($id)) {
 // Render the specific dataflow form.
 $customdata = [
     'persistent' => $persistent ?? null, // An instance, or null.
-    'userid' => $USER->id // For the hidden userid field.
+    'userid' => $USER->id, // For the hidden userid field.
 ];
 $form = new dataflow_form($PAGE->url->out(false), $customdata);
 if ($form->is_cancelled()) {

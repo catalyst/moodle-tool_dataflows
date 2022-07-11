@@ -209,7 +209,7 @@ class dataflow extends persistent {
                 'DATAFLOW_RUN_NAME' => $this->engine->run->name ?? null,
             ],
             'dataflow' => $dataflow,
-            'steps' => $steps
+            'steps' => $steps,
         ];
         return $variables;
     }
