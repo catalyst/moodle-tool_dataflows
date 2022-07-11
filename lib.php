@@ -50,6 +50,7 @@ function tool_dataflows_step_types() {
         new step\flow_logic_join,
         new step\writer_stream,
         new step\connector_debugging,
+        new step\connector_debug_file_display,
         new step\connector_s3,
     ];
 }

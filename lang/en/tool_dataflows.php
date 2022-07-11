@@ -97,6 +97,7 @@ $string['step_name_reader_sql'] = 'SQL reader';
 $string['step_name_trigger_cron'] = 'Scheduled task trigger';
 $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
+$string['step_name_connector_debug_file_display'] = 'File contents display';
 
 // Step (type) groups.
 $string['stepgrouptriggers'] = 'Triggers';
