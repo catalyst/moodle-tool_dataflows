@@ -235,7 +235,7 @@ abstract class base_step {
      *
      * @param \MoodleQuickForm &$mform
      */
-    public function form_setup(&$mform) {
+    public function form_setup(\MoodleQuickForm &$mform) {
         $this->form_add_custom_inputs($mform);
         $this->form_set_input_types($mform);
         $this->form_set_input_rules($mform);

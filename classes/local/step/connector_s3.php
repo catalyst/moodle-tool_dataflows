@@ -97,7 +97,7 @@ class connector_s3 extends connector_step {
         if ($config->key !== '') {
             $connectionoptions['credentials'] = [
                 'key' => $config->key,
-                'secret' => $config->secret
+                'secret' => $config->secret,
             ];
         }
 
@@ -155,7 +155,7 @@ class connector_s3 extends connector_step {
                 $s3client->getObject([
                     'Bucket' => $config->bucket,
                     'Key' => $source,
-                    'SaveAs' => $target
+                    'SaveAs' => $target,
                 ]);
             } catch (\Aws\S3\Exception\S3Exception $e) {
                 $this->enginestep->log(get_string('s3_copy_failed', 'tool_dataflows'));
@@ -190,14 +190,13 @@ class connector_s3 extends connector_step {
      * @return  string resolved path
      */
     public function resolve_path(string $path, bool $ins3): string {
-        if (!$ins3) {
-            // Resolve local path (must be in scratch dir).
-            return $this->enginestep->engine->resolve_path($path);
-        }
-
+        // S3 Path: when the path is in s3, trim the prefix.
         if ($ins3) {
             return ltrim($path, self::S3_PREFIX);
         }
+
+        // Local/other path: resolved using the engine's resolve path method.
+        return $this->enginestep->engine->resolve_path($path);
     }
 
     /**
@@ -216,7 +215,7 @@ class connector_s3 extends connector_step {
             'key',
             'secret',
             'source',
-            'target'
+            'target',
         ] as $field) {
             if (empty($config->$field)) {
                 $errors["config_$field"] = get_string('config_field_missing', 'tool_dataflows', "$field", true);
