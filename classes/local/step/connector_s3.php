@@ -92,7 +92,7 @@ class connector_s3 extends connector_step {
         $config = $this->enginestep->stepdef->config;
         $connectionoptions = [
             'version' => 'latest',
-            'region' => $config->region
+            'region' => $config->region,
         ];
         if ($config->key !== '') {
             $connectionoptions['credentials'] = [

@@ -56,7 +56,7 @@ class tiny_connector_s3 extends connector_s3 {
             'secret'            => ['type' => PARAM_TEXT, 'secret' => true],
             'source'            => ['type' => PARAM_TEXT],
             'target'            => ['type' => PARAM_TEXT],
-            'sourceremote'      => ['type' => PARAM_BOOL]
+            'sourceremote'      => ['type' => PARAM_BOOL],
         ];
     }
 }
