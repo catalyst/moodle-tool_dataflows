@@ -252,12 +252,14 @@ $string['reader_sql:countervalue_help'] = 'Current value from the counter field'
 $string['reader_sql:variable_not_valid_in_position_replacement_text'] = "Invalid expression \${{ {\$a->expression} }} as `{\$a->expressionpath}` could not be resolved at line {\$a->line} character {\$a->column} in:\n{\$a->sql}"; // phpcs:disable moodle.Strings.ForbiddenStrings.Found
 
 // Reader JSON.
-$string['reader_json:arrayexpression'] = 'Array Expression';
 $string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON. For example, {$a->expression} will return the users array from the following JSON (If empty it is assumed the starting point of the JSON file is an array):{$a->jsonexample}';
-$string['reader_json:arraysortexpression'] = 'Sort by';
+$string['reader_json:arrayexpression'] = 'Array Expression';
 $string['reader_json:arraysortexpression_help'] = 'Value to sort array by, this value needs to be present in the return array. For the example above, setting this value to {$a} will return an array sorted by the firstname value in the users array.';
-$string['reader_json:pathtojson'] = 'Path to JSON Array';
+$string['reader_json:arraysortexpression'] = 'Sort by';
 $string['reader_json:json_path_help'] = 'For example, setting {$a} will parse the JSON file at the location.';
+$string['reader_json:pathtojson'] = 'Path to JSON Array';
+$string['reader_json:sortorder'] = 'Sort Order';
+$string['reader_json:sortorder_help'] = 'This will apply if the \'Sort by\' has been set. Otherwise the records will remain untouched in their original order.';
 
 // Cron trigger.
 $string['trigger_cron:cron'] = 'Scheduled task';

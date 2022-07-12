@@ -32,6 +32,12 @@ use tool_dataflows\local\execution\iterators\dataflow_iterator;
  */
 class reader_json extends reader_step {
 
+    /** @var string sort order descending key */
+    const DESC = 'desc';
+
+    /** @var string sort order ascending key */
+    const ASC = 'asc';
+
     /**
      * Return the definition of the fields available in this form.
      *
@@ -42,6 +48,7 @@ class reader_json extends reader_step {
             'pathtojson' => ['type' => PARAM_TEXT],
             'arrayexpression' => ['type' => PARAM_TEXT],
             'arraysortexpression' => ['type' => PARAM_TEXT],
+            'sortorder' => ['type' => PARAM_TEXT],
         ];
     }
 
@@ -114,7 +121,7 @@ class reader_json extends reader_step {
      * @param array $array
      * @param string $sortbyexpression
      */
-    public static function sort_by_config_value(array $array, string $sortbyexpression): array {
+    public function sort_by_config_value(array $array, string $sortbyexpression): array {
         $expressionlanguage = new ExpressionLanguage();
         usort($array, function($a, $b) use ($sortbyexpression, $expressionlanguage) {
             $a = $expressionlanguage->evaluate(
@@ -125,9 +132,25 @@ class reader_json extends reader_step {
                 'data.'.$sortbyexpression,
                 ['data' => $b]
             );
-            return strnatcasecmp($a, $b);
+            return strnatcasecmp($a, $b) * $this->get_sort_order_direction();
         });
         return $array;
+    }
+
+    /**
+     * Converts the sort order to an int used to flip the default order
+     *
+     * This returns 1 for default sort ASC order and -1 for DESC order
+     *
+     * @return  int
+     */
+    public function get_sort_order_direction() {
+        $sortorder = $this->enginestep->stepdef->config->sortorder ?? null;
+        if ($sortorder === self::DESC) {
+            return -1;
+        }
+
+        return 1;
     }
 
     /**
@@ -191,5 +214,10 @@ class reader_json extends reader_step {
         $mform->addElement('static', 'config_arraysortexpression_help', '',
             get_string('reader_json:arraysortexpression_help', 'tool_dataflows',
                 html_writer::nonempty_tag('code', 'userdetails.firstname')));
+
+        // JSON array sort order (ASC, DESC).
+        $mform->addElement('select', 'config_sortorder', get_string('reader_json:sortorder', 'tool_dataflows'),
+            ['asc' => get_string(self::ASC), 'desc' => get_string(self::DESC)]);
+        $mform->addElement('static', 'config_sortorder_help', '', get_string('reader_json:sortorder_help', 'tool_dataflows'));
     }
 }
