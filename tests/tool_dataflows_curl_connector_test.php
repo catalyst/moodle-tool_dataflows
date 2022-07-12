@@ -32,6 +32,7 @@ use tool_dataflows\dataflow;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_curl_connector_test extends \advanced_testcase {
+
     /**
      * Set up before each test
      */
@@ -61,7 +62,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'curl' => $testgeturl,
             'destination' => '',
             'headers' => '',
-            'method' => 'get'
+            'method' => 'get',
         ]);
         $stepdef->name = 'connector';
         $stepdef->type = 'tool_dataflows\local\step\connector_curl';
@@ -88,7 +89,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'destination' => '',
             'headers' => '',
             'method' => 'post',
-            'rawpostdata' => 'data=moodletest'
+            'rawpostdata' => 'data=moodletest',
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
@@ -109,7 +110,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'destination' => '',
             'headers' => '',
             'method' => 'put',
-            'rawpostdata' => 'data=moodletest'
+            'rawpostdata' => 'data=moodletest',
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
@@ -133,7 +134,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'rawpostdata' => '{
                 "name": "morpheus",
                 "job": "leader"
-            }'
+            }',
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
@@ -153,7 +154,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'curl' => $testgeturl,
             'destination' => $tofile,
             'headers' => '',
-            'method' => 'get'
+            'method' => 'get',
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
@@ -187,7 +188,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         // Test valid configuration.
         $config = (object) [
             'curl' => $this->getExternalTestFileUrl('/h5puuid.json'),
-            'method' => 'get'
+            'method' => 'get',
         ];
         $connectorcurl = new connector_curl();
         $this->assertTrue($connectorcurl->validate_config($config));
