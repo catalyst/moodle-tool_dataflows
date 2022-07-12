@@ -64,7 +64,7 @@ class connector_curl extends connector_step {
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         $jsonexample = [
             'header-key' => 'header value',
-            'another-key' => '1234'
+            'another-key' => '1234',
         ];
         $ex['json'] = \html_writer::nonempty_tag('pre', json_encode($jsonexample, JSON_PRETTY_PRINT));
         $ex['yaml'] = '<pre>header-key: header value<br>another-key: 1234</pre>';
