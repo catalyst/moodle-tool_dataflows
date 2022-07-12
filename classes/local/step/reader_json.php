@@ -190,6 +190,6 @@ class reader_json extends reader_step {
         $mform->addElement('text', 'config_arraysortexpression', get_string('reader_json:arraysortexpression', 'tool_dataflows'));
         $mform->addElement('static', 'config_arraysortexpression_help', '',
             get_string('reader_json:arraysortexpression_help', 'tool_dataflows',
-                html_writer::nonempty_tag('code', 'usersdetails.firstname')));
+                html_writer::nonempty_tag('code', 'userdetails.firstname')));
     }
 }
