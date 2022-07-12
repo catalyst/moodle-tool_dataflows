@@ -13,5 +13,5 @@ jobs:
       disable_behat: true
       disable_grunt: true
       extra_plugin_runners: 'moodle-plugin-ci add-plugin catalyst/moodle-local_aws --branch ci-for-tool_dataflows'
-      moodle_branches: |
-          MOODLE_400_STABLE
+      # I want this to fail on warnings.
+      codechecker_max_warnings: 0
