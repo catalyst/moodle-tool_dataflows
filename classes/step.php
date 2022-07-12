@@ -147,7 +147,7 @@ class step extends persistent {
      */
     public function get_steptype() {
         $classname = $this->type;
-        if (!empty($classname)) {
+        if (!empty($classname) && class_exists($classname)) {
             return new $classname($this);
         } else {
             return null;
@@ -185,7 +185,7 @@ class step extends persistent {
         }
 
         // Ensure the secret service gets involved to redact any information required.
-        if ($redacted) {
+        if ($redacted && isset($this->type)) {
             $secretservice = new secret_service;
             $steptype = new $this->type;
             $yaml = $secretservice->redact_fields($yaml, $steptype->get_secret_fields());
@@ -575,6 +575,11 @@ class step extends persistent {
         if ($count != 0) {
             $dep = array_shift($deps);
             $classname = $dep->type;
+            // By default, if a step type doesn't exist, then it's flows cannot
+            // be validated so default to true.
+            if (!class_exists($classname)) {
+                return true;
+            }
             $type = new $classname();
             $isflow = $type->is_flow();
 

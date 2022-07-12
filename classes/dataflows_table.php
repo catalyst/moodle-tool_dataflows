@@ -129,6 +129,10 @@ class dataflows_table extends \table_sql {
         $dataflow = new dataflow($record->id);
         foreach ($dataflow->steps as $step) {
             $steptype = $step->steptype;
+            if (!isset($steptype)) {
+                continue;
+            }
+
             $extrainfo = $steptype->get_details();
             if (!empty($extrainfo)) {
                 $content[] = $extrainfo;
