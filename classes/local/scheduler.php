@@ -16,8 +16,6 @@
 
 namespace tool_dataflows\local;
 
-use core_message\time_last_message_between_users;
-
 /**
  * Manages run schedules for dataflow tasks.
  *
@@ -32,7 +30,7 @@ class scheduler {
     /**
      * Get the scheduled times for a dataflow.
      * @param int $dataflowid
-     * @return array|false
+     * @return object|false
      * @throws \dml_exception
      */
     public static function get_scheduled_times(int $stepid) {

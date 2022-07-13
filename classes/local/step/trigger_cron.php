@@ -18,8 +18,6 @@ namespace tool_dataflows\local\step;
 
 use tool_dataflows\step;
 use tool_dataflows\local\scheduler;
-use tool_dataflows\local\execution\engine_step;
-
 
 /**
  * CRON trigger class
@@ -131,8 +129,6 @@ class trigger_cron extends trigger_step {
      * @return true|\lang_string[] true if valid, an array of errors otherwise
      */
     public function validate_config($config) {
-        $errors = [];
-
         $fields = ['minute', 'hour', 'day', 'month', 'dayofweek'];
         foreach ($fields as $field) {
             if (!self::validate_fields($field, $config->$field)) {
