@@ -29,6 +29,11 @@ use tool_dataflows\local\scheduler;
  */
 class trigger_cron extends trigger_step {
 
+    /**
+     * Return the definition of the fields available in this form.
+     *
+     * @return array
+     */
     protected static function form_define_fields(): array {
         return [
             'minute' => ['type' => PARAM_TEXT],
@@ -43,9 +48,10 @@ class trigger_cron extends trigger_step {
     /**
      * Get the default data.
      *
-     * @return stdClass
+     * @param \stdClass $data from the persistent form class
+     * @return \stdClass
      */
-    public function form_get_default_data(&$data) {
+    public function form_get_default_data(\stdClass &$data): \stdClass {
         parent::form_get_default_data($data);
         $fields = ['minute', 'hour', 'day', 'month', 'dayofweek'];
         foreach ($fields as $field) {
@@ -198,8 +204,6 @@ class trigger_cron extends trigger_step {
 
     /**
      * Hook function that gets called when a step has been saved.
-     *
-     * @param step $stepdef
      */
     public function on_save() {
         $config = $this->stepdef->config;
@@ -224,8 +228,6 @@ class trigger_cron extends trigger_step {
 
     /**
      * Hook function that gets called when a step has been saved.
-     *
-     * @param step $stepdef
      */
     public function on_delete() {
         global $DB;
