@@ -143,10 +143,12 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         ob_get_clean();
         $variables = $engine->get_variables()['steps']->connector->config;
         $this->assertObjectNotHasAttribute('result', $variables);
-        $this->assertEquals($variables->dbgcommand, "curl -X POST {$testurl} -d '{
+        $expected = "curl -X POST {$testurl} -d '{
                 \"name\": \"morpheus\",
                 \"job\": \"leader\"
-            }'\n");
+            }'";
+        // Use trim here because it seems that some versions of Yaml put a EOL when dumping, and others don't.
+        $this->assertEquals($expected, trim($variables->dbgcommand));
 
         // Test file writting.
         $tofile = "test.html";

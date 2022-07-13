@@ -171,9 +171,10 @@ class step extends persistent {
      * expressions are evaluated at this point in time.
      *
      * @param   bool $expressions whether or not to parse expressions when returning the config
+     * @param   bool $redacted Will redact secret values if true
      * @return  \stdClass configuration object
      */
-    protected function get_config($expressions = true, $redacted = false): \stdClass {
+    protected function get_config($expressions = true, bool $redacted = false): \stdClass {
         $rawconfig = $this->raw_get('config');
         $yaml = $rawconfig;
         if (gettype($rawconfig) === 'string') {
@@ -184,10 +185,11 @@ class step extends persistent {
             return new \stdClass();
         }
 
+        $steptype = $this->get_steptype();
+
         // Ensure the secret service gets involved to redact any information required.
-        if ($redacted && isset($this->type)) {
+        if ($redacted && isset($steptype)) {
             $secretservice = new secret_service;
-            $steptype = new $this->type;
             $yaml = $secretservice->redact_fields($yaml, $steptype->get_secret_fields());
         }
 
