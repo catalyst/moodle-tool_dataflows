@@ -182,6 +182,8 @@ class tool_dataflows_engine_test extends \advanced_testcase {
 
     /**
      * Tests that you cannot run an invalid dataflow.
+     *
+     * @covers \tool_dataflows\local\execution\engine::__construct
      */
     public function test_invalid_engine() {
         $dataflow = new dataflow();
@@ -208,6 +210,8 @@ class tool_dataflows_engine_test extends \advanced_testcase {
 
     /**
      * Tests that you cannot run a disabled dataflow.
+     *
+     * @covers \tool_dataflows\local\execution\engine::__construct
      */
     public function test_disabled_engine() {
         list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
@@ -226,6 +230,9 @@ class tool_dataflows_engine_test extends \advanced_testcase {
 
     /**
      * Tests that you cannot reuse an engine after it has concluded.
+     *
+     * @covers \tool_dataflows\local\execution\engine::__construct
+     * @covers \tool_dataflows\local\execution\engine::set_status
      */
     public function test_finished_engine() {
         list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
@@ -242,6 +249,12 @@ class tool_dataflows_engine_test extends \advanced_testcase {
         }
     }
 
+    /**
+     * Tests the setting of an incorrect status
+     *
+     * @covers \tool_dataflows\local\execution\engine::__construct
+     * @covers \tool_dataflows\local\execution\engine::finalise
+     */
     public function test_bad_status() {
         list($dataflow, $steps, $expectedsinks, $expectedflowsinks) = $this->dataflow_provider();
 
