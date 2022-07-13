@@ -30,6 +30,7 @@ require_once(dirname(__FILE__) . '/../lib.php');
  *
  * @package   tool_dataflows
  * @author    Peter Sistrom <petersistrom@catalyst-au.net>
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -41,6 +42,9 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+
+        $this->dataflow = $this->create_dataflow();
+        $this->set_initial_test_data();
     }
 
     /**
@@ -66,21 +70,77 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
     }
 
     /**
-     * Test the JSON reader throughout a engine lifecycle/run
+     * Dataflow creation helper function
      *
-     * @covers \tool_dataflows\local\step\reader_json
+     * Sets up the json reader, a writer and step configuration can be applied later per test
+     *
+     * @return  dataflow dataflow
      */
-    public function test_reader_json() {
-
+    public function create_dataflow() {
         // Create the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'testflow';
         $dataflow->enabled = true;
         $dataflow->save();
 
+        $steps = [];
+
+        $this->inputpath = tempnam('', 'tool_dataflows');
         $reader = new step();
         $reader->name = 'reader';
         $reader->type = 'tool_dataflows\local\step\reader_json';
+        $reader->config = Yaml::dump(['pathtojson' => $this->inputpath]);
+        $dataflow->add_step($reader);
+        $steps[$reader->id] = $reader;
+
+        $this->outputpath = tempnam('', 'tool_dataflows');
+        $writer = new step();
+        $writer->name = 'stream-writer';
+        $writer->type = 'tool_dataflows\local\step\writer_stream';
+        $writer->config = Yaml::dump([
+            'format' => 'json',
+            'streamname' => $this->outputpath,
+        ]);
+        $writer->depends_on([$reader]);
+        $dataflow->add_step($writer);
+
+        $this->reader = $reader;
+        $this->writer = $writer;
+
+        return $dataflow;
+    }
+
+    /**
+     * Creates the base contents of the reader file
+     */
+    public function set_initial_test_data() {
+        $users = [
+            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
+            (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
+            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
+        ];
+
+        $json = json_encode((object) [
+            'data' => (object) [
+                'list' => ['users' => $users],
+            ],
+            'modified' => [1654058940],
+            'errors' => [],
+        ]);
+
+        // Write initial contents to file for reader to pick up.
+        $stream = fopen($this->inputpath, 'w');
+        fwrite($stream, $json);
+        fclose($stream);
+    }
+
+    /**
+     * Tests an unsorted array to ensure the output is correct
+     *
+     * @covers \tool_dataflows\local\step\reader_json
+     */
+    public function test_reader_json_unsorted_array() {
+        [$dataflow, $reader, $writer] = [$this->dataflow, $this->reader, $this->writer];
 
         // Test unsorted array.
         $users = [
@@ -97,28 +157,20 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
             'errors' => [],
         ]);
 
-        $tmpinput = tempnam('', 'jsoninput');
-        $stream = fopen($tmpinput, 'w');
+        // Write initial contents to file for reader to pick up.
+        $stream = fopen($this->inputpath, 'w');
         fwrite($stream, $json);
         fclose($stream);
 
         // Set the config data via a YAML config string.
         $reader->config = Yaml::dump([
-            'pathtojson' => $tmpinput,
+            'pathtojson' => $this->inputpath,
             'arrayexpression' => 'data.list.users',
             'arraysortexpression' => '',
         ]);
         $dataflow->add_step($reader);
 
-        $tmpoutput = tempnam('', 'jsonoutput');
-
-        $writer = new step();
-        $writer->name = 'stream-writer';
-        $writer->type = 'tool_dataflows\local\step\writer_stream';
-        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpoutput]);
-
-        $writer->depends_on([$reader]);
-        $dataflow->add_step($writer);
+        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $this->outputpath]);
 
         // Execute.
         ob_start();
@@ -126,14 +178,26 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $resultdata = json_decode(file_get_contents($tmpoutput));
+        $resultdata = json_decode(file_get_contents($this->outputpath));
         $this->assertEquals($users, $resultdata);
+    }
+
+    /**
+     * Tests an unsorted array to ensure the output is correct
+     *
+     * By default, the sort order should be ascending.
+     *
+     * @covers \tool_dataflows\local\step\reader_json::get_sort_by_config_value
+     * @covers \tool_dataflows\local\step\reader_json::get_sort_order_direction
+     */
+    public function test_reader_json_sort_function() {
+        [$dataflow, $reader, $writer] = [$this->dataflow, $this->reader, $this->writer];
 
         // Test sort function.
 
         // Set the new config data via a YAML config string.
         $reader->config = Yaml::dump([
-            'pathtojson' => $tmpinput,
+            'pathtojson' => $this->inputpath,
             'arrayexpression' => 'data.list.users',
             'arraysortexpression' => 'userdetails.firstname',
         ]);
@@ -144,8 +208,10 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
             (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
         ];
 
-        $tmpoutputsorted = tempnam('', 'jsonoutputsorted');
-        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpoutputsorted]);
+        $writer->config = Yaml::dump([
+            'format' => 'json',
+            'streamname' => $this->outputpath,
+        ]);
 
         // Execute.
         ob_start();
@@ -153,8 +219,17 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $sortedresultdata = json_decode(file_get_contents($tmpoutputsorted));
+        $sortedresultdata = json_decode(file_get_contents($this->outputpath));
         $this->assertEquals($sorteduserarray, $sortedresultdata);
+    }
+
+    /**
+     * Tests to see if the json reader can iterate over object keys, if the target is stored in some form of a hash map
+     *
+     * @covers \tool_dataflows\local\step\reader_json
+     */
+    public function test_reader_json_looping_over_object_keys() {
+        [$dataflow, $reader, $writer] = [$this->dataflow, $this->reader, $this->writer];
 
         // Test looping over object keys.
         $singleuser = '{"firstname": "Bob", "lastname": "Smith", "name": "Name"}';
@@ -171,8 +246,10 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
             'arraysortexpression' => '',
         ]);
 
-        $tmpoutputuser = tempnam('', 'jsonoutputsingleuser');
-        $writer->config = Yaml::dump(['format' => 'json', 'streamname' => $tmpoutputuser]);
+        $writer->config = Yaml::dump([
+            'format' => 'json',
+            'streamname' => $this->outputpath,
+        ]);
 
         // Execute.
         ob_start();
@@ -180,8 +257,48 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $this->assertEquals(json_decode(file_get_contents($tmpoutputuser)), ['Bob', 'Smith', 'Name']);
+        $this->assertEquals(json_decode(file_get_contents($this->outputpath)), ['Bob', 'Smith', 'Name']);
 
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
+    }
+
+    /**
+     * Tests to ensure the sort order works as expected
+     *
+     * @covers \tool_dataflows\local\step\reader_json::get_sort_by_config_value
+     * @covers \tool_dataflows\local\step\reader_json::get_sort_order_direction
+     */
+    public function test_json_sort_order() {
+        [$dataflow, $reader, $writer] = [$this->dataflow, $this->reader, $this->writer];
+
+        // Test sort function.
+
+        // Set the new config data via a YAML config string.
+        $reader->config = Yaml::dump([
+            'pathtojson' => $this->inputpath,
+            'arrayexpression' => 'data.list.users',
+            'arraysortexpression' => 'userdetails.firstname',
+            'sortorder' => 'desc',
+        ]);
+
+        $reversesorteduserarray = [
+            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
+            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
+            (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
+        ];
+
+        $writer->config = Yaml::dump([
+            'format' => 'json',
+            'streamname' => $this->outputpath,
+        ]);
+
+        // Execute.
+        ob_start();
+        $engine = new engine($dataflow);
+        $engine->execute();
+        ob_get_clean();
+
+        $sortedresultdata = json_decode(file_get_contents($this->outputpath));
+        $this->assertEquals($reversesorteduserarray, $sortedresultdata);
     }
 }
