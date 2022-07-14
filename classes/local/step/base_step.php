@@ -33,7 +33,8 @@ abstract class base_step {
 
     /** @var engine_step Engine step made by this class for an execution. */
     protected $enginestep = null;
-    /** @var step The step definition use to create the engien step.  */
+
+    /** @var step The step definition use to create the engine step.  */
     protected $stepdef = null;
 
     /**
@@ -70,12 +71,23 @@ abstract class base_step {
      */
     public function __construct(?step $stepdef = null, ?engine $engine = null) {
         $this->stepdef = $stepdef;
-        if (!is_null($engine)) {
-            if (is_null($stepdef)) {
-                throw new \moodle_exception('must_have_a_step_def_defined', '', 'tool_dataflows');
-            }
-            $this->enginestep = $this->generate_engine_step($engine);
+        // Sets the engine if it has been provided.
+        if (isset($engine)) {
+            $this->set_engine($engine, $stepdef);
         }
+    }
+
+    /**
+     * Links the engine to this step type, which requires a step def to be provided as well.
+     *
+     * @param   engine $engine
+     * @param   step $stepdef
+     */
+    public function set_engine(engine $engine, step $stepdef) {
+        if (is_null($stepdef)) {
+            throw new \moodle_exception('must_have_a_step_def_defined', '', 'tool_dataflows');
+        }
+        $this->enginestep = $this->generate_engine_step($engine);
     }
 
     /**
