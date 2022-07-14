@@ -53,6 +53,7 @@ function tool_dataflows_step_types() {
         new step\connector_debug_file_display,
         new step\connector_s3,
         new step\flow_web_service,
+        new step\flow_case,
     ];
 }
 

@@ -90,6 +90,7 @@ $string['endstate'] = 'End state';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_s3'] = 'S3 file copy connector';
+$string['step_name_flow_case'] = 'Flow case';
 $string['step_name_flow_logic_join'] = 'Flow join';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
 $string['step_name_reader_json'] = 'JSON reader';
@@ -314,3 +315,11 @@ $string['flow_web_service:path'] = 'Failure path recording';
 $string['flow_web_service:datastore'] = 'Web service data response storage key';
 $string['flow_web_service:datastore_help'] = 'Data from webservice response that needs to be reused by subsequent steps';
 $string['flow_web_service:datastore_example'] = 'You will be able to use response values in a subsequent step with the following: <br><code>data.{$a}_key <br> ie : data.{$a}_id - data.{$a}_username</code>';
+
+// Flow case.
+$string['flow_case:returntype'] = 'Previous step return type';
+$string['flow_case:bool'] = 'Boolean';
+$string['flow_case:value'] = 'Value';
+$string['flow_case:exception'] = 'Exception';
+$string['flow_case:equals'] = 'Equals';
+$string['flow_case:execute'] = 'Next flow step';
