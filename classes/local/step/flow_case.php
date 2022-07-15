@@ -73,11 +73,7 @@ class flow_case extends flow_logic_step {
         );
         $mform->addElement('textarea', 'config_equals', get_string('flow_case:equals', 'tool_dataflows'),
             ['cols' => 50, 'rows' => 7]);
-        $mform->addElement('select', 'config_execute', get_string('flow_case:execute', 'tool_dataflows'),
-        [
-
-        ]
-        );
+        $mform->addElement('text', 'config_execute', get_string('flow_case:execute', 'tool_dataflows'));
     }
 
     /**
@@ -87,7 +83,17 @@ class flow_case extends flow_logic_step {
      * @return true|\lang_string[] true if valid, an array of errors otherwise
      */
     public function validate_config($config) {
-
+        $errors = [];
+        if (empty($config->returntype)) {
+            $errors['config_returntype'] = get_string('config_field_missing', 'tool_dataflows', 'returntype', true);
+        }
+        if (empty($config->equals)) {
+            $errors['config_equals'] = get_string('config_field_missing', 'tool_dataflows', 'equals', true);
+        }
+        if (empty($config->execute)) {
+            $errors['config_execute'] = get_string('config_field_missing', 'tool_dataflows', 'execute', true);
+        }
+        return empty($errors) ? true : $errors;
     }
 
     /**
@@ -99,6 +105,8 @@ class flow_case extends flow_logic_step {
      * @return bool Returns true if successful, false otherwise.
      */
     public function execute($input) {
-
+        $config = $this->enginestep->stepdef->config;
+        $steps = $this->stepdef->dataflow->get_steps();
+        $toexecute = $steps->{$config->execute};
     }
 }
