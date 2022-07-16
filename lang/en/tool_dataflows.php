@@ -323,3 +323,4 @@ $string['flow_case:value'] = 'Value';
 $string['flow_case:exception'] = 'Exception';
 $string['flow_case:equals'] = 'Equals';
 $string['flow_case:execute'] = 'Next flow step';
+$string['flow_case:empty'] = 'Null or empty';

@@ -34,6 +34,7 @@ class dataflow_iterator implements iterator {
     protected $input;
     protected $step;
     protected $value = null;
+    public $newvalue;
 
     protected $iterationcount = 0;
 
@@ -133,10 +134,10 @@ class dataflow_iterator implements iterator {
 
         // Processes it.
         $this->on_next();
-        $newvalue = $this->steptype->execute($this->value);
+        $this->newvalue = $this->steptype->execute($this->value);
         ++$this->iterationcount;
-        $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
+        $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($this->newvalue));
 
-        return $newvalue;
+        return $this->newvalue;
     }
 }

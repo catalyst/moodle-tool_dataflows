@@ -16,6 +16,10 @@
 
 namespace tool_dataflows\local\step;
 
+use tool_dataflows\local\execution\iterators\dataflow_iterator;
+use tool_dataflows\local\execution\iterators\iterator;
+use tool_dataflows\parser;
+
 /**
  * Flow case
  *
@@ -51,6 +55,7 @@ class flow_case extends flow_logic_step {
             'returntype' => ['type' => PARAM_TEXT],
             'equals' => ['type' => PARAM_TEXT],
             'execute' => ['type' => PARAM_TEXT],
+            'empty' => ['type' => PARAM_TEXT],
         ];
     }
 
@@ -68,6 +73,7 @@ class flow_case extends flow_logic_step {
             [
                 'bool' => get_string('flow_case:bool', 'tool_dataflows'),
                 'value' => get_string('flow_case:value', 'tool_dataflows'),
+                'empty' => get_string('flow_case:empty', 'tool_dataflows'),
                 'exception' => get_string('flow_case:exception', 'tool_dataflows'),
             ]
         );
@@ -96,6 +102,49 @@ class flow_case extends flow_logic_step {
         return empty($errors) ? true : $errors;
     }
 
+    // /**
+    //  * Get the iterator for the step, based on configurations.
+    //  *
+    //  * @return iterator
+    //  */
+    public function get_iterator(): iterator {
+        $config = $this->enginestep->stepdef->config;
+        $upstream = current($this->enginestep->upstreams);
+        if ($upstream === false || !$upstream->is_flow()) {
+            throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
+        }
+        return new class($this->enginestep, $upstream->iterator, $config) extends dataflow_iterator {
+            /** @var string returntype return type we compare. */
+            public $returntype;
+            /** @var string equals value to compare */
+            public $equals;
+            /** @var string execute step to execute on ne */
+            public $execute;
+
+            public function __construct($step, $input, $config) {
+                $this->returntype = $config->returntype;
+                $this->equals = $config->equals;
+                $this->execute = $config->execute;
+                parent::__construct($step, $input);
+            }
+
+            /**
+             * Next item in the stream.
+             *
+             * @return object|bool A JSON compatible object, or false if nothing returned.
+             */
+            public function on_next() {
+                $current = $this->input->current();
+                $value = $this->value;
+                foreach ($this->steptype->enginestep->downstreams as $key => $nextstep) {
+                    if ($key !== $stepid) {
+                        unset($this->enginestep->downstreams[$key]);
+                    }
+                }
+            }
+        };
+    }
+
     /**
      * Executes the step
      *
@@ -105,8 +154,32 @@ class flow_case extends flow_logic_step {
      * @return bool Returns true if successful, false otherwise.
      */
     public function execute($input) {
-        $config = $this->enginestep->stepdef->config;
-        $steps = $this->stepdef->dataflow->get_steps();
-        $toexecute = $steps->{$config->execute};
+        // $config = $this->enginestep->stepdef->config;
+        // $steps = $this->stepdef->dataflow->get_steps();
+        // $iterator = reset($this->enginestep->upstreams)->iterator;
+        // $value = $iterator->newvalue;
+        // $stepid = $steps->{$config->execute}->get('id');
+
+        // if ($config->returntype === 'bool') {
+        //     if ($value === true) {
+        //         $this->select_one_output($stepid);
+        //     }
+        // }
+        // if ($config->returntype === 'empty') {
+        //     $parser = new parser();
+        //     $value = $parser->array_evaluate_recursive([$config->equals], $input);
+        //     if (reset($value) === $config->equals) {
+        //         $this->select_one_output($stepid);
+        //     }
+        // }
+        return true;
+    }
+
+    protected function select_one_output($stepid) {
+        foreach ($this->enginestep->downstreams as $key => $nextstep) {
+            if ($key !== $stepid) {
+                unset($this->enginestep->downstreams[$key]);
+            }
+        }
     }
 }
