@@ -149,4 +149,32 @@ class parser {
         // Contents is valid YAML contents.
         return true;
     }
+
+    /**
+     * Evaluates data in array recursively, if no data expression returns array as is.
+     *
+     * @param array $arr Array to look in
+     * @param object $input Array where placeholder is present
+     *
+     * @return array $return.
+     */
+    public function array_evaluate_recursive($arr, $input) {
+        foreach ($arr as $key => $value) {
+            if (is_array($value)) {
+                $value = $this->array_evaluate_recursive($value, $input);
+                $return[$key] = $value;
+            } else {
+                end($arr);
+                $lastkey = key($arr);
+                if (strpos($value, 'data.') !== false) {
+                    $res = $this->evaluate($value, ['data' => $input]);
+                    $arr[$key] = strtolower($res);
+                }
+                if ($key == $lastkey) {
+                    $return = $arr;
+                }
+            }
+        }
+        return $return;
+    }
 }
