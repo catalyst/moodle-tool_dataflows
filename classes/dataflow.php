@@ -135,6 +135,7 @@ class dataflow extends persistent {
             $steps[$key] = $step->get_export_data();
             $steps[$key]['alias'] = $key;
             $steps[$key]['states'] = $step->states;
+            $steps[$key]['outputs'] = $step->outputs;
         }
         foreach ($steps as &$step) {
             foreach ($step as &$field) {
@@ -153,7 +154,6 @@ class dataflow extends persistent {
         $placeholder = '__PLACEHOLDER__';
         $max = 100;
         $foundexpression = true;
-        $counter = [];
         while ($foundexpression && $max) {
             $max--;
             $foundexpression = false;
@@ -163,32 +163,38 @@ class dataflow extends persistent {
                         continue;
                     }
 
-                    [$hasexpression] = $parser->has_expression($field);
-                    if ($hasexpression) {
-                        $foundexpression = true;
-                        $fieldvalue = $field;
-                        $field = $placeholder;
-                        $resolved = $parser->evaluate($fieldvalue, $variables);
-                        if ($resolved === $placeholder) {
-                            $link = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $step->id]);
-                            throw new \moodle_exception(
-                                'recursiveexpressiondetected',
-                                'tool_dataflows',
-                                $link,
-                                ['field' => $key, 'steptype' => $step->type]
-                            );
-                        }
-                        if ($resolved !== $fieldvalue) {
-                            [$hasexpression] = $parser->has_expression($resolved);
-                            if ($hasexpression) {
-                                $counter[$resolved] = ($counter[$resolved] ?? 0) + 1;
+                    $localparse = function (&$field)
+                        use ($parser, $variables, $step, $key, $placeholder, &$foundexpression)
+                    {
+                        [$hasexpression] = $parser->has_expression($field);
+                        if ($hasexpression) {
+                            $foundexpression = true;
+                            $fieldvalue = $field;
+                            $field = $placeholder;
+                            $resolved = $parser->evaluate($fieldvalue, $variables);
+                            if ($resolved === $placeholder) {
+                                $link = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $step->id]);
+                                throw new \moodle_exception(
+                                    'recursiveexpressiondetected',
+                                    'tool_dataflows',
+                                    $link,
+                                    ['field' => $key, 'steptype' => $step->type]
+                                );
+                            }
+                            if (isset($resolved)) {
+                                $field = $resolved;
+                            } else {
+                                $field = $fieldvalue;
                             }
                         }
-                        if (isset($resolved)) {
-                            $field = $resolved;
-                        } else {
-                            $field = $fieldvalue;
+                    };
+
+                    if (is_object($field)) {
+                        foreach ($field as &$fieldlet) {
+                            $localparse($fieldlet);
                         }
+                    } else {
+                        $localparse($field);
                     }
                 }
             }

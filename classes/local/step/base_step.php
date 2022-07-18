@@ -19,6 +19,7 @@ namespace tool_dataflows\local\step;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
+use tool_dataflows\parser;
 use tool_dataflows\step;
 
 /**
@@ -36,6 +37,9 @@ abstract class base_step {
 
     /** @var step The step definition use to create the engine step.  */
     protected $stepdef = null;
+
+    /** @var array of variables exposed for use from this step. */
+    protected $variables = [];
 
     /**
      * This is autopopulated by the dataflows manager.
@@ -89,6 +93,19 @@ abstract class base_step {
             throw new \moodle_exception('must_have_a_step_def_defined', '', 'tool_dataflows');
         }
         $this->enginestep = $this->generate_engine_step($engine);
+    }
+
+    /**
+     * Resolve the step outputs based on the stored variables and output configuration set.
+     */
+    public function prepare_outputs() {
+        $config = $this->stepdef->get_raw_config();
+        if (isset($config->outputs)) {
+            $parser = new parser;
+            $allvariables = array_merge($this->stepdef->variables, $this->variables);
+            $outputs = $parser->evaluate_recursive($config->outputs, $allvariables);
+            $this->stepdef->set_output($outputs);
+        }
     }
 
     /**
@@ -470,5 +487,19 @@ abstract class base_step {
      * Hook function that gets called when an engine step has been finalised.
      */
     public function on_finalise() {
+    }
+
+    /**
+     * Set variables available from this step
+     *
+     * Any variable you want "exposed" from this step (e.g. the response from a
+     * cURL or web service call), should be set here. This will part of the
+     * source of truth for user-defined output values (step.outputs.some-user-mapping)
+     *
+     * @param   string $name
+     * @param   mixed $value
+     */
+    public function set_variables(string $name, $value) {
+        $this->variables[$name] = $value;
     }
 }

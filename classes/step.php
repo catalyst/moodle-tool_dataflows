@@ -42,6 +42,9 @@ class step extends persistent {
     /** @var \stdClass of engine step states and timestamps */
     private $states;
 
+    /** @var \stdClass keep track of any outputs, exposed by the user for each step */
+    private $outputs;
+
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      */
@@ -57,6 +60,15 @@ class step extends persistent {
      */
     public function get_states(): \stdClass {
         return $this->states;
+    }
+
+    /**
+     * Returns the step's outputs
+     *
+     * @return  \stdClass
+     */
+    public function get_outputs(): \stdClass {
+        return $this->outputs ?? new \stdClass;
     }
 
     /**
@@ -217,43 +229,11 @@ class step extends persistent {
         if ($expressions) {
             // Prepare this as a php object (stdClass), as it makes expressions easier to write.
             $parser = new parser();
-
             $variables = $this->variables;
-            $resolvedvalues = new \stdClass;
-            $unresolvedvalues = new \stdClass;
-            foreach ($yaml as $key => &$string) {
-                // TODO: Perhaps some keys should not be evaluated?
-                [$hasexpression] = $parser->has_expression($string);
-                if (!$hasexpression) {
-                    $resolvedvalues->{$key} = $string;
-                } else {
-                    $unresolvedvalues->{$key} = $string;
-                }
-            }
-            // NOTE: Assumption that doing this does not corrupt the state in any way.
-            $variables['steps']->{$this->alias}->config = $resolvedvalues;
-            $max = 1;
-            while ($max) {
-                $max--;
-                foreach ($unresolvedvalues as $key => &$string) {
-                    [$hasexpression] = $parser->has_expression($string);
-                    if ($hasexpression) {
-                        $resolved = $parser->evaluate($string, $variables);
-                        if ($resolved !== $string) {
-                            $yaml->{$key} = $resolved;
-                            $resolvedvalues->{$key} = $resolved;
-                            $max++;
+            $yaml = $parser->evaluate_recursive($yaml, $variables);
 
-                            // If it doesn't have an expression, then it is resolved so no longer needed.
-                            [$hasexpression] = $parser->has_expression($resolved);
-                            unset($unresolvedvalues->{$key});
-                            if ($hasexpression) {
-                                $unresolvedvalues->{$key} = $resolved;
-                            }
-                        }
-                    }
-                }
-            }
+            // Sets it to the parsed results.
+            $variables['steps']->{$this->alias}->config = $yaml;
         }
 
         return $yaml;
@@ -773,6 +753,16 @@ class step extends persistent {
 
         // Updates the stored config.
         $this->config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+    }
+
+    /**
+     * Fills in output fields provided given an array of outputs
+     *
+     * @param  mixed $value array of output fields to set. This is merged with any existing values.
+     */
+    public function set_output($attributes) {
+        $this->outputs = $this->outputs ?? new \stdClass;
+        $this->outputs = (object) array_merge((array) $this->outputs, (array) $attributes);
     }
 
     /**

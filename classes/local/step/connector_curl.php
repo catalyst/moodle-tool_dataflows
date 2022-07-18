@@ -197,14 +197,19 @@ class connector_curl extends connector_step {
         }
 
         if (!$isdryrun) {
-            $this->enginestep->stepdef->set_var('result', $result);
-            $this->enginestep->stepdef->set_var('httpcode', $httpcode);
-            $this->enginestep->stepdef->set_var('connecttime', $connecttime);
-            $this->enginestep->stepdef->set_var('totaltime', $totaltime);
-            $this->enginestep->stepdef->set_var('sizeupload', $sizeupload);
-            $this->enginestep->stepdef->set_var('destination', $destination);
+            // TODO: It would be good to define and list any fixed but exposed
+            // fields which the user can use and map to on the edit page.
+            $this->set_variables('response', (object) [
+                'result' => $result,
+                'info' => $info,
+                'httpcode' => $httpcode,
+                'connecttime' => $connecttime,
+                'totaltime' => $totaltime,
+                'sizeupload' => $sizeupload,
+                'destination' => $destination,
+            ]);
         } else {
-            $this->enginestep->stepdef->set_var('dbgcommand', $dbgcommand);
+            $this->set_variables('dbgcommand', $dbgcommand);
         }
         return true;
     }

@@ -134,6 +134,10 @@ class dataflow_iterator implements iterator {
         // Processes it.
         $this->on_next();
         $newvalue = $this->steptype->execute($this->value);
+
+        // Handle step outputs - noting that for flow steps, the values may change between each iteration.
+        $this->steptype->prepare_outputs();
+
         ++$this->iterationcount;
         $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
 
