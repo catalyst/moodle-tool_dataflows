@@ -18,8 +18,6 @@ namespace tool_dataflows\local\step;
 
 use tool_dataflows\step;
 use tool_dataflows\local\scheduler;
-use tool_dataflows\local\execution\engine_step;
-
 
 /**
  * CRON trigger class
@@ -31,6 +29,11 @@ use tool_dataflows\local\execution\engine_step;
  */
 class trigger_cron extends trigger_step {
 
+    /**
+     * Return the definition of the fields available in this form.
+     *
+     * @return array
+     */
     protected static function form_define_fields(): array {
         return [
             'minute' => ['type' => PARAM_TEXT],
@@ -45,16 +48,18 @@ class trigger_cron extends trigger_step {
     /**
      * Get the default data.
      *
-     * @return stdClass
+     * @param \stdClass $data from the persistent form class
+     * @return \stdClass
      */
-    public function form_get_default_data(&$data) {
-        parent::form_get_default_data($data);
+    public function form_get_default_data(\stdClass $data): \stdClass {
+        $data = parent::form_get_default_data($data);
         $fields = ['minute', 'hour', 'day', 'month', 'dayofweek'];
         foreach ($fields as $field) {
             if (!isset($data->{"config_$field"})) {
                 $data->{"config_$field"} = '*';
             }
         }
+        return $data;
     }
 
     /**
@@ -131,8 +136,6 @@ class trigger_cron extends trigger_step {
      * @return true|\lang_string[] true if valid, an array of errors otherwise
      */
     public function validate_config($config) {
-        $errors = [];
-
         $fields = ['minute', 'hour', 'day', 'month', 'dayofweek'];
         foreach ($fields as $field) {
             if (!self::validate_fields($field, $config->$field)) {
@@ -202,8 +205,6 @@ class trigger_cron extends trigger_step {
 
     /**
      * Hook function that gets called when a step has been saved.
-     *
-     * @param step $stepdef
      */
     public function on_save() {
         $config = $this->stepdef->config;
@@ -228,8 +229,6 @@ class trigger_cron extends trigger_step {
 
     /**
      * Hook function that gets called when a step has been saved.
-     *
-     * @param step $stepdef
      */
     public function on_delete() {
         global $DB;
