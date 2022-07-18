@@ -158,7 +158,7 @@ class step_form extends \core\form\persistent {
         $type = $this->_customdata['type'];
         if (!empty($type) && class_exists($type)) {
             $steptype = new $type();
-            $steptype->form_get_default_data($data);
+            $data = $steptype->form_get_default_data($data);
         }
 
         return $data;

@@ -51,14 +51,15 @@ class trigger_cron extends trigger_step {
      * @param \stdClass $data from the persistent form class
      * @return \stdClass
      */
-    public function form_get_default_data(\stdClass &$data): \stdClass {
-        parent::form_get_default_data($data);
+    public function form_get_default_data(\stdClass $data): \stdClass {
+        $data = parent::form_get_default_data($data);
         $fields = ['minute', 'hour', 'day', 'month', 'dayofweek'];
         foreach ($fields as $field) {
             if (!isset($data->{"config_$field"})) {
                 $data->{"config_$field"} = '*';
             }
         }
+        return $data;
     }
 
     /**

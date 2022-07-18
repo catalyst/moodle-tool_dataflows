@@ -319,10 +319,10 @@ abstract class base_step {
     /**
      * Get the default data.
      *
-     * @param \stdClass $data from the persistent form class
-     * @return \stdClass
+     * @param   \stdClass $data from the persistent form class
+     * @return  \stdClass
      */
-    public function form_get_default_data(\stdClass &$data): \stdClass {
+    public function form_get_default_data(\stdClass $data): \stdClass {
         $yaml = Yaml::parse($data->config, Yaml::PARSE_OBJECT_FOR_MAP) ?? new \stdClass;
         foreach ($yaml as $key => $value) {
             $data->{"config_$key"} = $value;
