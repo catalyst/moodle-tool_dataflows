@@ -82,6 +82,7 @@ abstract class base_step {
      *
      * @param   engine $engine
      * @param   step $stepdef
+     * @throws  \moodle_exception
      */
     public function set_engine(engine $engine, step $stepdef) {
         if (is_null($stepdef)) {
