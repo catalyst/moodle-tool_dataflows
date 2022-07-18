@@ -63,6 +63,13 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'destination' => '',
             'headers' => '',
             'method' => 'get',
+            'outputs' => [
+                'result' => '${{ fromJSON(response.result) }}',
+                'httpcode' => '${{ response.httpcode }}',
+                'connecttime' => '${{ response.connecttime }}',
+                'totaltime' => '${{ response.totaltime }}',
+                'sizeupload' => '${{ response.sizeupload }}',
+            ],
         ]);
         $stepdef->name = 'connector';
         $stepdef->type = 'tool_dataflows\local\step\connector_curl';
@@ -71,10 +78,10 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->config;
+        $variables = $engine->get_variables()['steps']->connector->outputs;
         // Result can be anything but for readability decoded to see vars.
-        $result = json_decode($variables->result, true);;
-        $this->assertEquals($result['uuid'], '3d188fbf-d0b7-4d4e-ae4d-4b5548df824e');
+        $result = $variables->result;
+        $this->assertEquals($result->uuid, '3d188fbf-d0b7-4d4e-ae4d-4b5548df824e');
 
         $this->assertEquals($variables->httpcode, 200);
         $this->assertObjectHasAttribute('connecttime', $variables);
@@ -90,13 +97,20 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'headers' => '',
             'method' => 'post',
             'rawpostdata' => 'data=moodletest',
+            'outputs' => [
+                'result' => '${{ response.result }}',
+                'httpcode' => '${{ response.httpcode }}',
+                'connecttime' => '${{ response.connecttime }}',
+                'totaltime' => '${{ response.totaltime }}',
+                'sizeupload' => '${{ response.sizeupload }}',
+            ],
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->config;
+        $variables = $engine->get_variables()['steps']->connector->outputs;
 
         $this->assertEmpty($variables->result);
         $this->assertEquals($variables->httpcode, 200);
@@ -111,13 +125,20 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'headers' => '',
             'method' => 'put',
             'rawpostdata' => 'data=moodletest',
+            'outputs' => [
+                'result' => '${{ response.result }}',
+                'httpcode' => '${{ response.httpcode }}',
+                'connecttime' => '${{ response.connecttime }}',
+                'totaltime' => '${{ response.totaltime }}',
+                'sizeupload' => '${{ response.sizeupload }}',
+            ],
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->config;
+        $variables = $engine->get_variables()['steps']->connector->outputs;
 
         $this->assertEmpty($variables->result);
         $this->assertEquals($variables->httpcode, 200);
@@ -135,14 +156,14 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
                 "name": "morpheus",
                 "job": "leader"
             }',
+            'outputs' => ['dbgcommand' => '${{ dbgcommand }}'],
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
         $engine = new engine($dataflow, true, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->config;
-        $this->assertObjectNotHasAttribute('result', $variables);
+        $variables = $engine->get_variables()['steps']->connector->outputs;
         $expected = "curl -X POST {$testurl} -d '{
                 \"name\": \"morpheus\",
                 \"job\": \"leader\"
@@ -157,13 +178,17 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'destination' => $tofile,
             'headers' => '',
             'method' => 'get',
+            'outputs' => [
+                'httpcode' => '${{ response.httpcode }}',
+                'destination' => '${{ response.destination }}',
+            ],
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->config;
+        $variables = $engine->get_variables()['steps']->connector->outputs;
         $destination = $variables->destination;
         $httpcode = $variables->httpcode;
         $this->assertFileExists($destination);
@@ -174,9 +199,9 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         // Checks that it can properly be referenced for future steps.
         $expressedvalue = $expressionlanguage->evaluate('steps.connector.config.curl', $variables);
         $this->assertEquals($testgeturl, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.connector.config.destination', $variables);
+        $expressedvalue = $expressionlanguage->evaluate('steps.connector.outputs.destination', $variables);
         $this->assertEquals($destination, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.connector.config.httpcode', $variables);
+        $expressedvalue = $expressionlanguage->evaluate('steps.connector.outputs.httpcode', $variables);
         $this->assertEquals($httpcode, $expressedvalue);
     }
 

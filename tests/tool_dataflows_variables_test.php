@@ -22,6 +22,7 @@ use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\step;
 use tool_dataflows\local\execution;
+use tool_dataflows\local\step\connector_curl;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -274,5 +275,51 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $this->assertNotEmpty($expressedstepvalue);
 
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
+    }
+
+    /**
+     * Tests custom outputs based on a step's exposed variables.
+     *
+     * The gist is, each step type can expose data which it was responsible in
+     * handling. This data is then mapped to a user defined hash map which can
+     * then be referenced later on by downstream steps (step.outputs.myalias).
+     *
+     * @covers  \tool_dataflows\parser
+     * @covers  \tool_dataflows\parser::evaluate_recursive
+     * @covers  \tool_dataflows\local\step\base_step::prepare_outputs
+     * @covers  \tool_dataflows\local\step\base_step::set_variables
+     */
+    public function test_output_variables() {
+        // Create curl step.
+        $testgeturl = $this->getExternalTestFileUrl('/h5pcontenttypes.json');
+
+        $stepdef = new step();
+        $dataflow = new dataflow();
+        $dataflow->name = 'connector-step';
+        $dataflow->enabled = true;
+        $dataflow->save();
+
+        // Tests get method.
+        $stepdef->config = Yaml::dump([
+            'curl' => $testgeturl,
+            'destination' => '',
+            'headers' => '',
+            'method' => 'get',
+            // Sets expressed values typically for values in scope with this step, so they can be accessed from other steps.
+            'outputs' => ['customOutputKey' => '${{ fromJSON(response.result).contentTypes[0].id }}'],
+        ]);
+        $stepdef->name = 'connector';
+        $stepdef->type = connector_curl::class;
+        $dataflow->add_step($stepdef);
+        ob_start();
+        $engine = new engine($dataflow, false, false);
+        $engine->execute();
+        ob_get_clean();
+
+        // Test an expression targetting the new custom mapping (which is how you might reference it from another step).
+        $expressionlanguage = new ExpressionLanguage();
+        $variables = $engine->get_variables();
+        $result = $expressionlanguage->evaluate("steps.{$stepdef->name}.outputs.customOutputKey", $variables);
+        $this->assertEquals('H5P.Accordion', $result);
     }
 }

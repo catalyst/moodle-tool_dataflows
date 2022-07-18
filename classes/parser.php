@@ -32,7 +32,74 @@ class parser {
 
     public function __construct() {
         $expressionlanguage = new ExpressionLanguage();
+
+        // Register the fromJSON helper function to convert a json string into a php object.
+        $expressionlanguage->register('fromJSON', function ($str) {
+            return sprintf('(is_string(%1$s) ? json_decode(%1$s) : %1$s)', $str);
+        }, function ($arguments, $str) {
+            if (!is_string($str)) {
+                return $str;
+            }
+            return json_decode($str);
+        });
         $this->expressionlanguage = $expressionlanguage;
+    }
+
+    /**
+     * Loops through the properties of the input yaml and returns a parsed object back
+     *
+     * @param   \stdClass $yaml
+     * @param   array $variables
+     * @return  \stdClass $yaml
+     */
+    public function evaluate_recursive($yaml, $variables) {
+        $resolvedvalues = new \stdClass;
+        $unresolvedvalues = new \stdClass;
+        foreach ($yaml as $key => &$string) {
+            // If the field was NULL, then it should be skipped.
+            if (is_null($string)) {
+                continue;
+            }
+
+            // If the field is a nested object, recurse and continue evalulating.
+            if (is_object($string)) {
+                $string = $this->evaluate_recursive($string, $variables);
+                continue;
+            }
+
+            [$hasexpression] = $this->has_expression($string);
+            if (!$hasexpression) {
+                $resolvedvalues->{$key} = $string;
+            } else {
+                $unresolvedvalues->{$key} = $string;
+            }
+        }
+        $max = 1;
+        while ($max) {
+            $max--;
+            foreach ($unresolvedvalues as $key => &$string) {
+                [$hasexpression] = $this->has_expression($string);
+                if ($hasexpression) {
+                    $resolved = $this->evaluate($string, $variables);
+                    if ($resolved !== $string) {
+                        $yaml->{$key} = $resolved;
+                        $resolvedvalues->{$key} = $resolved;
+                        $max++;
+
+                        // If it doesn't have an expression, then it is resolved so no longer needed.
+                        unset($unresolvedvalues->{$key});
+                        if (!is_object($resolved)) {
+                            [$hasexpression] = $this->has_expression($resolved);
+                            if ($hasexpression) {
+                                $unresolvedvalues->{$key} = $resolved;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return $yaml;
     }
 
     /**
@@ -104,7 +171,14 @@ class parser {
                     }
                     // Set the evalulated expression to the one that passed through the expression language.
                     if (isset($result)) {
-                        $evaluatedexpression = str_replace($match['expressionwrapper'], $result, $evaluatedexpression);
+                        if (!is_object($result)) {
+                            // Normally, the result returned from the expression is a non-scalar value. Replace the occurance of
+                            // it in the original provided expression with the result.
+                            $evaluatedexpression = str_replace($match['expressionwrapper'], $result, $evaluatedexpression);
+                        } else if (count($matches) === 1) {
+                            // Number of expressions in this string is one, so we can safely return the result of the evaluation.
+                            $evaluatedexpression = $result;
+                        }
                     }
                 } catch (\Throwable $e) {
                     if (isset($failcallback)) {
