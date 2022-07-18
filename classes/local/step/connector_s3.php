@@ -124,6 +124,7 @@ class connector_s3 extends connector_step {
 
         // Do not execute s3 operations during a dry run.
         if ($this->enginestep->engine->isdryrun) {
+            $this->enginestep->log("Skipping copy to '{$target}' as this is a dry run.");
             return true;
         }
 
@@ -193,7 +194,8 @@ class connector_s3 extends connector_step {
     public function resolve_path(string $path, bool $ins3): string {
         // S3 Path: when the path is in s3, trim the prefix.
         if ($ins3) {
-            return ltrim($path, self::S3_PREFIX);
+            // The path returned is the substring starting from where the prefix ends.
+            return substr($path, strlen(self::S3_PREFIX));
         }
 
         // Local/other path: resolved using the engine's resolve path method.

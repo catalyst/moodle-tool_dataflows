@@ -141,6 +141,7 @@ class engine {
         foreach ($dataflow->steps as $stepdef) {
             $classname = $stepdef->type;
             $steptype = new $classname($stepdef, $this);
+            $stepdef->steptype = $steptype;
             $this->enginesteps[$stepdef->id] = $steptype->get_engine_step();
         }
 
@@ -496,10 +497,12 @@ class engine {
      * @return false|resource
      */
     public function resolve_path(string $pathname) {
+        global $CFG;
+
         $fullpath = helper::path_get_absolute($pathname, $this->scratchdir);
         $dir = dirname($fullpath);
         if (!file_exists($dir)) {
-            mkdir($dir);
+            mkdir($dir, $CFG->directorypermissions, true);
         }
         return $fullpath;
     }

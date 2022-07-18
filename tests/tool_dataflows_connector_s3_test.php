@@ -16,6 +16,8 @@
 
 namespace tool_dataflows;
 
+use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\connector_s3;
 
 /**
@@ -60,6 +62,80 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
             ['s3://path/to/', true],
             ['path/to/file', false],
             ['path', false],
+        ];
+    }
+
+    /**
+     * Dataflow creation helper function
+     *
+     * @return  array of the resulting dataflow and steps in the format [dataflow, steps]
+     */
+    public function create_dataflow() {
+        $dataflow = new dataflow();
+        $dataflow->name = 's3 copy';
+        $dataflow->enabled = true;
+        $dataflow->save();
+
+        $steps = [];
+        $reader = new step();
+        $reader->name = 's3copy';
+        $reader->type = connector_s3::class;
+        $reader->config = Yaml::dump([
+            'bucket' => 'bucket',
+            'region' => 'region',
+            'key' => 'SOMEKEY',
+            'secret' => 'SOMESECRET',
+            'source' => 's3://test/source.csv',
+            'target' => 's3://test/target.csv',
+            'sourceremote' => true,
+        ]);
+        $dataflow->add_step($reader);
+        $steps[$reader->id] = $reader;
+
+        return [$dataflow, $steps];
+    }
+
+    /**
+     * Test path resolving is sound
+     *
+     * @covers \tool_dataflows\local\step\connector_s3
+     * @dataProvider path_input_and_expected_data_provider
+     * @param string $path
+     * @param string $expected
+     */
+    public function test_path_is_resolved_as_expected(string $path, string $expected) {
+        [$dataflow, $steps] = $this->create_dataflow();
+        $isdryrun = true;
+
+        ob_start();
+        $engine = new engine($dataflow, $isdryrun);
+        $engine->initialise(); // Scratch directory is currently created as part of engine init.
+        ob_get_clean();
+
+        // Get the step type instance (which is linked with the engine).
+        $s3step = reset($steps)->steptype;
+
+        // For paths not in s3, it is expected the path provided is prefixed with the scratch dir path.
+        $isins3 = $s3step->has_s3_path($path);
+        if (!$isins3) {
+            $expected = "{$engine->scratchdir}/{$expected}";
+        }
+
+        $this->assertEquals($expected, $s3step->resolve_path($path, $isins3));
+    }
+
+    /**
+     * Data provider for tests.
+     *
+     * @return array
+     */
+    public function path_input_and_expected_data_provider(): array {
+        return [
+            ['s3://path/to/file', 'path/to/file'],
+            ['s3://path/to/', 'path/to/'],
+            ['s3://s3/nested/folder', 's3/nested/folder'],
+            ['path/to/file', 'path/to/file'],
+            ['path', 'path'],
         ];
     }
 }

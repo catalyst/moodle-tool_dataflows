@@ -144,14 +144,34 @@ class step extends persistent {
 
     /**
      * Returns the step type associated with this step
+     *
+     * @return base_step|null a step type derived from the base step type, or null if the type configured was invalid.
      */
     public function get_steptype() {
+        // This would generally be initiliased by the engine.
+        if (property_exists($this, 'steptype') && isset($this->steptype)) {
+            return $this->steptype;
+        }
+
+        // Falling back, this would initialise a new step type instance.
         $classname = $this->type;
         if (!empty($classname) && class_exists($classname)) {
             return new $classname($this);
-        } else {
-            return null;
         }
+
+        // If the type configured specified was invalid, it would return null.
+        return null;
+    }
+
+    /**
+     * Sets the intialised step type instance for this step (def).
+     *
+     * This would generally be initiliased by the engine.
+     *
+     * @param   base_step
+     */
+    public function set_steptype(base_step $steptype) {
+        $this->steptype = $steptype;
     }
 
     /**
