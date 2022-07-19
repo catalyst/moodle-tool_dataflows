@@ -97,6 +97,7 @@ class dataflow extends persistent {
             'userid' => ['type' => PARAM_INT, 'default' => 0],
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
             'usermodified' => ['type' => PARAM_INT, 'default' => 0],
+            'confighash' => ['type' => PARAM_TEXT, 'default' => ''],
         ];
     }
 
@@ -663,5 +664,23 @@ class dataflow extends persistent {
 
         // Updates the stored config.
         $this->config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+    }
+
+    /**
+     * Saves the current config to the tool_dataflows_versions table
+     *
+     */
+    public function save_config_version() {
+        global $DB;
+
+        $config = $this->config;
+        $configyaml = $this->config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+        $newconfighash = sha1($configyaml);
+
+        // Updates the stored config.
+        $DB->insert_record('tool_dataflows_versions',
+            (object) ['dataflowid' => $this->id, 'confighash' => $newconfighash, 'configyaml' => $configyaml]);
+
+        $DB->update_record('tool_dataflows', (object) ['id' => $this->id, 'confighash' => $newconfighash]);
     }
 }
