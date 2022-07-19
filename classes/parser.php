@@ -62,7 +62,7 @@ class parser {
             }
 
             // If the field is a nested object, recurse and continue evalulating.
-            if (is_object($string)) {
+            if (is_object($string) || is_array($string)) {
                 $string = $this->evaluate_recursive($string, $variables);
                 continue;
             }
@@ -82,6 +82,9 @@ class parser {
                 if ($hasexpression) {
                     $resolved = $this->evaluate($string, $variables);
                     if ($resolved !== $string) {
+                        if (is_array($yaml)) {
+                            $yaml = (object) $yaml;
+                        }
                         $yaml->{$key} = $resolved;
                         $resolvedvalues->{$key} = $resolved;
                         $max++;
