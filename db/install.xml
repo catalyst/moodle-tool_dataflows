@@ -14,7 +14,7 @@
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The user who created this record"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was modified."/>
         <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Who last modified this record?"/>
-        <FIELD NAME="confighash" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The config hash of the most recent run"/>
+        <FIELD NAME="confighash" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false" COMMENT="The config hash of the most recent run"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -110,7 +110,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="dataflowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="confighash" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Hash of the config values"/>
+        <FIELD NAME="confighash" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false" COMMENT="Hash of the config values"/>
         <FIELD NAME="configyaml" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Yaml of the config"/>
       </FIELDS>
       <KEYS>
