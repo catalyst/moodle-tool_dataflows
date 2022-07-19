@@ -67,21 +67,37 @@ class connector_curl extends connector_step {
         ];
         $ex['json'] = \html_writer::nonempty_tag('pre', json_encode($jsonexample, JSON_PRETTY_PRINT));
         $ex['yaml'] = '<pre>header-key: header value<br>another-key: 1234</pre>';
-        $mform->addElement('text', 'config_curl', get_string('connector_curl:curl', 'tool_dataflows'),
-                ['cols' => 50, 'rows' => 7]);
-        $mform->addElement('text', 'config_destination', get_string('connector_curl:destination', 'tool_dataflows'));
-        $mform->addHelpButton('config_destination', 'connector_curl:destination', 'tool_dataflows');
+
+
+        $urlarray = [];
+        $urlarray[] =& $mform->createElement('select', 'config_method', '', [
+            'get'    => 'GET',
+            'post'   => 'POST',
+            'head'   => 'HEAD',
+            'patch'  => 'PATCH',
+            'put'    => 'PUT',
+        ]);
+        $urlarray[] =& $mform->createElement('text', 'config_curl', '') ;
+
+        $mform->addGroup($urlarray, 'buttonar', get_string('connector_curl:curl', 'tool_dataflows'), [' '], false);
+
         $mform->addElement('textarea', 'config_headers', get_string('connector_curl:headers', 'tool_dataflows'),
                 ['cols' => 50, 'rows' => 7]);
         $mform->addElement('static', 'headers_help', '', get_string('connector_curl:field_headers_help', 'tool_dataflows', $ex));
-        $mform->addElement('select', 'config_method', get_string('connector_curl:method', 'tool_dataflows'),
-                ['get' => 'GET', 'post' => 'POST', 'put' => 'PUT']);
+
         $mform->addElement('textarea' , 'config_rawpostdata', get_string('connector_curl:rawpostdata', 'tool_dataflows'),
                 ['cols' => 50, 'rows' => 7]);
+
+        $mform->addElement('text', 'config_destination', get_string('connector_curl:destination', 'tool_dataflows'));
+        $mform->addHelpButton('config_destination', 'connector_curl:destination', 'tool_dataflows');
+
         $mform->addElement('checkbox', 'config_sideeffects', get_string('connector_curl:sideeffects', 'tool_dataflows'),
                 get_string('yes'));
+        $mform->addHelpButton('config_sideeffects', 'connector_curl:sideeffects', 'tool_dataflows');
+
         $mform->hideIf('config_rawpostdata', 'config_method', 'eq', 'get');
         $mform->disabledIf('config_rawpostdata', 'config_method', 'eq', 'get');
+
         $mform->addElement('text', 'config_timeout', get_string('connector_curl:timeout', 'tool_dataflows'));
         $mform->addHelpButton('config_timeout', 'connector_curl:timeout', 'tool_dataflows');
     }
