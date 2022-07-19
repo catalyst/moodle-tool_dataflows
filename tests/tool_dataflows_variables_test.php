@@ -321,5 +321,8 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $variables = $engine->get_variables();
         $result = $expressionlanguage->evaluate("steps.{$stepdef->name}.outputs.customOutputKey", $variables);
         $this->assertEquals('H5P.Accordion', $result);
+        // Test the shorthand version also.
+        $result = $expressionlanguage->evaluate("steps.{$stepdef->name}.customOutputKey", $variables);
+        $this->assertEquals('H5P.Accordion', $result);
     }
 }

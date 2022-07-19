@@ -136,7 +136,16 @@ class dataflow extends persistent {
             $steps[$key]['alias'] = $key;
             $steps[$key]['states'] = $step->states;
             $steps[$key]['outputs'] = $step->outputs;
+
+            // For a 'better' experience, the output values will be referencable
+            // from the base step key itself, e.g. instead of
+            // steps.alias.outputs.somefield, it would just be
+            // steps.alias.somefield.
+            foreach ($step->outputs as $somefield => $somevalue) {
+                $steps[$key][$somefield] = $somevalue;
+            }
         }
+
         foreach ($steps as &$step) {
             foreach ($step as &$field) {
                 if (is_array($field)) {
