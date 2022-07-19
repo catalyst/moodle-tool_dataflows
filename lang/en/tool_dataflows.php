@@ -285,14 +285,13 @@ $string['connector_s3:missing_s3_source_or_target'] = 'At least one source or ta
 $string['connector_s3:source_is_a_directory'] = 'The source path is a directory but a file path is expected.';
 
 // Connector cURL.
-$string['connector_curl:curl'] = 'Client URL';
+$string['connector_curl:curl'] = 'URL';
 $string['connector_curl:destination'] = 'File / Response destination';
-$string['connector_curl:destination_help'] = 'Should this field be left blank,
-response will be stored in step definition to be reused subsequently by other steps.';
-$string['connector_curl:headers'] = 'Headers';
-$string['connector_curl:method'] = 'HTTP request method';
+$string['connector_curl:destination_help'] = 'If set then the response body will be saved to this path. If blank then the response body will available in the step variable: ...response.result';
+$string['connector_curl:headers'] = 'HTTP request headers';
 $string['connector_curl:rawpostdata'] = 'Raw post data';
 $string['connector_curl:sideeffects'] = 'Does this request have side effects?';
+$string['connector_curl:sideeffects_help'] = 'Most read requests done via http GET do not have side effects ie they change state on the remote server, and generally any POST or PUT does have side effects. Curl calls with side effects are not actually executed in dry run mode.';
 $string['connector_curl:timeout'] = 'Timeout';
-$string['connector_curl:timeout_help'] = 'Time after which curl request will abort, default is 60 seconds.';
+$string['connector_curl:timeout_help'] = 'Time in seconds after which the request will abort, default is 60 seconds.';
 $string['connector_curl:field_headers_help'] = 'Headers should be in the following JSON format: {$a->json} You can also use the following YAML format: {$a->yaml}';
