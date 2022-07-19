@@ -363,7 +363,12 @@ abstract class base_step {
         }
         // Handling for "outputs".
         if (isset($yaml->outputs)) {
-            $data->config_outputs = Yaml::dump($yaml->outputs, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP);
+            $data->config_outputs = Yaml::dump(
+                $yaml->outputs,
+                2,
+                4,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
+            );
         }
         return $data;
     }
