@@ -361,6 +361,10 @@ abstract class base_step {
         foreach ($yaml as $key => $value) {
             $data->{"config_$key"} = $value;
         }
+        // Handling for "outputs".
+        if (isset($yaml->outputs)) {
+            $data->config_outputs = Yaml::dump($yaml->outputs, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP);
+        }
         return $data;
     }
 
@@ -374,6 +378,10 @@ abstract class base_step {
     public function form_convert_fields(&$data) {
         // Construct configuration array based on standard format.
         $fields = static::form_define_fields();
+
+        // Add in the outputs field.
+        $fields += ['outputs' => []];
+
         $config = [];
         foreach ($fields as $fieldname => $unused) {
             $datafield = "config_$fieldname";
@@ -384,6 +392,15 @@ abstract class base_step {
             $config[$fieldname] = $data->{$datafield};
             // Use '\n' instead of '\r\n' for new lines to allow YAML multi-line literals to work.
             $config[$fieldname] = str_replace("\r\n", "\n", $config[$fieldname]);
+
+            // Handle outputs (convert to a proper data structure).
+            if ($fieldname === 'outputs') {
+                $config[$fieldname] = Yaml::parse($config[$fieldname], Yaml::PARSE_OBJECT);
+                if (!isset($config[$fieldname])) {
+                    unset($config[$fieldname]);
+                }
+            }
+
             unset($data->{$datafield});
         }
 
@@ -392,7 +409,7 @@ abstract class base_step {
             $inline = 4;
             // 2 spaces per level of indentation.
             $indent = 2;
-            $data->config = Yaml::dump($config, $inline, $indent, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+            $data->config = Yaml::dump($config, $inline, $indent, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP);
         }
 
         return $data;

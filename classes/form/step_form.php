@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\form;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\parser;
 
@@ -127,6 +128,22 @@ class step_form extends \core\form\persistent {
             $steptype = $persistent->steptype ?? new $type();
             $steptype->form_setup($mform);
         }
+
+        // Configuration - YAML format.
+        $mform->addElement(
+            'textarea',
+            'config_outputs',
+            get_string('field_outputs', 'tool_dataflows'),
+            ['cols' => 50, 'rows' => 7, 'placeholder' => "alias: \${{ <expression> }}\nanother: \${{ <expression> }}"]
+        );
+        $mform->setType("config_outputs", PARAM_TEXT);
+        $outputsexample['config'] = \html_writer::tag('code', trim(Yaml::dump([
+            'icon' => '${{ response.deeply.nested.data[0].icon }}',
+        ])));
+        $alias = $persistent->alias ?? 'alias';
+        $outputsexample['reference'] = \html_writer::tag('code', '${{ steps.' . $alias . '.icon }}');
+        $mform->addElement('static', 'outputs_help', '', get_string('field_outputs_help', 'tool_dataflows', $outputsexample));
+
         $this->add_action_buttons();
     }
 
