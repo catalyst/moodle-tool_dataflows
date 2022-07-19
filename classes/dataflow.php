@@ -665,9 +665,9 @@ class dataflow extends persistent {
         // Updates the stored config.
         $this->config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
     }
+
     /**
      * Saves the current config to the tool_dataflows_versions table
-     *
      */
     public function save_config_version() {
         global $DB;

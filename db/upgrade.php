@@ -48,5 +48,39 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         // Dataflows savepoint reached.
         upgrade_plugin_savepoint(true, 2022070501, 'tool', 'dataflows');
     }
+
+    if ($oldversion < 2022071900) {
+
+        // Define table tool_dataflows_versions to be created.
+        $table = new xmldb_table('tool_dataflows_versions');
+
+        // Adding fields to table tool_dataflows_versions.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('dataflowid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('confighash', XMLDB_TYPE_CHAR, '40', null, null, null, null);
+        $table->add_field('configyaml', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table tool_dataflows_versions.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('dataflowid', XMLDB_KEY_FOREIGN, ['dataflowid'], 'tool_dataflows', ['id']);
+
+        // Conditionally launch create table for tool_dataflows_versions.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define field confighash to be added to tool_dataflows.
+        $table = new xmldb_table('tool_dataflows');
+        $field = new xmldb_field('confighash', XMLDB_TYPE_CHAR, '40', null, null, null, null, 'usermodified');
+
+        // Conditionally launch add field confighash.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022071900, 'tool', 'dataflows');
+    }
+
     return true;
 }
