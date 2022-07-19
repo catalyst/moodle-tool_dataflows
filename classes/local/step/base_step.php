@@ -99,6 +99,10 @@ abstract class base_step {
      * Resolve the step outputs based on the stored variables and output configuration set.
      */
     public function prepare_outputs() {
+        // By default, it should make available all variables exposed by this step.
+        $this->stepdef->set_output($this->variables);
+
+        // Custom user defined output mapping.
         $config = $this->stepdef->get_raw_config();
         if (isset($config->outputs)) {
             $parser = new parser;
