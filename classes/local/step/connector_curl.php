@@ -215,6 +215,7 @@ class connector_curl extends connector_step {
 
         // Log the raw curl command.
         $this->enginestep->log($dbgcommand);
+        $this->set_variables('dbgcommand', $dbgcommand);
 
         if (!$isdryrun) {
             // TODO: It would be good to define and list any fixed but exposed

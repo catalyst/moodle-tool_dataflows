@@ -47,9 +47,6 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
      * @covers \tool_dataflows\local\step\connector_curl::execute
      */
     public function test_execute() {
-        global $CFG;
-
-        $connectorcurl = new connector_curl();
         $testgeturl = $this->getExternalTestFileUrl('/h5puuid.json');
 
         $stepdef = new step();
@@ -156,20 +153,22 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
                 "name": "morpheus",
                 "job": "leader"
             }',
-            'outputs' => ['dbgcommand' => '${{ dbgcommand }}'],
+            'outputs' => ['curlcmd' => '${{ dbgcommand }}'],
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
         $engine = new engine($dataflow, true, false);
         $engine->execute();
         ob_get_clean();
+
         $variables = $engine->get_variables()['steps']->connector->outputs;
         $expected = "curl -X POST {$testurl} -d '{
                 \"name\": \"morpheus\",
                 \"job\": \"leader\"
             }'";
         // Use trim here because it seems that some versions of Yaml put a EOL when dumping, and others don't.
-        $this->assertEquals($expected, trim($variables->dbgcommand));
+        $this->assertEquals($expected, trim($variables->curlcmd));
+        $this->assertEquals($expected, trim($variables->dbgcommand)); // Should also exist.
 
         // Test file writting.
         $tofile = "test.html";
