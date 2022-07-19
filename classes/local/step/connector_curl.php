@@ -41,7 +41,7 @@ class connector_curl extends connector_step {
      */
     protected static function form_define_fields(): array {
         return [
-            'curl' => ['type' => PARAM_URL],
+            'curl' => ['type' => PARAM_TEXT],
             'destination' => ['type' => PARAM_PATH],
             'headers' => ['type' => PARAM_RAW],
             'method' => ['type' => PARAM_TEXT],
@@ -130,6 +130,9 @@ class connector_curl extends connector_step {
         $config = $this->enginestep->stepdef->config;
         $isdryrun = $this->enginestep->engine->isdryrun;
         $method = $config->method;
+
+        $this->enginestep->log($config->curl);
+
         $dbgcommand = 'curl -X ' .  strtoupper($method) . ' ' . $config->curl;
         $result = null;
 
@@ -210,6 +213,9 @@ class connector_curl extends connector_step {
             throw new \moodle_exception($httpcode . ':' . $result);
         }
 
+        // Log the raw curl command.
+        $this->enginestep->log($dbgcommand);
+
         if (!$isdryrun) {
             // TODO: It would be good to define and list any fixed but exposed
             // fields which the user can use and map to on the edit page.
@@ -222,8 +228,6 @@ class connector_curl extends connector_step {
                 'sizeupload' => $sizeupload,
                 'destination' => $destination,
             ]);
-        } else {
-            $this->set_variables('dbgcommand', $dbgcommand);
         }
         return true;
     }
