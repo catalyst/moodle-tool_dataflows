@@ -96,9 +96,28 @@ abstract class base_step {
     }
 
     /**
-     * Resolve the step outputs based on the stored variables and output configuration set.
+     * A list of outputs and their descriptions
+     *
+     * These fields can be used as aliases in the custom output mapping
+     *
+     * @return  array of outputs
+     */
+    public function define_outputs(): array {
+        return [];
+    }
+
+    /**
+     * Resolves and sets the step outputs
+     *
+     * This effectively sets the outputs to the values they should be based on
+     * the stored variables and output configuration set. This happens at the
+     * end of each step.
      */
     public function prepare_outputs() {
+        // By default, it should make available all variables exposed by this step.
+        $this->stepdef->set_output($this->variables);
+
+        // Custom user defined output mapping.
         $config = $this->stepdef->get_raw_config();
         if (isset($config->outputs)) {
             $parser = new parser;
@@ -357,6 +376,15 @@ abstract class base_step {
         foreach ($yaml as $key => $value) {
             $data->{"config_$key"} = $value;
         }
+        // Handling for "outputs".
+        if (isset($yaml->outputs)) {
+            $data->config_outputs = Yaml::dump(
+                $yaml->outputs,
+                2,
+                4,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
+            );
+        }
         return $data;
     }
 
@@ -370,6 +398,10 @@ abstract class base_step {
     public function form_convert_fields(&$data) {
         // Construct configuration array based on standard format.
         $fields = static::form_define_fields();
+
+        // Add in the outputs field.
+        $fields += ['outputs' => []];
+
         $config = [];
         foreach ($fields as $fieldname => $unused) {
             $datafield = "config_$fieldname";
@@ -380,6 +412,26 @@ abstract class base_step {
             $config[$fieldname] = $data->{$datafield};
             // Use '\n' instead of '\r\n' for new lines to allow YAML multi-line literals to work.
             $config[$fieldname] = str_replace("\r\n", "\n", $config[$fieldname]);
+
+            // Handle outputs (convert to a proper data structure).
+            if ($fieldname === 'outputs') {
+                // Attempt to convert the data to the appropriate format. Due to
+                // persistent handling, validation happens at a differnt point
+                // in time from data conversion and so it is a bit disconnected.
+                // We still want the data stored in the expected format though.
+                try {
+                    $config[$fieldname] = Yaml::parse($config[$fieldname], Yaml::PARSE_OBJECT);
+                } catch (\Exception $e) { // phpcs:ignore
+                    $config[$fieldname] = $e->getMessage();
+                }
+
+                // If the field is not set (null), then remove it since it does
+                // not need to be stored.
+                if (!isset($config[$fieldname])) {
+                    unset($config[$fieldname]);
+                }
+            }
+
             unset($data->{$datafield});
         }
 
@@ -388,7 +440,7 @@ abstract class base_step {
             $inline = 4;
             // 2 spaces per level of indentation.
             $indent = 2;
-            $data->config = Yaml::dump($config, $inline, $indent, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+            $data->config = Yaml::dump($config, $inline, $indent, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP);
         }
 
         return $data;

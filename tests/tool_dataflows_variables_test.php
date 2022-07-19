@@ -319,8 +319,6 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Test an expression targetting the new custom mapping (which is how you might reference it from another step).
         $expressionlanguage = new ExpressionLanguage();
         $variables = $engine->get_variables();
-        $result = $expressionlanguage->evaluate("steps.{$stepdef->name}.outputs.customOutputKey", $variables);
-        $this->assertEquals('H5P.Accordion', $result);
         // Test the shorthand version also.
         $result = $expressionlanguage->evaluate("steps.{$stepdef->name}.customOutputKey", $variables);
         $this->assertEquals('H5P.Accordion', $result);
