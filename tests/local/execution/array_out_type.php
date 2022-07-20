@@ -23,7 +23,6 @@ use tool_dataflows\local\step\writer_step;
 
 /**
  * Test writer step type that writes to an array.
- * TODO: Until better classes have been defined, this is GEFN (Good Enough For Now).
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -35,11 +34,24 @@ class array_out_type extends writer_step {
     /** @var array The output array that the dat is written into. Make sure it is empty before use. */
     public static $dest = [];
 
+    /**
+     * Get the iterator for the step, based on configurations.
+     *
+     * @return iterator
+     */
     public function get_iterator(): iterator {
         $input = current($this->enginestep->upstreams)->iterator;
         return new dataflow_iterator($this->enginestep, $input);
     }
 
+    /**
+     * Step callback handler
+     *
+     * Adds the input to the static $dest (destination)
+     *
+     * @param   mixed $input
+     * @return  mixed $input
+     */
     public function execute($input) {
         self::$dest[] = $input;
         return $input;

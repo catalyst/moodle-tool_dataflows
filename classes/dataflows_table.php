@@ -26,6 +26,7 @@ namespace tool_dataflows;
  */
 class dataflows_table extends \table_sql {
 
+    /** Columns to display. */
     const COLUMNS = [
         'preview',
         'name',
@@ -35,6 +36,7 @@ class dataflows_table extends \table_sql {
         'details',
     ];
 
+    /** Columns that shouldn't be sorted. */
     const NOSORT_COLUMNS = [
         'preview',
         'actions',

@@ -25,13 +25,16 @@ namespace tool_dataflows\local;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scheduler {
+
+    /** The table name. */
     public const TABLE = 'tool_dataflows_schedule';
 
     /**
      * Get the scheduled times for a dataflow.
-     * @param int $dataflowid
-     * @return object|false
-     * @throws \dml_exception
+     *
+     * @param   int $stepid
+     * @return  object|false
+     * @throws  \dml_exception
      */
     public static function get_scheduled_times(int $stepid) {
         global $DB;
@@ -43,6 +46,7 @@ class scheduler {
      * Update an entry in the database for a dataflow.
      *
      * @param int $dataflowid
+     * @param int $stepid
      * @param int $newtime The new time for the next scheduled run.
      * @param int|null $oldtime The last time the dataflow ran. If null, the value will be unchanged.
      * @throws \dml_exception

@@ -28,6 +28,7 @@ use tool_dataflows\local\execution\engine;
  */
 class runs_table extends \table_sql {
 
+    /** Columns to display. */
     const COLUMNS = [
         'name',
         'userid',
@@ -37,6 +38,7 @@ class runs_table extends \table_sql {
         'duration',
     ];
 
+    /** Columns that shouldn't be sorted. */
     const NOSORT_COLUMNS = ['actions'];
 
     /**

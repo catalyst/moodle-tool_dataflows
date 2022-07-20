@@ -50,6 +50,8 @@ class tool_dataflows_test extends \advanced_testcase {
     }
 
     /**
+     * Tests the ability to create an empty dataflow
+     *
      * @covers \tool_dataflows\dataflow
      */
     public function test_creating_empty_dataflow(): void {
@@ -74,6 +76,8 @@ class tool_dataflows_test extends \advanced_testcase {
     }
 
     /**
+     * Tests the dependant steps and generating a dot script
+     *
      * @covers \tool_dataflows\step
      * @covers \tool_dataflows\dataflow::get_dotscript
      */
@@ -116,6 +120,8 @@ class tool_dataflows_test extends \advanced_testcase {
     }
 
     /**
+     * Tests dataflow validation
+     *
      * @covers \tool_dataflows\step
      * @covers \tool_dataflows\dataflow::validate_dataflow
      */
@@ -174,6 +180,8 @@ class tool_dataflows_test extends \advanced_testcase {
     }
 
     /**
+     * Tests whether the is_dag graph function is giving the expected output
+     *
      * @covers \tool_dataflows\graph::is_dag
      */
     public function test_dag_check() {
@@ -267,6 +275,8 @@ class tool_dataflows_test extends \advanced_testcase {
     }
 
     /**
+     * Tests parsing expressions, with expressions set in the linked fixture
+     *
      * @covers \tool_dataflows\dataflow::config
      * @covers \tool_dataflows\step::config
      * @covers \tool_dataflows\parser::evaluate

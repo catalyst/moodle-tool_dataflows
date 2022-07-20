@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Unit tests for the secret service
+ *
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
@@ -33,6 +42,11 @@ require_once($CFG->libdir.'/tablelib.php');
 
 /**
  * Child class of connector_s3 with enforced secrets used for testing
+ *
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tiny_connector_s3 extends connector_s3 {
 
@@ -72,6 +86,7 @@ class tiny_connector_s3 extends connector_s3 {
 class tool_dataflows_secret_service_test extends \advanced_testcase {
     use application_trait;
 
+    /** A secret that shouldn't be known */
     const SECRET = 'OHNOYOUWERENTSUPPOSEDTOSEEME';
 
     /**

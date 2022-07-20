@@ -18,7 +18,6 @@ namespace tool_dataflows\local\step;
 
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
-use tool_dataflows\local\execution\flow_engine_step;
 
 /**
  * Base class for reader step types.

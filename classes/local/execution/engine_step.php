@@ -31,8 +31,10 @@ abstract class engine_step {
 
     /** @var int Cannot go forward. Must cancel. */
     const PROCEED_STOP = 0;
+
     /** @var int Cannot go forward. Must wait. */
     const PROCEED_WAIT = 1;
+
     /** @var int Can go forward. Perform execution. */
     const PROCEED_GO = 2;
 
@@ -113,7 +115,7 @@ abstract class engine_step {
     /**
      * Exposes parameters that need to be accessed.
      *
-     * @param $parameter
+     * @param string $parameter
      * @return mixed
      * @throws \moodle_exception
      */
@@ -186,8 +188,8 @@ abstract class engine_step {
      * For example, set_var always goes to instance vars, set_config always
      * updates step's config.
      *
-     * @param      string name or path to name of field e.g. 'some.nested.fieldname'
-     * @param      mixed value
+     * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
+     * @param  mixed $value
      */
     public function set_var($name, $value) {
         // Check if this is an available field to set in the step type.
@@ -219,8 +221,8 @@ abstract class engine_step {
      * This is a proxy to the engine's implementation.
      * TODO: add instance support.
      *
-     * @param  string name of the field
-     * @param  mixed value
+     * @param  string $name of the field
+     * @param  mixed $value
      */
     public function set_dataflow_var($name, $value) {
         $this->engine->set_dataflow_var($name, $value);
@@ -231,8 +233,8 @@ abstract class engine_step {
      *
      * This is a proxy to the engine's implementation.
      *
-     * @param  string name of the field
-     * @param  mixed value
+     * @param  string $name of the field
+     * @param  mixed $value
      */
     public function set_global_var($name, $value) {
         $this->engine->set_global_var($name, $value);

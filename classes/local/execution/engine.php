@@ -166,6 +166,9 @@ class engine {
         $this->create_flow_caps();
     }
 
+    /**
+     * Initialises the engine
+     */
     public function initialise() {
         try {
             $this->status_check(self::STATUS_NEW);
@@ -343,6 +346,8 @@ class engine {
 
     /**
      * PHP getter.
+     *
+     * @param  string $parameter
      */
     public function __get($parameter) {
         switch ($parameter) {
@@ -386,8 +391,8 @@ class engine {
      *
      * TODO: add instance support.
      *
-     * @param      string name of the field
-     * @param      mixed value
+     * @param      string $name of the field
+     * @param      mixed $value
      */
     public function set_dataflow_var($name, $value) {
         // Check if this field can be updated or not, e.g. if this was forced in config, it should not be updatable.
@@ -412,8 +417,8 @@ class engine {
      * config field. This however is stored via set_config and there is no
      * instance only support.
      *
-     * @param      string name of the field
-     * @param      mixed value
+     * @param      string $name of the field
+     * @param      mixed $value
      */
     public function set_global_var($name, $value) {
         // Grabs the current config.
@@ -494,7 +499,6 @@ class engine {
      * Resolves the full path name for the givne path. If the directory does nto exist, it will create it.
      *
      * @param  string $pathname
-     * @param  string $mode
      * @return false|resource
      */
     public function resolve_path(string $pathname) {
@@ -505,6 +509,7 @@ class engine {
         if (!file_exists($dir)) {
             mkdir($dir, $CFG->directorypermissions, true);
         }
+
         return $fullpath;
     }
 }

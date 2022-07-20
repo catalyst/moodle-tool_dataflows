@@ -48,6 +48,14 @@ class reader_sql_variable_setter extends reader_sql {
         );
     }
 
+    /**
+     * Step callback handler
+     *
+     * Sets variables at different scopes for fun.
+     *
+     * @param   mixed $input
+     * @return  mixed $input
+     */
     public function execute($input) {
         parent::execute($input);
         // Updates a dataflow scoped variable.

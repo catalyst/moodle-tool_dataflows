@@ -29,15 +29,28 @@ use tool_dataflows\local\execution\flow_engine_step;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dataflow_iterator implements iterator {
+
+    /** @var steptype $steptype */
     protected $steptype;
+
+    /** @var bool $finished */
     protected $finished = false;
+
+    /** @var mixed $input */
     protected $input;
+
+    /** @var flow_engine_step $step */
     protected $step;
+
+    /** @var mixed $value */
     protected $value = null;
 
+    /** @var int $iterationcount */
     protected $iterationcount = 0;
 
     /**
+     * Create an instance of this class.
+     *
      * @param flow_engine_step $step The step the iterator is for.
      * @param \Iterator|iterator|moodle_recordset $input An iterator of some sort
      */

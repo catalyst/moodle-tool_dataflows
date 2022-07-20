@@ -17,10 +17,6 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\local\step\reader_step;
-use tool_dataflows\local\step\trigger_step;
-use tool_dataflows\local\step\connector_step;
-use tool_dataflows\local\step\flow_step;
 
 /**
  * Display a table of dataflow steps.
@@ -32,6 +28,7 @@ use tool_dataflows\local\step\flow_step;
  */
 class steps_table extends \table_sql {
 
+    /** Columns to display. */
     const COLUMNS = [
         'name',
         'alias',
@@ -42,6 +39,7 @@ class steps_table extends \table_sql {
         'details',
     ];
 
+    /** Columns that shouldn't be sorted. */
     const NOSORT_COLUMNS = [
         'actions',
         'dependson',

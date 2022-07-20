@@ -32,6 +32,7 @@ use tool_dataflows\local\step\flow_step;
 class dataflow extends persistent {
     use exportable;
 
+    /** The table name. */
     const TABLE = 'tool_dataflows';
 
     /** @var \stdClass of engine step states and timestamps */
@@ -45,6 +46,8 @@ class dataflow extends persistent {
 
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
+     *
+     * @param  mixed ...$args
      */
     public function __construct(...$args) {
         parent::__construct(...$args);
@@ -52,12 +55,12 @@ class dataflow extends persistent {
     }
 
     /**
-     * Links the dataflow up to the relevant engine
+     * Links the engine up to this dataflow
      *
      * This is typically set when the engine is initialised, such that any
      * references made thereafter are directly connected to the engine's instance being used.
      *
-     * @param  dataflow
+     * @param  engine $engine
      */
     public function set_engine(engine $engine) {
         $this->engine = $engine;
@@ -102,7 +105,7 @@ class dataflow extends persistent {
     }
 
     /**
-     * Magic Getter
+     * Magic getter
      *
      * This allows any get_$name methods to be called if they exist, before any
      * property exist checks.
@@ -118,6 +121,13 @@ class dataflow extends persistent {
         return $this->get($name);
     }
 
+    /**
+     * Magic setter
+     *
+     * @param      string $name of the property
+     * @param      mixed $value of the property
+     * @return     $this
+     */
     public function __set($name, $value) {
         return $this->set($name, $value);
     }
@@ -573,8 +583,8 @@ class dataflow extends persistent {
      *
      * This will save the step if it has not been created in the database yet.
      *
-     * @param $step
-     * @return $this
+     * @param   step $step
+     * @return  $this
      */
     public function add_step(step $step) {
         $step->dataflowid = $this->id;
@@ -587,8 +597,8 @@ class dataflow extends persistent {
     /**
      * Removes a step from the flow
      *
-     * @param $step
-     * @return $this
+     * @param   step $step
+     * @return  $this
      */
     public function remove_step(step $step) {
         $step->delete();
@@ -667,8 +677,8 @@ class dataflow extends persistent {
     /**
      * Updates the value stored in the dataflow's config
      *
-     * @param  string name or path to name of field e.g. 'some.nested.fieldname'
-     * @param  mixed value
+     * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
+     * @param  mixed $value
      */
     public function set_var($name, $value) {
         // Grabs the current config.

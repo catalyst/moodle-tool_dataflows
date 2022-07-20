@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Helper unit test methods that are highly related to the application.
+ *
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace tool_dataflows;
 
 /**
@@ -27,7 +36,16 @@ namespace tool_dataflows;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait application_trait {
+
     // @codingStandardsIgnoreStart
+
+    /**
+     * Asserts the record was found in the database
+     *
+     * @param   string $table
+     * @param   array $conditions
+     * @return  $this
+     */
     public function assertSeeInDatabase(string $table, array $conditions) {
         global $DB;
         $count = $DB->count_records($table, $conditions);
@@ -39,6 +57,13 @@ trait application_trait {
         return $this;
     }
 
+    /**
+     * Asserts the record was not found in the database
+     *
+     * @param   string $table
+     * @param   array $conditions
+     * @return  $this
+     */
     public function assertNotSeeInDatabase(string $table, array $conditions) {
         global $DB;
         $count = $DB->count_records($table, $conditions);
@@ -52,30 +77,54 @@ trait application_trait {
 
     // PHPUnit backwards compatible methods which handles the fallback to previous version calls.
 
-    public function compatible_assertStringContainsString(...$args): void {
+    /**
+     * Asserts whether the needle was found in the given haystack
+     *
+     * @param  string $needle
+     * @param  string $haystack
+     * @param  string $message
+     */
+    public function compatible_assertStringContainsString(string $needle, string $haystack, string $message = ''): void {
         if (method_exists($this, 'assertStringContainsString')) {
-            $this->assertStringContainsString(...$args);
+            $this->assertStringContainsString($needle, $haystack, $message);
         } else {
-            $this->assertContains(...$args);
+            $this->assertContains($needle, $haystack, $message);
         }
     }
 
-    public function compatible_assertMatchesRegularExpression(...$args): void {
+    /**
+     * Asserts that a string matches a given regular expression
+     *
+     * @param  string $pattern
+     * @param  string $string
+     * @param  string $message
+     */
+    public function compatible_assertMatchesRegularExpression(string $pattern, string $string, string $message = ''): void {
         if (method_exists($this, 'assertMatchesRegularExpression')) {
-            $this->assertMatchesRegularExpression(...$args);
+            $this->assertMatchesRegularExpression($pattern, $string, $message);
         } else {
-            $this->assertRegExp(...$args);
+            $this->assertRegExp($pattern, $string, $message);
         }
     }
 
-    public function compatible_assertDoesNotMatchRegularExpression(...$args): void {
+    /**
+     * Asserts that a string does not match a given regular expression.
+     *
+     * @param  string $pattern
+     * @param  string $string
+     * @param  string $message
+     */
+    public function compatible_assertDoesNotMatchRegularExpression(string $pattern, string $string, string $message = ''): void {
         if (method_exists($this, 'assertDoesNotMatchRegularExpression')) {
-            $this->assertDoesNotMatchRegularExpression(...$args);
+            $this->assertDoesNotMatchRegularExpression($pattern, $string, $message);
         } else {
-            $this->assertNotRegExp(...$args);
+            $this->assertNotRegExp($pattern, $string, $message);
         }
     }
 
+    /**
+     * Asserts that an error was expected
+     */
     public function compatible_expectError(): void {
         if (method_exists($this, 'expectError')) {
             $this->expectError();

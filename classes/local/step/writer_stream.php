@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Stream writer step
+ *
+ * @package   tool_dataflows
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace tool_dataflows\local\step;
 
 use tool_dataflows\local\execution\flow_engine_step;
@@ -55,10 +64,10 @@ class writer_stream extends writer_step {
     /**
      * Returns the fully qualified classname for the class provided
      *
-     * @param      int
-     * @return     string empty string if the class is not found
+     * @param   string $classname
+     * @return  string empty string if the class is not found
      */
-    public static function resolve_encoder($classname): string {
+    public static function resolve_encoder(string $classname): string {
         if (class_exists($classname)) {
             return $classname;
         }
@@ -100,6 +109,13 @@ class writer_stream extends writer_step {
             /** @var object dataformat writer. */
             private $writer;
 
+            /**
+             * Create an instance of this class.
+             *
+             * @param  flow_engine_step $step
+             * @param  object $config
+             * @param  iterator $input
+             */
             public function __construct(flow_engine_step $step, $config, iterator $input) {
                 $this->streamname = $step->engine->resolve_path($config->streamname);
 
@@ -138,6 +154,9 @@ class writer_stream extends writer_step {
                 }
             }
 
+            /**
+             * Any custom handling for on_abort
+             */
             public function on_abort() {
                 if (fwrite($this->handle, $this->writer->close_output()) === false) {
                     $this->step->log(error_get_last()['message']);
@@ -211,7 +230,7 @@ class writer_stream extends writer_step {
      * It's recommended you prefix the additional config related fields to avoid
      * conflicts with any existing fields.
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // Stream name.

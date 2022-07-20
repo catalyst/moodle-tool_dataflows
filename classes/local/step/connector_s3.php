@@ -58,7 +58,7 @@ class connector_s3 extends connector_step {
      * It's recommended you prefix the additional config related fields to avoid
      * conflicts with any existing fields.
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         $mform->addElement('text', 'config_bucket', get_string('connector_s3:bucket', 'tool_dataflows'));

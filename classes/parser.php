@@ -30,6 +30,11 @@ use Symfony\Component\Yaml\Yaml;
  */
 class parser {
 
+    /**
+     * Constructor for the parser
+     *
+     * Sets an expression language object and registers any supported methods.
+     */
     public function __construct() {
         $expressionlanguage = new ExpressionLanguage();
 
@@ -108,9 +113,9 @@ class parser {
     /**
      * Given an expression, and data. Evaluate and return the result.
      *
-     * @param      string $expression
-     * @param      array $variables containing anything relevant to the evaluation of the result
-     * @return     mixed
+     * @param   string $expression
+     * @param   array $variables containing anything relevant to the evaluation of the result
+     * @return  mixed
      */
     public function evaluate(string $expression, array $variables) {
         return $this->internal_evaluator($expression, $variables, function () {
@@ -121,19 +126,20 @@ class parser {
     /**
      * Evalulates the expression provided and on fail will throw an exception.
      *
-     * @param      string $expression
-     * @param      array $variables containing anything relevant to the evaluation of the result
-     * @return     mixed
+     * @param   string $expression
+     * @param   array $variables containing anything relevant to the evaluation of the result
+     * @param   callable $failcallback containing anything relevant to the evaluation of the result
+     * @return  mixed
      */
-    public function evaluate_or_fail(string $expression, array $variables, $failcallback = null) {
+    public function evaluate_or_fail(string $expression, array $variables, ?callable $failcallback = null) {
         return $this->internal_evaluator($expression, $variables, $failcallback);
     }
 
     /**
      * Returns whether or not the provided string contains an expression, and the matches
      *
-     * @param      string $expression
-     * @param      array $matches
+     * @param   string $expression the raw string being checked - might contain an expression
+     * @return  array $matches
      */
     public function has_expression(string $expression): array {
         preg_match_all('/(?<expressionwrapper>\${{(?<expression>.*)}})/mU', (string) $expression, $matches, PREG_SET_ORDER);
@@ -143,10 +149,10 @@ class parser {
     /**
      * Evalulates the expressions in the string provided.
      *
-     * @param      string $string
-     * @param      array $variables containing anything relevant to the evaluation of the result
-     * @param      ?callable $failcallback containing anything relevant to the evaluation of the result
-     * @return     mixed
+     * @param   string $string
+     * @param   array $variables containing anything relevant to the evaluation of the result
+     * @param   callable $failcallback containing anything relevant to the evaluation of the result
+     * @return  mixed
      */
     private function internal_evaluator(string $string, array $variables, ?callable $failcallback) {
         // TODO: lint expressions before storing them. https://symfony.com/blog/new-in-symfony-5-1-expressionlanguage-validator .

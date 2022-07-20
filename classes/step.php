@@ -34,6 +34,7 @@ use tool_dataflows\local\service\secret_service;
 class step extends persistent {
     use exportable;
 
+    /** The table name. */
     const TABLE = 'tool_dataflows_steps';
 
     /** @var array $dependson */
@@ -47,6 +48,8 @@ class step extends persistent {
 
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
+     *
+     * @param mixed ...$args
      */
     public function __construct(...$args) {
         parent::__construct(...$args);
@@ -105,7 +108,7 @@ class step extends persistent {
     /**
      * Magic getter - which allows the user to get values directly instead of via ->get('name')
      *
-     * @param      string name of the property to get
+     * @param      string $name of the property to get
      * @return     mixed
      */
     public function __get($name) {
@@ -119,8 +122,8 @@ class step extends persistent {
     /**
      * Magic setter - which allows the user to set values directly instead of via ->set('name', $value)
      *
-     * @param      string name of the property to update
-     * @param      mixed new value of the property
+     * @param      string $name of the property to update
+     * @param      mixed $value of the property
      * @return     $this
      */
     public function __set($name, $value) {
@@ -180,7 +183,7 @@ class step extends persistent {
      *
      * This would generally be initiliased by the engine.
      *
-     * @param   base_step
+     * @param   base_step $steptype
      */
     public function set_steptype(base_step $steptype) {
         $this->steptype = $steptype;
@@ -192,7 +195,7 @@ class step extends persistent {
      * This is typically set when the engine is initialised, such that any
      * references are directly connected to the engine's instance.
      *
-     * @param  dataflow
+     * @param  dataflow $dataflow
      */
     public function set_dataflow(dataflow $dataflow) {
         $this->dataflow = $dataflow;
@@ -267,7 +270,7 @@ class step extends persistent {
     /**
      * Validates the name field
      *
-     * @param      $string name provided
+     * @param      string $name provided
      * @return     true|lang_string will return a lang_string if there was an error
      */
     protected function validate_name($name) {
@@ -385,7 +388,7 @@ class step extends persistent {
      *
      * See dataflow->import for how this all strings together.
      *
-     * @param      array $yaml full dataflow configuration as a php array
+     * @param  array $stepdata full dataflow configuration as a php array
      */
     public function import($stepdata) {
         // Set the name of this step, the key will be used if a name is not provided.
@@ -741,8 +744,8 @@ class step extends persistent {
     /**
      * Updates the value stored in the step's config
      *
-     * @param      string name or path to name of field e.g. 'some.nested.fieldname'
-     * @param      mixed value
+     * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
+     * @param  mixed $value
      */
     public function set_var($name, $value) {
         // Grabs the current config.
@@ -758,7 +761,7 @@ class step extends persistent {
     /**
      * Fills in output fields provided given an array of outputs
      *
-     * @param  mixed $value array of output fields to set. This is merged with any existing values.
+     * @param  mixed $attributes array of output fields to set. This is merged with any existing values.
      */
     public function set_output($attributes) {
         $this->outputs = $this->outputs ?? new \stdClass;

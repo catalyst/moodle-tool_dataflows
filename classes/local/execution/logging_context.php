@@ -21,15 +21,25 @@ use tool_dataflows\local\step\flow_cap;
 /**
  * An environment for logging information about dataflow execution.
  *
- * @package
+ * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class logging_context {
+
+    /** @var engine $engine The engine. */
     protected $engine = null;
+
+    /** @var engine_step $enginestep The engine step. */
     protected $enginestep = null;
 
+    /**
+     * Create an instance of this class.
+     *
+     * @param  engine_step|engine $object
+     * @throws \moodle_exception
+     */
     public function __construct($object) {
         if ($object instanceof engine_step) {
             $this->enginestep = $object;
@@ -41,6 +51,11 @@ class logging_context {
         }
     }
 
+    /**
+     * Handles logging
+     *
+     * @param   string $message
+     */
     public function log($message) {
         // Do not log anything for flowcaps as they are virtual.
         if (isset($this->enginestep) && $this->enginestep->steptype instanceof flow_cap) {

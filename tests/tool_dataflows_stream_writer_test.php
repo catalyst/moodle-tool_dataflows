@@ -48,7 +48,9 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
      *
      * @covers \tool_dataflows\local\step\writer_step
      * @dataProvider data_provider
-     * @param $inputdata
+     * @param array $inputdata
+     * @param bool $isdryrun
+     * @param bool $prettyprint
      */
     public function test_writer_json($inputdata, $isdryrun, $prettyprint) {
         // Crate the dataflow.

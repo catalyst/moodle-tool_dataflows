@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Exportable trait
+ *
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
@@ -84,8 +93,7 @@ trait exportable {
     /**
      * Set the filename for the exported file.
      *
-     * @param   string $name The ID of the workflow.
-     * @param   int $now  The Unix timestamp to use in the file name.
+     * @param   int $now The Unix timestamp to use in the file name.
      * @return  string $filename
      */
     private function get_filename($now = null): string {

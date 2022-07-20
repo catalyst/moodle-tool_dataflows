@@ -23,14 +23,12 @@ use tool_dataflows\local\step\reader_step;
 
 /**
  * Test reader step type that supplies an array.
- * TODO: Until better classes have been defined, this is GEFN (Good Enough For Now).
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class array_in_type extends reader_step {
 
     /** @var int[] number of input flows (min, max), zero for readers. */
@@ -39,10 +37,21 @@ class array_in_type extends reader_step {
     /** @var array The source. Place data here before use. */
     public static $source = [];
 
+    /**
+     * Get the iterator for the step, based on configurations.
+     *
+     * @return iterator
+     */
     public function get_iterator(): iterator {
         return new dataflow_iterator($this->enginestep, new \ArrayIterator(self::$source));
     }
 
+    /**
+     * Step callback handler
+     *
+     * @param   mixed $input
+     * @return  mixed $input
+     */
     public function execute($input) {
         return $input;
     }

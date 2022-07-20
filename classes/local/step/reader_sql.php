@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * SQL reader step
+ *
+ * @package   tool_dataflows
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace tool_dataflows\local\step;
 
 use tool_dataflows\local\execution\flow_engine_step;
@@ -52,14 +61,24 @@ class reader_sql extends reader_step {
      */
     public function get_iterator(): iterator {
         $query = $this->construct_query();
+
         return new class($this->enginestep, $query) extends dataflow_iterator {
 
+            /**
+             * Create an instance of this class.
+             *
+             * @param  flow_engine_step $step
+             * @param  string $query
+             */
             public function __construct(flow_engine_step $step, string $query) {
                 global $DB;
                 $input = $DB->get_recordset_sql($query);
                 parent::__construct($step, $input);
             }
 
+            /**
+             * Any custom handling for on_abort
+             */
             public function on_abort() {
                 $this->input->close();
             }
@@ -175,7 +194,7 @@ class reader_sql extends reader_step {
      * Returns a clarified error message if applicable.
      *
      * @param   string $message
-     * @param   ?string $sql replacement for the expression held by default.
+     * @param   string $sql replacement for the expression held by default.
      * @return  string clarified message if applicable
      */
     private function clarify_parser_error(string $message, ?string $sql = null): string {
@@ -244,8 +263,8 @@ class reader_sql extends reader_step {
     /**
      * Validate the configuration settings.
      *
-     * @param object $config
-     * @return true|\lang_string[] true if valid, an array of errors otherwise
+     * @param   object $config
+     * @return  true|\lang_string[] true if valid, an array of errors otherwise
      */
     public function validate_config($config) {
         $errors = [];
@@ -262,7 +281,7 @@ class reader_sql extends reader_step {
      * It's recommended you prefix the additional config related fields to avoid
      * conflicts with any existing fields.
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // SQL.
@@ -287,6 +306,8 @@ class reader_sql extends reader_step {
      * Step callback handler
      *
      * Updates the counter value if a counterfield is supplied, but otherwise does nothing special to the data.
+     *
+     * @param  \stdClass $value
      */
     public function execute($value) {
         // Check the config for the counterfield.
