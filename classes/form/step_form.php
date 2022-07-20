@@ -168,11 +168,11 @@ class step_form extends \core\form\persistent {
      * @return  array of all variables
      */
     private function get_available_references(): array {
-        $persistent = $this->get_persistent();
-        $variables = $persistent->get_variables();
+        $dataflow = new dataflow($this->_customdata['dataflowid']);
+        $variables = $dataflow->get_variables();
 
         // Prepare step outputs.
-        foreach ($persistent->dataflow->steps as $alias => $step) {
+        foreach ($dataflow->steps as $alias => $step) {
             // This will only display documentation for step exposed outputs,
             // and not any real values since they are not available yet.
             $outputs = $step->steptype->define_outputs();
