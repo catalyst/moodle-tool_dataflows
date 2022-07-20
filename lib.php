@@ -30,9 +30,6 @@ require_once(dirname(__FILE__) . '/vendor/autoload.php');
 use tool_dataflows\local\formats\encoders;
 use tool_dataflows\local\step;
 
-function tool_dataflows_after_config() {
-}
-
 /**
  * Returns a list of step types available for this plugin.
  *

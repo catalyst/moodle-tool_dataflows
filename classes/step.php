@@ -34,6 +34,7 @@ use tool_dataflows\local\service\secret_service;
 class step extends persistent {
     use exportable;
 
+    /** The table name. */
     const TABLE = 'tool_dataflows_steps';
 
     /** @var array $dependson */
