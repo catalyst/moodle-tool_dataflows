@@ -63,7 +63,10 @@ if ($form->is_cancelled()) {
     redirect($overviewurl);
 }
 
-$currentconfig = $persistent->get('config');
+if ($persistent) {
+    $currentconfig = $persistent->get('config');
+}
+
 if (($data = $form->get_data())) {
 
     try {
