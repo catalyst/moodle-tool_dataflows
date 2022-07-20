@@ -50,7 +50,7 @@ git clone git@github.com:catalyst/moodle-tool_dataflows.git admin/tool/dataflows
 
 ## Dependencies
 
-Make sure graphviz PHP module is installed
+Make sure graphviz is installed
 
 ```
 apt install graphviz
