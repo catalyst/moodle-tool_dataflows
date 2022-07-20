@@ -77,7 +77,7 @@ class connector_curl extends connector_step {
             'patch'  => 'PATCH',
             'put'    => 'PUT',
         ]);
-        $urlarray[] =& $mform->createElement('text', 'config_curl', '') ;
+        $urlarray[] =& $mform->createElement('text', 'config_curl', '');
 
         $mform->addGroup($urlarray, 'buttonar', get_string('connector_curl:curl', 'tool_dataflows'), [' '], false);
 
