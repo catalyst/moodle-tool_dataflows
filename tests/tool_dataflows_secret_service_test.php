@@ -207,6 +207,10 @@ class tool_dataflows_secret_service_test extends \advanced_testcase {
         $table->make_columns();
         $table->define_baseurl(new \moodle_url('/'));
 
+        $columns = $table::COLUMNS;
+        array_shift($columns); // Remove the name column as that uses the dot visual.
+        $table->define_columns($columns);
+
         // Capture table output.
         ob_start();
         $table->out(1, false); // Pagesize needs to be 1 for compatibility with 3.5.
@@ -216,8 +220,7 @@ class tool_dataflows_secret_service_test extends \advanced_testcase {
         // Ensure the table output contained the relevant step information
         // (which reassures the step data was indeed outputted).
         foreach ($steps as $step) {
-            $this->compatible_assertStringContainsString($step->name, $output);
-            $this->compatible_assertStringContainsString("$step->id", $output);
+            $this->compatible_assertStringContainsString('s3://test/source.csv', $output);
             $this->compatible_assertStringContainsString($step->alias, $output);
         }
 
