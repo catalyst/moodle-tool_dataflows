@@ -62,12 +62,14 @@ class connector_curl extends connector_step {
         return [
             'response' => [
                 'result.*' => null,
-                'info' => null,
-                'httpcode' => null,
-                'connecttime' => null,
-                'totaltime' => null,
-                'sizeupload' => null,
-                'destination.*' => null,
+                'info' => [
+                    'http_code' => null,
+                    'connect_time' => null,
+                    'total_time' => null,
+                    'size_upload' => null,
+                    '*' => null,
+                ],
+                'destination' => null,
             ],
         ];
     }
@@ -224,9 +226,6 @@ class connector_curl extends connector_step {
         // TODO : Once set_var api is refactored add response.
         $response = $curl->getResponse();
         $httpcode = $info['http_code'] ?? null;
-        $connecttime = $info['connect_time'] ?? null;
-        $totaltime = $info['total_time'] ?? null;
-        $sizeupload = $info['size_upload'] ?? null;
         $destination = !empty($config->destination) ? $config->destination : null;
         $errno = $curl->get_errno();
 
@@ -243,11 +242,7 @@ class connector_curl extends connector_step {
             // fields which the user can use and map to on the edit page.
             $this->set_variables('response', (object) [
                 'result' => $result,
-                'info' => $info,
-                'httpcode' => $httpcode,
-                'connecttime' => $connecttime,
-                'totaltime' => $totaltime,
-                'sizeupload' => $sizeupload,
+                'info' => (object) $info,
                 'destination' => $destination,
             ]);
         }

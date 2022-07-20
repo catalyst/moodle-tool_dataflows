@@ -62,10 +62,10 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'method' => 'get',
             'outputs' => [
                 'result' => '${{ fromJSON(response.result) }}',
-                'httpcode' => '${{ response.httpcode }}',
-                'connecttime' => '${{ response.connecttime }}',
-                'totaltime' => '${{ response.totaltime }}',
-                'sizeupload' => '${{ response.sizeupload }}',
+                'httpcode' => '${{ response.info.http_code }}',
+                'connecttime' => '${{ response.info.connect_time }}',
+                'totaltime' => '${{ response.info.total_time }}',
+                'sizeupload' => '${{ response.info.size_upload }}',
             ],
         ]);
         $stepdef->name = 'connector';
@@ -96,10 +96,10 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'rawpostdata' => 'data=moodletest',
             'outputs' => [
                 'result' => '${{ response.result }}',
-                'httpcode' => '${{ response.httpcode }}',
-                'connecttime' => '${{ response.connecttime }}',
-                'totaltime' => '${{ response.totaltime }}',
-                'sizeupload' => '${{ response.sizeupload }}',
+                'httpcode' => '${{ response.info.http_code }}',
+                'connecttime' => '${{ response.info.connect_time }}',
+                'totaltime' => '${{ response.info.total_time }}',
+                'sizeupload' => '${{ response.info.size_upload }}',
             ],
         ]);
         $dataflow->add_step($stepdef);
@@ -124,10 +124,10 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'rawpostdata' => 'data=moodletest',
             'outputs' => [
                 'result' => '${{ response.result }}',
-                'httpcode' => '${{ response.httpcode }}',
-                'connecttime' => '${{ response.connecttime }}',
-                'totaltime' => '${{ response.totaltime }}',
-                'sizeupload' => '${{ response.sizeupload }}',
+                'httpcode' => '${{ response.info.http_code }}',
+                'connecttime' => '${{ response.info.connect_time }}',
+                'totaltime' => '${{ response.info.total_time }}',
+                'sizeupload' => '${{ response.info.size_upload }}',
             ],
         ]);
         $dataflow->add_step($stepdef);
