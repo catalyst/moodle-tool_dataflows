@@ -54,6 +54,7 @@ function tool_dataflows_step_types() {
         new step\reader_json,
         new step\writer_debugging,
         new step\flow_logic_join,
+        new step\flow_logic_case,
         new step\writer_stream,
         new step\connector_debugging,
         new step\connector_debug_file_display,
