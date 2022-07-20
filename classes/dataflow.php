@@ -146,7 +146,6 @@ class dataflow extends persistent {
             $steps[$key] = $step->get_export_data();
             $steps[$key]['alias'] = $key;
             $steps[$key]['states'] = $step->states;
-            $steps[$key]['outputs'] = $step->outputs;
 
             // For a 'better' experience, the output values will be referencable
             // from the base step key itself, e.g. instead of
