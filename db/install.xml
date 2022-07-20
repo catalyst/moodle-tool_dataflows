@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220718" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
+<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220720" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -48,6 +48,7 @@
       <FIELDS>
         <FIELD NAME="stepid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="dependson" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="References the step that the stepid depends on"/>
+        <FIELD NAME="position" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false" COMMENT="The order of the dependencies, which only apply for those with varying number of outputs"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="stepid_dependson" TYPE="unique" FIELDS="stepid, dependson"/>
