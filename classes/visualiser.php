@@ -95,25 +95,24 @@ class visualiser {
         );
 
         if (is_resource($process)) {
-            fwrite($pipes[0], $dotscript);
-            fclose($pipes[0]);
+            [$stdin, $stdout, $stderr] = $pipes;
+            fwrite($stdin, $dotscript);
+            fclose($stdin);
 
-            $output = stream_get_contents($pipes[1]);
+            $output = stream_get_contents($stdout);
 
-            $err = stream_get_contents($pipes[2]);
+            $err = stream_get_contents($stderr);
             if (!empty($err)) {
-                print "failed to execute cmd: \"$cmd\". stderr: `$err'\n";
-                exit;
+                throw new \Exception("failed to execute cmd: \"$cmd\". stderr: `$err`", 1);
             }
 
-            fclose($pipes[2]);
-            fclose($pipes[1]);
+            fclose($stderr);
+            fclose($stdout);
             proc_close($process);
             return $output;
         }
 
-        print "failed to execute cmd \"$cmd\"";
-        exit();
+        throw new \Exception("failed to execute cmd \"$cmd\"");
     }
 
     public static function display_dataflows_table(dataflows_table $table, \moodle_url $url, string $pageheading) {

@@ -15,4 +15,6 @@ jobs:
       disable_grunt: true
       extra_plugin_runners: |
           moodle-plugin-ci add-plugin catalyst/moodle-local_aws --branch ci-for-tool_dataflows;
+          sudo sed -i 's/azure\.//' /etc/apt/sources.list
+          sudo apt-get update
           sudo apt-get install -y graphviz;
