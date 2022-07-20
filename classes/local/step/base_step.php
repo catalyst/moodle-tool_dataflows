@@ -415,7 +415,18 @@ abstract class base_step {
 
             // Handle outputs (convert to a proper data structure).
             if ($fieldname === 'outputs') {
-                $config[$fieldname] = Yaml::parse($config[$fieldname], Yaml::PARSE_OBJECT);
+                // Attempt to convert the data to the appropriate format. Due to
+                // persistent handling, validation happens at a differnt point
+                // in time from data conversion and so it is a bit disconnected.
+                // We still want the data stored in the expected format though.
+                try {
+                    $config[$fieldname] = Yaml::parse($config[$fieldname], Yaml::PARSE_OBJECT);
+                } catch (\Exception $e) { // phpcs:ignore
+                    $config[$fieldname] = $e->getMessage();
+                }
+
+                // If the field is not set (null), then remove it since it does
+                // not need to be stored.
                 if (!isset($config[$fieldname])) {
                     unset($config[$fieldname]);
                 }

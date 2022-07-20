@@ -40,12 +40,9 @@ class step_form extends \core\form\persistent {
      * Define the form.
      */
     public function definition() {
-        global $OUTPUT;
-
         $mform = $this->_form;
         $dataflowid = $this->_customdata['dataflowid'];
         $type = $this->_customdata['type'];
-        $backlink = $this->_customdata['backlink'];
 
         // User ID.
         $mform->addElement('hidden', 'userid');
@@ -281,6 +278,16 @@ class step_form extends \core\form\persistent {
             $validation = $parser->validate_yaml($data->config);
             if ($validation !== true) {
                 $errors['config'] = $validation;
+            }
+        }
+
+        // Check the outputs field to ensure it's in the correct form.
+        if (isset($data->config) && empty($errors['config'])) {
+            $config = Yaml::parse($data->config, Yaml::PARSE_OBJECT_FOR_MAP);
+            if (isset($config->outputs) && is_string($config->outputs)) {
+                // The outputs should always be an object / hash-map. If not, it
+                // contains the error message as to why this is the case.
+                $errors['config_outputs'] = $config->outputs;
             }
         }
 
