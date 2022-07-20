@@ -299,6 +299,7 @@ class engine {
 
             // Stores a dump of the current engine state as the finalstate of the run.
             if (isset($this->run)) {
+                $this->dataflow->save_config_version();
                 $this->run->finalise($this->status, $this->export());
             }
         } catch (\Throwable $thrown) {

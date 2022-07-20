@@ -63,7 +63,7 @@ if ($form->is_cancelled()) {
     redirect($overviewurl);
 }
 
-
+$currentconfig = $persistent->get('config');
 if (($data = $form->get_data())) {
 
     try {
@@ -78,7 +78,13 @@ if (($data = $form->get_data())) {
             // Call your API to update the persistent from the data.
             // Or, do the following if you don't want capability checks (discouraged).
             $persistent->from_record($data);
+
+            // Unset config hash if config has changed, so it will be resaved on next run.
+            if ($currentconfig !== $persistent->get('config')) {
+                $persistent->set('confighash', '');
+            }
             $persistent->update();
+
         }
         \core\notification::success(get_string('changessaved'));
     } catch (Exception $e) {
