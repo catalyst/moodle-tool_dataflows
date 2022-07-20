@@ -294,11 +294,14 @@ ORDER BY id ASC
    LIMIT 10";
         $sqlexamples = \html_writer::tag('pre', trim($sqlexamples, " \t\r\0\x0B"));
 
-        $mform->addElement('textarea', 'config_sql', get_string('reader_sql:sql', 'tool_dataflows'), ['cols' => 50, 'rows' => 7, 'style' => 'font: 87.5% monospace;']);
+        $mform->addElement('textarea', 'config_sql', get_string('reader_sql:sql', 'tool_dataflows'),
+            ['cols' => 50, 'rows' => 7, 'style' => 'font: 87.5% monospace;']);
         $mform->addElement('static', 'config_sql_help', '', get_string('reader_sql:sql_help', 'tool_dataflows', $sqlexamples));
+
         // Counter field.
         $mform->addElement('text', 'config_counterfield', get_string('reader_sql:counterfield', 'tool_dataflows'));
         $mform->addElement('static', 'config_counterfield_help', '', get_string('reader_sql:counterfield_help', 'tool_dataflows'));
+
         // Counter value.
         $mform->addElement('text', 'config_countervalue', get_string('reader_sql:countervalue', 'tool_dataflows'));
         $mform->addElement('static', 'config_countervalue_help', '', get_string('reader_sql:countervalue_help', 'tool_dataflows'));
