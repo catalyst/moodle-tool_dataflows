@@ -60,6 +60,7 @@ class connector_curl extends connector_step {
      */
     public function define_outputs(): array {
         return [
+            'dbgcommand' => null,
             'response' => [
                 'result.*' => null,
                 'info' => [
