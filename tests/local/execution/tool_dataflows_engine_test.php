@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Unit tests covering the execution engine.
+ *
+ * @package   tool_dataflows
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace tool_dataflows\local\execution;
 
 use tool_dataflows\dataflow;
@@ -31,7 +40,12 @@ defined('MOODLE_INTERNAL') || die();
  */
 class test_engine extends engine {
 
-    /** Exposes all private fields for the purpose of testing them. */
+    /**
+     * Exposes all private fields for the purpose of testing them
+     *
+     * @param   mixed $p
+     * @return  mixed
+     */
     public function __get($p) {
         if (isset($this->$p)) {
             return $this->$p;

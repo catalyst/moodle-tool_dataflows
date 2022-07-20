@@ -38,6 +38,9 @@ class tool_dataflows_workflow_state_test extends \advanced_testcase {
     }
 
     /**
+     * Testing the export function to ensure it does export expected state
+     * changes before and after execution
+     *
      * @covers \tool_dataflows\local\execution\engine::get_export_data
      * @covers \tool_dataflows\local\execution\engine::get_export
      */
