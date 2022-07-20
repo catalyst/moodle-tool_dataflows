@@ -37,6 +37,8 @@ class step extends persistent {
     /** The table name. */
     const TABLE = 'tool_dataflows_steps';
 
+    const DEPENDS_ON_POSITION_SPLITTER = '::';
+
     /** @var array $dependson */
     private $dependson = [];
 
@@ -307,17 +309,32 @@ class step extends persistent {
             // the expected id numeric value.
             $dependson = $dependency->id ?? $dependency;
             if (gettype($dependson) === 'string' && !is_number($dependson)) {
-                $step = $DB->get_record(
-                    'tool_dataflows_steps',
-                    ['alias' => $dependency, 'dataflowid' => $this->dataflowid],
-                    'id'
-                );
-                if (empty($step->id)) {
+                // Resolve the actual dependency to an ID and if required, a position.
+                $regex = '/(?<id>\d+)(' . self::DEPENDS_ON_POSITION_SPLITTER . '(?<position>\d+))?/m';
+                preg_match_all($regex, $dependson, $matches, PREG_SET_ORDER, 0);
+                if (empty($matches)) {
                     throw new moodle_exception('stepdependencydoesnotexist', 'tool_dataflows', '', $dependson);
                 }
-                $dependson = $step->id;
+
+                [$match] = $matches;
+                $idoralias = $match['id'];
+                $position = $match['position'] ?? null;
+
+                if (!is_number($idoralias)) {
+                    // Get the id of the step.
+                    $step = $DB->get_record(
+                        'tool_dataflows_steps',
+                        ['alias' => $idoralias, 'dataflowid' => $this->dataflowid],
+                        'id'
+                    );
+                    if (empty($step->id)) {
+                        throw new moodle_exception('stepdependencydoesnotexist', 'tool_dataflows', '', $dependson);
+                    }
+                    $idoralias = $step->id;
+                }
+                $dependson = $idoralias;
             }
-            $dependencymap[] = ['stepid' => $this->id, 'dependson' => $dependson];
+            $dependencymap[] = ['stepid' => $this->id, 'dependson' => $dependson, 'position' => $position ?? null];
         }
         $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
         $DB->insert_records('tool_dataflows_step_depends', $dependencymap);
@@ -333,13 +350,36 @@ class step extends persistent {
         $sql = "SELECT step.id,
                        step.name,
                        step.alias,
-                       step.type
+                       step.type,
+                       sd.position
                   FROM {tool_dataflows_step_depends} sd
              LEFT JOIN {tool_dataflows_steps} step ON sd.dependson = step.id
                  WHERE sd.stepid = :stepid";
 
         $deps = $DB->get_records_sql($sql, [
             'stepid' => $this->id,
+        ]);
+        return $deps;
+    }
+
+    /**
+     * Returns a list of other steps that depend on this step before they can run.
+     *
+     * @return     array step dependencies
+     */
+    public function dependants() {
+        global $DB;
+        $sql = "SELECT step.id,
+                       step.name,
+                       step.alias,
+                       step.type,
+                       sd.position
+                  FROM {tool_dataflows_step_depends} sd
+             LEFT JOIN {tool_dataflows_steps} step ON sd.stepid = step.id
+                 WHERE sd.dependson = :dependson";
+
+        $deps = $DB->get_records_sql($sql, [
+            'dependson' => $this->id,
         ]);
         return $deps;
     }

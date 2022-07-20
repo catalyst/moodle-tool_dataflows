@@ -76,8 +76,29 @@ class step_form extends \core\form\persistent {
         $persistent = $this->get_persistent();
         $steps = $dataflow->steps;
         $options = [];
+        // Loop through the steps but only show steps where a connection can be
+        // added (or if it's a current dependency).
         foreach ($steps as $step) {
-            $options[$step->id] = $step->name;
+            [, $maxoutputflows] = $step->steptype->get_number_of_output_flows();
+            [, $maxoutputconnectors] = $step->steptype->get_number_of_output_connectors();
+            $max = max($maxoutputflows, $maxoutputconnectors);
+
+            // Get current step dependants, and their position to filter out the unavailable options.
+            if ($max > 1) {
+                $dependants = $step->dependants();
+                $allpositions = range(1, $max);
+                $takenpositions = array_column($dependants, 'position');
+                $availablepositions = array_diff($allpositions, $takenpositions);
+
+                foreach ($availablepositions as $position) {
+                    $defaultoptionlabel = "Option #{$position}";
+                    $label = "{$step->name} > $defaultoptionlabel"; // TODO: relabel based on 'depends on' step config.
+                    $options[$step->id . self::$persistentclass::DEPENDS_ON_POSITION_SPLITTER . $position] = $label;
+                }
+            } else {
+                $options[$step->id] = $step->name; // Will always set a new value.
+            }
+
         }
         unset($options[$persistent->id]); // We never want a step to depend on itself.
 
