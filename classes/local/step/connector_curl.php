@@ -52,6 +52,27 @@ class connector_curl extends connector_step {
     }
 
     /**
+     * A list of outputs and their description if applicable.
+     *
+     * These fields can be used as aliases in the custom output mapping
+     *
+     * @return  array of outputs
+     */
+    public function define_outputs(): array {
+        return [
+            'response' => [
+                'result.*' => null,
+                'info' => null,
+                'httpcode' => null,
+                'connecttime' => null,
+                'totaltime' => null,
+                'sizeupload' => null,
+                'destination.*' => null,
+            ],
+        ];
+    }
+
+    /**
      * Allows each step type to determine a list of optional/required form
      * inputs for their configuration
      *

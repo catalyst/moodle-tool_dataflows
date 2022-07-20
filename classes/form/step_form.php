@@ -97,30 +97,8 @@ class step_form extends \core\form\persistent {
         $select->setMultiple(true);
 
         // List all the available fields available for configuration, in dot syntax.
-        $variables = $persistent->get_variables();
-        $ritit = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($variables));
-        $fields = [];
-        foreach ($ritit as $leaf) {
-            $keys = [];
-            foreach (range(0, $ritit->getDepth()) as $depth) {
-                $keys[] = $ritit->getSubIterator($depth)->key();
-            }
-            $fields[join('.', $keys)] = $leaf;
-        }
-
-        // Annoyingly, will need to reconvert this into an array so it can be looped over in mustache.
-        $allfields = [];
-        $groupcreated = [];
-        foreach ($fields as $key => $value) {
-            $group = explode('.', $key)[0];
-            if (!isset($groupcreated[$group])) {
-                $groupcreated[$group] = count($groupcreated);
-                $allfields[$groupcreated[$group]]['name'] = $group;
-            }
-            $allfields[$groupcreated[$group]]['fields'][] = ['text' => $key, 'title' => $value];
-        }
-        $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
-        $mform->addElement('html', $fieldhtml);
+        $variables = $this->get_available_references();
+        $mform->addElement('html', $this->prepare_available_fields($variables));
 
         // Check and set custom form inputs if required. Defaulting to a
         // textarea config input for those not yet configured.
@@ -144,6 +122,79 @@ class step_form extends \core\form\persistent {
         $mform->addElement('static', 'outputs_help', '', get_string('field_outputs_help', 'tool_dataflows', $outputsexample));
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Return the HTML built for available references
+     *
+     * @param   array $variables
+     * @return  string html of the prepared fields
+     */
+    private function prepare_available_fields($variables): string {
+        global $OUTPUT;
+
+        $ritit = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($variables));
+        $fields = [];
+        foreach ($ritit as $leaf) {
+            $keys = [];
+            foreach (range(0, $ritit->getDepth()) as $depth) {
+                $keys[] = $ritit->getSubIterator($depth)->key();
+            }
+            $fields[join('.', $keys)] = $leaf;
+        }
+
+        // Annoyingly, will need to reconvert this into an array so it can be looped over in mustache.
+        $allfields = [];
+        $groupcreated = [];
+        foreach ($fields as $key => $value) {
+            $group = explode('.', $key)[0];
+            if (!isset($groupcreated[$group])) {
+                $groupcreated[$group] = count($groupcreated);
+                $allfields[$groupcreated[$group]]['name'] = $group;
+            }
+            $allfields[$groupcreated[$group]]['fields'][] = ['text' => $key, 'title' => $value];
+        }
+        $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
+        return $fieldhtml;
+    }
+
+    /**
+     * Returns a list of possible references available in the dataflow
+     *
+     * The "values" are not as important. They could be real values,
+     * expressions, or placeholder documentation.
+     *
+     * TODO: since this will currently list all references, even if it is in
+     * "future steps" that might not be valid, it would be good to exclude
+     * invalid options at some point.
+     *
+     * @return  array of all variables
+     */
+    private function get_available_references(): array {
+        $persistent = $this->get_persistent();
+        $variables = $persistent->get_variables();
+
+        // Prepare step outputs.
+        foreach ($persistent->dataflow->steps as $alias => $step) {
+            // This will only display documentation for step exposed outputs,
+            // and not any real values since they are not available yet.
+            $outputs = $step->steptype->define_outputs();
+
+            // This is a list of user defined output mappings. This will display their expression / value set.
+            $userdefinedoutputs = (array) $step->get_raw_config()->outputs;
+            $outputs = array_merge($outputs, $userdefinedoutputs);
+            foreach ($outputs as $field => $description) {
+                $variables['steps']->{$alias}->{$field} = $description;
+            }
+
+            // Remove *.config.outputs from the available references.
+            // Since this is just mapping data and doesn't contain the actual
+            // output values, this shouldn't be exposed. The user most likely
+            // wants to reference the output itself not the configuration.
+            unset($variables['steps']->{$alias}->config->outputs);
+        }
+
+        return $variables;
     }
 
     /**

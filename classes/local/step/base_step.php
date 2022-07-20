@@ -96,7 +96,22 @@ abstract class base_step {
     }
 
     /**
-     * Resolve the step outputs based on the stored variables and output configuration set.
+     * A list of outputs and their descriptions
+     *
+     * These fields can be used as aliases in the custom output mapping
+     *
+     * @return  array of outputs
+     */
+    public function define_outputs(): array {
+        return [];
+    }
+
+    /**
+     * Resolves and sets the step outputs
+     *
+     * This effectively sets the outputs to the values they should be based on
+     * the stored variables and output configuration set. This happens at the
+     * end of each step.
      */
     public function prepare_outputs() {
         // By default, it should make available all variables exposed by this step.
