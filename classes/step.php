@@ -310,7 +310,7 @@ class step extends persistent {
             $dependson = $dependency->id ?? $dependency;
             if (gettype($dependson) === 'string' && !is_number($dependson)) {
                 // Resolve the actual dependency to an ID and if required, a position.
-                $regex = '/(?<id>\d+)(' . self::DEPENDS_ON_POSITION_SPLITTER . '(?<position>\d+))?/m';
+                $regex = '/(?<id>([a-z]*\d*))(' . self::DEPENDS_ON_POSITION_SPLITTER . '(?<position>\d+))?/m';
                 preg_match_all($regex, $dependson, $matches, PREG_SET_ORDER, 0);
                 if (empty($matches)) {
                     throw new moodle_exception('stepdependencydoesnotexist', 'tool_dataflows', '', $dependson);
