@@ -28,6 +28,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class steps_table extends \table_sql {
 
+    /** Columns to display. */
     const COLUMNS = [
         'name',
         'alias',
@@ -38,6 +39,7 @@ class steps_table extends \table_sql {
         'details',
     ];
 
+    /** Columns that shouldn't be sorted. */
     const NOSORT_COLUMNS = [
         'actions',
         'dependson',

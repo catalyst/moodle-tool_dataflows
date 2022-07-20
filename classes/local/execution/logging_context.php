@@ -29,10 +29,10 @@ use tool_dataflows\local\step\flow_cap;
 class logging_context {
 
     /** @var engine $engine The engine. */
-    protected engine $engine = null;
+    protected $engine = null;
 
     /** @var engine_step $enginestep The engine step. */
-    protected engine_step $enginestep = null;
+    protected $enginestep = null;
 
     /**
      * Create an instance of this class.
