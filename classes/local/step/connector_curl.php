@@ -68,7 +68,6 @@ class connector_curl extends connector_step {
         $ex['json'] = \html_writer::nonempty_tag('pre', json_encode($jsonexample, JSON_PRETTY_PRINT));
         $ex['yaml'] = '<pre>header-key: header value<br>another-key: 1234</pre>';
 
-
         $urlarray = [];
         $urlarray[] =& $mform->createElement('select', 'config_method', '', [
             'get'    => 'GET',
