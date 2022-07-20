@@ -62,7 +62,7 @@ class connector_curl extends connector_step {
         return [
             'dbgcommand' => null,
             'response' => [
-                'result.*' => null,
+                'result' => get_string('connector_curl:output_response_result', 'tool_dataflows'),
                 'info' => [
                     'http_code' => null,
                     'connect_time' => null,
@@ -70,7 +70,7 @@ class connector_curl extends connector_step {
                     'size_upload' => null,
                     '*' => null,
                 ],
-                'destination' => null,
+                'destination' => get_string('connector_curl:destination', 'tool_dataflows'),
             ],
         ];
     }
