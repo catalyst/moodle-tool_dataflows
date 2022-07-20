@@ -42,20 +42,33 @@ class process_dataflows extends \core\task\scheduled_task {
     }
 
     /**
-     * Processes dataflows.
+     * Run the dataflows.
      */
     public function execute() {
-        $dataflowids = scheduler::get_due_dataflows();
-        foreach ($dataflowids as $id => $nextruntime) {
+        $dataflowrecords = scheduler::get_due_dataflows();
+
+        $firstdataflowrecord = array_shift($dataflowrecords);
+
+        if (isset($firstdataflowrecord)) {
+
+            // Create ad-hoc tasks for all but one dataflow.
+            foreach ($dataflowrecords as $dataflowrecord) {
+                $task = new process_dataflow_ad_hoc();
+                $task->set_custom_data($dataflowrecord);
+                \core\task\manager::queue_adhoc_task($task);
+            }
+
+            // Run a single dataflow immediately.
             try {
-                $dataflow = new dataflow($id);
+                $dataflow = new dataflow($firstdataflowrecord->dataflowid);
                 if ($dataflow->enabled) {
-                    mtrace("Running dataflow $dataflow->name (ID: $id), time due: " . userdate($nextruntime));
+                    mtrace("Running dataflow $dataflow->name (ID: $firstdataflowrecord->dataflowid), time due: " .
+                        userdate($firstdataflowrecord->nextruntime));
                     $engine = new engine($dataflow, false);
                     $engine->execute();
                 }
             } catch (\Throwable $thrown) {
-                mtrace("Dataflow run failed for ID: $id, " . $thrown->getMessage());
+                mtrace("Dataflow run failed for ID: $firstdataflowrecord->dataflowid, " . $thrown->getMessage());
             }
         }
     }
