@@ -37,7 +37,7 @@ class step extends persistent {
     /** The table name. */
     const TABLE = 'tool_dataflows_steps';
 
-    const DEPENDS_ON_POSITION_SPLITTER = '::';
+    const DEPENDS_ON_POSITION_SPLITTER = ':';
 
     /** @var array $dependson */
     private $dependson = [];
@@ -309,8 +309,10 @@ class step extends persistent {
             // the expected id numeric value.
             $dependson = $dependency->id ?? $dependency;
             if (gettype($dependson) === 'string' && !is_number($dependson)) {
+                // TODO: Split this into its own method + add tests.
                 // Resolve the actual dependency to an ID and if required, a position.
-                $regex = '/(?<id>([a-z]*\d*))(' . self::DEPENDS_ON_POSITION_SPLITTER . '(?<position>\d+))?/m';
+                $regex = '/(?<id>([^' . self::DEPENDS_ON_POSITION_SPLITTER . '\n])+)' .
+                    '(' . self::DEPENDS_ON_POSITION_SPLITTER . '(?<position>\d+))?/m';
                 preg_match_all($regex, $dependson, $matches, PREG_SET_ORDER, 0);
                 if (empty($matches)) {
                     throw new moodle_exception('stepdependencydoesnotexist', 'tool_dataflows', '', $dependson);
