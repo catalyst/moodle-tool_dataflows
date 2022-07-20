@@ -102,7 +102,8 @@ class reader_json extends reader_step {
     /**
      * Parses stream to json string.
      *
-     * @return string
+     * @param string $path
+     * @return string json
      * @throws \moodle_exception
      */
     protected function get_json_string(string $path): string {
@@ -179,7 +180,7 @@ class reader_json extends reader_step {
      * It's recommended you prefix the additional config related fields to avoid
      * conflicts with any existing fields.
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // JSON array source.

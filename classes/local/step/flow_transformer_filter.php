@@ -34,6 +34,9 @@ class flow_transformer_filter extends flow_transformer_step {
 
     /**
      * Apply the filter based on configuration
+     *
+     * @param   mixed $record
+     * @return  mixed $record
      */
     public function execute($record) {
         // TODO: implement.

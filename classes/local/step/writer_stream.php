@@ -55,10 +55,10 @@ class writer_stream extends writer_step {
     /**
      * Returns the fully qualified classname for the class provided
      *
-     * @param      int
-     * @return     string empty string if the class is not found
+     * @param   string $classname
+     * @return  string empty string if the class is not found
      */
-    public static function resolve_encoder($classname): string {
+    public static function resolve_encoder(string $classname): string {
         if (class_exists($classname)) {
             return $classname;
         }
@@ -100,6 +100,13 @@ class writer_stream extends writer_step {
             /** @var object dataformat writer. */
             private $writer;
 
+            /**
+             * Create an instance of this class.
+             *
+             * @param  flow_engine_step $step
+             * @param  object $config
+             * @param  iterator $input
+             */
             public function __construct(flow_engine_step $step, $config, iterator $input) {
                 $this->streamname = $step->engine->resolve_path($config->streamname);
 
@@ -138,6 +145,9 @@ class writer_stream extends writer_step {
                 }
             }
 
+            /**
+             * Any custom handling for on_abort
+             */
             public function on_abort() {
                 if (fwrite($this->handle, $this->writer->close_output()) === false) {
                     $this->step->log(error_get_last()['message']);
@@ -211,7 +221,7 @@ class writer_stream extends writer_step {
      * It's recommended you prefix the additional config related fields to avoid
      * conflicts with any existing fields.
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // Stream name.

@@ -25,8 +25,11 @@ namespace tool_dataflows\local\formats;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class encoder_base {
+
     /** @var bool Has data been added yet? */
     protected $sheetdatadded = false;
+
+    /** @var bool should the encoder prettify the output */
     protected $prettyprint = false;
 
     /**

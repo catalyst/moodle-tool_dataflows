@@ -267,7 +267,7 @@ abstract class base_step {
     /**
      * Sets up the form fields and inputs.
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_setup(\MoodleQuickForm &$mform) {
         $this->form_add_custom_inputs($mform);
@@ -282,7 +282,7 @@ abstract class base_step {
      * It's recommended you prefix the additional config related fields to avoid
      * conflicts with any existing fields.
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // Configuration - YAML format.
@@ -300,7 +300,7 @@ abstract class base_step {
      * This is mostly defined upfront and unlikely to change, and will show the following if not set:
      * "Did you remember to call setType() for __"
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_set_input_types(\MoodleQuickForm &$mform) {
         $fields = static::form_define_fields();
@@ -314,7 +314,7 @@ abstract class base_step {
     /**
      * Sets rules for each input field defined if supported
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_set_input_rules(\MoodleQuickForm &$mform) {
         $fields = static::form_define_fields();
@@ -364,8 +364,8 @@ abstract class base_step {
      * Converts the config data if required, such that it is set as expected
      * under a single key 'config'
      *
-     * @param      mixed &$data
-     * @return     mixed &$data
+     * @param      mixed $data
+     * @return     mixed $data
      */
     public function form_convert_fields(&$data) {
         // Construct configuration array based on standard format.
@@ -469,16 +469,12 @@ abstract class base_step {
 
     /**
      * Hook function that gets called when a step has been saved.
-     *
-     * @param step $stepdef
      */
     public function on_save() {
     }
 
     /**
      * Hook function that gets called when a step is deleted.
-     *
-     * @param step $stepdef
      */
     public function on_delete() {
     }

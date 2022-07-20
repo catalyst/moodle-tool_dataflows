@@ -45,8 +45,7 @@ abstract class writer_step extends flow_step {
     /**
      * Get the iterator for the step, based on configurations.
      *
-     * @param flow_engine_step $step
-     * @return iterator
+     * @return  data_iterator
      */
     public function get_iterator(): iterator {
         // Default is to simply map.

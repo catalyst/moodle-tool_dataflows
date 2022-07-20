@@ -51,6 +51,9 @@ abstract class flow_step extends base_step {
      *
      * Implementation can vary, this might be a transformer, resource, or
      * something else.
+     *
+     * @param   mixed $input
+     * @return  mixed $input
      */
     public function execute($input) {
         // Default is to do nothing.
@@ -72,7 +75,6 @@ abstract class flow_step extends base_step {
     /**
      * Get the iterator for the step, based on configurations.
      *
-     * @param flow_engine_step $step
      * @return iterator
      */
     public function get_iterator(): iterator {

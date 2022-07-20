@@ -17,10 +17,6 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\local\step\reader_step;
-use tool_dataflows\local\step\trigger_step;
-use tool_dataflows\local\step\connector_step;
-use tool_dataflows\local\step\flow_step;
 
 /**
  * Display a table of dataflow steps.

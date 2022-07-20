@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_dataflows\local\step;
-use tool_dataflows\local\execution\engine_step;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -59,7 +58,7 @@ class connector_curl extends connector_step {
      * It's recommended you prefix the additional config related fields to avoid
      * conflicts with any existing fields.
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         $jsonexample = [

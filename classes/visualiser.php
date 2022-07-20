@@ -65,15 +65,14 @@ class visualiser {
      * with "dot" command and pipe the "dot_script" to it and pipe out the
      * generated image content.
      *
-     * @param string $dotscript the script for DOT to generate the image.
-     * @param $type supported image types: jpg, gif, png, svg, ps.
-     * @return binary|string content of the generated image on success, empty string on
-     *           failure.
+     * @param  string $dotscript the script for DOT to generate the image.
+     * @param  string $type supported image types: jpg, gif, png, svg, ps.
+     * @return binary|string content of the generated image on success, empty string on failure.
      *
      * @author     cjiang
      * @author     Kevin Pham <kevinpham@catalyst-au.net>
      */
-    public static function generate($dotscript, $type = 'svg') {
+    public static function generate(string $dotscript, ?string $type = 'svg') {
         global $CFG;
 
         $descriptorspec = [
@@ -115,6 +114,13 @@ class visualiser {
         throw new \Exception("failed to execute cmd \"$cmd\"");
     }
 
+    /**
+     * Prepares and builds out the dataflow table & page
+     *
+     * @param  dataflows_table $table
+     * @param  \moodle_url $url
+     * @param  string $pageheading
+     */
     public static function display_dataflows_table(dataflows_table $table, \moodle_url $url, string $pageheading) {
         global $PAGE;
 
@@ -168,6 +174,14 @@ class visualiser {
         echo $output->footer();
     }
 
+    /**
+     * Prepares and displays the dataflows details page
+     *
+     * @param  int $dataflowid
+     * @param  steps_table $table
+     * @param  \moodle_url $url
+     * @param  string $pageheading
+     */
     public static function display_dataflows_view_page(int $dataflowid, steps_table $table, \moodle_url $url, string $pageheading) {
         global $PAGE;
 

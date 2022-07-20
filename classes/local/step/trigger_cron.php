@@ -69,7 +69,7 @@ class trigger_cron extends trigger_step {
      * It's recommended you prefix the additional config related fields to avoid
      * conflicts with any existing fields.
      *
-     * @param \MoodleQuickForm &$mform
+     * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         $mform->addElement('static', 'schedule_header', '', 'Schedule');
