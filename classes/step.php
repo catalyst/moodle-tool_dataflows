@@ -37,6 +37,7 @@ class step extends persistent {
     /** The table name. */
     const TABLE = 'tool_dataflows_steps';
 
+    /** Delimeter for the 'depends on' and 'position' values. */
     const DEPENDS_ON_POSITION_SPLITTER = ':';
 
     /** @var array $dependson */
