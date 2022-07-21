@@ -474,7 +474,10 @@ class step extends persistent {
         $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
         $DB->delete_records('tool_dataflows_step_depends', ['dependson' => $this->id]);
 
-        $this->steptype->on_delete();
+        $steptype = $this->steptype;
+        if (isset($steptype)) {
+            $steptype->on_delete();
+        }
 
     }
 
