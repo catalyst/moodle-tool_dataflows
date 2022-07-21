@@ -103,6 +103,7 @@ class connector_curl extends connector_step {
         $urlarray[] =& $mform->createElement('text', 'config_curl', '');
 
         $mform->addGroup($urlarray, 'buttonar', get_string('connector_curl:curl', 'tool_dataflows'), [' '], false);
+        $mform->addRule('buttonar', get_string('required'), 'required', null, 'server');
 
         $mform->addElement('textarea', 'config_headers', get_string('connector_curl:headers', 'tool_dataflows'),
                 ['cols' => 50, 'rows' => 7]);
