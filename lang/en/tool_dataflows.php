@@ -35,7 +35,13 @@ $string['pluginsettings'] = 'General settings';
 $string['enabled'] = 'Enable/disable this plugin';
 $string['enabled_help'] = '';
 $string['permitted_dirs'] = 'Permitted directories';
-$string['permitted_dirs_desc'] = 'List directories here to allow them to be read from/written to by dataflow steps.';
+$string['permitted_dirs_desc'] = "List directories here to allow them to be read from/written to by dataflow steps.
+    One directory per line. Each directory must be an absolute path. You can use the place holder '{\$a}' for the
+    site's data root directory.\n
+    Examples.
+    /tmp
+    /home/me/mydata
+    {\$a}/somedir";
 
 // Manage flows / Overview.
 $string['overview'] = 'Overview';
@@ -190,6 +196,8 @@ $string['change_state_after_concluded'] = 'Attempting to change the status of a 
 $string['bad_status'] = 'Bad status, had "{$a->status}", expected "{$a->expected}"';
 $string['must_have_a_step_def_defined'] = 'If an engine is passed as a parameter, a step definition must alse be passed.';
 $string['path_invalid'] = 'Path "{$a}" is not permitted.';
+$string['path_not_absolute'] = 'Path "{$a}" is not an absolute path.';
+$string['unknown_placeholder'] = 'Placeholder "{$a}" is not recognised.';
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';
