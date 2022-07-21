@@ -14,6 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\check;
+
+use core\check\check;
+use core\check\result;
+use tool_dataflows\dataflow;
+use tool_dataflows\local\execution\engine;
+
 /**
  * Dataflows generic check
  *
@@ -22,13 +29,16 @@
  * @copyright   Catalyst IT
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace tool_dataflows\check;
-use core\check\check;
-use core\check\result;
-use tool_dataflows\dataflow;
-use tool_dataflows\local\execution\engine;
-
 class dataflow_runs extends check {
+
+    /**
+     * Get the short check name
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        return get_string('pluginname', 'tool_dataflows');
+    }
 
     /**
      * Getter for a link to page with more information.

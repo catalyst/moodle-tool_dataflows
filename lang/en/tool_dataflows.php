@@ -300,7 +300,6 @@ $string['connector_curl:field_headers_help'] = 'Headers should be in the followi
 $string['connector_curl:output_response_result'] = 'Returns a string that contains the response to the request as text, or null if the request was unsuccessful or has not yet been sent.';
 
 // Checks.
-$string['checkdataflow_runs'] = 'Dataflows';
 $string['check:dataflows_completed_successfully'] = 'All recent dataflow runs completed successfully.';
 $string['check:dataflows_no_runs'] = 'No dataflow runs executed.';
 $string['check:dataflows_not_enabled'] = 'No dataflows enabled.';
