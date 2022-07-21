@@ -17,6 +17,7 @@
 namespace tool_dataflows\local\step;
 
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\helper;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
 use tool_dataflows\parser;
@@ -380,8 +381,8 @@ abstract class base_step {
         if (isset($yaml->outputs)) {
             $data->config_outputs = Yaml::dump(
                 $yaml->outputs,
-                2,
-                4,
+                helper::YAML_DUMP_INLINE_LEVEL,
+                helper::YAML_DUMP_INDENT_LEVEL,
                 Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
             );
         }
@@ -436,11 +437,12 @@ abstract class base_step {
         }
 
         if (!empty($config)) {
-            // 4 levels of indentation before it starts to, JSONify / inline settings.
-            $inline = 4;
-            // 2 spaces per level of indentation.
-            $indent = 2;
-            $data->config = Yaml::dump($config, $inline, $indent, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP);
+            $data->config = Yaml::dump(
+                $config,
+                helper::YAML_DUMP_INLINE_LEVEL,
+                helper::YAML_DUMP_INDENT_LEVEL,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
+            );
         }
 
         return $data;

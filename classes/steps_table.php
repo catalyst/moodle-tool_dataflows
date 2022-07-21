@@ -134,7 +134,12 @@ class steps_table extends \table_sql {
     public function col_config(\stdClass $record): string {
         $step = new step($record->id);
         $redactedconfig = $step->get_redacted_config(false);
-        $output = Yaml::dump((array) $redactedconfig, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP);
+        $output = Yaml::dump(
+            (array) $redactedconfig,
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
+        );
         return \html_writer::tag('pre', $output);
     }
 

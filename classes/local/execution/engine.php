@@ -430,7 +430,12 @@ class engine {
         $config->{$name} = $value;
 
         // Updates the stored config.
-        $config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+        $config = Yaml::dump(
+            (array) $config,
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+        );
         $this->log("Setting global '$name' to '$value' (from '{$previous}')");
         set_config('config', $config, 'tool_dataflows');
     }
