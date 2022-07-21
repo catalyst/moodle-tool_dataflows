@@ -25,8 +25,6 @@
 namespace tool_dataflows\check;
 use core\check\check;
 use core\check\result;
-use html_writer;
-use moodle_url;
 use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
 
@@ -47,41 +45,42 @@ class dataflow_runs extends check {
      *
      * @return result
      */
-    public function get_result() : result {
+    public function get_result(): result {
         global $DB;
-        $enabledldataflows = $DB->get_records('tool_dataflows', ['enabled' => 1]);
+        $enableddataflows = $DB->get_records('tool_dataflows', ['enabled' => 1]);
 
         $status = result::OK;
         $details = '';
         $summary = '';
         $runs = false;
-        foreach ($enabledldataflows as $flow) {
+        foreach ($enableddataflows as $flow) {
             $dataflow = new dataflow($flow->id);
-            $dataflowlink = html_writer::link(new moodle_url('/admin/tool/dataflows/view.php',
+            $dataflowlink = \html_writer::link(new \moodle_url('/admin/tool/dataflows/view.php',
                 ['id' => $dataflow->id]), $dataflow->name);
 
             if (!empty($dataflow->get_runs(1))) {
                 $runs = true;
                 $lastrun = $dataflow->get_runs(1)[0];
                 $runstate = engine::STATUS_LABELS[$lastrun->status];
-                $runresultlink = html_writer::link(new moodle_url('/admin/tool/dataflows/view-run.php',
-                    ['id' => $lastrun->id]), 'Run ' . $lastrun->name . " - " . $runstate);
+                $runresultlink = \html_writer::link(new \moodle_url('/admin/tool/dataflows/view-run.php',
+                    ['id' => $lastrun->id]), get_string('check:dataflows_run_status', 'tool_dataflows',
+                    ['name' => $lastrun->name, 'state' => $runstate]));
 
                 if ($runstate === 'aborted') {
-                    $summary .= $dataflowlink.': '.$runresultlink.html_writer::empty_tag('br');
+                    $summary .= $dataflowlink.': '.$runresultlink.\html_writer::empty_tag('br');
                     $status = result::ERROR;
                 }
                 $details .= $dataflowlink.': '.$runresultlink;
             } else {
-                $details .= $dataflowlink.':'.get_string('check:dataflows_no_recent_runs', 'tool_dataflows');
+                $details .= $dataflowlink.': '.get_string('check:dataflows_no_runs', 'tool_dataflows');
             }
-            $details .= html_writer::empty_tag('br');
+            $details .= \html_writer::empty_tag('br');
         }
 
-        if (empty($enabledldataflows)) {
+        if (empty($enableddataflows)) {
             $summary = get_string('check:dataflows_not_enabled', 'tool_dataflows');
         } else if (!$runs) {
-            $summary = get_string('check:dataflows_no_recent_runs', 'tool_dataflows');
+            $summary = get_string('check:dataflows_no_runs', 'tool_dataflows');
         } else if ($runs && $status == result::OK) {
             $summary = get_string('check:dataflows_completed_successfully', 'tool_dataflows');
         }

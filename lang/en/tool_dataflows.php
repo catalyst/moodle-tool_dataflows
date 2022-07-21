@@ -302,6 +302,6 @@ $string['connector_curl:output_response_result'] = 'Returns a string that contai
 // Checks.
 $string['checkdataflow_runs'] = 'Dataflows';
 $string['check:dataflows_completed_successfully'] = 'All recent dataflow runs completed successfully.';
-$string['check:dataflows_no_recent_runs'] = 'No recent dataflow runs.';
+$string['check:dataflows_no_runs'] = 'No dataflow runs executed.';
 $string['check:dataflows_not_enabled'] = 'No dataflows enabled.';
 $string['check:dataflows_run_status'] = 'Run {$a->name} - {$a->state}';
