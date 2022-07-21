@@ -298,3 +298,10 @@ $string['connector_curl:timeout'] = 'Timeout';
 $string['connector_curl:timeout_help'] = 'Time in seconds after which the request will abort, default is 60 seconds.';
 $string['connector_curl:field_headers_help'] = 'Headers should be in the following JSON format: {$a->json} You can also use the following YAML format: {$a->yaml}';
 $string['connector_curl:output_response_result'] = 'Returns a string that contains the response to the request as text, or null if the request was unsuccessful or has not yet been sent.';
+
+// Checks.
+$string['checkdataflow_runs'] = 'Dataflows';
+$string['check:dataflows_completed_successfully'] = 'All recent dataflow runs completed successfully.';
+$string['check:dataflows_no_recent_runs'] = 'No recent dataflow runs.';
+$string['check:dataflows_not_enabled'] = 'No dataflows enabled.';
+$string['check:dataflows_run_status'] = 'Run {$a->name} - {$a->state}';

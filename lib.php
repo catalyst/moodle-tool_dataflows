@@ -74,3 +74,12 @@ function tool_dataflows_encoders() {
         new encoders\csv,
     ];
 }
+
+/**
+ * Add dataflows generic status check.
+ *
+ * @return array of check objects
+ */
+function tool_dataflows_status_checks(): array {
+    return [new \tool_dataflows\check\dataflow_runs()];
+}
