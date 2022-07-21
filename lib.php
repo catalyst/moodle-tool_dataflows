@@ -26,10 +26,18 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once(dirname(__FILE__) . '/vendor/autoload.php');
-require_once(dirname(__FILE__) . '/../../../vendor/autoload.php');
 
 use tool_dataflows\local\formats\encoders;
 use tool_dataflows\local\step;
+
+/**
+ *  Triggered as soon as practical on every moodle bootstrap after config has
+ *  been loaded. The $USER object is available at this point too.
+ *
+ *  NOTE: DO NOT REMOVE. This currently ensures all vendor libraries are loaded.
+ */
+function tool_dataflows_after_config() {
+}
 
 /**
  * Returns a list of step types available for this plugin.
