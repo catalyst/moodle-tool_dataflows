@@ -5,9 +5,9 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '6b3ee0c6469883c9ce869142fadf58dae40b9422',
+        'reference' => '27c0542bc6eec0474a9758a214ab9adb5d8cc775',
         'name' => '__root__',
-        'dev' => false,
+        'dev' => true,
     ),
     'versions' => array(
         '__root__' => array(
@@ -16,7 +16,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '6b3ee0c6469883c9ce869142fadf58dae40b9422',
+            'reference' => '27c0542bc6eec0474a9758a214ab9adb5d8cc775',
             'dev_requirement' => false,
         ),
         'psr/cache' => array(
@@ -77,21 +77,21 @@
             'dev_requirement' => false,
         ),
         'symfony/polyfill-apcu' => array(
-            'pretty_version' => 'v1.25.0',
-            'version' => '1.25.0.0',
+            'pretty_version' => 'v1.26.0',
+            'version' => '1.26.0.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/polyfill-apcu',
             'aliases' => array(),
-            'reference' => '80f7fb64c5b64ebcba76f40215e63808a2062a18',
+            'reference' => '43273a33c46f9d5a08dac76859f63d6814242e81',
             'dev_requirement' => false,
         ),
         'symfony/polyfill-ctype' => array(
-            'pretty_version' => 'v1.25.0',
-            'version' => '1.25.0.0',
+            'pretty_version' => 'v1.26.0',
+            'version' => '1.26.0.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/polyfill-ctype',
             'aliases' => array(),
-            'reference' => '30885182c981ab175d4d034db0f6f469898070ab',
+            'reference' => '6fd1b9a79f6e3cf65f9e679b23af304cd9e010d4',
             'dev_requirement' => false,
         ),
         'symfony/polyfill-php70' => array(
