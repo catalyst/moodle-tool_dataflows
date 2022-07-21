@@ -169,7 +169,13 @@ class steps_table extends \table_sql {
         // Make the list.
         $out = \html_writer::start_tag('ul');
         foreach ($deps as $dep) {
-            $out .= \html_writer::tag('li', $dep->name);
+            $label = "{$dep->name}";
+            if (isset($dep->position)) {
+                // TODO: If the step has a defined key / label for this entry, then use that label instead.
+                // For example: 'case #14' could instead be 'case: even number detected'.
+                $label .= " → {$dep->position}";
+            }
+            $out .= \html_writer::tag('li', $label);
         }
         $out .= \html_writer::end_tag('ul');
         return $out;

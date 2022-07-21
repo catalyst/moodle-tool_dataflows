@@ -92,20 +92,53 @@ class step_form extends \core\form\persistent {
 
                 // Check if the current step is a dependant, and if so, INCLUDE the option (and ensure it is selected).
                 $currentstepid = $persistent->id;
+                $selectedposition = null;
                 if (!empty($currentstepid) && isset($dependants[$currentstepid])) {
-                    $availablepositions[] = $dependants[$currentstepid]->position;
+                    $selectedposition = $dependants[$currentstepid]->position;
+                    $availablepositions[] = $selectedposition;
                     sort($availablepositions);
                 }
 
+                // New case position should always show the next available slot for a case step.
+                // Updating a position should always show up to the current and any empty slots below.
+                $maxposition = null;
+                if ($selectedposition) {
+                    $maxposition = $selectedposition;
+                } else {
+                    $maxposition = max(array_column($dependants, 'position')) + 1;
+                }
+
+                // Start plucking positions from the top until there is a gap or the current step position is hit.
+                // This ensures you won't see positions you shouldn't be able to assign, and keeps things in order.
+                // TODO: Also consider when the connecting step has outputs defined already, stop at that maximum instead.
+                $reversed = array_reverse($availablepositions);
+                $current = reset($reversed) + 1;
+                $position = reset($reversed);
+                while (
+                    // No gap.
+                    $current - 1 === $position
+                    // Max not reached.
+                    && ($maxposition === null || $maxposition !== $position)
+                    // Always keep at least one option.
+                    && $position !== 1
+                ) {
+                    $current = array_shift($reversed);
+                    $position = reset($reversed);
+                }
+
+                $availablepositions = array_reverse($reversed);
+
+                // Prepare and set the (output) connection options for this step.
                 foreach ($availablepositions as $position) {
-                    $defaultoptionlabel = "Option #{$position}";
-                    $label = "{$step->name} > $defaultoptionlabel"; // TODO: relabel based on 'depends on' step config.
+                    // TODO: If the step has a defined key / label for this entry, then use that label instead.
+                    // For example: 'case #14' could instead be 'case: even number detected'.
+                    $defaultoptionlabel = $position;
+                    $label = "{$step->name} → $defaultoptionlabel"; // TODO: relabel based on 'depends on' step config.
                     $options[$step->id . self::$persistentclass::DEPENDS_ON_POSITION_SPLITTER . $position] = $label;
                 }
             } else {
                 $options[$step->id] = $step->name; // Will always set a new value.
             }
-
         }
         unset($options[$persistent->id]); // We never want a step to depend on itself.
 
@@ -206,7 +239,7 @@ class step_form extends \core\form\persistent {
             $outputs = $step->steptype->define_outputs();
 
             // This is a list of user defined output mappings. This will display their expression / value set.
-            $userdefinedoutputs = (array) $step->get_raw_config()->outputs;
+            $userdefinedoutputs = (array) ($step->get_raw_config()->outputs ?? []);
             $outputs = array_merge($outputs, $userdefinedoutputs);
             foreach ($outputs as $field => $description) {
                 $variables['steps']->{$alias}->{$field} = $description;
