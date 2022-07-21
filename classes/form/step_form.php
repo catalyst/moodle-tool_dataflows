@@ -90,6 +90,13 @@ class step_form extends \core\form\persistent {
                 $takenpositions = array_column($dependants, 'position');
                 $availablepositions = array_diff($allpositions, $takenpositions);
 
+                // Check if the current step is a dependant, and if so, INCLUDE the option (and ensure it is selected).
+                $currentstepid = $persistent->id;
+                if (!empty($currentstepid) && isset($dependants[$currentstepid])) {
+                    $availablepositions[] = $dependants[$currentstepid]->position;
+                    sort($availablepositions);
+                }
+
                 foreach ($availablepositions as $position) {
                     $defaultoptionlabel = "Option #{$position}";
                     $label = "{$step->name} > $defaultoptionlabel"; // TODO: relabel based on 'depends on' step config.
