@@ -284,7 +284,8 @@ class dataflow extends persistent {
                        sd.stepid AS dest
                   FROM {tool_dataflows_step_depends} sd
              LEFT JOIN {tool_dataflows_steps} step ON step.id = sd.stepid
-                 WHERE step.dataflowid = :dataflowid";
+                 WHERE step.dataflowid = :dataflowid
+              ORDER BY sd.position ASC";
 
         // Note that this works currently because all dependencies are set for each step.
         $edges = $DB->get_records_sql($sql, ['dataflowid' => $this->id]);
