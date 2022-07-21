@@ -2,6 +2,14 @@
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/catalyst/moodle-tool_dataflows/ci/MOODLE_35_STABLE)
 
+* [What is this?](#what-is-this)
+* [Branches](#branches)
+* [Alternatives](#alternatives)
+* [Installation](#installation)
+* [Configuration](#configuration)
+* [Support](#support)
+* [Warm thanks](#warm-thanks)
+
 ## What is this?
 
 Dataflows is a generic workflow and processing engine which can be configured to do a large variety of tasks.
@@ -35,9 +43,6 @@ have an 'event trigger' step and so should be a complete super set of the tool_t
 https://github.com/catalyst/moodle-tool_trigger/
 
 
-## Best practices for workflows
-
-
 
 
 ## Installation
@@ -48,7 +53,7 @@ From Moodle siteroot:
 git clone git@github.com:catalyst/moodle-tool_dataflows.git admin/tool/dataflows
 ```
 
-## Dependencies
+### Dependencies
 
 Make sure graphviz is installed
 
@@ -57,3 +62,31 @@ apt install graphviz
 ```
 
 https://graphviz.org/documentation/
+
+## Configuration
+
+### Best practices for workflows
+
+
+
+## Support
+
+If you have issues please log them in
+[GitHub](https://github.com/catalyst/moodle-tool_dataflows/issues).
+
+Please note our time is limited, so if you need urgent support or want to
+sponsor a new feature then please contact
+[Catalyst IT Australia](https://www.catalyst-au.net/contact-us).
+
+
+## Warm thanks
+
+Thanks to various orgnisations for support in developing this plugin:
+
+### University College London 
+![image](https://user-images.githubusercontent.com/187449/180128782-474fcdab-62c5-4848-ab6b-92ff4ece5d6f.png)
+
+
+This plugin was developed by [Catalyst IT Australia](https://www.catalyst-au.net/).
+
+<img alt="Catalyst IT" src="https://cdn.rawgit.com/CatalystIT-AU/moodle-auth_saml2/MOODLE_39_STABLE/pix/catalyst-logo.svg" width="400">
