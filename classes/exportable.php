@@ -50,11 +50,12 @@ trait exportable {
      * @return string $contents YAML formatted export of the data
      */
     public function export() {
-        // 4 levels of indentation before it starts to, JSONify / inline settings.
-        $inline = 4;
-        // 2 spaces per level of indentation.
-        $indent = 2;
-        $contents = Yaml::dump($this->get_export_data(), $inline, $indent, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+        $contents = Yaml::dump(
+            $this->get_export_data(),
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
+        );
 
         return $contents;
     }

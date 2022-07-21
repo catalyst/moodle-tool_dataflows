@@ -26,6 +26,12 @@ namespace tool_dataflows;
  */
 class helper {
 
+    /** The level where you switch to inline YAML */
+     const YAML_DUMP_INLINE_LEVEL = 5;
+
+     /** The amount of spaces to use for indentation of nested nodes*/
+     const YAML_DUMP_INDENT_LEVEL = 2;
+
     /**
      * Get the scheme for a path string. will default to 'file' if none present.
      *

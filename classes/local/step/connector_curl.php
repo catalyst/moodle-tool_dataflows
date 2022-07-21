@@ -41,13 +41,37 @@ class connector_curl extends connector_step {
      */
     protected static function form_define_fields(): array {
         return [
-            'curl' => ['type' => PARAM_URL],
+            'curl' => ['type' => PARAM_TEXT],
             'destination' => ['type' => PARAM_PATH],
             'headers' => ['type' => PARAM_RAW],
             'method' => ['type' => PARAM_TEXT],
             'rawpostdata' => ['type' => PARAM_RAW],
             'sideeffects' => ['type' => PARAM_RAW],
             'timeout' => ['type' => PARAM_INT],
+        ];
+    }
+
+    /**
+     * A list of outputs and their description if applicable.
+     *
+     * These fields can be used as aliases in the custom output mapping
+     *
+     * @return  array of outputs
+     */
+    public function define_outputs(): array {
+        return [
+            'dbgcommand' => null,
+            'response' => [
+                'result' => get_string('connector_curl:output_response_result', 'tool_dataflows'),
+                'info' => [
+                    'http_code' => null,
+                    'connect_time' => null,
+                    'total_time' => null,
+                    'size_upload' => null,
+                    '*' => null,
+                ],
+                'destination' => get_string('connector_curl:destination', 'tool_dataflows'),
+            ],
         ];
     }
 
@@ -130,6 +154,9 @@ class connector_curl extends connector_step {
         $config = $this->enginestep->stepdef->config;
         $isdryrun = $this->enginestep->engine->isdryrun;
         $method = $config->method;
+
+        $this->enginestep->log($config->curl);
+
         $dbgcommand = 'curl -X ' .  strtoupper($method) . ' ' . $config->curl;
         $result = null;
 
@@ -200,9 +227,6 @@ class connector_curl extends connector_step {
         // TODO : Once set_var api is refactored add response.
         $response = $curl->getResponse();
         $httpcode = $info['http_code'] ?? null;
-        $connecttime = $info['connect_time'] ?? null;
-        $totaltime = $info['total_time'] ?? null;
-        $sizeupload = $info['size_upload'] ?? null;
         $destination = !empty($config->destination) ? $config->destination : null;
         $errno = $curl->get_errno();
 
@@ -210,20 +234,18 @@ class connector_curl extends connector_step {
             throw new \moodle_exception($httpcode . ':' . $result);
         }
 
+        // Log the raw curl command.
+        $this->enginestep->log($dbgcommand);
+        $this->set_variables('dbgcommand', $dbgcommand);
+
         if (!$isdryrun) {
             // TODO: It would be good to define and list any fixed but exposed
             // fields which the user can use and map to on the edit page.
             $this->set_variables('response', (object) [
                 'result' => $result,
-                'info' => $info,
-                'httpcode' => $httpcode,
-                'connecttime' => $connecttime,
-                'totaltime' => $totaltime,
-                'sizeupload' => $sizeupload,
+                'info' => (object) $info,
                 'destination' => $destination,
             ]);
-        } else {
-            $this->set_variables('dbgcommand', $dbgcommand);
         }
         return true;
     }

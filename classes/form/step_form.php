@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\form;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\parser;
 
@@ -39,12 +40,9 @@ class step_form extends \core\form\persistent {
      * Define the form.
      */
     public function definition() {
-        global $OUTPUT;
-
         $mform = $this->_form;
         $dataflowid = $this->_customdata['dataflowid'];
         $type = $this->_customdata['type'];
-        $backlink = $this->_customdata['backlink'];
 
         // User ID.
         $mform->addElement('hidden', 'userid');
@@ -96,7 +94,42 @@ class step_form extends \core\form\persistent {
         $select->setMultiple(true);
 
         // List all the available fields available for configuration, in dot syntax.
-        $variables = $persistent->get_variables();
+        $variables = $this->get_available_references();
+        $mform->addElement('html', $this->prepare_available_fields($variables));
+
+        // Check and set custom form inputs if required. Defaulting to a
+        // textarea config input for those not yet configured.
+        if (isset($persistent->steptype) || (isset($type) && class_exists($type))) {
+            $steptype = $persistent->steptype ?? new $type();
+            $steptype->form_setup($mform);
+        }
+
+        // Configuration - YAML format.
+        $mform->addElement(
+            'textarea',
+            'config_outputs',
+            get_string('field_outputs', 'tool_dataflows'),
+            ['cols' => 50, 'rows' => 7, 'placeholder' => "alias: \${{ <expression> }}\nanother: \${{ <expression> }}"]
+        );
+        $mform->setType("config_outputs", PARAM_TEXT);
+        $exampleconfig = trim(Yaml::dump(['icon' => '${{ response.deeply.nested.data[0].icon }}']));
+        $outputsexample['config'] = \html_writer::tag('code', $exampleconfig);
+        $alias = $persistent->alias ?? 'alias';
+        $outputsexample['reference'] = \html_writer::tag('code', '${{ steps.' . $alias . '.icon }}');
+        $mform->addElement('static', 'outputs_help', '', get_string('field_outputs_help', 'tool_dataflows', $outputsexample));
+
+        $this->add_action_buttons();
+    }
+
+    /**
+     * Return the HTML built for available references
+     *
+     * @param   array $variables
+     * @return  string html of the prepared fields
+     */
+    private function prepare_available_fields($variables): string {
+        global $OUTPUT;
+
         $ritit = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($variables));
         $fields = [];
         foreach ($ritit as $leaf) {
@@ -119,15 +152,46 @@ class step_form extends \core\form\persistent {
             $allfields[$groupcreated[$group]]['fields'][] = ['text' => $key, 'title' => $value];
         }
         $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
-        $mform->addElement('html', $fieldhtml);
+        return $fieldhtml;
+    }
 
-        // Check and set custom form inputs if required. Defaulting to a
-        // textarea config input for those not yet configured.
-        if (isset($persistent->steptype) || (isset($type) && class_exists($type))) {
-            $steptype = $persistent->steptype ?? new $type();
-            $steptype->form_setup($mform);
+    /**
+     * Returns a list of possible references available in the dataflow
+     *
+     * The "values" are not as important. They could be real values,
+     * expressions, or placeholder documentation.
+     *
+     * TODO: since this will currently list all references, even if it is in
+     * "future steps" that might not be valid, it would be good to exclude
+     * invalid options at some point.
+     *
+     * @return  array of all variables
+     */
+    private function get_available_references(): array {
+        $dataflow = new dataflow($this->_customdata['dataflowid']);
+        $variables = $dataflow->get_variables();
+
+        // Prepare step outputs.
+        foreach ($dataflow->steps as $alias => $step) {
+            // This will only display documentation for step exposed outputs,
+            // and not any real values since they are not available yet.
+            $outputs = $step->steptype->define_outputs();
+
+            // This is a list of user defined output mappings. This will display their expression / value set.
+            $userdefinedoutputs = (array) $step->get_raw_config()->outputs;
+            $outputs = array_merge($outputs, $userdefinedoutputs);
+            foreach ($outputs as $field => $description) {
+                $variables['steps']->{$alias}->{$field} = $description;
+            }
+
+            // Remove *.config.outputs from the available references.
+            // Since this is just mapping data and doesn't contain the actual
+            // output values, this shouldn't be exposed. The user most likely
+            // wants to reference the output itself not the configuration.
+            unset($variables['steps']->{$alias}->config->outputs);
         }
-        $this->add_action_buttons();
+
+        return $variables;
     }
 
     /**
@@ -214,6 +278,16 @@ class step_form extends \core\form\persistent {
             $validation = $parser->validate_yaml($data->config);
             if ($validation !== true) {
                 $errors['config'] = $validation;
+            }
+        }
+
+        // Check the outputs field to ensure it's in the correct form.
+        if (isset($data->config) && empty($errors['config'])) {
+            $config = Yaml::parse($data->config, Yaml::PARSE_OBJECT_FOR_MAP);
+            if (isset($config->outputs) && is_string($config->outputs)) {
+                // The outputs should always be an object / hash-map. If not, it
+                // contains the error message as to why this is the case.
+                $errors['config_outputs'] = $config->outputs;
             }
         }
 

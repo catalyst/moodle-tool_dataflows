@@ -47,9 +47,6 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
      * @covers \tool_dataflows\local\step\connector_curl::execute
      */
     public function test_execute() {
-        global $CFG;
-
-        $connectorcurl = new connector_curl();
         $testgeturl = $this->getExternalTestFileUrl('/h5puuid.json');
 
         $stepdef = new step();
@@ -65,10 +62,10 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'method' => 'get',
             'outputs' => [
                 'result' => '${{ fromJSON(response.result) }}',
-                'httpcode' => '${{ response.httpcode }}',
-                'connecttime' => '${{ response.connecttime }}',
-                'totaltime' => '${{ response.totaltime }}',
-                'sizeupload' => '${{ response.sizeupload }}',
+                'httpcode' => '${{ response.info.http_code }}',
+                'connecttime' => '${{ response.info.connect_time }}',
+                'totaltime' => '${{ response.info.total_time }}',
+                'sizeupload' => '${{ response.info.size_upload }}',
             ],
         ]);
         $stepdef->name = 'connector';
@@ -78,7 +75,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->outputs;
+        $variables = $engine->get_variables()['steps']->connector;
         // Result can be anything but for readability decoded to see vars.
         $result = $variables->result;
         $this->assertEquals($result->uuid, '3d188fbf-d0b7-4d4e-ae4d-4b5548df824e');
@@ -99,10 +96,10 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'rawpostdata' => 'data=moodletest',
             'outputs' => [
                 'result' => '${{ response.result }}',
-                'httpcode' => '${{ response.httpcode }}',
-                'connecttime' => '${{ response.connecttime }}',
-                'totaltime' => '${{ response.totaltime }}',
-                'sizeupload' => '${{ response.sizeupload }}',
+                'httpcode' => '${{ response.info.http_code }}',
+                'connecttime' => '${{ response.info.connect_time }}',
+                'totaltime' => '${{ response.info.total_time }}',
+                'sizeupload' => '${{ response.info.size_upload }}',
             ],
         ]);
         $dataflow->add_step($stepdef);
@@ -110,7 +107,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->outputs;
+        $variables = $engine->get_variables()['steps']->connector;
 
         $this->assertEmpty($variables->result);
         $this->assertEquals($variables->httpcode, 200);
@@ -127,10 +124,10 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
             'rawpostdata' => 'data=moodletest',
             'outputs' => [
                 'result' => '${{ response.result }}',
-                'httpcode' => '${{ response.httpcode }}',
-                'connecttime' => '${{ response.connecttime }}',
-                'totaltime' => '${{ response.totaltime }}',
-                'sizeupload' => '${{ response.sizeupload }}',
+                'httpcode' => '${{ response.info.http_code }}',
+                'connecttime' => '${{ response.info.connect_time }}',
+                'totaltime' => '${{ response.info.total_time }}',
+                'sizeupload' => '${{ response.info.size_upload }}',
             ],
         ]);
         $dataflow->add_step($stepdef);
@@ -138,7 +135,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->outputs;
+        $variables = $engine->get_variables()['steps']->connector;
 
         $this->assertEmpty($variables->result);
         $this->assertEquals($variables->httpcode, 200);
@@ -156,20 +153,22 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
                 "name": "morpheus",
                 "job": "leader"
             }',
-            'outputs' => ['dbgcommand' => '${{ dbgcommand }}'],
+            'outputs' => ['curlcmd' => '${{ dbgcommand }}'],
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
         $engine = new engine($dataflow, true, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->outputs;
+
+        $variables = $engine->get_variables()['steps']->connector;
         $expected = "curl -X POST {$testurl} -d '{
                 \"name\": \"morpheus\",
                 \"job\": \"leader\"
             }'";
         // Use trim here because it seems that some versions of Yaml put a EOL when dumping, and others don't.
-        $this->assertEquals($expected, trim($variables->dbgcommand));
+        $this->assertEquals($expected, trim($variables->curlcmd));
+        $this->assertEquals($expected, trim($variables->dbgcommand)); // Should also exist.
 
         // Test file writting.
         $tofile = "test.html";
@@ -188,7 +187,7 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector->outputs;
+        $variables = $engine->get_variables()['steps']->connector;
         $destination = $variables->destination;
         $httpcode = $variables->httpcode;
         $this->assertFileExists($destination);
@@ -199,9 +198,9 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         // Checks that it can properly be referenced for future steps.
         $expressedvalue = $expressionlanguage->evaluate('steps.connector.config.curl', $variables);
         $this->assertEquals($testgeturl, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.connector.outputs.destination', $variables);
+        $expressedvalue = $expressionlanguage->evaluate('steps.connector.destination', $variables);
         $this->assertEquals($destination, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.connector.outputs.httpcode', $variables);
+        $expressedvalue = $expressionlanguage->evaluate('steps.connector.httpcode', $variables);
         $this->assertEquals($httpcode, $expressedvalue);
     }
 

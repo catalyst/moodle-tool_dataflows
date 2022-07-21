@@ -146,7 +146,6 @@ class dataflow extends persistent {
             $steps[$key] = $step->get_export_data();
             $steps[$key]['alias'] = $key;
             $steps[$key]['states'] = $step->states;
-            $steps[$key]['outputs'] = $step->outputs;
 
             // For a 'better' experience, the output values will be referencable
             // from the base step key itself, e.g. instead of
@@ -621,7 +620,12 @@ class dataflow extends persistent {
      */
     public function import(array $yaml) {
         $this->name = $yaml['name'] ?? '';
-        $this->config = isset($yaml['config']) ? Yaml::dump($yaml['config'], 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK) : '';
+        $this->config = isset($yaml['config']) ? Yaml::dump(
+            $yaml['config'],
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+        ) : '';
         $this->save();
 
         // Import any provided steps.
@@ -688,7 +692,12 @@ class dataflow extends persistent {
         $config->{$name} = $value;
 
         // Updates the stored config.
-        $this->config = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+        $this->config = Yaml::dump(
+            (array) $config,
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+        );
     }
 
     /**
@@ -698,7 +707,12 @@ class dataflow extends persistent {
         global $DB;
         if (empty($this->confighash)) {
             $config = $this->export();
-            $configyaml = Yaml::dump((array) $config, 2, 4, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+            $configyaml = Yaml::dump(
+                (array) $config,
+                helper::YAML_DUMP_INLINE_LEVEL,
+                helper::YAML_DUMP_INDENT_LEVEL,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+            );
             $newconfighash = sha1($configyaml);
 
             // Inserts the stored config if it is a new config.
