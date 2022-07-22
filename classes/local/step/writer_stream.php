@@ -53,7 +53,7 @@ class writer_stream extends writer_step {
      *
      * @return array
      */
-    protected static function form_define_fields(): array {
+    public static function form_define_fields(): array {
         return [
             'streamname' => ['type' => PARAM_TEXT],
             'format' => ['type' => PARAM_TEXT],

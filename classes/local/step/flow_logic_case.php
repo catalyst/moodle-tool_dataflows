@@ -64,4 +64,39 @@ class flow_logic_case extends flow_logic_step {
             'disorder',
         ];
     }
+
+    /**
+     * Return the definition of the fields available in this form.
+     *
+     * @return array
+     */
+    public static function form_define_fields(): array {
+        return [
+            'cases' => ['type' => PARAM_TEXT, 'required' => true, 'yaml' => true],
+        ];
+    }
+
+    /**
+     * Allows each step type to determine a list of optional/required form
+     * inputs for their configuration
+     *
+     * It's recommended you prefix the additional config related fields to avoid
+     * conflicts with any existing fields.
+     *
+     * @param \MoodleQuickForm $mform
+     */
+    public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
+        // TODO: Fix this number.
+        $maxoutputs = 20;
+        $mform->addElement(
+            'textarea',
+            'config_cases',
+            get_string('flow_logic_case:cases', 'tool_dataflows'),
+            ['cols' => 50, 'rows' => $maxoutputs, 'placeholder' => "label: <expression>\nsome other label: <expression>"]
+        );
+        // Help text for the cases input: Showing a small example, that
+        // everything on the right side is an expression by default so does not
+        // require the ${{ }}, and lists the current mappings.
+        // TODO: Implement.
+    }
 }

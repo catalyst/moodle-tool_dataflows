@@ -323,3 +323,6 @@ $string['check:dataflows_completed_successfully'] = 'All recent dataflow runs co
 $string['check:dataflows_no_runs'] = 'No dataflow runs executed.';
 $string['check:dataflows_not_enabled'] = 'No dataflows enabled.';
 $string['check:dataflows_run_status'] = 'Run {$a->name} - {$a->state}';
+
+// Flow logic: Case.
+$string['flow_logic_case:cases'] = 'Cases';

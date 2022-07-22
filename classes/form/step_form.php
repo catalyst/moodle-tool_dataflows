@@ -343,12 +343,21 @@ class step_form extends \core\form\persistent {
         }
 
         // Check the outputs field to ensure it's in the correct form.
+        // This is required becasue validation only hits this after the config have been converted.
         if (isset($data->config) && empty($errors['config'])) {
             $config = Yaml::parse($data->config, Yaml::PARSE_OBJECT_FOR_MAP);
             if (isset($config->outputs) && is_string($config->outputs)) {
                 // The outputs should always be an object / hash-map. If not, it
                 // contains the error message as to why this is the case.
                 $errors['config_outputs'] = $config->outputs;
+            }
+            $fields = $steptype::form_define_fields();
+            // echo"<pre>";print_r($fields);die;
+            // Check all yaml enabled fields, that they are in the correct expected format.
+            if (isset($config->cases) && is_string($config->cases)) {
+                // The outputs should always be an object / hash-map. If not, it
+                // contains the error message as to why this is the case.
+                $errors['config_cases'] = $config->cases;
             }
         }
 

@@ -45,7 +45,7 @@ class reader_sql extends reader_step {
      *
      * @return array
      */
-    protected static function form_define_fields(): array {
+    public static function form_define_fields(): array {
         return [
             'sql' => ['type' => PARAM_TEXT],
             'counterfield' => ['type' => PARAM_TEXT],

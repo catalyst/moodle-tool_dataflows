@@ -34,7 +34,7 @@ class trigger_cron extends trigger_step {
      *
      * @return array
      */
-    protected static function form_define_fields(): array {
+    public static function form_define_fields(): array {
         return [
             'minute' => ['type' => PARAM_TEXT],
             'hour' => ['type' => PARAM_TEXT],
