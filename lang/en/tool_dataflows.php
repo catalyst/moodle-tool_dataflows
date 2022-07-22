@@ -148,7 +148,11 @@ $string['output_connector_link_limit'] = '{$a} output connector link';
 $string['output_connector_link_limit_plural'] = '{$a} output connector links';
 $string['output_connector_link_limit_range'] = 'between {$a->min} and {$a->max} output connector links';
 $string['no_output_allowed'] = 'No outputs allowed';
-$string['path_help'] = 'Path to the file to be read or written to. This can be a simple filename (e.g. input.txt/output.txt).';
+$string['path_help'] = 'Path to the file to be read or written to. e.g.';
+$string['path_help_examples'] = "
+    out.csv           # A path relative to the flows temp working dir;
+    /var/data.json    # An absolute path;
+    file:///my/in.txt # Any valid php stream url;";
 
 $string['requires_with_or'] = 'Requires {$a->str1} or {$a->str2}.';
 $string['requires'] = 'Requires {$a->str1} and {$a->str2}.';
@@ -287,7 +291,9 @@ $string['connector_s3:region'] = 'Region';
 $string['connector_s3:key'] = 'Key';
 $string['connector_s3:secret'] = 'Secret';
 $string['connector_s3:source'] = 'Source / From';
-$string['connector_s3:source_help'] = 'This can also be a S3 path (e.g. s3://path/to/file).';
+$string['connector_s3:source_help'] = "Path to the source file. This can be a local file or S3 path e.g.";
+$string['connector_s3:target_help'] = "Path to the target file. This can be a local file or S3 path e.g.";
+$string['connector_s3:path_example'] = "    s3://path/to/file # Any s3 stream url;";
 $string['connector_s3:target'] = 'Target / To';
 $string['connector_s3:missing_s3_source_or_target'] = 'At least one source or target path must reference a location in S3.';
 $string['connector_s3:source_is_a_directory'] = 'The source path is a directory but a file path is expected.';
