@@ -64,4 +64,15 @@ class flow_logic_case extends flow_logic_step {
             'disorder',
         ];
     }
+
+    /**
+     * Return the definition of the fields available in this form.
+     *
+     * @return array
+     */
+    protected static function form_define_fields(): array {
+        return [
+            'cases' => ['type' => PARAM_TEXT],
+        ];
+    }
 }
