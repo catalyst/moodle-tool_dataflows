@@ -561,8 +561,22 @@ abstract class base_step {
      * configuration handling, determine the label it chooses to set and display
      * for the output connection. This will only be used and called if there are
      * more than one expected output.
+     *
+     * @return  array of labels defined for this step type
      */
-    public function get_ouptut_labels() {
+    public function get_output_labels(): array {
         return [];
+    }
+
+    /**
+     * Returns the output (connection / link) label
+     *
+     * @param   int $position of the output connection
+     * @return  string $label
+     */
+    public function get_output_label(int $position): string {
+        $labels = $this->get_output_labels();
+        $label = $labels[$position] ?? (string) $position;
+        return $label;
     }
 }

@@ -50,9 +50,18 @@ class flow_logic_case extends flow_logic_step {
      * configuration handling, determine the label it chooses to set and display
      * for the output connection. This will only be used and called if there are
      * more than one expected output.
+     *
+     * @return  array of labels defined for this step type
      */
-    public function get_ouptut_labels() {
+    public function get_output_labels(): array {
         // Based on configuration, the list of outputs, depends on the list of expressions defined.
-        return [];
+        return [
+            'even',
+            'odd',
+            'simple',
+            'complex',
+            'chaos',
+            'disorder',
+        ];
     }
 }
