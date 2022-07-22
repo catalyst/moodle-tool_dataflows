@@ -24,6 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use \tool_dataflows\helper;
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
@@ -44,10 +46,10 @@ if ($hassiteconfig) {
             '0'
         ));
 
-        $settings->add(new admin_setting_configtextarea(
+        $settings->add(new \tool_dataflows\admin_setting_permitted_directories(
             'tool_dataflows/permitted_dirs',
             get_string('permitted_dirs', 'tool_dataflows'),
-            get_string('permitted_dirs_desc', 'tool_dataflows'),
+            get_string('permitted_dirs_desc', 'tool_dataflows', helper::DATAROOT_PLACEHOLDER),
             '',
             PARAM_RAW
         ));
