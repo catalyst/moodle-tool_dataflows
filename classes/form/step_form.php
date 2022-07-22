@@ -143,13 +143,30 @@ class step_form extends \core\form\persistent {
         // Annoyingly, will need to reconvert this into an array so it can be looped over in mustache.
         $allfields = [];
         $groupcreated = [];
+        $upperfieldcreated = [];
         foreach ($fields as $key => $value) {
             $group = explode('.', $key)[0];
             if (!isset($groupcreated[$group])) {
                 $groupcreated[$group] = count($groupcreated);
                 $allfields[$groupcreated[$group]]['name'] = $group;
             }
-            $allfields[$groupcreated[$group]]['fields'][] = ['text' => $key, 'title' => $value];
+            $upperfield = explode('.', $key);
+            if (is_array($upperfield) && count($upperfield) > 2) {
+                $upperfieldname = $upperfield[0] . '.' . $upperfield[1];
+                unset($upperfield[0], $upperfield[1]);
+                $innerfieldname = implode('.', $upperfield);
+                if (!isset($upperfieldcreated[$upperfieldname])) {
+                    $upperfieldcreated[$upperfieldname] = count($upperfieldcreated);
+                }
+                // Points in ids are not working hence the hyphen change.
+                $allfields[$groupcreated[$group]]['fields'][$upperfieldcreated[$upperfieldname]]['collapsibleid'] = str_replace('.', '-', $upperfieldname);
+                $allfields[$groupcreated[$group]]['fields'][$upperfieldcreated[$upperfieldname]]['upperfieldname'] = $upperfieldname;
+                $allfields[$groupcreated[$group]]['fields'][$upperfieldcreated[$upperfieldname]]['subfields'][] = [
+                    'text' => $innerfieldname,
+                ];
+            } else {
+                $allfields[$groupcreated[$group]]['fields'][] = ['text' => $key, 'title' => $value];
+            }
         }
         $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
         return $fieldhtml;
