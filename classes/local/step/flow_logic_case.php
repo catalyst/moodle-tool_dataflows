@@ -112,8 +112,10 @@ class flow_logic_case extends flow_logic_step {
     public function execute($input) {
         if ($input['value'] % 2 === 0) {
             print_r("EVEN\n");
+            $this->position = 1; // Some way of indicating that this is the flow that should consume the input.
         } else {
             print_r("ODD\n");
+            $this->position = 2;
         }
         // Do expresison checking here, determinw whether or not to pass this
         // input down or to block this flow (thus allowing the next branch to

@@ -27,18 +27,50 @@ namespace tool_dataflows\local\execution;
 class engine_flow_cap extends flow_engine_step {
 
     /**
+     * Description of what this does
+     *
+     * @return  int
+     */
+    public function go_cap(): int {
+        switch ($this->proceed_status()) {
+            case self::PROCEED_GO:
+                try {
+                    $this->set_status(engine::STATUS_FLOWING);
+                } catch (\Throwable $thrown) {
+                    $this->exception = $thrown;
+                    $this->set_status(engine::STATUS_ABORTED);
+                }
+                break;
+            case self::PROCEED_STOP:
+                $this->set_status(engine::STATUS_CANCELLED);
+                break;
+            case self::PROCEED_WAIT:
+                $this->set_status(engine::STATUS_WAITING);
+                break;
+        }
+        return $this->status;
+    }
+
+    /**
      * Attempt to execute the step. If flowing, will run the iterator.
      *
      * @return int
      */
     public function go(): int {
-        $status = parent::go();
+        $status = $this->go_cap();
 
         try {
             if ($status === engine::STATUS_FLOWING) {
-                while (!$this->iterator->is_finished()) {
-                    $this->iterator->next();
+
+                // For N iterators, ..
+                foreach ($this->upstreams as $upstream) {
+                    $this->steptype->set_upstream($upstream);
+                    $this->iterator = $this->steptype->get_iterator();
+                    while (!$this->iterator->is_finished()) {
+                        $this->iterator->next();
+                    }
                 }
+
             }
             $this->set_status(engine::STATUS_FINISHED);
         } catch (\Throwable $thrown) {
@@ -49,3 +81,5 @@ class engine_flow_cap extends flow_engine_step {
         return $this->status;
     }
 }
+
+// iterators
