@@ -40,11 +40,24 @@
     <div class="fieldcontainer col-md-9 form-inline felement">
         <p>{{# str }} available_fields_help, tool_dataflows, <code>${<span></span>{ dataflow.name }}</code> {{/ str }}</p>
         {{#groups}}
-            <div class="fieldtitle text-capitalize">{{ name }}:</div>
-            <div class="fieldgroup">
-                {{#fields}}
-                    <span class="badge badge-dark rounded-0 mb-1 mr-1" title="{{ title }}">{{ text }}</span>
-                {{/fields}}
+            <span class="badge badge-info rounded-0 mb-1 mr-1" type="button" data-toggle="collapse" data-target="#collapsableGroup-{{name}}" aria-expanded="false" aria-controls="collapseExample">
+                {{name}}
+            </span>
+            <br/>
+            <div class="collapse" id="collapsableGroup-{{name}}">
+                <div class="fieldgroup">
+                    {{#fields}}
+                        <span class="badge badge-dark rounded-0 mb-1 mr-1" title="{{ title }}">{{ text }}</span>
+                        <span class="badge badge-secondary rounded-0 mb-1 mr-1" type="button" data-toggle="collapse" data-target="#{{collapsibleid}}">
+                            {{upperfieldname}}
+                        </span>
+                        {{#subfields}}
+                            <span class="badge badge-success rounded-0 mb-1 mr-1 collapse" id="{{collapsibleid}}">
+                                {{text}}
+                            </span>
+                        {{/subfields}}
+                    {{/fields}}
+                </div>
             </div>
         {{/groups}}
     </div>
