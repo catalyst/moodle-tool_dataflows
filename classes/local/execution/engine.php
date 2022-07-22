@@ -95,6 +95,11 @@ class engine {
     /** @var array Caps for the flow blocks. */
     protected $flowcaps = [];
 
+    protected $exec = [];
+
+    /** @var bool true if stream should be split. */
+    public $hastee = false;
+
     /** @var int The status of the execution. */
     protected $status;
 
@@ -284,8 +289,40 @@ class engine {
         if (count($this->queue) == 0) {
             $this->set_status(self::STATUS_FINISHED);
         } else {
+            // $start = false;
+            // // If there are multiple sinks we want to know which one was starting point.
+            // $queueids = [];
+            // $sinksids = [];
+            // foreach ($this->queue as $queue) {
+            //     $queueids[] = $queue->id;
+            // }
+            // foreach ($this->sinks as $sinks) {
+            //     $sinksids[] = $sinks->id;
+            // }
+            // if ($queueids === $sinksids) {
+            //     $start = true;
+            // }
+
             $currentstep = array_shift($this->queue);
             $currentstep->go();
+            if ($currentstep->status === self::STATUS_PROCESSING || $currentstep->status === self::STATUS_FLOWING
+                || $currentstep->status === self::STATUS_FINISHED) {
+                $this->exec[] = (object) [
+                    'id' => $currentstep->id,
+                    'status' => $currentstep->status,
+                    'label' => self::STATUS_LABELS[$currentstep->status]
+                ];
+            }
+            $v=0;
+            // if ($start && !empty(($this->queue)) && empty($this->unstartedsink)) {
+                //     $this->startedsink = $currentstep;
+                //     // Might be an array in the future.
+                //     $this->unstartedsink = $this->queue[0];
+                // }
+            // if ($currentstep->id === $this->startedsink->id && $this->hastee) {
+            //     $this->unstartedsink->set_status(self::STATUS_WAITING);
+            //     $this->queue[0] = $this->unstartedsink;
+            // }
         }
     }
 

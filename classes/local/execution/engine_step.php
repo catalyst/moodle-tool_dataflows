@@ -271,6 +271,9 @@ abstract class engine_step {
                 foreach ($this->upstreams as $upstream) {
                     $this->engine->add_to_queue($upstream);
                 }
+                if (get_class($this->steptype) === 'tool_dataflows\local\step\flow_tee') {
+                    $this->engine->hastee = true;
+                }
                 break;
             case engine::STATUS_FINISHED:
             case engine::STATUS_CANCELLED:

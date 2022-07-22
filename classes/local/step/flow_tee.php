@@ -83,11 +83,6 @@ class flow_tee extends flow_logic_step {
         if ($upstream === false || !$upstream->is_flow()) {
             throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
         }
-        $downstreams = $this->enginestep->downstreams;
-        $firstiterator = array_pop($downstreams)->iterator;
-        $seconditerator = array_pop($downstreams)->iterator;
-        $iteratorone = new dataflow_iterator($this->enginestep, $firstiterator);
-        $iteratortwo = new dataflow_iterator($this->enginestep, $seconditerator);
-        return [$iteratorone, $iteratortwo];
+        return new dataflow_iterator($this->enginestep, $upstream->iterator);
     }
 }
