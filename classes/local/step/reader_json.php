@@ -185,9 +185,7 @@ class reader_json extends reader_step {
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // JSON array source.
         $mform->addElement('text', 'config_pathtojson', get_string('reader_json:pathtojson', 'tool_dataflows'));
-        $mform->addElement('static', 'config_json_path_help', '',
-            get_string('reader_json:json_path_help', 'tool_dataflows',
-                html_writer::nonempty_tag('code', 'file:///path/to/file.json')));
+        $mform->addElement('static', 'config_json_path_help', '', get_string('path_help', 'tool_dataflows'));
 
         // Array iterator value.
         $arrayexample = (object) [

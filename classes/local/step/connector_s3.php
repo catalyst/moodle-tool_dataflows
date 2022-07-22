@@ -66,7 +66,11 @@ class connector_s3 extends connector_step {
         $mform->addElement('text', 'config_key', get_string('connector_s3:key', 'tool_dataflows'));
         $mform->addElement('passwordunmask', 'config_secret', get_string('connector_s3:secret', 'tool_dataflows'));
         $mform->addElement('text', 'config_source', get_string('connector_s3:source', 'tool_dataflows'), ['size' => '50']);
+        $mform->addElement('static', 'config_json_path_help', '', get_string('path_help', 'tool_dataflows')
+            .\html_writer::empty_tag('br').get_string('connector_s3:source_help', 'tool_dataflows'));
         $mform->addElement('text', 'config_target', get_string('connector_s3:target', 'tool_dataflows'), ['size' => '50']);
+        $mform->addElement('static', 'config_json_path_help', '', get_string('path_help', 'tool_dataflows')
+            .\html_writer::empty_tag('br').get_string('connector_s3:source_help', 'tool_dataflows'));
     }
 
     /**
