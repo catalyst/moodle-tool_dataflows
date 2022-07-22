@@ -148,6 +148,7 @@ $string['output_connector_link_limit'] = '{$a} output connector link';
 $string['output_connector_link_limit_plural'] = '{$a} output connector links';
 $string['output_connector_link_limit_range'] = 'between {$a->min} and {$a->max} output connector links';
 $string['no_output_allowed'] = 'No outputs allowed';
+$string['path_help'] = 'Path to the file to be read or written to. This can be a simple filename (e.g. input.txt/output.txt).';
 
 $string['requires_with_or'] = 'Requires {$a->str1} or {$a->str2}.';
 $string['requires'] = 'Requires {$a->str1} and {$a->str2}.';
@@ -246,7 +247,6 @@ $string['engine_status:finalised'] = 'Finalised';
 
 // Writer stream.
 $string['writer_stream:streamname'] = 'Stream Name';
-$string['writer_stream:streamname_help'] = 'For example, setting <code>file:///path/to/file.txt</code> as the stream name will write the contents to this target.';
 $string['writer_stream:format'] = 'Format';
 $string['writer_stream:format_help'] = 'The output format of the contents written.';
 $string['writer_stream:prettyprint'] = 'Pretty print';
@@ -266,7 +266,6 @@ $string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON
 $string['reader_json:arrayexpression'] = 'Array Expression';
 $string['reader_json:arraysortexpression_help'] = 'Value to sort array by, this value needs to be present in the return array. For the example above, setting this value to {$a} will return an array sorted by the firstname value in the users array.';
 $string['reader_json:arraysortexpression'] = 'Sort by';
-$string['reader_json:json_path_help'] = 'For example, setting {$a} will parse the JSON file at the location.';
 $string['reader_json:pathtojson'] = 'Path to JSON Array';
 $string['reader_json:sortorder'] = 'Sort Order';
 $string['reader_json:sortorder_help'] = 'This will apply if the \'Sort by\' has been set. Otherwise the records will remain untouched in their original order.';
@@ -288,9 +287,8 @@ $string['connector_s3:region'] = 'Region';
 $string['connector_s3:key'] = 'Key';
 $string['connector_s3:secret'] = 'Secret';
 $string['connector_s3:source'] = 'Source / From';
-$string['connector_s3:source_help'] = 'Path to the source file. This can be a local (e.g. output.csv) or S3 path (e.g. s3://path/to/file).';
+$string['connector_s3:source_help'] = 'This can also be a S3 path (e.g. s3://path/to/file).';
 $string['connector_s3:target'] = 'Target / To';
-$string['connector_s3:target_help'] = 'Path to the target file. Similar to the source, it can be a local or S3 path. If a directory is used, the source filename is applied.';
 $string['connector_s3:missing_s3_source_or_target'] = 'At least one source or target path must reference a location in S3.';
 $string['connector_s3:source_is_a_directory'] = 'The source path is a directory but a file path is expected.';
 

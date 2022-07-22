@@ -88,7 +88,7 @@ class connector_debug_file_display extends connector_step {
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // Stream name.
         $mform->addElement('text', 'config_streamname', get_string('writer_stream:streamname', 'tool_dataflows'), ['size' => '50']);
-        $mform->addElement('static', 'config_streamname_help', '', get_string('writer_stream:streamname_help', 'tool_dataflows'));
+        $mform->addElement('static', 'config_json_path_help', '', get_string('path_help', 'tool_dataflows'));
     }
 }
 
