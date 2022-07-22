@@ -19,6 +19,8 @@ namespace tool_dataflows\local\step;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_flow_cap;
 use tool_dataflows\local\execution\engine_step;
+use tool_dataflows\local\execution\iterators\iterator;
+use tool_dataflows\local\execution\iterators\dataflow_iterator;
 
 /**
  * A special, virtual flow step that is attached to the end of a flow block.
@@ -38,5 +40,25 @@ final class flow_cap extends flow_step {
      */
     protected function generate_engine_step(engine $engine): engine_step {
         return new engine_flow_cap($engine, $this->stepdef, $this);
+    }
+
+    /**
+     * Description of what this does
+     */
+    public function set_upstream($upstream) {
+        $this->upstream = $upstream;
+    }
+
+    /**
+     * Get the iterator for the step, based on configurations.
+     *
+     * @return iterator
+     */
+    public function get_iterator(): iterator {
+        $upstream = $this->upstream;
+        if ($upstream === false || !$upstream->is_flow()) {
+            throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
+        }
+        return new dataflow_iterator($this->enginestep, $upstream->iterator);
     }
 }

@@ -16,6 +16,12 @@
 
 namespace tool_dataflows\local\step;
 
+use tool_dataflows\local\execution\engine;
+use tool_dataflows\local\execution\flow_engine_step;
+use tool_dataflows\local\execution\iterators\dataflow_iterator;
+use tool_dataflows\local\execution\iterators\iterator;
+use tool_dataflows\parser;
+
 /**
  * Flow logic: case
  *
@@ -102,5 +108,95 @@ class flow_logic_case extends flow_logic_step {
         // everything on the right side is an expression by default so does not
         // require the ${{ }}, and lists the current mappings.
         // TODO: Implement.
+    }
+
+    /**
+     * Get the iterator for the step, based on configurations.
+     *
+     * @return  data_iterator
+     */
+    public function get_iterator(): iterator {
+        // There should only be one upstream for a case step.
+        $upstream = current($this->enginestep->upstreams);
+        if ($upstream === false || !$upstream->is_flow()) {
+            throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
+        }
+
+        /*
+         * Iterator class to handle when to pull from upstream based on the condition of the current value.
+         */
+        return new class($this->enginestep, $upstream->iterator) extends dataflow_iterator {
+
+            private $cases = [];
+            private $stepcasemap = [];
+
+            /**
+             * Create an instance of this class.
+             *
+             * @param  flow_engine_step $step
+             * @param  object $config
+             * @param  iterator $input
+             */
+            public function __construct(flow_engine_step $step, iterator $input) {
+                // TODO: pull conditions out, and also internally line up each
+                // 'case' with the expected step that is asking for the input.
+                // To later determine who to provide the input to and who to
+                // ignore.
+
+                // Prepare and map output number, with expected step.id.
+                $cases = array_values((array) $step->stepdef->config->cases);
+                $this->cases = $cases;
+
+                $dependants = $step->stepdef->dependants();
+                $this->stepcasemap = array_reduce($dependants, function ($acc, $step) {
+                    // Maps the case index to the relevant output.
+                    $acc[$step->id] = $step->position - 1;
+                    return $acc;
+                }, []);
+
+                parent::__construct($step, $input);
+            }
+
+            /**
+             * Override the default handling of next
+             *
+             * In particular, only do the default 'next' if there is no current
+             * value from the iterator, or if the case 'matches'.
+             *
+             * For all other cases, return false|null which indicates no value to pull from at this stage.
+             */
+            public function next($caller) {
+                if ($this->finished) {
+                    return false;
+                }
+
+                // Pull if needed.
+                $value = $this->input->current();
+                if (is_null($value) || !empty($this->passed)) {
+                    $this->input->next($this);
+                    ++$this->iterationcount;
+                    $this->step->log('Pulling upstream - ' . $this->iterationcount . ': ' . json_encode($this->input->current()));
+                    $this->passed = false;
+                }
+                $value = $this->input->current();
+
+                $casenumber = $this->stepcasemap[$caller->step->id];
+                $case = $this->cases[$casenumber] ?? null;
+                if (!$case) {
+                    throw new \moodle_exception(get_string('casenotfound', 'tool_dataflows'));
+                }
+
+                $parser = new parser;
+                $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', ['record' => $value]);
+                if (!$result) {
+                    $this->value = false;
+                    return false;
+                }
+
+                $this->value = $value;
+                $this->passed = true;
+                return $value;
+            }
+        };
     }
 }

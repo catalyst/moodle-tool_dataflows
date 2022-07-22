@@ -59,5 +59,5 @@ interface iterator {
      *
      * @return object|bool A JSON compatible object, or false if nothing returned.
      */
-    public function next();
+    public function next($caller);
 }

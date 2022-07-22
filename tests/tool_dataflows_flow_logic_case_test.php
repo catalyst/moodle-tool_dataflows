@@ -59,9 +59,9 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
          * that is more than one level deep on both sides, and a check to ensure
          * the results are different. Note there is a 'reader' before the case step.
          *
-         * ┌────────►  number even ───────► even.csv
+         * ┌────────►  number even ───────► even.json
          * Case
-         * └────────►  number odd  ───────► odds.csv
+         * └────────►  number odd  ───────► odds.json
          *
          * As shown in the example above.
         */
@@ -94,8 +94,8 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $case->type = flow_logic_case::class;
         $case->config = Yaml::dump([
             'cases' => [
-                'even numbers' => 'record.value % 2 == 0',
-                'odd numbers' => 'record.value % 2 == 1',
+                'even numbers' => 'record["value"] % 2 == 0',
+                'odd numbers' => 'record["value"] % 2 == 1',
             ],
         ]);
         $case->depends_on([$reader]);
@@ -107,8 +107,8 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $even->name = 'even (writer)';
         $even->type = writer_stream::class;
         $even->config = Yaml::dump([
-            'streamname' => 'even.csv',
-            'format' => 'csv',
+            'streamname' => 'even.json',
+            'format' => 'json',
         ]);
         $even->depends_on(['case' . step::DEPENDS_ON_POSITION_SPLITTER . '1']);
         $dataflow->add_step($even);
@@ -119,8 +119,8 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $odd->name = 'odd (writer)';
         $odd->type = writer_stream::class;
         $odd->config = Yaml::dump([
-            'streamname' => 'odd.csv',
-            'format' => 'csv',
+            'streamname' => 'odd.json',
+            'format' => 'json',
         ]);
         $odd->depends_on(['case' . step::DEPENDS_ON_POSITION_SPLITTER . '2']);
         $dataflow->add_step($odd);
@@ -144,17 +144,18 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $oddcsv = $engine->resolve_path('odd.csv');
-        $oddcsv = file_get_contents($oddcsv);
-        $evencsv = $engine->resolve_path('even.csv');
-        $evencsv = file_get_contents($evencsv);
+        $odd = $engine->resolve_path('odd.json');
+        $odd = file_get_contents($odd);
+        $odd = json_decode($odd);
+        $even = $engine->resolve_path('even.json');
+        $even = file_get_contents($even);
+        $even = json_decode($even);
 
-        echo"<pre>";print_r([
-            'odd' => $oddcsv,
-            'even' => $evencsv,
-        ]);die;
-        // Check outputs (even.csv should contain only even numbers, odd.csv should only contain odd numbers)
-        // TODO: implement.
-        // Look inside the scratch dir's output folder.
+        $even = array_column($even, 'value');
+        $this->assertCount(4, $even);
+        $this->assertEquals(0, array_sum($even));
+        $odd = array_column($odd, 'value');
+        $this->assertCount(5, $odd);
+        $this->assertEquals(5, array_sum($odd));
     }
 }

@@ -78,7 +78,6 @@ abstract class flow_step extends base_step {
      * @return iterator
      */
     public function get_iterator(): iterator {
-        // Default is to simply map.
         $upstream = current($this->enginestep->upstreams);
         if ($upstream === false || !$upstream->is_flow()) {
             throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));

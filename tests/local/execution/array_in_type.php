@@ -42,8 +42,8 @@ class array_in_type extends reader_step {
      *
      * @return iterator
      */
-    public function get_iterator(): iterator {
-        return new dataflow_iterator($this->enginestep, new \ArrayIterator(self::$source));
+    public function get_iterator($caller = null): iterator {
+        return new dataflow_iterator($this->enginestep, new \ArrayIterator(self::$source), $caller);
     }
 
     /**

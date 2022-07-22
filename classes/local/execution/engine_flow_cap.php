@@ -21,10 +21,36 @@ namespace tool_dataflows\local\execution;
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2022, Catalyst IT
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright Catalyst IT, 2022
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class engine_flow_cap extends flow_engine_step {
+
+    /**
+     * Description of what this does
+     *
+     * @return  int
+     */
+    public function go_cap(): int {
+        switch ($this->proceed_status()) {
+            case self::PROCEED_GO:
+                try {
+                    $this->set_status(engine::STATUS_FLOWING);
+                } catch (\Throwable $thrown) {
+                    $this->exception = $thrown;
+                    $this->set_status(engine::STATUS_ABORTED);
+                }
+                break;
+            case self::PROCEED_STOP:
+                $this->set_status(engine::STATUS_CANCELLED);
+                break;
+            case self::PROCEED_WAIT:
+                $this->set_status(engine::STATUS_WAITING);
+                break;
+        }
+        return $this->status;
+    }
 
     /**
      * Attempt to execute the step. If flowing, will run the iterator.
@@ -32,18 +58,31 @@ class engine_flow_cap extends flow_engine_step {
      * @return int
      */
     public function go(): int {
-        $status = parent::go();
+        $status = $this->go_cap();
 
         try {
             if ($status === engine::STATUS_FLOWING) {
+                foreach ($this->upstreams as $upstream) {
+                    $this->steptype->set_upstream($upstream);
+                    $iterators[] = $this->steptype->get_iterator();
+                }
+
+                // Pull down (check) and see if things can flow through. If not, pull down on the next upstream.
+                $this->iterator = current($iterators);
                 while (!$this->iterator->is_finished()) {
-                    $this->iterator->next();
+                    foreach ($iterators as $iterator) {
+                        $iterator->next($this);
+                    }
+                }
+
+                if ($this->iterator->is_finished()) {
+                    $this->set_status(engine::STATUS_FINISHED);
                 }
             }
-            $this->set_status(engine::STATUS_FINISHED);
-        } catch (\Throwable $thrown) {
+        } catch (\Throwable $e) {
             $this->set_status(engine::STATUS_ABORTED);
-            $this->exception = $thrown;
+            $this->engine->log($e->getMessage());
+            $this->exception = $e;
         }
 
         return $this->status;

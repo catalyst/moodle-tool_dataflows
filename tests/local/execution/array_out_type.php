@@ -39,9 +39,9 @@ class array_out_type extends writer_step {
      *
      * @return iterator
      */
-    public function get_iterator(): iterator {
+    public function get_iterator($caller = null): iterator {
         $input = current($this->enginestep->upstreams)->iterator;
-        return new dataflow_iterator($this->enginestep, $input);
+        return new dataflow_iterator($this->enginestep, $input, $caller);
     }
 
     /**

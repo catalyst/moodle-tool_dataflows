@@ -20,6 +20,7 @@ use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\exportable;
 use tool_dataflows\helper;
+use tool_dataflows\local\service\step_service;
 use tool_dataflows\local\step\flow_cap;
 use tool_dataflows\run;
 
@@ -110,6 +111,9 @@ class engine {
     /** @var string Scratch directory for temporary files. */
     protected $scratchdir = null;
 
+    /** @var engine_step Sprevious in the queue */
+    protected $previous = null;
+
     /**
      * Constructs the engine.
      *
@@ -192,19 +196,51 @@ class engine {
      */
     protected function create_flow_caps() {
         // TODO Currently assumes flow blocks have no branches.
-        $flowcaps = 0;
+        $flowcapnumber = 0;
+        $flowcaps = [];
         foreach ($this->enginesteps as $enginestep) {
             if ($enginestep->is_flow() && $this->count_flow_steps($enginestep->downstreams) == 0) {
                 $step = new \tool_dataflows\step();
                 $steptype = new flow_cap($step, $this);
-                $flowcaps++;
-                $step->name = "flowcap-{$flowcaps}";
+                $flowcapnumber++;
+                $step->name = "flowcap-{$flowcapnumber}";
                 $flowcap = $steptype->get_engine_step();
-                $this->flowcaps[] = $flowcap;
+                $flowcaps[] = $flowcap;
                 $enginestep->downstreams['puller'] = $flowcap;
                 $flowcap->upstreams[$enginestep->id] = $enginestep;
             }
         }
+
+        // For all the flow caps created, see if they are part of the same flow
+        // group, and if so, merge them. The flow cap will be in charge of
+        // pulling from all the branches within the same flow. The logic for
+        // flow caps would be similar to the one for the flow merge step. (just
+        // this one is invisible).
+        $stepservice = new step_service;
+        foreach ($flowcaps as $key => $flowcap) {
+            foreach ($flowcaps as $flowcap2) {
+                // Skip matching flow cap.
+                if ($flowcap->name === $flowcap2->name) {
+                    continue;
+                }
+
+                $ispartofsameflow = $stepservice->is_part_of_same_flow(
+                    current($flowcap->upstreams),
+                    current($flowcap2->upstreams)
+                );
+
+                if ($ispartofsameflow) {
+                    // Goes through the upstreams provided and sets the downstream puller, to the flowcap provided.
+                    $stepservice->consolidate_flowcaps($flowcap, $flowcap2->upstreams);
+
+                    // Remove the flow cap that was merged into the first one. No longer required.
+                    unset($flowcap2);
+                    // unset($flowcaps[$key]);
+                }
+            }
+        }
+
+        $this->flowcaps = $flowcaps;
     }
 
     /**
