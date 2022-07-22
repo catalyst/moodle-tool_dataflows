@@ -16,6 +16,8 @@
 
 namespace tool_dataflows\local\step;
 
+use tool_dataflows\local\execution\engine;
+
 /**
  * Flow logic: case
  *
@@ -102,5 +104,22 @@ class flow_logic_case extends flow_logic_step {
         // everything on the right side is an expression by default so does not
         // require the ${{ }}, and lists the current mappings.
         // TODO: Implement.
+    }
+
+    /**
+     * Description of what this does
+     */
+    public function execute($input) {
+        if ($input['value'] % 2 === 0) {
+            print_r("EVEN\n");
+        } else {
+            print_r("ODD\n");
+        }
+        // Do expresison checking here, determinw whether or not to pass this
+        // input down or to block this flow (thus allowing the next branch to
+        // perform its check).
+        // $this->enginestep->set_status(engine::STATUS_WAITING);
+        // code...
+        return $input;
     }
 }

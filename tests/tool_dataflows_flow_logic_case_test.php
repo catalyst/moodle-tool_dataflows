@@ -139,10 +139,14 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $isdryrun = false;
         $this->assertTrue($dataflow->validate_dataflow());
 
-        ob_start();
+        foreach ($steps as $key => $step) {
+            print_r("{$key}: {$step->name}\n");
+        }
+
+        // ob_start();
         $engine = new engine($dataflow, $isdryrun);
         $engine->execute();
-        ob_get_clean();
+        // ob_get_clean();
 
         $oddcsv = $engine->resolve_path('odd.csv');
         $oddcsv = file_get_contents($oddcsv);
