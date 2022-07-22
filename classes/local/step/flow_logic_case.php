@@ -54,15 +54,19 @@ class flow_logic_case extends flow_logic_step {
      * @return  array of labels defined for this step type
      */
     public function get_output_labels(): array {
-        // Based on configuration, the list of outputs, depends on the list of expressions defined.
-        return [
-            'even',
-            'odd',
-            'simple',
-            'complex',
-            'chaos',
-            'disorder',
-        ];
+        $cases = $this->stepdef->config->cases ?? null;
+        if (!$cases) {
+            return [];
+        }
+
+        // Currently since the positions start at 1, it will need to be set as such accordingly.
+        // Depending on DX this may change.
+        $labels = [];
+        $position = 1;
+        foreach ($cases as $key => $unused) {
+            $labels[$position++] = $key;
+        }
+        return $labels;
     }
 
     /**
