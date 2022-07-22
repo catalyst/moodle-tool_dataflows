@@ -145,6 +145,7 @@ class step_form extends \core\form\persistent {
         $groupcreated = [];
         $upperfieldcreated = [];
         foreach ($fields as $key => $value) {
+            $fullexpression = '${{ ' . $key . ' }}';
             $group = explode('.', $key)[0];
             if (!isset($groupcreated[$group])) {
                 $groupcreated[$group] = count($groupcreated);
@@ -163,9 +164,10 @@ class step_form extends \core\form\persistent {
                 $allfields[$groupcreated[$group]]['fields'][$upperfieldcreated[$upperfieldname]]['upperfieldname'] = $upperfieldname;
                 $allfields[$groupcreated[$group]]['fields'][$upperfieldcreated[$upperfieldname]]['subfields'][] = [
                     'text' => $innerfieldname,
+                    'fullexpression' => $fullexpression,
                 ];
             } else {
-                $allfields[$groupcreated[$group]]['fields'][] = ['text' => $key, 'title' => $value];
+                $allfields[$groupcreated[$group]]['fields'][] = ['text' => $key, 'title' => $value, 'fullexpression' => $fullexpression];
             }
         }
         $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
