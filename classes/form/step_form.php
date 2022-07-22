@@ -178,7 +178,7 @@ class step_form extends \core\form\persistent {
             $outputs = $step->steptype->define_outputs();
 
             // This is a list of user defined output mappings. This will display their expression / value set.
-            $userdefinedoutputs = (array) $step->get_raw_config()->outputs;
+            $userdefinedoutputs = isset($step->get_raw_config()->outputs) ? (array) $step->get_raw_config()->outputs : [];
             $outputs = array_merge($outputs, $userdefinedoutputs);
             foreach ($outputs as $field => $description) {
                 $variables['steps']->{$alias}->{$field} = $description;
