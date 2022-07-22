@@ -79,6 +79,11 @@ class step_form extends \core\form\persistent {
         // Loop through the steps but only show steps where a connection can be
         // added (or if it's a current dependency).
         foreach ($steps as $step) {
+            // We never want a step to depend on itself.
+            if ($step->id === $persistent->id) {
+                continue;
+            }
+
             [, $maxoutputflows] = $step->steptype->get_number_of_output_flows();
             [, $maxoutputconnectors] = $step->steptype->get_number_of_output_connectors();
             $max = max($maxoutputflows, $maxoutputconnectors);
@@ -140,7 +145,6 @@ class step_form extends \core\form\persistent {
                 $options[$step->id] = $step->name; // Will always set a new value.
             }
         }
-        unset($options[$persistent->id]); // We never want a step to depend on itself.
 
         $select = $mform->addElement(
             'select',
