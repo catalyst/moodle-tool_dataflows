@@ -230,18 +230,58 @@ class step_form extends \core\form\persistent {
         }
 
         // Annoyingly, will need to reconvert this into an array so it can be looped over in mustache.
+        $allfields = $this->build_treetag($fields);
+        $allfields = $this->add_recursive_keys($allfields);
+        $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
+        return $fieldhtml;
+    }
+
+    /**
+     * Builds tree multidenmisionnal array from field keys
+     *
+     * @param array $fields unformatted array
+     * @return array $allfields
+     */
+    public function build_treetag($fields) {
         $allfields = [];
         $groupcreated = [];
         foreach ($fields as $key => $value) {
-            $group = explode('.', $key)[0];
-            if (!isset($groupcreated[$group])) {
-                $groupcreated[$group] = count($groupcreated);
-                $allfields[$groupcreated[$group]]['name'] = $group;
+            $expression = '${{ ' . $key . ' }}';
+            $groups = explode('.', $key);
+            $last = array_pop($groups);
+            $count = 0;
+            $ref = &$allfields;
+            foreach ($groups as $group) {
+                $ref = &$ref[$group];
             }
-            $allfields[$groupcreated[$group]]['fields'][] = ['text' => $key, 'title' => $value];
+            $ref[$expression] = $last;
         }
-        $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
-        return $fieldhtml;
+        return $allfields;
+    }
+
+    /**
+     * Sets up properkeys for mustache templates
+     *
+     * @param array $allfields unformatted array
+     * @return array $allfields
+     */
+    public function add_recursive_keys($allfields) {
+        foreach ($allfields as $key => $value) {
+            if (is_array($value)) {
+                $fields = $this->add_recursive_keys($value);
+                $value = array_merge(['name' => $key], ['fields' => $fields]);
+                $allfields[] = $value;
+                unset($allfields[$key]);
+            }
+            if (is_string($value)) {
+                $tmp = $allfields[$key];
+                unset($allfields[$key]);
+                // Only inner fields have expression.
+                array_unshift($allfields, ['text' => $tmp, 'expression' => $key, 'fields' => null]);
+                unset($tmp);
+            }
+        }
+        return $allfields;
     }
 
     /**

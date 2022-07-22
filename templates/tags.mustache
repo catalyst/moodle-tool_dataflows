@@ -15,9 +15,10 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template tool_dataflows/available-fields
+    @template tool_dataflows/tags
 
-    Displays form element containg all available fields.
+    Intermediate step to choose a particular step type before filling out the
+    details for it on the step edit form.
 
     Classes required for JS:
     * none
@@ -26,23 +27,27 @@
     * none
 
     Context variables required for this template:
-    * none
 
     Example context (json):
     {
     }
-
 }}
-<div class="form-group row">
-    <div class="col-md-3">
-        <p>{{# str }} available_fields, tool_dataflows {{/ str }}</p>
-    </div>
-    <div class="fieldcontainer col-md-9 form-inline felement">
-        <p>{{# str }} available_fields_help, tool_dataflows, <code>${<span></span>{ dataflow.name }}</code> {{/ str }}</p>
-        <div class="treeview w-20 border">
-            {{#groups}}
-                {{>tool_dataflows/tags}}
-            {{/groups}}
-        </div>
-    </div>
-</div>
+{{^expression}}
+    <ul>
+        <span type="button" data-toggle="collapse" data-target="#collapsable-{{name}}" aria-expanded="false" aria-controls="collapseExample">
+            {{#pix}}i/arrow-right{{/pix}}
+            {{name}}
+        </span>
+    </ul>
+{{/expression}}
+<ul class="collapse" id="collapsable-{{name}}">
+    {{#fields}}
+        {{>tool_dataflows/tags}}
+    {{/fields}}
+    {{^fields}}
+        <li data-expression="{{expression}}" type="button">
+            {{#pix}}t/clipboard{{/pix}}
+            {{text}}
+        </li>
+    {{/fields}}
+</ul>
