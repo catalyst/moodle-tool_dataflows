@@ -171,9 +171,16 @@ class steps_table extends \table_sql {
         foreach ($deps as $dep) {
             $label = "{$dep->name}";
             if (isset($dep->position)) {
-                // TODO: If the step has a defined key / label for this entry, then use that label instead.
+                // If the step has a defined key / label for this entry, then use that label instead.
                 // For example: 'case #14' could instead be 'case: even number detected'.
-                $label .= " → {$dep->position}";
+                $outputlabel = $dep->position;
+                if (isset($dep->type) && class_exists($dep->type)) {
+                    $depstep = new step($dep->id);
+                    $steptype = $depstep->steptype;
+                    $outputlabel = $steptype->get_output_label($dep->position);
+                }
+
+                $label .= " → {$outputlabel}";
             }
             $out .= \html_writer::tag('li', $label);
         }

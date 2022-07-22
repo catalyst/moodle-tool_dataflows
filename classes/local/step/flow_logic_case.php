@@ -41,4 +41,27 @@ class flow_logic_case extends flow_logic_step {
      * @var int[] number of output flows (min, max)
      */
     protected $outputflows = [2, 20];
+
+    /**
+     * Returns a list of labels available for a given step
+     *
+     * By default, this would be the position / order of each connected output
+     * (and show as a number). Each case can however based on its own
+     * configuration handling, determine the label it chooses to set and display
+     * for the output connection. This will only be used and called if there are
+     * more than one expected output.
+     *
+     * @return  array of labels defined for this step type
+     */
+    public function get_output_labels(): array {
+        // Based on configuration, the list of outputs, depends on the list of expressions defined.
+        return [
+            'even',
+            'odd',
+            'simple',
+            'complex',
+            'chaos',
+            'disorder',
+        ];
+    }
 }

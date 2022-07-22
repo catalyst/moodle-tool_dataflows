@@ -552,4 +552,31 @@ abstract class base_step {
     public function set_variables(string $name, $value) {
         $this->variables[$name] = $value;
     }
+
+    /**
+     * Returns a list of labels available for a given step
+     *
+     * By default, this would be the position / order of each connected output
+     * (and show as a number). Each case can however based on its own
+     * configuration handling, determine the label it chooses to set and display
+     * for the output connection. This will only be used and called if there are
+     * more than one expected output.
+     *
+     * @return  array of labels defined for this step type
+     */
+    public function get_output_labels(): array {
+        return [];
+    }
+
+    /**
+     * Returns the output (connection / link) label
+     *
+     * @param   int $position of the output connection
+     * @return  string $label
+     */
+    public function get_output_label(int $position): string {
+        $labels = $this->get_output_labels();
+        $label = $labels[$position] ?? (string) $position;
+        return $label;
+    }
 }
