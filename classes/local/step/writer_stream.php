@@ -235,7 +235,8 @@ class writer_stream extends writer_step {
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
         // Stream name.
         $mform->addElement('text', 'config_streamname', get_string('writer_stream:streamname', 'tool_dataflows'), ['size' => '50']);
-        $mform->addElement('static', 'config_streamname_help', '', get_string('path_help', 'tool_dataflows'));
+        $mform->addElement('static', 'config_streamname_help', '',  get_string('path_help', 'tool_dataflows').
+            \html_writer::nonempty_tag('pre', get_string('path_help_examples', 'tool_dataflows')));
 
         // Format.
         $mform->addElement(
