@@ -96,7 +96,8 @@ $string['endstate'] = 'End state';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_s3'] = 'S3 file copy connector';
-$string['step_name_flow_logic_join'] = 'Flow join';
+$string['step_name_flow_logic_join'] = 'Join';
+$string['step_name_flow_logic_case'] = 'Case';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
 $string['step_name_reader_json'] = 'JSON reader';
 $string['step_name_reader_sql'] = 'SQL reader';
@@ -111,9 +112,9 @@ $string['stepgroupconnectors'] = 'Connectors';
 $string['stepgroupconnectorlogics'] = 'Connector Logics';
 $string['stepgroupwriters'] = 'Writers';
 $string['stepgroupflowtransformers'] = 'Flow Transformers';
-$string['stepgroupflowlogics'] = 'Flow steps';
+$string['stepgroupflowlogics'] = 'Flow logic';
 $string['stepgroupflows'] = 'Flows';
-$string['stepgroupreaders'] = 'Reader steps';
+$string['stepgroupreaders'] = 'Readers';
 
 // Step (form).
 $string['available_fields'] = 'Available Fields';
@@ -312,3 +313,6 @@ $string['check:dataflows_completed_successfully'] = 'All recent dataflow runs co
 $string['check:dataflows_no_runs'] = 'No dataflow runs executed.';
 $string['check:dataflows_not_enabled'] = 'No dataflows enabled.';
 $string['check:dataflows_run_status'] = 'Run {$a->name} - {$a->state}';
+
+// Flow logic: Case.
+$string['flow_logic_case:cases'] = 'Cases';

@@ -91,7 +91,13 @@ if ($form->is_cancelled()) {
 
 // Populate the foreign dependencies data if there was any.
 if (!empty($dependencies)) {
-    $form->set_data(['dependson' => array_column($dependencies, 'id')]);
+    $dependsonoptions = array_map(function ($dependency) {
+        if ($dependency->position) {
+            return $dependency->id . step::DEPENDS_ON_POSITION_SPLITTER . $dependency->position;
+        }
+        return $dependency->id;
+    }, $dependencies);
+    $form->set_data(['dependson' => $dependsonoptions]);
 }
 
 if (($data = $form->get_data())) {

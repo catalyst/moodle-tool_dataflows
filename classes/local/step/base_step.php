@@ -148,7 +148,7 @@ abstract class base_step {
      *
      * @return array
      */
-    protected static function form_define_fields(): array {
+    public static function form_define_fields(): array {
         return [
             'config' => ['type' => PARAM_TEXT, 'default' => ''],
         ];
@@ -373,18 +373,22 @@ abstract class base_step {
      * @return  \stdClass
      */
     public function form_get_default_data(\stdClass $data): \stdClass {
+        // Get the fields configuration array.
+        $fields = static::form_define_fields();
+
         $yaml = Yaml::parse($data->config, Yaml::PARSE_OBJECT_FOR_MAP) ?? new \stdClass;
         foreach ($yaml as $key => $value) {
             $data->{"config_$key"} = $value;
-        }
-        // Handling for "outputs".
-        if (isset($yaml->outputs)) {
-            $data->config_outputs = Yaml::dump(
-                $yaml->outputs,
-                helper::YAML_DUMP_INLINE_LEVEL,
-                helper::YAML_DUMP_INDENT_LEVEL,
-                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
-            );
+
+            if ($key === 'outputs' || !empty($fields[$key]['yaml'])) {
+                // Handling for "outputs", and fields marked as yaml-enabled.
+                $data->{"config_$key"} = Yaml::dump(
+                    $value,
+                    helper::YAML_DUMP_INLINE_LEVEL,
+                    helper::YAML_DUMP_INDENT_LEVEL,
+                    Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
+                );
+            }
         }
         return $data;
     }
@@ -401,10 +405,10 @@ abstract class base_step {
         $fields = static::form_define_fields();
 
         // Add in the outputs field.
-        $fields += ['outputs' => []];
+        $fields += ['outputs' => ['yaml' => true]];
 
         $config = [];
-        foreach ($fields as $fieldname => $unused) {
+        foreach ($fields as $fieldname => $fieldconfig) {
             $datafield = "config_$fieldname";
             if (!property_exists($data, $datafield)) {
                 continue;
@@ -415,7 +419,7 @@ abstract class base_step {
             $config[$fieldname] = str_replace("\r\n", "\n", $config[$fieldname]);
 
             // Handle outputs (convert to a proper data structure).
-            if ($fieldname === 'outputs') {
+            if (!empty($fieldconfig['yaml'])) {
                 // Attempt to convert the data to the appropriate format. Due to
                 // persistent handling, validation happens at a differnt point
                 // in time from data conversion and so it is a bit disconnected.
@@ -551,5 +555,32 @@ abstract class base_step {
      */
     public function set_variables(string $name, $value) {
         $this->variables[$name] = $value;
+    }
+
+    /**
+     * Returns a list of labels available for a given step
+     *
+     * By default, this would be the position / order of each connected output
+     * (and show as a number). Each case can however based on its own
+     * configuration handling, determine the label it chooses to set and display
+     * for the output connection. This will only be used and called if there are
+     * more than one expected output.
+     *
+     * @return  array of labels defined for this step type
+     */
+    public function get_output_labels(): array {
+        return [];
+    }
+
+    /**
+     * Returns the output (connection / link) label
+     *
+     * @param   int $position of the output connection
+     * @return  string $label
+     */
+    public function get_output_label(int $position): string {
+        $labels = $this->get_output_labels();
+        $label = $labels[$position] ?? (string) $position;
+        return $label;
     }
 }
