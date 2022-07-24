@@ -179,11 +179,6 @@ class writer_stream extends writer_step {
         $errors = [];
         if (!isset($config->streamname)) {
             $errors['config_streamname'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
-        } else {
-            $error = helper::path_validate($config->streamname);
-            if ($error !== true) {
-                $errors['config_streamname'] = $error;
-            }
         }
         if (!isset($config->format)) {
             $errors['config_format'] = get_string('config_field_missing', 'tool_dataflows', 'format', true);
@@ -192,6 +187,22 @@ class writer_stream extends writer_step {
             if (!class_exists($format)) {
                 $errors['config_format'] = get_string('format_not_supported', 'tool_dataflows', $config->format, true);
             }
+        }
+
+        return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Perform any extra validation that is required only for runs.
+     *
+     * @return true|array Will return true or an array of errors.
+     */
+    public function validate_for_run() {
+        $config = $this->stepdef->config;
+
+        $error = helper::path_validate($config->streamname);
+        if ($error !== true) {
+            $errors['config_streamname'] = $error;
         }
 
         return empty($errors) ? true : $errors;
