@@ -573,6 +573,13 @@ class step extends persistent {
             $errors = array_merge($errors, $stepvalidation);
         }
 
+        $steptype = $this->get_steptype();
+        if ($steptype) {
+            $extravalidation = $steptype->validate_for_run();
+            if ($extravalidation !== true) {
+                $errors = array_merge($errors, $extravalidation);
+            }
+        }
         return empty($errors) ? true : $errors;
     }
 

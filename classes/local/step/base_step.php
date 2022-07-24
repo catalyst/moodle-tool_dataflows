@@ -453,6 +453,15 @@ abstract class base_step {
     }
 
     /**
+     * Perform any extra validation that is required only for runs.
+
+     * @return true|array Will return true or an array of errors.
+     */
+    public function validate_for_run() {
+        return true;
+    }
+
+    /**
      * Generates an engine step for this type.
      *
      * This should be sufficient for most cases. Override this function if needed.
