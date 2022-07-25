@@ -326,8 +326,8 @@ class engine {
         foreach ($this->enginesteps as $enginestep) {
             $enginestep->abort();
         }
-        $this->set_status(self::STATUS_ABORTED);
         $this->log('Aborted: ' . $message);
+        $this->set_status(self::STATUS_ABORTED);
 
         // TODO: We may want to make this the responsibility of the caller.
         if (!is_null($reason)) {
