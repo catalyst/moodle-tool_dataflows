@@ -48,9 +48,6 @@ class dataflow_iterator implements iterator {
     /** @var int $iterationcount */
     protected $iterationcount = 0;
 
-    /** @var mixed $caller - which step down the chain requested for this iterator */
-    protected $caller = null;
-
     /**
      * Create an instance of this class.
      *
@@ -135,9 +132,10 @@ class dataflow_iterator implements iterator {
     /**
      * Next item in the stream.
      *
-     * @return object|bool A JSON compatible object, or false if nothing returned.
+     * @param   object $caller The engine step that called this method, internally used to connect outputs.
+     * @return  object|bool A JSON compatible object, or false if nothing returned.
      */
-    public function next($caller) {
+    public function next(object $caller) {
         if ($this->finished) {
             return false;
         }

@@ -57,7 +57,8 @@ interface iterator {
     /**
      * Next item in the stream.
      *
-     * @return object|bool A JSON compatible object, or false if nothing returned.
+     * @param   object $caller The engine step that called this method, internally used to connect outputs.
+     * @return  object|bool A JSON compatible object, or false if nothing returned.
      */
-    public function next($caller);
+    public function next(object $caller);
 }

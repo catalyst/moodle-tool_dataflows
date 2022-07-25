@@ -22,6 +22,8 @@ use tool_dataflows\local\step\flow_logic_case;
 use tool_dataflows\local\step\writer_stream;
 use tool_dataflows\local\execution\array_in_type;
 
+defined('MOODLE_INTERNAL') || die();
+
 // This is needed. File will not be automatically included.
 require_once(__DIR__ . '/local/execution/array_in_type.php');
 

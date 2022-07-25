@@ -224,7 +224,7 @@ class engine {
                     continue;
                 }
 
-                $ispartofsameflow = $stepservice->is_part_of_same_flow(
+                $ispartofsameflow = $stepservice->is_part_of_same_flow_group(
                     current($flowcap->upstreams),
                     current($flowcap2->upstreams)
                 );
@@ -235,7 +235,6 @@ class engine {
 
                     // Remove the flow cap that was merged into the first one. No longer required.
                     unset($flowcap2);
-                    // unset($flowcaps[$key]);
                 }
             }
         }

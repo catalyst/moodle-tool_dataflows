@@ -19,6 +19,7 @@ namespace tool_dataflows\local\step;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_flow_cap;
 use tool_dataflows\local\execution\engine_step;
+use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
 
@@ -43,10 +44,16 @@ final class flow_cap extends flow_step {
     }
 
     /**
-     * Description of what this does
+     * Gets the iterator for this particular upstream.
+     *
+     * This returns different next steps/handlers depending on the upstream path.
+     *
+     * @param  flow_engine_step $upstream
+     * @return iterator
      */
-    public function set_upstream($upstream) {
+    public function get_upstream_iterator(flow_engine_step $upstream): iterator {
         $this->upstream = $upstream;
+        return $this->get_iterator();
     }
 
     /**

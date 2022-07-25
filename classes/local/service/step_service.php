@@ -38,15 +38,15 @@ class step_service {
      * @param   engine_step $enginestep2
      * @return  bool
      */
-    public function is_part_of_same_flow(engine_step $enginestep1, engine_step $enginestep2): bool {
+    public function is_part_of_same_flow_group(engine_step $enginestep1, engine_step $enginestep2): bool {
         return true; // TODO: actually check.
     }
 
     /**
      * Merges the flow caps within the same flow group such that the flow group has a shared flow cap.
      *
-     * @param   flow_cap $flowcap
-     * @param   array $upstreams
+     * @param  engine_flow_cap $flowcap
+     * @param  array $upstreams
      */
     public function consolidate_flowcaps(engine_flow_cap $flowcap, array $upstreams) {
         foreach ($upstreams as $enginestep) {
@@ -54,6 +54,4 @@ class step_service {
             $flowcap->upstreams[$enginestep->id] = $enginestep;
         }
     }
-
-
 }

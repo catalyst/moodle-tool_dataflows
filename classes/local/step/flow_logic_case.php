@@ -14,9 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Flow logic: case
+ *
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace tool_dataflows\local\step;
 
-use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
 use tool_dataflows\local\execution\iterators\iterator;
@@ -127,14 +135,16 @@ class flow_logic_case extends flow_logic_step {
          */
         return new class($this->enginestep, $upstream->iterator) extends dataflow_iterator {
 
+            /** @var array of different cases */
             private $cases = [];
+
+            /** @var array mapping of step to cases, [step.id => case index] */
             private $stepcasemap = [];
 
             /**
              * Create an instance of this class.
              *
              * @param  flow_engine_step $step
-             * @param  object $config
              * @param  iterator $input
              */
             public function __construct(flow_engine_step $step, iterator $input) {
@@ -164,6 +174,8 @@ class flow_logic_case extends flow_logic_step {
              * value from the iterator, or if the case 'matches'.
              *
              * For all other cases, return false|null which indicates no value to pull from at this stage.
+             *
+             * @param flow_engine_step $caller
              */
             public function next($caller) {
                 if ($this->finished) {

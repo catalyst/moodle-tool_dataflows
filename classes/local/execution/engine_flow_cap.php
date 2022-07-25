@@ -63,8 +63,7 @@ class engine_flow_cap extends flow_engine_step {
         try {
             if ($status === engine::STATUS_FLOWING) {
                 foreach ($this->upstreams as $upstream) {
-                    $this->steptype->set_upstream($upstream);
-                    $iterators[] = $this->steptype->get_iterator();
+                    $iterators[] = $this->steptype->get_upstream_iterator($upstream);
                 }
 
                 // Pull down (check) and see if things can flow through. If not, pull down on the next upstream.
