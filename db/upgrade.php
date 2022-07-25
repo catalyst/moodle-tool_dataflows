@@ -82,7 +82,7 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022071900, 'tool', 'dataflows');
     }
 
-    if ($oldversion < 2022072101) {
+    if ($oldversion < 2022072502) {
 
         // Define field position to be added to tool_dataflows_step_depends.
         $table = new xmldb_table('tool_dataflows_step_depends');
@@ -94,7 +94,7 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         }
 
         // Dataflows savepoint reached.
-        upgrade_plugin_savepoint(true, 2022072101, 'tool', 'dataflows');
+        upgrade_plugin_savepoint(true, 2022072502, 'tool', 'dataflows');
     }
 
     return true;
