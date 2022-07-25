@@ -193,8 +193,8 @@ class flow_logic_case extends flow_logic_step {
 
                 $casenumber = $this->stepcasemap[$caller->step->id];
                 $case = $this->cases[$casenumber] ?? null;
-                if (!$case) {
-                    throw new \moodle_exception(get_string('casenotfound', 'tool_dataflows'));
+                if (!isset($case)) {
+                    throw new \moodle_exception(get_string('flow_logic_case:casenotfound', 'tool_dataflows', $casenumber));
                 }
 
                 $parser = new parser;
