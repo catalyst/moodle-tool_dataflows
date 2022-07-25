@@ -501,7 +501,12 @@ class step extends persistent {
         $dependencies = $this->dependencies();
         if (!empty($dependencies)) {
             // Since this field can be a single string or an array of aliases, it should be checked beforehand.
-            $aliases = array_column($dependencies, 'alias');
+            $aliases = array_map(function ($dependency) {
+                if (isset($dependency->position)) {
+                    return $dependency->alias . self::DEPENDS_ON_POSITION_SPLITTER . $dependency->position;
+                }
+                return $dependency->alias;
+            }, $dependencies);
 
             // Simplify into a single value if there is only a single entry.
             $aliases = isset($aliases[1]) ? $aliases : reset($aliases);
