@@ -159,7 +159,7 @@ class step_form extends \core\form\persistent {
                 $maxposition = null;
                 if ($selectedposition) {
                     $maxposition = $selectedposition;
-                } else {
+                } else if (!empty($dependants)) {
                     $maxposition = max(array_column($dependants, 'position')) + 1;
                 }
 
