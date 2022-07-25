@@ -18,6 +18,8 @@ namespace tool_dataflows\local\service;
 
 use tool_dataflows\local\execution\engine_flow_cap;
 use tool_dataflows\local\execution\engine_step;
+use tool_dataflows\local\step\reader_step;
+use tool_dataflows\step;
 
 /**
  * Step Service
@@ -32,6 +34,31 @@ use tool_dataflows\local\execution\engine_step;
 class step_service {
 
     /**
+     * Returns a list of upstream step ids part of the same flow given an engine step
+     *
+     * @param   engine_step $enginestep
+     * @return  array of upstream step ids
+     */
+    public function get_upstream_step_ids_within_flow(engine_step $enginestep): array {
+        $upstreams = [];
+        // Should include itself.
+        $upstreams[] = $enginestep->stepdef->id;
+        // Go upstream and check if there are any parent steps in the same flow.
+        $current = $enginestep;
+        $notareader = $current->steptype->get_group() !== 'readers';
+        while ($notareader) {
+            $current = current($current->upstreams);
+            if ($current === false) {
+                break;
+            }
+            $upstreams[] = $current->stepdef->id;
+            $notareader = $current->steptype->get_group() !== 'readers';
+        }
+
+        return $upstreams;
+    }
+
+    /**
      * Returns whether or not the given engine step, is part of the same flow group.
      *
      * @param   engine_step $enginestep1
@@ -39,7 +66,15 @@ class step_service {
      * @return  bool
      */
     public function is_part_of_same_flow_group(engine_step $enginestep1, engine_step $enginestep2): bool {
-        return true; // TODO: actually check.
+        // Find the nearest reader (since all flows start here).
+        $upstreams1 = $this->get_upstream_step_ids_within_flow($enginestep1);
+        $upstreams2 = $this->get_upstream_step_ids_within_flow($enginestep2);
+
+        $commonancestors = array_intersect(
+            $upstreams1,
+            $upstreams2
+        );
+        return !empty($commonancestors);
     }
 
     /**

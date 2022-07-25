@@ -175,8 +175,9 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
 
         $stepsbyalias = $dataflow->get_steps();
         $oddwriter = $stepsbyalias->odd_writer;
+        $evenwriter = $stepsbyalias->even_writer;
 
-        // Writer step for evens.
+        // Add a connector and another flow group in a downstream branch.
         $dump = new step();
         $dump->name = 'dump step';
         $dump->alias = 'dump';
@@ -186,7 +187,7 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $dataflow->add_step($dump);
         $steps[$dump->id] = $dump;
 
-        // Add another flow.
+        // Add another flow (SQL -> SQL Writer).
         $sql = new step();
         $sql->name = 'sql';
         $sql->type = 'tool_dataflows\local\step\reader_sql';
@@ -214,20 +215,52 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $dataflow->add_step($sqlwriter);
         $steps[$sqlwriter->id] = $sqlwriter;
 
-        // ob_start();
+        ob_start();
         $isdryrun = false;
         $engine = new engine($dataflow, $isdryrun);
         $engine->execute();
-        // ob_get_clean();
+        ob_get_clean();
+
         // Check and ensure it executes as expected.
+        $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
 
-        // Add a connector and another flow group in a downstream branch.
-
+        // Test flow groups.
+        $stepservice = new step_service;
         // Odd writer and even writer ARE part of the same flow group.
+        $this->assertTrue(
+            $stepservice->is_part_of_same_flow_group(
+                $evenwriter->steptype->get_engine_step(),
+                $oddwriter->steptype->get_engine_step()
+            )
+        );
+        // Different order.
+        $this->assertTrue(
+            $stepservice->is_part_of_same_flow_group(
+                $oddwriter->steptype->get_engine_step(),
+                $evenwriter->steptype->get_engine_step()
+            )
+        );
 
         // The new flow group created in this test is NOT part of the same flow group as the original.
+        $this->assertFalse(
+            $stepservice->is_part_of_same_flow_group(
+                $sql->steptype->get_engine_step(),
+                $oddwriter->steptype->get_engine_step()
+            )
+        );
+        $this->assertFalse(
+            $stepservice->is_part_of_same_flow_group(
+                $oddwriter->steptype->get_engine_step(),
+                $sqlwriter->steptype->get_engine_step()
+            )
+        );
 
-        $stepservice = new step_service;
-        // $stepservice->is_part_of_same_flow_group($step);
+        // The new flow group is a valid flow group in of itself.
+        $this->assertTrue(
+            $stepservice->is_part_of_same_flow_group(
+                $sql->steptype->get_engine_step(),
+                $sqlwriter->steptype->get_engine_step()
+            )
+        );
     }
 }
