@@ -114,6 +114,8 @@ class connector_curl extends connector_step {
 
         $mform->addElement('text', 'config_destination', get_string('connector_curl:destination', 'tool_dataflows'));
         $mform->addHelpButton('config_destination', 'connector_curl:destination', 'tool_dataflows');
+        $mform->addElement('static', 'config_path_help', '',  get_string('path_help', 'tool_dataflows').
+            \html_writer::nonempty_tag('pre', get_string('path_help_examples', 'tool_dataflows')));
 
         $mform->addElement('checkbox', 'config_sideeffects', get_string('connector_curl:sideeffects', 'tool_dataflows'),
                 get_string('yes'));
