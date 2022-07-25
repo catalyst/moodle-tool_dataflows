@@ -185,10 +185,11 @@ class step_form extends \core\form\persistent {
 
                 // Prepare and set the (output) connection options for this step.
                 foreach ($availablepositions as $position) {
-                    // TODO: If the step has a defined key / label for this entry, then use that label instead.
+                    // If the step has a defined key / label for this entry, then use that label instead.
                     // For example: 'case #14' could instead be 'case: even number detected'.
-                    $defaultoptionlabel = $position;
-                    $label = "{$step->name} → $defaultoptionlabel"; // TODO: relabel based on 'depends on' step config.
+                    $outputlabel = $step->steptype->get_output_label($position);
+
+                    $label = "{$step->name} → $outputlabel";
                     $options[$step->id . self::$persistentclass::DEPENDS_ON_POSITION_SPLITTER . $position] = $label;
                 }
             } else {
