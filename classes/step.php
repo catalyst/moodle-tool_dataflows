@@ -294,6 +294,29 @@ class step extends persistent {
     }
 
     /**
+     * Resolve the actual dependency to an ID and if required, a position.
+     *
+     * @param   string $dependson
+     * @return  array the matching id/alias and position
+     */
+    private function get_alias_or_id_components(string $dependson): array {
+        // Resolve the actual dependency to an ID and if required, a position.
+        // Example: "id:position", "alias:position", "alias" or "id".
+        $regex = '/(?<id>([^' . self::DEPENDS_ON_POSITION_SPLITTER . '\n])+)' .
+            '(' . self::DEPENDS_ON_POSITION_SPLITTER . '(?<position>\d+))?/m';
+        preg_match_all($regex, $dependson, $matches, PREG_SET_ORDER, 0);
+        if (empty($matches)) {
+            throw new moodle_exception('stepdependencydoesnotexist', 'tool_dataflows', '', $dependson);
+        }
+
+        [$match] = $matches;
+        $idoralias = $match['id'];
+        $position = $match['position'] ?? null;
+
+        return [$idoralias, $position];
+    }
+
+    /**
      * Persists the dependencies (dependson) for this step into the database.
      */
     public function update_depends_on() {
@@ -310,18 +333,7 @@ class step extends persistent {
             // the expected id numeric value.
             $dependson = $dependency->id ?? $dependency;
             if (gettype($dependson) === 'string' && !is_number($dependson)) {
-                // TODO: Split this into its own method + add tests.
-                // Resolve the actual dependency to an ID and if required, a position.
-                $regex = '/(?<id>([^' . self::DEPENDS_ON_POSITION_SPLITTER . '\n])+)' .
-                    '(' . self::DEPENDS_ON_POSITION_SPLITTER . '(?<position>\d+))?/m';
-                preg_match_all($regex, $dependson, $matches, PREG_SET_ORDER, 0);
-                if (empty($matches)) {
-                    throw new moodle_exception('stepdependencydoesnotexist', 'tool_dataflows', '', $dependson);
-                }
-
-                [$match] = $matches;
-                $idoralias = $match['id'];
-                $position = $match['position'] ?? null;
+                [$idoralias, $position] = $this->get_alias_or_id_components($dependson);
 
                 if (!is_number($idoralias)) {
                     // Get the id of the step.
