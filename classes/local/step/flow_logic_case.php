@@ -41,16 +41,14 @@ use tool_dataflows\parser;
 class flow_logic_case extends flow_logic_step {
 
     /**
-     * For a join step, it should have 2 or more inputs and for now, up to 20
-     * possible input flows.
+     * For this step, it should have a maximum of 1 input flow.
      *
      * @var int[] number of input flows (min, max)
      */
     protected $inputflows = [1, 1];
 
     /**
-     * For a join step, there should be exactly one output. This is because
-     * without at least one output, there is no need to perform a join.
+     * For this step, it should have 2 or more inputs and for now, up to 20.
      *
      * @var int[] number of output flows (min, max)
      */
@@ -109,7 +107,14 @@ class flow_logic_case extends flow_logic_step {
             'textarea',
             'config_cases',
             get_string('flow_logic_case:cases', 'tool_dataflows'),
-            ['cols' => 50, 'rows' => $maxoutputs, 'placeholder' => "label: <expression>\nsome other label: <expression>"]
+            [
+                'cols' => 50,
+                // Maxoutputs is too big for normal user. In most cases it will
+                // be 3-5, but if there is N expressions saved then it should be
+                // N+2 so always room for more, up to the maximum (e.g. 20).
+                'rows' => min($maxoutputs, count($this->get_output_labels()) + 2),
+                'placeholder' => "label: <expression>\nsome other label: <expression>"
+            ]
         );
         // Help text for the cases input: Showing a small example, that
         // everything on the right side is an expression by default so does not
