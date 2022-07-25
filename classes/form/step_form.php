@@ -71,7 +71,57 @@ class step_form extends \core\form\persistent {
         $mform->addElement('text', 'alias', get_string('field_alias', 'tool_dataflows'));
         $mform->addElement('static', 'alias_help', '', get_string('field_alias_help', 'tool_dataflows'));
 
+        // Depends on.
+        $options = $this->get_dependson_options();
+        $select = $mform->addElement(
+            'select',
+            'dependson',
+            get_string('field_dependson', 'tool_dataflows'),
+            $options,
+            [
+                'class' => empty($options) ? 'hidden' : '', // Hidden if there are no options to select from.
+                'size' => count($options),
+            ]
+        );
+        $select->setMultiple(true);
+
+        // List all the available fields available for configuration, in dot syntax.
+        $variables = $this->get_available_references();
+        $mform->addElement('html', $this->prepare_available_fields($variables));
+
+        // Check and set custom form inputs if required. Defaulting to a
+        // textarea config input for those not yet configured.
+        $persistent = $this->get_persistent();
+        if (isset($persistent->steptype) || (isset($type) && class_exists($type))) {
+            $steptype = $persistent->steptype ?? new $type();
+            $steptype->form_setup($mform);
+        }
+
+        // Configuration - YAML format.
+        $mform->addElement(
+            'textarea',
+            'config_outputs',
+            get_string('field_outputs', 'tool_dataflows'),
+            ['cols' => 50, 'rows' => 7, 'placeholder' => "alias: \${{ <expression> }}\nanother: \${{ <expression> }}"]
+        );
+        $mform->setType("config_outputs", PARAM_TEXT);
+        $exampleconfig = trim(Yaml::dump(['icon' => '${{ response.deeply.nested.data[0].icon }}']));
+        $outputsexample['config'] = \html_writer::tag('code', $exampleconfig);
+        $alias = $persistent->alias ?? 'alias';
+        $outputsexample['reference'] = \html_writer::tag('code', '${{ steps.' . $alias . '.icon }}');
+        $mform->addElement('static', 'outputs_help', '', get_string('field_outputs_help', 'tool_dataflows', $outputsexample));
+
+        $this->add_action_buttons();
+    }
+
+    /**
+     * Prepares and returns an array of dependson options
+     *
+     * @return  array of options this step could depend on
+     */
+    private function get_dependson_options(): array {
         // Show a list of other steps as options for depends on.
+        $dataflowid = $this->_customdata['dataflowid'];
         $dataflow = new dataflow($dataflowid);
         $persistent = $this->get_persistent();
         $steps = $dataflow->steps;
@@ -146,44 +196,7 @@ class step_form extends \core\form\persistent {
             }
         }
 
-        $select = $mform->addElement(
-            'select',
-            'dependson',
-            get_string('field_dependson', 'tool_dataflows'),
-            $options,
-            [
-                'class' => empty($options) ? 'hidden' : '', // Hidden if there are no options to select from.
-                'size' => count($options),
-            ]
-        );
-        $select->setMultiple(true);
-
-        // List all the available fields available for configuration, in dot syntax.
-        $variables = $this->get_available_references();
-        $mform->addElement('html', $this->prepare_available_fields($variables));
-
-        // Check and set custom form inputs if required. Defaulting to a
-        // textarea config input for those not yet configured.
-        if (isset($persistent->steptype) || (isset($type) && class_exists($type))) {
-            $steptype = $persistent->steptype ?? new $type();
-            $steptype->form_setup($mform);
-        }
-
-        // Configuration - YAML format.
-        $mform->addElement(
-            'textarea',
-            'config_outputs',
-            get_string('field_outputs', 'tool_dataflows'),
-            ['cols' => 50, 'rows' => 7, 'placeholder' => "alias: \${{ <expression> }}\nanother: \${{ <expression> }}"]
-        );
-        $mform->setType("config_outputs", PARAM_TEXT);
-        $exampleconfig = trim(Yaml::dump(['icon' => '${{ response.deeply.nested.data[0].icon }}']));
-        $outputsexample['config'] = \html_writer::tag('code', $exampleconfig);
-        $alias = $persistent->alias ?? 'alias';
-        $outputsexample['reference'] = \html_writer::tag('code', '${{ steps.' . $alias . '.icon }}');
-        $mform->addElement('static', 'outputs_help', '', get_string('field_outputs_help', 'tool_dataflows', $outputsexample));
-
-        $this->add_action_buttons();
+        return $options;
     }
 
     /**
