@@ -104,8 +104,7 @@ class flow_logic_case extends flow_logic_step {
      * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
-        // TODO: Fix this number.
-        $maxoutputs = 20;
+        [, $maxoutputs] = $this->outputflows;
         $mform->addElement(
             'textarea',
             'config_cases',
@@ -115,7 +114,7 @@ class flow_logic_case extends flow_logic_step {
         // Help text for the cases input: Showing a small example, that
         // everything on the right side is an expression by default so does not
         // require the ${{ }}, and lists the current mappings.
-        // TODO: Implement.
+        $mform->addElement('static', 'config_cases_help', '', get_string('flow_logic_case:cases_help', 'tool_dataflows'));
     }
 
     /**
