@@ -356,12 +356,13 @@ class step_form extends \core\form\persistent {
                 $errors['config_outputs'] = $config->outputs;
             }
             $fields = $steptype::form_define_fields();
-            // echo"<pre>";print_r($fields);die;
-            // Check all yaml enabled fields, that they are in the correct expected format.
-            if (isset($config->cases) && is_string($config->cases)) {
-                // The outputs should always be an object / hash-map. If not, it
-                // contains the error message as to why this is the case.
-                $errors['config_cases'] = $config->cases;
+            foreach ($fields as $field => $fieldconfig) {
+                // Check all yaml enabled fields, that they are in the correct expected format.
+                if (!empty($fieldconfig['yaml']) && isset($config->{$field}) && is_string($config->{$field})) {
+                    // The outputs should always be an object / hash-map. If not, it
+                    // contains the error message as to why this is the case.
+                    $errors["config_{$field}"] = $config->{$field};
+                }
             }
         }
 
