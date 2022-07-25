@@ -496,6 +496,8 @@ class dataflow extends persistent {
      * @return     string dotscript
      */
     public function get_dotscript(): string {
+        global $DB;
+
         // Fetch the dot script node from each step to construct them.
         $steps = $this->steps;
         $nodes = [];
@@ -535,7 +537,20 @@ class dataflow extends persistent {
                     $localstyles['color'] = '#008196';
                 }
             }
-            $finalstyles = array_merge($baseconnectionstyles, $localstyles);
+
+            // Output connection labels, if applicable.
+            $connectionstyles = [];
+            $dependency = $DB->get_record('tool_dataflows_step_depends', [
+                'dependson' => $srcid,
+                'stepid' => $destid,
+            ]);
+            if (isset($dependency->position)) {
+                $outputlabel = $srcstep->steptype->get_output_label($dependency->position);
+                $connectionstyles = ['label' => $outputlabel];
+            }
+
+            // Final styles.
+            $finalstyles = array_merge($baseconnectionstyles, $localstyles, $connectionstyles);
 
             $styles = '';
             foreach ($finalstyles as $key => $value) {
