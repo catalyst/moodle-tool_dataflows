@@ -96,6 +96,7 @@ $string['endstate'] = 'End state';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_s3'] = 'S3 file copy connector';
+$string['step_name_connector_sns_notify'] = 'AWS SNS Notification';
 $string['step_name_flow_logic_join'] = 'Flow join';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
 $string['step_name_reader_json'] = 'JSON reader';
@@ -293,6 +294,11 @@ $string['connector_s3:target'] = 'Target / To';
 $string['connector_s3:target_help'] = 'Path to the target file. Similar to the source, it can be a local or S3 path. If a directory is used, the source filename is applied.';
 $string['connector_s3:missing_s3_source_or_target'] = 'At least one source or target path must reference a location in S3.';
 $string['connector_s3:source_is_a_directory'] = 'The source path is a directory but a file path is expected.';
+
+// AWS SNS Notification.
+$string['connector_sns_notify:topic'] = 'Topic';
+$string['connector_sns_notify:message'] = 'Message';
+$string['connector_sns_notify:sending_message'] = 'Sending SNS notification to topic "{$a}". Message follows.';
 
 // Connector cURL.
 $string['connector_curl:curl'] = 'URL';
