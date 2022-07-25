@@ -20,7 +20,9 @@ use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\flow_logic_case;
 use tool_dataflows\local\step\writer_stream;
+use tool_dataflows\local\step\connector_debug_file_display;
 use tool_dataflows\local\execution\array_in_type;
+use tool_dataflows\local\service\step_service;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -107,6 +109,7 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         // Writer step for evens.
         $even = new step();
         $even->name = 'even (writer)';
+        $even->alias = 'even_writer';
         $even->type = writer_stream::class;
         $even->config = Yaml::dump([
             'streamname' => 'even.json',
@@ -119,6 +122,7 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         // Writer step for odds.
         $odd = new step();
         $odd->name = 'odd (writer)';
+        $odd->alias = 'odd_writer';
         $odd->type = writer_stream::class;
         $odd->config = Yaml::dump([
             'streamname' => 'odd.json',
@@ -137,7 +141,7 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
      * @covers \tool_dataflows\local\step\flow_logic_case
      */
     public function test_path_is_resolved_as_expected() {
-        [$dataflow, $steps] = $this->create_dataflow();
+        [$dataflow] = $this->create_dataflow();
         $isdryrun = false;
         $this->assertTrue($dataflow->validate_dataflow());
 
@@ -159,5 +163,71 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $odd = array_column($odd, 'value');
         $this->assertCount(5, $odd);
         $this->assertEquals(5, array_sum($odd));
+    }
+
+    /**
+     * Description of what this does
+     *
+     * @covers \tool_dataflows\local\service\step_service
+     */
+    public function test_flows_in_same_flow_group() {
+        [$dataflow] = $this->create_dataflow();
+
+        $stepsbyalias = $dataflow->get_steps();
+        $oddwriter = $stepsbyalias->odd_writer;
+
+        // Writer step for evens.
+        $dump = new step();
+        $dump->name = 'dump step';
+        $dump->alias = 'dump';
+        $dump->type = connector_debug_file_display::class;
+        $dump->config = Yaml::dump(['streamname' => 'even.json']);
+        $dump->depends_on([$oddwriter]);
+        $dataflow->add_step($dump);
+        $steps[$dump->id] = $dump;
+
+        // Add another flow.
+        $sql = new step();
+        $sql->name = 'sql';
+        $sql->type = 'tool_dataflows\local\step\reader_sql';
+
+        // Set the SQL query via a YAML config string.
+        $sql->config = Yaml::dump([
+            'sql' => 'SELECT 1',
+            'counterfield' => 'value',
+            'countervalue' => '',
+        ]);
+        $sql->depends_on([$dump]);
+        $dataflow->add_step($sql);
+        $steps[$sql->id] = $sql;
+
+        // Add a writer for the SQL.
+        $sqlwriter = new step();
+        $sqlwriter->name = 'sqlwriter';
+        $sqlwriter->alias = 'sqlwriter';
+        $sqlwriter->type = writer_stream::class;
+        $sqlwriter->config = Yaml::dump([
+            'streamname' => 'sql.json',
+            'format' => 'json',
+        ]);
+        $sqlwriter->depends_on([$sql]);
+        $dataflow->add_step($sqlwriter);
+        $steps[$sqlwriter->id] = $sqlwriter;
+
+        // ob_start();
+        $isdryrun = false;
+        $engine = new engine($dataflow, $isdryrun);
+        $engine->execute();
+        // ob_get_clean();
+        // Check and ensure it executes as expected.
+
+        // Add a connector and another flow group in a downstream branch.
+
+        // Odd writer and even writer ARE part of the same flow group.
+
+        // The new flow group created in this test is NOT part of the same flow group as the original.
+
+        $stepservice = new step_service;
+        // $stepservice->is_part_of_same_flow_group($step);
     }
 }
