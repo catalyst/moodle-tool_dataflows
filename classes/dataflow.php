@@ -619,6 +619,8 @@ class dataflow extends persistent {
      * @param      array $yaml full dataflow configuration as a php array
      */
     public function import(array $yaml) {
+        global $DB;
+
         $this->name = $yaml['name'] ?? '';
         $this->config = isset($yaml['config']) ? Yaml::dump(
             $yaml['config'],
@@ -626,29 +628,36 @@ class dataflow extends persistent {
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
         ) : '';
-        $this->save();
+        try {
+            $transaction = $DB->start_delegated_transaction();
+            $this->save();
 
-        // Import any provided steps.
-        if (!empty($yaml['steps'])) {
-            $steps = [];
-            foreach ($yaml['steps'] as $key => $stepdata) {
-                // Create the step and set the fields.
-                $step = new \tool_dataflows\step();
-                $step->dataflowid = $this->id;
-                // Set a step id if one does not already exist, and use that as an alias/reference between steps.
-                $stepdata['id'] = $stepdata['id'] ?? $key;
+            // Import any provided steps.
+            if (!empty($yaml['steps'])) {
+                $steps = [];
+                foreach ($yaml['steps'] as $key => $stepdata) {
+                    // Create the step and set the fields.
+                    $step = new \tool_dataflows\step();
+                    $step->dataflowid = $this->id;
+                    // Set a step id if one does not already exist, and use that as an alias/reference between steps.
+                    $stepdata['id'] = $stepdata['id'] ?? $key;
 
-                $step->import($stepdata);
-                // Save persistent and base fields.
-                $step->save();
+                    $step->import($stepdata);
+                    // Save persistent and base fields.
+                    $step->save();
 
-                // Append to the list of processed steps.
-                $steps[] = $step;
+                    // Append to the list of processed steps.
+                    $steps[] = $step;
+                }
+                // Wire up any dependencies for those steps, and then resync them.
+                foreach ($steps as $step) {
+                    $step->update_depends_on();
+                }
             }
-            // Wire up any dependencies for those steps, and then resync them.
-            foreach ($steps as $step) {
-                $step->update_depends_on();
-            }
+            $transaction->allow_commit();
+        } catch (\Exception $exception) {
+            $transaction->rollback($exception);
+            throw $exception;
         }
     }
 
