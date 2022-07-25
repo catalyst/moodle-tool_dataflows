@@ -111,9 +111,6 @@ class engine {
     /** @var string Scratch directory for temporary files. */
     protected $scratchdir = null;
 
-    /** @var engine_step Sprevious in the queue */
-    protected $previous = null;
-
     /**
      * Constructs the engine.
      *

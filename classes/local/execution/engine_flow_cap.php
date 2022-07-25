@@ -28,11 +28,12 @@ namespace tool_dataflows\local\execution;
 class engine_flow_cap extends flow_engine_step {
 
     /**
-     * Description of what this does
+     * Performs the base go handling, without creating and setting an iterator
+     * as the flow cap handles them differently.
      *
-     * @return  int
+     * @return  int status
      */
-    public function go_cap(): int {
+    public function handle_status_for_execution(): int {
         switch ($this->proceed_status()) {
             case self::PROCEED_GO:
                 try {
@@ -55,10 +56,10 @@ class engine_flow_cap extends flow_engine_step {
     /**
      * Attempt to execute the step. If flowing, will run the iterator.
      *
-     * @return int
+     * @return int status
      */
     public function go(): int {
-        $status = $this->go_cap();
+        $status = $this->handle_status_for_execution();
 
         try {
             if ($status === engine::STATUS_FLOWING) {

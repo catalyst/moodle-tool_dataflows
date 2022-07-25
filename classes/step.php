@@ -368,9 +368,9 @@ class step extends persistent {
     /**
      * Returns a list of other steps that depend on this step before they can run.
      *
-     * @return     array step dependencies
+     * @return  array step dependencies
      */
-    public function dependants() {
+    public function dependants(): array {
         global $DB;
         $sql = "SELECT step.id,
                        step.name,
@@ -384,7 +384,7 @@ class step extends persistent {
         $deps = $DB->get_records_sql($sql, [
             'dependson' => $this->id,
         ]);
-        return $deps;
+        return $deps ?? [];
     }
 
     /**
