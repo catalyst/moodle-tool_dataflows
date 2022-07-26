@@ -546,7 +546,11 @@ class dataflow extends persistent {
             ]);
             if (isset($dependency->position)) {
                 $outputlabel = $srcstep->steptype->get_output_label($dependency->position);
-                $connectionstyles = ['label' => $outputlabel];
+                $connectionstyles = [
+                    'label' => $outputlabel,
+                    'fontsize'  => '10',
+                    'fontname'  => 'San Serif',
+                ];
             }
 
             // Final styles.
