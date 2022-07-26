@@ -108,12 +108,12 @@ class flow_logic_case extends flow_logic_step {
             'config_cases',
             get_string('flow_logic_case:cases', 'tool_dataflows'),
             [
+                'placeholder' => "label: <expression>\nsome other label: <expression>",
                 'cols' => 50,
                 // Maxoutputs is too big for normal user. In most cases it will
                 // be 3-5, but if there is N expressions saved then it should be
                 // N+2 so always room for more, up to the maximum (e.g. 20).
                 'rows' => min($maxoutputs, count($this->get_output_labels()) + 2),
-                'placeholder' => "label: <expression>\nsome other label: <expression>"
             ]
         );
         // Help text for the cases input: Showing a small example, that
@@ -152,11 +152,6 @@ class flow_logic_case extends flow_logic_step {
              * @param  iterator $input
              */
             public function __construct(flow_engine_step $step, iterator $input) {
-                // TODO: pull conditions out, and also internally line up each
-                // 'case' with the expected step that is asking for the input.
-                // To later determine who to provide the input to and who to
-                // ignore.
-
                 // Prepare and map output number, with expected step.id.
                 $cases = array_values((array) $step->stepdef->config->cases);
                 $this->cases = $cases;

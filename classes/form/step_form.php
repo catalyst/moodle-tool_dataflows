@@ -141,7 +141,14 @@ class step_form extends \core\form\persistent {
             // Get current step dependants, and their position to filter out the unavailable options.
             if ($max > 1) {
                 $dependants = $step->dependants();
-                $allpositions = range(1, $max);
+
+                // Check the step's defined outputs but unused outputs. For
+                // instance, a case step with 10 expressions defined but only 4
+                // are linked. It should show 6 possible options for the next
+                // step that can get linked.
+                $outputlabelscount = count($step->steptype->get_output_labels());
+                $allpositions = range(1, min($max, $outputlabelscount));
+
                 $takenpositions = array_column($dependants, 'position');
                 $availablepositions = array_diff($allpositions, $takenpositions);
 
@@ -163,25 +170,28 @@ class step_form extends \core\form\persistent {
                     $maxposition = max(array_column($dependants, 'position')) + 1;
                 }
 
-                // Start plucking positions from the top until there is a gap or the current step position is hit.
-                // This ensures you won't see positions you shouldn't be able to assign, and keeps things in order.
-                // TODO: Also consider when the connecting step has outputs defined already, stop at that maximum instead.
-                $reversed = array_reverse($availablepositions);
-                $current = reset($reversed) + 1;
-                $position = reset($reversed);
-                while (
-                    // No gap.
-                    $current - 1 === $position
-                    // Max not reached.
-                    && ($maxposition === null || $maxposition !== $position)
-                    // Always keep at least one option.
-                    && $position !== 1
-                ) {
-                    $current = array_shift($reversed);
+                // If there are no output connections defined yet, start
+                // plucking positions from the top until there is a gap or the
+                // current step position is hit. This ensures you won't see
+                // positions you shouldn't be able to assign, and keeps things
+                // in order.
+                if (empty($outputlabelscount)) {
+                    $reversed = array_reverse($availablepositions);
+                    $current = reset($reversed) + 1;
                     $position = reset($reversed);
+                    while (
+                        // No gap.
+                        $current - 1 === $position
+                        // Max not reached.
+                        ($maxposition === null || $maxposition !== $position)
+                        // Always keep at least one option.
+                        && $position !== 1
+                    ) {
+                        $current = array_shift($reversed);
+                        $position = reset($reversed);
+                    }
+                    $availablepositions = array_reverse($reversed);
                 }
-
-                $availablepositions = array_reverse($reversed);
 
                 // Prepare and set the (output) connection options for this step.
                 foreach ($availablepositions as $position) {
