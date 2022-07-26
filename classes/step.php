@@ -534,8 +534,29 @@ class step extends persistent {
     protected function before_delete() {
         global $DB;
 
+        // Attempt to rewire/connect steps previously linked to this step.
+        $dependents = $this->dependents();
+        $dependencies = $this->dependencies();
+
+        if (count($dependencies) === 1 && count($dependents) === 1) {
+            // 1 input/output. Get new input and output and if valid rewire flow.
+            $inputstep = new step(current($dependencies)->id);
+            $outputstep = new step(current($dependents)->id);
+
+            // Validate new output against new input step.
+            $outputvalid = $inputstep->validate_outputs($dependents);
+
+            // Validate new input against new output step.
+            $inputvalid = $outputstep->validate_inputs($dependencies);
+
+            if ($inputvalid === true && $outputvalid === true) {
+                // New flow valid, update depends on.
+                $outputstep->depends_on($dependencies);
+                $outputstep->update_depends_on();
+            }
+        }
+
         // Remove dependencies other steps have on this step.
-        // TODO: this should check and attempt to rewire/connect steps previously linked to this step.
         $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $this->id]);
         $DB->delete_records('tool_dataflows_step_depends', ['dependson' => $this->id]);
 
