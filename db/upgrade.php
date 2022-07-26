@@ -82,5 +82,20 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022071900, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2022072502) {
+
+        // Define field position to be added to tool_dataflows_step_depends.
+        $table = new xmldb_table('tool_dataflows_step_depends');
+        $field = new xmldb_field('position', XMLDB_TYPE_INTEGER, '4', null, null, null, null, 'dependson');
+
+        // Conditionally launch add field position.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022072502, 'tool', 'dataflows');
+    }
+
     return true;
 }

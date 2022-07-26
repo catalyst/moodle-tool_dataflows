@@ -43,7 +43,7 @@ class reader_json extends reader_step {
      *
      * @return array
      */
-    protected static function form_define_fields(): array {
+    public static function form_define_fields(): array {
         return [
             'pathtojson' => ['type' => PARAM_TEXT],
             'arrayexpression' => ['type' => PARAM_TEXT],

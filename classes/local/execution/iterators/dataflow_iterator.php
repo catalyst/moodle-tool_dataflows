@@ -120,25 +120,40 @@ class dataflow_iterator implements iterator {
     }
 
     /**
+     * Should this iterator pull the next value down?
+     *
+     * @return  bool
+     */
+    public function should_pull_next(): bool {
+        return !empty($this->pulled)
+            || $this->steptype->get_group() !== 'readers';
+    }
+
+    /**
      * Next item in the stream.
      *
-     * @return object|bool A JSON compatible object, or false if nothing returned.
+     * @param   \stdClass $caller The engine step that called this method, internally used to connect outputs.
+     * @return  \stdClass|bool A JSON compatible \stdClass, or false if nothing returned.
      */
-    final public function next() {
+    public function next($caller) {
         if ($this->finished) {
             return false;
         }
 
         // Do not call this for the initial pull (of data) for a reader.
-        if (!empty($this->pulled) || $this->steptype->get_group() !== 'readers') {
-            $this->input->next();
+        if ($this->should_pull_next()) {
+            if ($this->input instanceof dataflow_iterator) {
+                $this->input->next($this);
+            } else {
+                $this->input->next();
+            }
         }
         $this->pulled = true;
 
         // Validate if input is valid before grabbing it.
         if (!$this->input->valid()) {
             $this->abort();
-            return null;
+            return false;
         }
 
         // Grabs the current value if valid.

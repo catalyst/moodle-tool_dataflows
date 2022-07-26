@@ -71,16 +71,8 @@ class step_form extends \core\form\persistent {
         $mform->addElement('text', 'alias', get_string('field_alias', 'tool_dataflows'));
         $mform->addElement('static', 'alias_help', '', get_string('field_alias_help', 'tool_dataflows'));
 
-        // Show a list of other steps as options for depends on.
-        $dataflow = new dataflow($dataflowid);
-        $persistent = $this->get_persistent();
-        $steps = $dataflow->steps;
-        $options = [];
-        foreach ($steps as $step) {
-            $options[$step->id] = $step->name;
-        }
-        unset($options[$persistent->id]); // We never want a step to depend on itself.
-
+        // Depends on.
+        $options = $this->get_dependson_options();
         $select = $mform->addElement(
             'select',
             'dependson',
@@ -99,6 +91,7 @@ class step_form extends \core\form\persistent {
 
         // Check and set custom form inputs if required. Defaulting to a
         // textarea config input for those not yet configured.
+        $persistent = $this->get_persistent();
         if (isset($persistent->steptype) || (isset($type) && class_exists($type))) {
             $steptype = $persistent->steptype ?? new $type();
             $steptype->form_setup($mform);
@@ -119,6 +112,102 @@ class step_form extends \core\form\persistent {
         $mform->addElement('static', 'outputs_help', '', get_string('field_outputs_help', 'tool_dataflows', $outputsexample));
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Prepares and returns an array of dependson options
+     *
+     * @return  array of options this step could depend on
+     */
+    private function get_dependson_options(): array {
+        // Show a list of other steps as options for depends on.
+        $dataflowid = $this->_customdata['dataflowid'];
+        $dataflow = new dataflow($dataflowid);
+        $persistent = $this->get_persistent();
+        $steps = $dataflow->steps;
+        $options = [];
+        // Loop through the steps but only show steps where a connection can be
+        // added (or if it's a current dependency).
+        foreach ($steps as $step) {
+            // We never want a step to depend on itself.
+            if ($step->id === $persistent->id) {
+                continue;
+            }
+
+            [, $maxoutputflows] = $step->steptype->get_number_of_output_flows();
+            [, $maxoutputconnectors] = $step->steptype->get_number_of_output_connectors();
+            $max = max($maxoutputflows, $maxoutputconnectors);
+
+            // Get current step dependants, and their position to filter out the unavailable options.
+            if ($max > 1) {
+                $dependants = $step->dependants();
+
+                // Check the step's defined outputs but unused outputs. For
+                // instance, a case step with 10 expressions defined but only 4
+                // are linked. It should show 6 possible options for the next
+                // step that can get linked.
+                $outputlabelscount = count($step->steptype->get_output_labels());
+                $allpositions = range(1, min($max, $outputlabelscount));
+
+                $takenpositions = array_column($dependants, 'position');
+                $availablepositions = array_diff($allpositions, $takenpositions);
+
+                // Check if the current step is a dependant, and if so, INCLUDE the option (and ensure it is selected).
+                $currentstepid = $persistent->id;
+                $selectedposition = null;
+                if (!empty($currentstepid) && isset($dependants[$currentstepid])) {
+                    $selectedposition = $dependants[$currentstepid]->position;
+                    $availablepositions[] = $selectedposition;
+                    sort($availablepositions);
+                }
+
+                // New case position should always show the next available slot for a case step.
+                // Updating a position should always show up to the current and any empty slots below.
+                $maxposition = null;
+                if ($selectedposition) {
+                    $maxposition = $selectedposition;
+                } else if (!empty($dependants)) {
+                    $maxposition = max(array_column($dependants, 'position')) + 1;
+                }
+
+                // If there are no output connections defined yet, start
+                // plucking positions from the top until there is a gap or the
+                // current step position is hit. This ensures you won't see
+                // positions you shouldn't be able to assign, and keeps things
+                // in order.
+                if (empty($outputlabelscount)) {
+                    $reversed = array_reverse($availablepositions);
+                    $current = reset($reversed) + 1;
+                    $position = reset($reversed);
+                    while (
+                        // No gap.
+                        $current - 1 === $position
+                        // Max not reached.
+                        ($maxposition === null || $maxposition !== $position)
+                        // Always keep at least one option.
+                        && $position !== 1
+                    ) {
+                        $current = array_shift($reversed);
+                        $position = reset($reversed);
+                    }
+                    $availablepositions = array_reverse($reversed);
+                }
+
+                // Prepare and set the (output) connection options for this step.
+                foreach ($availablepositions as $position) {
+                    // If the step has a defined key / label for this entry, then use that label instead.
+                    // For example: 'case #14' could instead be 'case: even number detected'.
+                    $outputlabel = $step->steptype->get_output_label($position);
+
+                    $label = "{$step->name} → $outputlabel";
+                    $options[$step->id . self::$persistentclass::DEPENDS_ON_POSITION_SPLITTER . $position] = $label;
+                }
+            } else {
+                $options[$step->id] = $step->name; // Will always set a new value.
+            }
+        }
+
+        return $options;
     }
 
     /**
@@ -178,7 +267,7 @@ class step_form extends \core\form\persistent {
             $outputs = $step->steptype->define_outputs();
 
             // This is a list of user defined output mappings. This will display their expression / value set.
-            $userdefinedoutputs = (array) $step->get_raw_config()->outputs;
+            $userdefinedoutputs = (array) ($step->get_raw_config()->outputs ?? []);
             $outputs = array_merge($outputs, $userdefinedoutputs);
             foreach ($outputs as $field => $description) {
                 $variables['steps']->{$alias}->{$field} = $description;
@@ -282,12 +371,22 @@ class step_form extends \core\form\persistent {
         }
 
         // Check the outputs field to ensure it's in the correct form.
+        // This is required becasue validation only hits this after the config have been converted.
         if (isset($data->config) && empty($errors['config'])) {
             $config = Yaml::parse($data->config, Yaml::PARSE_OBJECT_FOR_MAP);
             if (isset($config->outputs) && is_string($config->outputs)) {
                 // The outputs should always be an object / hash-map. If not, it
                 // contains the error message as to why this is the case.
                 $errors['config_outputs'] = $config->outputs;
+            }
+            $fields = $steptype::form_define_fields();
+            foreach ($fields as $field => $fieldconfig) {
+                // Check all yaml enabled fields, that they are in the correct expected format.
+                if (!empty($fieldconfig['yaml']) && isset($config->{$field}) && is_string($config->{$field})) {
+                    // The outputs should always be an object / hash-map. If not, it
+                    // contains the error message as to why this is the case.
+                    $errors["config_{$field}"] = $config->{$field};
+                }
             }
         }
 

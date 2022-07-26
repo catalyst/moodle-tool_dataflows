@@ -36,7 +36,7 @@ class connector_sns_notify extends connector_step {
      *
      * @return array
      */
-    protected static function form_define_fields(): array {
+    public static function form_define_fields(): array {
         return [
             'region'  => ['type' => PARAM_TEXT, 'required' => true],
             'key'     => ['type' => PARAM_TEXT], // Empty if using sdk credentials.

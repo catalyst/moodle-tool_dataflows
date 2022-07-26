@@ -16,9 +16,6 @@
 
 namespace tool_dataflows\local\step;
 
-use tool_dataflows\local\execution\iterators\iterator;
-use tool_dataflows\local\execution\iterators\dataflow_iterator;
-
 /**
  * Base class for reader step types.
  *
@@ -34,20 +31,6 @@ abstract class reader_step extends flow_step {
 
     /** @var int[] number of output connectors (min, max). */
     protected $inputconnectors = [0, 1];
-
-    /**
-     * Get the iterator for the step, based on configurations.
-     *
-     * @return iterator
-     */
-    public function get_iterator(): iterator {
-        // Default is to simply map.
-        $upstream = current($this->enginestep->upstreams);
-        if ($upstream === false || !$upstream->is_flow()) {
-            throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
-        }
-        return new dataflow_iterator($this->enginestep, $upstream->iterator);
-    }
 
     /**
      * {@inheritdoc}

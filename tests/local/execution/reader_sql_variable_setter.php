@@ -39,7 +39,7 @@ class reader_sql_variable_setter extends reader_sql {
      *
      * @return array
      */
-    protected static function form_define_fields(): array {
+    public static function form_define_fields(): array {
         return array_merge(
             parent::form_define_fields(),
             [

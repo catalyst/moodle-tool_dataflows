@@ -392,7 +392,13 @@ class visualiser {
     protected static function get_link_limit(base_step $steptype, string $inputoutput, string $flowconnector): string {
         $fn = "get_number_of_{$inputoutput}_{$flowconnector}s";
         list($min, $max) = $steptype->$fn();
-        if ($min == $max) {
+
+        // Consider output label counts.
+        if ($inputoutput === 'output') {
+            $min = max($min, count($steptype->get_output_labels()));
+        }
+
+        if ($min === $max) {
             if ($min > 1) {
                 return get_string("{$inputoutput}_{$flowconnector}_link_limit_plural", 'tool_dataflows', $min);
             } else if ($min > 0) {
