@@ -619,6 +619,10 @@ class step extends persistent {
         $fn = "get_number_of_{$inputoutput}_{$flowconnector}s";
         $steptype = $this->steptype;
         [$min, $max] = $steptype->$fn();
+        if ($inputoutput === 'output') {
+            $min = max($min, count($steptype->get_output_labels()));
+        }
+
         if ($count < $min || $count > $max) {
             return [
                 "invalid_count_{$inputoutput}{$flowconnector}s_{$this->id}" => get_string(
