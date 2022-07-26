@@ -46,3 +46,20 @@
         </div>
     </div>
 </div>
+{{#js}}
+    require(['core/toast', 'core/str'], function(addToast, getString) {
+        const expression = document.querySelectorAll('[data-expression]');
+        for (let i = 0; i < expression.length; i++) {
+            expression[i].addEventListener('click', e => {
+                const targetElement = e.target.closest('[data-expression]');
+                const copiedExpression = targetElement.dataset.expression;
+                navigator.clipboard.writeText(copiedExpression);
+                addToast.add(getString.get_string('successfullycopiedtoclipboard', 'tool_dataflows'), {
+                    type: 'info',
+                    autohide: true,
+                    closeButton: true,
+                });
+            })
+        }
+    });
+{{/js}}

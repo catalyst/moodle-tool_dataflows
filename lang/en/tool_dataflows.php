@@ -120,7 +120,7 @@ $string['stepgroupreaders'] = 'Readers';
 
 // Step (form).
 $string['available_fields'] = 'Available Fields';
-$string['available_fields_help'] = 'The fields listed below can be referenced in any step configuration, e.g. {$a}';
+$string['available_fields_help'] = 'The fields listed below can be referenced in any step configuration, e.g. {$a}, <br> You can copy the expression by clicking desired configuration';
 $string['field_description'] = 'Description';
 $string['field_alias'] = 'Alias';
 $string['field_alias_help'] = 'A snake cased reference to the step, unique to this dataflow. This can be used when referencing dependencies and inputs from other steps. Leaving this field blank will attempt to use a snake case version of the name value. For example, if the name is "My Step", it will be populate this field as "my_step"';
@@ -179,6 +179,7 @@ $string['stepinvalidinputflowcount'] = 'Invalid number of input flows (Found: {$
 $string['stepinvalidinputconnectorcount'] = 'Invalid number of input connectors (Found: {$a}).';
 $string['stepinvalidoutputflowcount'] = 'Invalid number of output flows (Found: {$a}).';
 $string['stepinvalidoutputconnectorcount'] = 'Invalid number of output connectors (Found: {$a}).';
+$string['successfullycopiedtoclipboard'] = 'Successfully copied to clipboard';
 $string['toomanytriggers'] = 'A dataflow can have at most one trigger step.';
 $string['inputs_cannot_mix_flow_and_connectors'] = 'Dependencies cannot be a mixture flow and connector steps.';
 $string['outputs_cannot_mix_flow_and_connectors'] = 'Dependents cannot be a mixture flow and connector steps.';
