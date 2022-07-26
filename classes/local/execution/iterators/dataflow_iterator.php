@@ -135,7 +135,7 @@ class dataflow_iterator implements iterator {
      * @param   \stdClass $caller The engine step that called this method, internally used to connect outputs.
      * @return  \stdClass|bool A JSON compatible \stdClass, or false if nothing returned.
      */
-    public function next(\stdClass $caller) {
+    public function next($caller) {
         if ($this->finished) {
             return false;
         }

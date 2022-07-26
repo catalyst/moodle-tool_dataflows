@@ -174,7 +174,7 @@ class flow_logic_case extends flow_logic_step {
              *
              * For all other cases, return false|null which indicates no value to pull from at this stage.
              *
-             * @param flow_engine_step $caller
+             * @param \stdClass $caller
              */
             public function next($caller) {
                 if ($this->finished) {
