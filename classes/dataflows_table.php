@@ -152,7 +152,7 @@ class dataflows_table extends \table_sql {
     public function col_actions(\stdClass $record): string {
         global $OUTPUT;
 
-        $content = '';
+        $content = '<nobr>';
         // Display the run now button, which will link to a confirmation page.
         $runurl = new \moodle_url(
             '/admin/tool/dataflows/run.php',
@@ -194,6 +194,7 @@ class dataflows_table extends \table_sql {
         $link = new \action_link($deleteurl, '', $confirmaction, null,  $deleteicon);
         $content .= $OUTPUT->render($link);
 
+        $content .= '</nobr>';
         return $content;
     }
 
