@@ -97,6 +97,7 @@ $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_s3'] = 'S3 file copy connector';
 $string['step_name_connector_sns_notify'] = 'AWS SNS Notification';
+$string['step_name_connector_wait'] = 'Wait';
 $string['step_name_flow_logic_case'] = 'Case';
 $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
@@ -328,3 +329,7 @@ $string['check:dataflows_run_status'] = 'Run {$a->name} - {$a->state}';
 $string['flow_logic_case:cases'] = 'Cases';
 $string['flow_logic_case:cases_help'] = 'Each line represents a case, and each case has a label for display, and an expression separated by a colon "<code>:</code>", used to determine whether the linked step will consume the data that flows or not. If no label is present, it will instead the line number for that connection.';
 $string['flow_logic_case:casenotfound'] = 'The output position of #{$a} did not match any existing case';
+
+// Wait connector.
+$string['connector_wait:timesec'] = 'Time in seconds';
+$string['connector_wait:not_integer'] = 'Wait time value must evaluate to a positive integer (had "{$a}").';
