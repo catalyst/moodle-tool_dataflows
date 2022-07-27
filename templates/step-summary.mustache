@@ -36,17 +36,26 @@
 
     Example context (json):
     {
-        "inputlist": [
-            { "href": "/admin/tool/dataflows/view.php?id=12", "label": "Ready Signal" }
-            { "href": "/admin/tool/dataflows/view.php?id=12", "label": "Source" },
+        "classname" : "SQL reader",
+        "dotimage" : "...",
+        "inputlist" : [
+            {
+                "href" : "/admin/tool/dataflows/view.php?id=12",
+                "label" : "Ready Signal"
+            },
+            {
+                "href" : "/admin/tool/dataflows/view.php?id=12",
+                "label" : "Source"
+            }
         ],
-        "outputlist": [
-            { "href": "", "label": "No outputs" }
+        "inputrequirements" : "Requies between 0 and 2 flow inputs.",
+        "outputlist" : [
+            {
+                "href" : "",
+                "label" : "No outputs"
+            }
         ],
-        "dotimage": "...",
-        "classname": "SQL reader",
-        "inputrequirements": "Requies between 0 and 2 flow inputs.",
-        "outputrequiremens": "No outputs allowed."
+        "outputrequiremens" : "No outputs allowed."
     }
 }}
 <div class="card shadow w-75 container mb-3">
