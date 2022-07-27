@@ -63,8 +63,8 @@ class tool_dataflows_workflow_state_test extends \advanced_testcase {
                   FROM {config_plugins}
                  WHERE plugin = \'' . $template['plugin'] . '\'
                 [[
-                    AND CAST(value as int) > ${{countervalue}}]]
-              ORDER BY CAST(value as int) ASC
+                    AND ' . $DB->sql_cast_char2int('value') . ' > ${{countervalue}}]]
+              ORDER BY ' . $DB->sql_cast_char2int('value') . ' ASC
                  LIMIT 3';
 
         // Create the dataflow.
