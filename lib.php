@@ -49,18 +49,19 @@ function tool_dataflows_after_config() {
 function tool_dataflows_step_types() {
     return [
         new step\connector_curl,
-        new step\trigger_cron,
-        new step\reader_sql,
-        new step\reader_json,
-        new step\writer_debugging,
-        new step\flow_logic_join,
-        new step\flow_logic_case,
-        new step\writer_stream,
         new step\connector_debugging,
         new step\connector_debug_file_display,
-        new step\connector_s3,
         new step\connector_sns_notify,
+        new step\connector_s3,
         new step\connector_wait,
+        new step\flow_logic_case,
+        new step\flow_logic_join,
+        new step\flow_web_service,
+        new step\reader_json,
+        new step\reader_sql,
+        new step\trigger_cron,
+        new step\writer_debugging,
+        new step\writer_stream,
     ];
 }
 
