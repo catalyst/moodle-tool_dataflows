@@ -95,8 +95,16 @@ $table->attributes['class'] = 'tool_dataflows table-run';
 $duration = number_format($run->timefinished - $run->timestarted, 4);
 $secsstr = get_string('secs');
 $data = [
-    'field_timestarted' => date_format_string($run->timestarted, get_string('strftimedatetimeaccurate'), $defaulttimezone),
-    'field_timefinished' => date_format_string($run->timefinished, get_string('strftimedatetimeaccurate'), $defaulttimezone),
+    'field_timestarted' => date_format_string(
+        $run->timestarted,
+        get_string('strftimedatetimeaccurate', 'tool_dataflows'),
+        $defaulttimezone
+    ),
+    'field_timefinished' => date_format_string(
+        $run->timefinished,
+        get_string('strftimedatetimeaccurate', 'tool_dataflows'),
+        $defaulttimezone
+    ),
     'field_duration' => $duration ? format_time($duration) : ("0 {$secsstr}"),
 ];
 $tabledata = [];
