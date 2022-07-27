@@ -176,8 +176,8 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $sql = 'SELECT *
                   FROM {config_plugins}
                  WHERE plugin = \'' . $template['plugin'] . '\'
-                [[ AND CAST(value as int) > ${{countervalue}} ]]
-              ORDER BY CAST(value as int) ASC
+                [[ AND ' . $DB->sql_cast_char2int('value') . ' > ${{countervalue}} ]]
+              ORDER BY ' . $DB->sql_cast_char2int('value') . ' ASC
                  LIMIT 10';
 
         // Create the dataflow.
