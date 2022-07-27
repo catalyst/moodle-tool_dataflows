@@ -73,6 +73,15 @@ class tiny_connector_s3 extends connector_s3 {
             'sourceremote'      => ['type' => PARAM_BOOL],
         ];
     }
+
+    /**
+     * This will not perform s3 operations and will do effectively nothing.
+     *
+     * @return bool Returns true if successful, false otherwise.
+     */
+    public function execute(): bool {
+        return true;
+    }
 }
 
 /**
