@@ -183,7 +183,7 @@ class step_form extends \core\form\persistent {
                         // No gap.
                         $current - 1 === $position
                         // Max not reached.
-                        ($maxposition === null || $maxposition !== $position)
+                        && ($maxposition === null || $maxposition !== $position)
                         // Always keep at least one option.
                         && $position !== 1
                     ) {
