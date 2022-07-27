@@ -112,7 +112,7 @@ class runs_table extends \table_sql {
      * @return string
      */
     public function col_timestarted(\stdClass $record): string {
-        return userdate($record->timestarted, get_string('strftimedatetimeaccurate'));
+        return userdate($record->timestarted, get_string('strftimedatetimeaccurate', 'tool_dataflows'));
     }
 
     /**
@@ -122,7 +122,7 @@ class runs_table extends \table_sql {
      * @return string
      */
     public function col_timefinished(\stdClass $record): string {
-        return userdate($record->timefinished, get_string('strftimedatetimeaccurate'));
+        return userdate($record->timefinished, get_string('strftimedatetimeaccurate', 'tool_dataflows'));
     }
 
     /**

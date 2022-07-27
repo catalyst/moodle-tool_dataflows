@@ -91,6 +91,7 @@ $string['field_duration'] = 'Duration';
 $string['startstate'] = 'Start state';
 $string['currentstate'] = 'Current state';
 $string['endstate'] = 'End state';
+$string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 
 // Step names.
 $string['step_name_connector_curl'] = 'Curl connector';
