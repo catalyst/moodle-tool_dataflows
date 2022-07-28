@@ -108,7 +108,7 @@ class flow_logic_case extends flow_logic_step {
             'config_cases',
             get_string('flow_logic_case:cases', 'tool_dataflows'),
             [
-                'placeholder' => "label: <expression>\nsome other label: <expression>",
+                'placeholder' => "label: <expression>\nsome other label: <expression>\ndefault: 1",
                 'cols' => 50,
                 // Maxoutputs is too big for normal user. In most cases it will
                 // be 3-5, but if there is N expressions saved then it should be
@@ -200,8 +200,30 @@ class flow_logic_case extends flow_logic_step {
                     throw new \moodle_exception(get_string('flow_logic_case:casenotfound', 'tool_dataflows', $casenumber));
                 }
 
+                // By default, this step should go through the list of
+                // expressions, in order, and stop at the first matching case.
+                // It should also stop at the first failing case that matches
+                // the position of the step that is 'pulling' on this one for
+                // efficiency.
+                // See issue #347 for more details.
                 $parser = new parser;
-                $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', ['record' => $value]);
+                foreach ($this->cases as $caseindex => $case) {
+                    $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', ['record' => $value]);
+
+                    // If there was a passing expression, break the loop.
+                    if ($result === true) {
+                        // We know it passed, but did it pass on the correct step output connection?
+                        $result = $caseindex === $casenumber;
+                        break;
+                    }
+
+                    // If this is on the same index as the case, break the loop.
+                    if ($caseindex === $casenumber) {
+                        break;
+                    }
+                }
+
+                // If the matching failed, do not pass the iterator value downstream.
                 if (!$result) {
                     $this->value = false;
                     return false;
