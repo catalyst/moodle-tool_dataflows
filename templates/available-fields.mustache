@@ -39,11 +39,15 @@
     </div>
     <div class="fieldcontainer col-md-9 form-inline felement">
         <p>{{# str }} available_fields_help, tool_dataflows, <code>${<span></span>{ dataflow.name }}</code> {{/ str }}</p>
-        <div class="treeview w-20 border">
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-md-3">
+    </div>
+    <div class="fieldcontainer col-md-9 form-inline felement">
             {{#groups}}
                 {{>tool_dataflows/tags}}
             {{/groups}}
-        </div>
     </div>
 </div>
 {{#js}}
@@ -60,6 +64,33 @@
                     closeButton: true,
                 });
             })
+        }
+        const expandedChevrons = document.getElementsByClassName('chevrons');
+        for (let i = 0; i < expandedChevrons.length; i++) {
+            expandedChevrons[i].addEventListener('click', e => {
+                const target = e.target;
+                console.log(target);
+                let value = target.closest('span').getAttribute('title');
+                console.log(value);
+                const chevronDiv = target.parentElement.parentElement;
+                const toAlter = chevronDiv.querySelectorAll('[title]');
+                toAlter.forEach(element => {
+                    if (value === 'Collapse') {
+                        if (element.title === 'Expand') {
+                            element.style.display = 'inline';
+                        } else {
+                            element.style.display = 'none';
+                        }
+                    }
+                    if (value === 'Expand') {
+                        if (element.title === 'Collapse') {
+                            element.style.display = 'inline';
+                        } else {
+                            element.style.display = 'none';
+                        }
+                    }
+                });
+            });
         }
     });
 {{/js}}

@@ -34,9 +34,16 @@
 }}
 {{^expression}}
     <ul>
-        <span type="button" data-toggle="collapse" data-target="#collapsable-{{name}}" aria-expanded="false" aria-controls="collapseExample">
-            {{#pix}}i/arrow-right{{/pix}}
+        <span type="button" data-toggle="collapse" data-target="#collapsable-{{name}}" aria-expanded="false" aria-controls="collapseExample" class=".collapse-indicator-plus">
+            <div class="chevrons">
+                <span title="{{#str}} collapse, core {{/str}}" style="display: none;">
+                    {{#pix}} t/expandedchevron, core {{/pix}}
+                </span>
+                <span title="{{#str}} expand, core {{/str}}">
+                    {{#pix}} t/collapsedchevron, core {{/pix}}
+                </span>
             {{name}}
+            </div>
         </span>
     </ul>
 {{/expression}}
