@@ -145,6 +145,9 @@ class flow_logic_case extends flow_logic_step {
             /** @var array mapping of step to cases, [step.id => case index] */
             private $stepcasemap = [];
 
+            /** @var bool whether or not the case for the current iterator has passed */
+            private $passed = false;
+
             /**
              * Create an instance of this class.
              *
@@ -181,17 +184,17 @@ class flow_logic_case extends flow_logic_step {
                     return false;
                 }
 
-                // Pull if needed.
+                // Pull the next record if needed.
                 $value = $this->input->current();
                 if (is_null($value) || !empty($this->passed)) {
                     $this->input->next($this);
                     ++$this->iterationcount;
-                    $this->step->log('Pulling upstream - ' . $this->iterationcount . ': ' . json_encode($this->input->current()));
                     $this->passed = false;
                 }
                 $value = $this->input->current();
 
                 $casenumber = $this->stepcasemap[$caller->step->id];
+                $position = $casenumber + 1;
                 $case = $this->cases[$casenumber] ?? null;
                 if (!isset($case)) {
                     throw new \moodle_exception(get_string('flow_logic_case:casenotfound', 'tool_dataflows', $casenumber));
@@ -203,6 +206,15 @@ class flow_logic_case extends flow_logic_step {
                     $this->value = false;
                     return false;
                 }
+
+                // Log details for when a case matches.
+                $output = sprintf(
+                    'Matching case "%s" (position #%d) with expression: %s',
+                    $this->steptype->get_output_label($position),
+                    $position,
+                    $case
+                );
+                $this->step->log($output);
 
                 $this->value = $value;
                 $this->passed = true;
