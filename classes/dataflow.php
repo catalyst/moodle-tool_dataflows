@@ -558,7 +558,8 @@ class dataflow extends persistent {
 
             $styles = '';
             foreach ($finalstyles as $key => $value) {
-                // TODO escape all attributes correctly.
+                // Escape all attributes correctly.
+                $value = addslashes($value);
                 $styles .= "$key =\"$value\", ";
             }
             trim($styles);
