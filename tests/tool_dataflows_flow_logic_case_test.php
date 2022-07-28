@@ -166,6 +166,46 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
     }
 
     /**
+     * Test case step is resolving matched cases in the expected order.
+     *
+     * @covers \tool_dataflows\local\step\flow_logic_case
+     */
+    public function test_case_matching_happens_in_order() {
+        [$dataflow] = $this->create_dataflow();
+        $isdryrun = false;
+        $this->assertTrue($dataflow->validate_dataflow());
+
+        $stepsbyalias = $dataflow->get_steps();
+        $case = $stepsbyalias->case;
+        $case->config = Yaml::dump([
+            'cases' => [
+                'even numbers' => '1',
+                'odd numbers' => '1',
+            ],
+        ]);
+
+        ob_start();
+        $engine = new engine($dataflow, $isdryrun);
+        $engine->execute();
+        ob_get_clean();
+
+        $odd = $engine->resolve_path('odd.json');
+        $odd = file_get_contents($odd);
+        $odd = json_decode($odd);
+        $even = $engine->resolve_path('even.json');
+        $even = file_get_contents($even);
+        $even = json_decode($even);
+
+        // Everything should sink into the evens file, as it is the first matching case (in order).
+        $even = array_column($even, 'value');
+        $this->assertCount(9, $even);
+        $this->assertEquals(5, array_sum($even));
+        $odd = array_column($odd, 'value');
+        $this->assertCount(0, $odd);
+        $this->assertEquals(0, array_sum($odd));
+    }
+
+    /**
      * Description of what this does
      *
      * @covers \tool_dataflows\local\service\step_service
