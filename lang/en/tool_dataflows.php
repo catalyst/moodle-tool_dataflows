@@ -124,7 +124,7 @@ $string['available_fields'] = 'Available Fields';
 $string['available_fields_help'] = 'The fields listed below can be referenced in any step configuration, e.g. {$a}';
 $string['field_description'] = 'Description';
 $string['field_alias'] = 'Alias';
-$string['field_alias_help'] = 'A snake cased reference to the step, unique to this dataflow. This can be used when referencing dependencies and inputs from other steps. Leaving this field blank will attempt to use a snake case version of the name value. For example, if the name is "My Step", it will be populate this field as "my_step"';
+$string['field_alias_help'] = 'A reference to this step, unique to this dataflow. This can be used in expressions to access the step. It must be made up of only letters, numbers, or underscores (\'_\'). If empty, then a snake case version of the name will be used. For example, if the name is "My Step", it will be populate this field as "my_step"';
 $string['field_config'] = 'Configuration';
 $string['field_outputs'] = 'Output Mapping';
 $string['field_outputs_help'] = 'An optional list of custom named fields you want mapped from the step\'s output in YAML format. For example if you set, {$a->config}, it can later be referenced as {$a->reference} from a future step. This can be useful as it allows you to create a shorter alias to a deeply nested value within the same context as the data.';
@@ -207,6 +207,8 @@ $string['must_have_a_step_def_defined'] = 'If an engine is passed as a parameter
 $string['path_invalid'] = 'Path "{$a}" is not permitted.';
 $string['path_not_absolute'] = 'Path "{$a}" is not an absolute path.';
 $string['unknown_placeholder'] = 'Placeholder "{$a}" is not recognised.';
+$string['invalid_value_for_field'] = 'Value "{$a->value}" for field "{$a->field}" is invalid.';
+$string['invalid_value'] = 'Value is invalid.';
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';

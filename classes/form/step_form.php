@@ -19,6 +19,7 @@ namespace tool_dataflows\form;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\parser;
+use tool_dataflows\step;
 
 /**
  * Dataflow Step Form
@@ -70,6 +71,7 @@ class step_form extends \core\form\persistent {
         // Alias for the step (e.g. id-like field of a yaml configured dataflow, if absent, the key for the step).
         $mform->addElement('text', 'alias', get_string('field_alias', 'tool_dataflows'));
         $mform->addElement('static', 'alias_help', '', get_string('field_alias_help', 'tool_dataflows'));
+        $mform->addRule('alias', get_string('invalid_value', 'tool_dataflows'), 'regex', step::ALPHANUMEXT, 'client');
 
         // Depends on.
         $options = $this->get_dependson_options();

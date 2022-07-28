@@ -40,6 +40,12 @@ class step extends persistent {
     /** Delimeter for the 'depends on' and 'position' values. */
     const DEPENDS_ON_POSITION_SPLITTER = ':';
 
+    /** PARAM_ALPHANUMEXT regex as a constant. (Moodle does not define this constant). */
+    const ALPHANUMEXT = '/^[a-zA-Z0-9_-]+$/';
+
+    /** Characters to strip out when converting a name. Taken from PARAM_ALPHANUMEXT. */
+    const NOT_ALPHANUMEXT = '/[^a-zA-Z0-9_-]+/';
+
     /** @var array $dependson */
     private $dependson = [];
 
@@ -263,8 +269,9 @@ class step extends persistent {
      * @return     $this
      */
     protected function set_name(string $name): step {
-        if (empty($this->alias)) {
-            $snake = str_replace(' ', '_', strtolower($name));
+        if (empty($this->get('alias'))) {
+            // Don't use clean_param() because it does not do any replacing.
+            $snake = preg_replace(self::NOT_ALPHANUMEXT, '_', strtolower($name));
             $this->alias = $snake;
         }
         return $this->raw_set('name', $name);
@@ -274,11 +281,29 @@ class step extends persistent {
      * Validates the name field
      *
      * @param      string $name provided
-     * @return     true|lang_string will return a lang_string if there was an error
+     * @return     true|\lang_string will return a lang_string if there was an error
      */
     protected function validate_name($name) {
         if (empty($name)) {
             return new \lang_string('missingname');
+        }
+        return true;
+    }
+
+    /**
+     * Validates the alias field
+     *
+     * @param string $alias
+     * @return true|\lang_string
+     */
+    protected function validate_alias(string $alias) {
+        $cleaned = clean_param($alias, PARAM_ALPHANUMEXT);
+        if ($cleaned != $alias) {
+            return new \lang_string(
+                'invalid_value_for_field',
+                'tool_dataflows',
+                ['value' => $alias, 'field' => get_string('field_alias', 'tool_dataflows')]
+            );
         }
         return true;
     }
