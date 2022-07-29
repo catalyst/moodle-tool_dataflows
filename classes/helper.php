@@ -129,13 +129,28 @@ class helper {
     public static function get_permitted_dirs(): array {
         global $CFG;
 
-        $permitteddirs = explode(PHP_EOL, trim(get_config('tool_dataflows', 'permitted_dirs')));
+        $data = get_config('tool_dataflows', 'permitted_dirs');
 
-        foreach ($permitteddirs as &$dir) {
+        // Strip comments.
+        $data = preg_replace('!/\*.*?\*/!s', '', $data);
+
+        $dirs = explode(PHP_EOL, $data);
+
+        $permitteddirs = [];
+        foreach ($dirs as $dir) {
+
+            // Strip # comments, and trim.
+            $dir = trim(preg_replace('/#.*$/', '', $dir));
+
+            if ($dir == '') {
+                continue;
+            }
+
             // Substitute '[dataroot]' placeholder with the site's data root directory.
             if (substr($dir, 0, strlen(self::DATAROOT_PLACEHOLDER)) == self::DATAROOT_PLACEHOLDER) {
                 $dir = $CFG->dataroot . substr($dir, strlen(self::DATAROOT_PLACEHOLDER));
             }
+            $permitteddirs[] = $dir;
         }
         return $permitteddirs;
     }
@@ -148,8 +163,6 @@ class helper {
      * @return bool
      */
     public static function is_filepath(string $path): bool {
-        $path = trim($path);
-
         // Match against valid path syntax.
         if (preg_match('/^[^*?"<>|:]*$/', $path)) {
             return true;

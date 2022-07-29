@@ -25,6 +25,7 @@
  */
 
 use \tool_dataflows\helper;
+use \tool_dataflows\admin\admin_setting_permitted_directories;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -46,7 +47,7 @@ if ($hassiteconfig) {
             '0'
         ));
 
-        $settings->add(new \tool_dataflows\admin_setting_permitted_directories(
+        $settings->add(new admin_setting_permitted_directories(
             'tool_dataflows/permitted_dirs',
             get_string('permitted_dirs', 'tool_dataflows'),
             get_string('permitted_dirs_desc', 'tool_dataflows', helper::DATAROOT_PLACEHOLDER),

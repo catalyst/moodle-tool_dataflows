@@ -37,15 +37,42 @@ class tool_dataflows_helper_test extends \advanced_testcase {
     /**
      * Tests the get_permitted_dirs() function.
      *
+     * @dataProvider dir_provider
      * @covers \tool_dataflows\helper::get_permitted_dirs
+     * @param string $data
+     * @param array $expected
      */
-    public function test_get_permitted_dirs() {
-        global $CFG;
-
-        set_config('permitted_dirs', "/home/me/tmp\n[dataroot]/tmp", 'tool_dataflows');
+    public function test_get_permitted_dirs(string $data, array $expected) {
+        set_config('permitted_dirs', $data, 'tool_dataflows');
         $dirs = helper::get_permitted_dirs();
-        $this->assertCount(2, $dirs);
-        $this->assertEquals('/home/me/tmp', $dirs[0]);
-        $this->assertEquals($CFG->dataroot . '/tmp', $dirs[1]);
+        $this->assertEquals($expected, $dirs);
+    }
+
+    /**
+     * Provides raw permitted directories config values.
+     *
+     * @return array[]
+     */
+    public function dir_provider(): array {
+        global $CFG;
+        return [
+            ['', []],
+            [
+                '/home/me/tmp ' . PHP_EOL . '  ' . PHP_EOL . '[dataroot]/tmp ',
+                ['/home/me/tmp', $CFG->dataroot . '/tmp']
+            ],
+            [
+                '/* A comment' . PHP_EOL . ' over two lines */' . PHP_EOL . '/tmp' . PHP_EOL . '/var',
+                ['/tmp', '/var']
+            ],
+            [
+                '# comment' . PHP_EOL . '/var/tmp   # more comments.',
+                ['/var/tmp']
+            ],
+            [
+                '/var/[dataroot]/tmp',
+                ['/var/[dataroot]/tmp']
+            ],
+        ];
     }
 }
