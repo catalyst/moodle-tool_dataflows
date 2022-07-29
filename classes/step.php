@@ -790,7 +790,6 @@ class step extends persistent {
      * @return     string
      */
     public function get_dotscript($contentonly = false): string {
-        $this->name = addslashes($this->name);
         $localstyles = ['tooltip' => $this->description ?: $this->name];
         if ($this->id !== 0) { // If ID is zero, then there is nothing to link to.
             $localstyles['URL'] = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->id]))->out();
@@ -827,12 +826,12 @@ class step extends persistent {
         $styles = [];
         foreach ($rawstyles as $key => $value) {
             // Escape all attributes correctly.
-            $value = addslashes($value);
+            $value = $this->get_dataflow()->escape_dot($value);
             $styles[] = "$key =\"$value\"";
         }
         $styles = implode(', ', $styles);
 
-        $content = "\"{$this->name}\" [$styles]";
+        $content = "\"{$this->get_dataflow()->escape_dot($this->name)}\" [$styles]";
         if ($contentonly) {
             return $content;
         }

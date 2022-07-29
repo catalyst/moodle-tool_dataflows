@@ -559,12 +559,12 @@ class dataflow extends persistent {
             $styles = '';
             foreach ($finalstyles as $key => $value) {
                 // Escape all attributes correctly.
-                $value = addslashes($value);
+                $value = $this->escape_dot($value);
                 $styles .= "$key =\"$value\", ";
             }
             trim($styles);
 
-            $connection = implode('" -> "', [$srcstep->name, $deststep->name]);
+            $connection = implode('" -> "', [$this->escape_dot($srcstep->name), $this->escape_dot($deststep->name)]);
             $link = "\"{$connection}\" [$styles]";
             $connections[] = $link;
         }
@@ -753,5 +753,15 @@ class dataflow extends persistent {
             // Set the config hash in dataflows table.
             $DB->update_record('tool_dataflows', (object) ['id' => $this->id, 'confighash' => $newconfighash]);
         }
+    }
+
+    /**
+     * Escape string to be passed to the dot cli
+     *
+     * @param   string $stringtoescape
+     * @return  string
+     */
+    public function escape_dot(string $stringtoescape): string {
+        return addslashes($stringtoescape);
     }
 }
