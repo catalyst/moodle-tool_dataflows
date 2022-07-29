@@ -41,6 +41,8 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+
+        set_config('permitted_dirs', '/tmp', 'tool_dataflows');
     }
 
     /**

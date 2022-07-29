@@ -43,6 +43,8 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         parent::setUp();
         $this->resetAfterTest();
 
+        set_config('permitted_dirs', '/tmp', 'tool_dataflows');
+
         $this->dataflow = $this->create_dataflow();
         $this->set_initial_test_data();
     }

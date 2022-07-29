@@ -37,7 +37,7 @@ $string['enabled_help'] = '';
 $string['permitted_dirs'] = 'Permitted directories';
 $string['permitted_dirs_desc'] = "List directories here to allow them to be read from/written to by dataflow steps.
     One directory per line. Each directory must be an absolute path. You can use the place holder '{\$a}' for the
-    site's data root directory.\n
+    site's data root directory. You can also include comments using /* and */.\n
     Examples.
     /tmp
     /home/me/mydata

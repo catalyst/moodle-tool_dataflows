@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
+namespace tool_dataflows\admin;
+
+use \tool_dataflows\helper;
 
 /**
  * A custom setting for the permitted directories that a dataflow can interact with.
@@ -38,14 +40,25 @@ class admin_setting_permitted_directories extends \admin_setting_configtextarea 
     public function validate($data) {
         global $CFG;
 
-        if (empty($data)) {
+        // Strip /*..*/ comments.
+        $data = preg_replace('!/\*.*?\*/!s', '', $data);
+
+        if (empty(trim($data))) {
             return true;
         }
 
-        $lines = explode("\n", trim($data));
+        $lines = explode(PHP_EOL, $data);
 
         $errors = [];
         foreach ($lines as $line) {
+
+            // Strip # comments, and trim.
+            $line = trim(preg_replace('/#.*$/', '', $line));
+
+            // Ignore empty lines.
+            if ($line == '') {
+                continue;
+            }
 
             // Substitute dataroot placeholder, if found.
             if (substr($line, 0, strlen(helper::DATAROOT_PLACEHOLDER)) === helper::DATAROOT_PLACEHOLDER) {
