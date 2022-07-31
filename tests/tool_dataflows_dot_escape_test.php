@@ -44,30 +44,42 @@ class tool_dataflows_dot_escape_test extends \advanced_testcase {
     }
 
     /**
-     * Data provider of serialized string.
+     * Data provider of input strings.
      *
      * @return array
      */
     public function escape_dot_dataprovider() {
+
+        $sqlinput = <<<'INPUT'
+        '  "  \ / \\ SQL
+INPUT;
+        $sqlexpected = <<<'EXPECTED'
+        \'  \"  \\ / \\\\ SQL
+EXPECTED;
+        $polyinput = <<<'INPUT'
+        jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//
+INPUT;
+        $polyexpected = <<<'EXPECTED'
+        jaVasCript:/*-/*`/*\\`/*\'/*\"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//
+EXPECTED;
+        $specialinput = <<<'INPUT'
+        !@#$%^&*()_+{}[]\|
+INPUT;
+        $specialexpected = <<<'EXPECTED'
+        !@#$%^&*()_+{}[]\\|
+EXPECTED;
+
         return [
             ['Test name', 'Test name'],
             ['"', '\"'],
-            [<<<'INPUT'
-                '  "  \ / \\ SQL
-             INPUT,
-             <<<'EXPECTED'
-                \'  \"  \\ / \\\\ SQL
-             EXPECTED],
-            [<<<'INPUT'
-                jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//
-             INPUT,
-            <<<'EXPECTED'
-                jaVasCript:/*-/*`/*\\`/*\'/*\"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//
-             EXPECTED],
+            [$sqlinput, $sqlexpected],
+            [$polyinput, $polyexpected],
+            [$specialinput, $specialexpected],
         ];
     }
+
     /**
-     * Test which tables and column should be replaced.
+     * Test escaping produces expected result for the dot cli.
      *
      * @dataProvider escape_dot_dataprovider
      * @covers ::escape_dot
@@ -77,5 +89,38 @@ class tool_dataflows_dot_escape_test extends \advanced_testcase {
     public function test_escape_dot(string $input, string $expected) {
         $dataflow = new dataflow();
         $this->assertSame($dataflow->escape_dot($input), $expected);
+    }
+
+    /**
+     * Test generating the image from dot cli after escaping.
+     *
+     * @dataProvider escape_dot_dataprovider
+     * @covers ::escape_dot
+     * @param string $input
+     */
+    public function test_dot_cli(string $input) {
+        $dataflow = new dataflow();
+        $dataflow->name = 'dataflow';
+        $dataflow->enabled = true;
+        $dataflow->save();
+
+        $reader = new step();
+        $reader->name = $input;
+        $reader->type = 'tool_dataflows\local\step\reader_json';
+        $reader->alias = 'alias';
+        $reader->config = Yaml::dump(['pathtojson' => '']);
+        $dataflow->add_step($reader);
+
+        $writer = new step();
+        $writer->name = 'writer';
+        $writer->type = 'tool_dataflows\local\step\writer_debugging';
+        $writer->depends_on([$reader->id]);
+        $dataflow->add_step($writer);
+
+        $dotscript = $dataflow->get_dotscript();
+
+        // Execute dotscript to ensure no errors are thrown.
+        $output = \tool_dataflows\visualiser::generate($dotscript, 'svg');
+        $this->assertIsString($output);
     }
 }
