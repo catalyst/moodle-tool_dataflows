@@ -19,6 +19,7 @@ namespace tool_dataflows;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
+use tool_dataflows\local\step\writer_stream;
 use tool_dataflows\step;
 
 defined('MOODLE_INTERNAL') || die();
@@ -111,5 +112,32 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
             [[['a' => 1], ['b' => 5], ['c' => 6]], true, false],
             [[['a' => 1], ['b' => 5], ['c' => 7]], false, false],
         ];
+    }
+
+    /**
+     * Tests the writer_stream reports side effects correctly.
+     *
+     * @covers \tool_dataflows\local\step\writer_stream::has_side_effect
+     */
+    public function test_has_side_effect() {
+        $steptype = new writer_stream();
+        $this->assertTrue($steptype->has_side_effect());
+
+        $dataflow = new dataflow();
+        $dataflow->name = 'array-to-stream';
+        $dataflow->enabled = true;
+        $dataflow->save();
+
+        $step = new step();
+        $step->name = 'somename';
+        $step->type = 'tool_dataflows\local\step\writer_stream';
+
+        $step->config = Yaml::dump(['format' => 'json', 'streamname' => 'file:///home/out.txt', 'prettyprint' => true]);
+        $dataflow->add_step($step);
+        $steptype = $step->steptype;
+        $this->assertTrue($steptype->has_side_effect());
+
+        $step->config = Yaml::dump(['format' => 'json', 'streamname' => 'rel/out.txt', 'prettyprint' => true]);
+        $this->assertFalse($steptype->has_side_effect());
     }
 }

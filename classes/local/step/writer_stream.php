@@ -48,6 +48,31 @@ class writer_stream extends writer_step {
     /** @var string dataflow local encoder path */
     const LOCAL_ENCODER_PATH = 'tool_dataflows\local\formats\encoders';
 
+
+    /**
+     * Returns whether or not the step configured, has a side effect
+     *
+     * A side effect if it modifies some state variable value(s) outside its
+     * local environment, which is to say if it has any observable effect other
+     * than its primary effect of returning a value to the invoker of the
+     * operation.
+     *
+     * For stream writers, it is considered to have a side effect if it writes to
+     * anywhere outside of the scratch directory.
+     *
+     * @return     bool whether or not this step has a side effect
+     * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+     */
+    public function has_side_effect(): bool {
+        if (isset($this->stepdef)) {
+            $config = $this->stepdef->config;
+            if (isset($config->streamname)) {
+                return !helper::path_is_relative($config->streamname);
+            }
+        }
+        return true;
+    }
+
     /**
      * Return the definition of the fields available in this form.
      *
