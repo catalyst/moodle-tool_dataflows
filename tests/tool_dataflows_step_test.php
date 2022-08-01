@@ -25,6 +25,7 @@ namespace tool_dataflows;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_step_test extends \advanced_testcase {
+
     /**
      * Set up before each test
      */
@@ -43,6 +44,7 @@ class tool_dataflows_step_test extends \advanced_testcase {
      */
     public function test_alias_validation(string $alias, $expected) {
         $step = new class extends step {
+
             /**
              * Function to access validate_alias()
              *
@@ -69,21 +71,30 @@ class tool_dataflows_step_test extends \advanced_testcase {
             ['snake_name', true],
             ['kebab-name', true],
             ['Captial-name-with-number5', true],
-            ['has space', new \lang_string(
-                'invalid_value_for_field',
-                'tool_dataflows',
-                ['value' => 'has space', 'field' => get_string('field_alias', 'tool_dataflows')]
-            )],
-            ['has_punctuation!', new \lang_string(
-                'invalid_value_for_field',
-                'tool_dataflows',
-                ['value' => 'has_punctuation!', 'field' => get_string('field_alias', 'tool_dataflows')]
-            )],
-            ['has.dot', new \lang_string(
-                'invalid_value_for_field',
-                'tool_dataflows',
-                ['value' => 'has.dot', 'field' => get_string('field_alias', 'tool_dataflows')]
-            )],
+            [
+                'has space',
+                new \lang_string(
+                    'invalid_value_for_field',
+                    'tool_dataflows',
+                    ['value' => 'has space', 'field' => get_string('field_alias', 'tool_dataflows')]
+                ),
+            ],
+            [
+                'has_punctuation!',
+                new \lang_string(
+                    'invalid_value_for_field',
+                    'tool_dataflows',
+                    ['value' => 'has_punctuation!', 'field' => get_string('field_alias', 'tool_dataflows')]
+                ),
+            ],
+            [
+                'has.dot',
+                new \lang_string(
+                    'invalid_value_for_field',
+                    'tool_dataflows',
+                    ['value' => 'has.dot', 'field' => get_string('field_alias', 'tool_dataflows')]
+                ),
+            ],
         ];
     }
 

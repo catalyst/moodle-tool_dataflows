@@ -59,19 +59,19 @@ class tool_dataflows_helper_test extends \advanced_testcase {
             ['', []],
             [
                 '/home/me/tmp ' . PHP_EOL . '  ' . PHP_EOL . '[dataroot]/tmp ',
-                ['/home/me/tmp', $CFG->dataroot . '/tmp']
+                ['/home/me/tmp', $CFG->dataroot . '/tmp'],
             ],
             [
                 '/* A comment' . PHP_EOL . ' over two lines */' . PHP_EOL . '/tmp' . PHP_EOL . '/var',
-                ['/tmp', '/var']
+                ['/tmp', '/var'],
             ],
             [
                 '# comment' . PHP_EOL . '/var/tmp   # more comments.',
-                ['/var/tmp']
+                ['/var/tmp'],
             ],
             [
                 '/var/[dataroot]/tmp',
-                ['/var/[dataroot]/tmp']
+                ['/var/[dataroot]/tmp'],
             ],
         ];
     }
