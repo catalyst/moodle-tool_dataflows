@@ -51,22 +51,22 @@ class tool_dataflows_dot_escape_test extends \advanced_testcase {
     public function escape_dot_dataprovider() {
 
         $sqlinput = <<<'INPUT'
-        '  "  \ / \\ SQL
+'  "  \ / \\ SQL
 INPUT;
         $sqlexpected = <<<'EXPECTED'
-        \'  \"  \\ / \\\\ SQL
+\'  \"  \\ / \\\\ SQL
 EXPECTED;
         $polyinput = <<<'INPUT'
-        jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//
+jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//
 INPUT;
         $polyexpected = <<<'EXPECTED'
-        jaVasCript:/*-/*`/*\\`/*\'/*\"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//
+jaVasCript:/*-/*`/*\\`/*\'/*\"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//
 EXPECTED;
         $specialinput = <<<'INPUT'
-        !@#$%^&*()_+{}[]\|
+!@#$%^&*()_+{}[]\|
 INPUT;
         $specialexpected = <<<'EXPECTED'
-        !@#$%^&*()_+{}[]\\|
+!@#$%^&*()_+{}[]\\|
 EXPECTED;
 
         return [
@@ -121,6 +121,7 @@ EXPECTED;
 
         // Execute dotscript to ensure no errors are thrown.
         $output = \tool_dataflows\visualiser::generate($dotscript, 'svg');
-        $this->assertIsString($output);
+
+        $this->assertNotEmpty($output);
     }
 }
