@@ -34,6 +34,9 @@ class array_out_type extends writer_step {
     /** @var array The output array that the dat is written into. Make sure it is empty before use. */
     public static $dest = [];
 
+    /** @var bool whether or not this step type (potentially) contains a side effect or not */
+    protected $hassideeffect = true;
+
     /**
      * Get the iterator for the step, based on configurations.
      *
