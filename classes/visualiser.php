@@ -73,24 +73,31 @@ class visualiser {
      * @author     Kevin Pham <kevinpham@catalyst-au.net>
      */
     public static function generate(string $dotscript, ?string $type = 'svg') {
-        global $CFG;
+        global $CFG, $OUTPUT;
+
+        if (!helper::is_graphviz_dot_installed()) {
+            return $OUTPUT->render(
+                new \pix_icon(helper::GRAPHVIZ_ALT_ICON,
+                    get_string('preview_unavailable', 'tool_dataflows'))
+            ) . get_string('preview_unavailable', 'tool_dataflows');
+        }
 
         $descriptorspec = [
-           // The stdin is a pipe that the child will read from.
-           0 => ['pipe', 'r'],
-           // The stdout is a pipe that the child will write to.
-           1 => ['pipe', 'w'],
-           // The stderr is a pipe that the child will write to.
-           2 => ['pipe', 'w'],
+            // The stdin is a pipe that the child will read from.
+            0 => ['pipe', 'r'],
+            // The stdout is a pipe that the child will write to.
+            1 => ['pipe', 'w'],
+            // The stderr is a pipe that the child will write to.
+            2 => ['pipe', 'w'],
         ];
 
         $cmd = (!empty($CFG->pathtodot) ? $CFG->pathtodot : 'dot') . ' -T' . $type;
         $process = proc_open(
-          $cmd,
-          $descriptorspec,
-          $pipes,
-          sys_get_temp_dir(),
-          ['PATH' => getenv('PATH')]
+            $cmd,
+            $descriptorspec,
+            $pipes,
+            sys_get_temp_dir(),
+            ['PATH' => getenv('PATH')]
         );
 
         if (is_resource($process)) {
@@ -139,6 +146,19 @@ class visualiser {
         $PAGE->set_heading($pluginname);
         echo $output->header();
         echo $output->heading($pageheading);
+
+        if (!helper::is_graphviz_dot_installed()) {
+            \core\notification::warning(
+                get_string(
+                    'no_dot_installed',
+                    'tool_dataflows',
+                     \html_writer::link(
+                         helper::README_DEPENDENCY_LINK,
+                         get_string('here', 'tool_dataflows')
+                     )
+                )
+            );
+        }
 
         // New Dataflow.
         $icon = $output->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));

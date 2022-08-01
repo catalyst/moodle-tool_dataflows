@@ -40,6 +40,24 @@ if ($hassiteconfig) {
         new moodle_url('/admin/tool/dataflows/index.php'));
 
     if ($ADMIN->fulltree) {
+        if (!helper::is_graphviz_dot_installed()) {
+            $settings->add(new admin_setting_description(
+                'tool_dataflows/nodot',
+                '',
+                html_writer::div(
+                    get_string(
+                        'no_dot_installed',
+                        'tool_dataflows',
+                        \html_writer::link(
+                            helper::README_DEPENDENCY_LINK,
+                            get_string('here', 'tool_dataflows')
+                        )
+                    ),
+                    'alert alert-warning'
+                )
+            ));
+        }
+
         $settings->add(new admin_setting_configcheckbox(
             'tool_dataflows/enabled',
             get_string('enabled', 'tool_dataflows'),
