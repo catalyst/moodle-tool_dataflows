@@ -232,4 +232,44 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         $this->assertTrue(is_array($result));
         $this->assertArrayHasKey('config_curl', $result);
     }
+
+    /**
+     * Tests run validation.
+     *
+     * @covers \tool_dataflows\local\step\connector_curl::validate_for_run
+     */
+    public function test_validate_for_run() {
+        $absolutepath = '/var/tmp.json';
+        $errormsg = get_string('path_invalid', 'tool_dataflows', $absolutepath, true);
+        $config = [
+            'curl' => 'https://some.place',
+            'destination' => 'tmp.json',
+            'headers' => '',
+            'method' => 'get',
+            'outputs' => [
+                'httpcode' => '${{ response.httpcode }}',
+                'destination' => '${{ response.destination }}',
+            ],
+        ];
+
+        $dataflow = new dataflow();
+        $dataflow->enabled = true;
+        $dataflow->name = 'dataflow';
+        $step = new step();
+        $step->name = 'name';
+        $step->type = 'tool_dataflows\local\step\connector_curl';
+        $step->config = Yaml::dump($config);
+        $dataflow->add_step($step);
+        $steptype = $step->steptype;
+
+        set_config('permitted_dirs', '', 'tool_dataflows');
+        $this->assertTrue($steptype->validate_for_run());
+
+        $config['destination'] = $absolutepath;
+        $step->config = Yaml::dump($config);
+        $this->assertEquals(['config_destination' => $errormsg], $steptype->validate_for_run());
+
+        set_config('permitted_dirs', '/var', 'tool_dataflows');
+        $this->assertTrue($steptype->validate_for_run());
+    }
 }
