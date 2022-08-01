@@ -48,7 +48,6 @@ class writer_stream extends writer_step {
     /** @var string dataflow local encoder path */
     const LOCAL_ENCODER_PATH = 'tool_dataflows\local\formats\encoders';
 
-
     /**
      * Returns whether or not the step configured, has a side effect
      *
