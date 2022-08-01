@@ -69,6 +69,7 @@ $string['new_dataflow'] = 'New Dataflow';
 $string['remove_dataflow'] = 'Remove dataflow';
 $string['remove_dataflow_confirm'] = 'Are you sure you want to remove the dataflow \'{$a}\'? This action is irreversible.';
 $string['remove_dataflow_successful'] = 'Removed dataflow \'{$a}\' successfully.';
+$string['concurrency_enabled'] = 'Enable concurrent running';
 
 // Dataflow import form.
 $string['dataflow_file'] = 'Dataflow file';
@@ -212,6 +213,9 @@ $string['invalid_value'] = 'Value is invalid.';
 $string['no_dot_installed'] = 'A dependency "dot" could not be found. View dependencies and installation instructions {$a}.';
 $string['preview_unavailable'] = 'Preview unavailable';
 $string['here'] = 'here';
+$string['concurrency_disabled'] = 'Concurrency is not possible with this dataflow. Concurrent running flag has been set to false.';
+$string['concurrency_enabled_disabled_desc'] = '<i>Concurrent running is not possible because one or more steps are unable to support concurrency.
+ While you can still edit this setting, it\'s value will be ignored. Reasons are:</i>';
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';
@@ -273,6 +277,8 @@ $string['reader_sql:counterfield_help'] = 'Field in which the counter value is d
 $string['reader_sql:countervalue'] = 'Counter Value';
 $string['reader_sql:countervalue_help'] = 'Current value from the counter field';
 $string['reader_sql:variable_not_valid_in_position_replacement_text'] = "Invalid expression \${{ {\$a->expression} }} as `{\$a->expressionpath}` could not be resolved at line {\$a->line} character {\$a->column} in:\n{\$a->sql}"; // phpcs:disable moodle.Strings.ForbiddenStrings.Found
+$string['reader_sql:counterfield_not_empty'] = 'Counterfield value is non-empty.';
+$string['reader_sql:settings_unknown'] = 'The settings are unknown.';
 
 // Reader JSON.
 $string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON. For example, {$a->expression} will return the users array from the following JSON (If empty it is assumed the starting point of the JSON file is an array):{$a->jsonexample}';

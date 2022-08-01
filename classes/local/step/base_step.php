@@ -199,6 +199,15 @@ abstract class base_step {
     }
 
     /**
+     * Can dataflows with this step be executed in parallel.
+     *
+     * @return string|true True if concurrency is supported, or a string giving a reason why it doesn't.
+     */
+    public function is_concurrency_supported() {
+        return true;
+    }
+
+    /**
      * Get the step's id
      *
      * This defaults to the base name of the class which is ok in the most
@@ -544,6 +553,12 @@ abstract class base_step {
      * Hook function that gets called when a step is deleted.
      */
     public function on_delete() {
+    }
+
+    /**
+     * Hook function that gets called when a step has been initialised.
+     */
+    public function on_initialise() {
     }
 
     /**

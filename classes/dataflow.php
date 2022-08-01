@@ -95,6 +95,7 @@ class dataflow extends persistent {
         return [
             'name' => ['type' => PARAM_TEXT],
             'enabled' => ['type' => PARAM_BOOL, 'default' => false],
+            'concurrencyenabled' => ['type' => PARAM_BOOL, 'default' => false],
             'config' => ['type' => PARAM_TEXT, 'default' => ''],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],
@@ -348,7 +349,8 @@ class dataflow extends persistent {
 
         // Check if each step is valid based on its own definition of valid (e.g. which could be based on configuration).
         foreach ($steps as $step) {
-            if (isset($step->steptype) && $step->steptype->get_group() == 'triggers') {
+            $steptype = $step->steptype;
+            if (isset($steptype) && $steptype->get_group() == 'triggers') {
                 ++$numtriggers;
             }
             $stepvalidation = $step->validate_step();
@@ -393,6 +395,35 @@ class dataflow extends persistent {
         }
 
         return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Returns whether concurrency is possible by the step configurations.
+     *
+     * @return array|true True if concurrency is supported, or an array of strings giving reasons why it isn't.
+     */
+    public function is_concurrency_supported() {
+        $steps = $this->steps;
+        $reasons = [];
+        foreach ($steps as $step) {
+            $steptype = $step->steptype;
+            if (isset($steptype)) {
+                $supported = $steptype->is_concurrency_supported();
+                if ($supported !== true) {
+                    $reasons[$step->name] = $supported;
+                }
+            }
+        }
+        return count($reasons) ? $reasons : true;
+    }
+
+    /**
+     * Returns whether concurrent running is enabled and supported.
+     *
+     * @return bool True is concurrency is both supported and enabled by setting, False otherwise.
+     */
+    public function is_concurrency_enabled(): bool {
+        return ($this->concurrencyenabled && ($this->is_concurrency_supported() === true));
     }
 
     /**

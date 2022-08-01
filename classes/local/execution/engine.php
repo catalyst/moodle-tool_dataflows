@@ -111,6 +111,15 @@ class engine {
     /** @var string Scratch directory for temporary files. */
     protected $scratchdir = null;
 
+    /** @var \core\lock\lock|false Lock for the dataflow. Sometimes, only one dataflow of each def should be running at a time. */
+    protected $lock = false;
+
+    /** @var \core\lock\lock_factory Factory to produce locks.  */
+    protected static $lockfactory = null;
+
+    /** @var bool Has this engine been blocked by a lock. */
+    protected $blocked = false;
+
     /**
      * Constructs the engine.
      *
@@ -168,10 +177,95 @@ class engine {
     }
 
     /**
-     * Initialises the engine
+     * Destructor function.
+     * Releases any locks that are still held.
+     */
+    public function __destruct() {
+        $this->release_lock();
+    }
+
+    /**
+     * Tries to obtain a lock for this dataflow
+     *
+     * @param int $timeout
+     * @return \core\lock\lock|false.
+     */
+    public function get_lock($timeout = 0) {
+        global $DB;
+
+        $lockfactory = \core\lock\lock_config::get_lock_factory('tool_dataflows_engine');
+        $this->lock = $lockfactory->get_lock('tool_dataflows_engine_' . $this->dataflow->id, $timeout);
+        if ($this->lock) {
+            $DB->insert_record(
+                'tool_dataflows_lock_metadata',
+                [
+                    'dataflowid' => $this->dataflow->id,
+                    'timestamp' => time(),
+                    'processid' => getmypid(),
+                ]
+            );
+        }
+        return $this->lock;
+    }
+
+    /**
+     * Release any locks that have been previously obtained.
+     *
+     * @throws \dml_exception
+     */
+    public function release_lock() {
+        global $DB;
+
+        if ($this->lock) {
+            $this->lock->release();
+            $this->lock = false;
+            $DB->delete_records('tool_dataflows_lock_metadata', ['dataflowid' => $this->dataflow->id]);
+        }
+    }
+
+    /**
+     * Gets the metadata associated with the dataflow lock.
+     *
+     * @param int $dataflowid
+     * @return false|mixed|\stdClass
+     * @throws \dml_exception
+     */
+    public static function get_lock_metadata(int $dataflowid) {
+        global $DB;
+
+        return $DB->get_record('tool_dataflows_lock_metadata', ['dataflowid' => $dataflowid]);
+    }
+
+    /**
+     * Returns if the execution was unable to obtain a lock.
+     *
+     * @return object|false Lock metadata, for false is not blocked.
+     */
+    public function is_blocked() {
+        if ($this->blocked) {
+            return self::get_lock_metadata($this->dataflow->id);
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Initialises the dataflow.
      */
     public function initialise() {
+        $this->status_check(self::STATUS_NEW);
+
+        if (!$this->dataflow->is_concurrency_enabled()) {
+            if (!$this->get_lock()) {
+                $metadata = self::get_lock_metadata($this->dataflow->id);
+                $this->log('Execution blocked by a lock. Time: ' . userdate($metadata->timestamp) .
+                        ", Process ID: {$metadata->processid}");
+                $this->blocked = true;
+                return;
+            }
+        }
         try {
+            $this->blocked = false;
             $this->status_check(self::STATUS_NEW);
 
             foreach ($this->enginesteps as $enginestep) {
@@ -261,6 +355,10 @@ class engine {
      */
     public function execute() {
         $this->initialise();
+        if ($this->is_blocked() || $this->status == self::STATUS_ABORTED) {
+            return;
+        }
+
         $this->status_check(self::STATUS_INITIALISED);
 
         // Initalise a new run (only for non-dry runs). This should only be
@@ -330,13 +428,15 @@ class engine {
             foreach ($this->enginesteps as $enginestep) {
                 $enginestep->finalise();
             }
-            $this->set_status(self::STATUS_FINALISED);
 
             // Stores a dump of the current engine state as the finalstate of the run.
             if (isset($this->run)) {
                 $this->dataflow->save_config_version();
                 $this->run->finalise($this->status, $this->export());
             }
+
+            $this->set_status(self::STATUS_FINALISED);
+            $this->release_lock();
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
         }
@@ -349,7 +449,7 @@ class engine {
      * @throws \Throwable
      */
     public function abort(?\Throwable $reason = null) {
-        if (!is_null($reason)) {
+        if (isset($reason)) {
             $message = $reason->getMessage();
         } else {
             $message = '';
@@ -360,9 +460,10 @@ class engine {
         }
         $this->log('Aborted: ' . $message);
         $this->set_status(self::STATUS_ABORTED);
+        $this->release_lock();
 
         // TODO: We may want to make this the responsibility of the caller.
-        if (!is_null($reason)) {
+        if (isset($reason)) {
             throw $reason;
         }
     }

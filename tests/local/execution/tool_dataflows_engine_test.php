@@ -154,10 +154,12 @@ class tool_dataflows_engine_test extends \advanced_testcase {
         // Test initialisation.
         ob_start();
         $engine->initialise();
-        ob_get_clean();
         foreach ($engine->enginesteps as $id => $enginestep) {
             $this->assertEquals(engine::STATUS_INITIALISED, $enginestep->status);
         }
+        $engine->set_status(engine::STATUS_FINISHED);
+        $engine->finalise();
+        ob_get_clean();
     }
 
     /**
