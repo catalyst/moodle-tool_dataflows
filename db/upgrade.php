@@ -97,5 +97,36 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022072502, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2022080101) {
+
+        $table = new xmldb_table('tool_dataflows');
+
+        $field = new xmldb_field('concurrencyenabled', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'enabled');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define table tool_dataflows_versions to be created.
+        $table = new xmldb_table('tool_dataflows_lock_metadata');
+
+        // Conditionally launch create table for tool_dataflows_lock_metadata.
+        if (!$dbman->table_exists($table)) {
+
+            // Adding fields to table tool_dataflows_lock_metadata.
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('dataflowid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('timestamp', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('processid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+            // Adding keys to table tool_dataflows_lock_metadata.
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('dataflowid', XMLDB_KEY_FOREIGN, ['dataflowid'], 'tool_dataflows', ['id']);
+
+            $dbman->create_table($table);
+
+            upgrade_plugin_savepoint(true, 2022080101, 'tool', 'dataflows');
+        }
+    }
+
     return true;
 }

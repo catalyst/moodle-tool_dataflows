@@ -89,6 +89,7 @@ abstract class engine_step {
      */
     public function initialise() {
         $this->set_status(engine::STATUS_INITIALISED);
+        $this->steptype->on_initialise();
     }
 
     /**

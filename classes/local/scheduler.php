@@ -71,7 +71,7 @@ class scheduler {
      * Gets a list of dataflows and timestamps that are due to run based on the given reference time.
      *
      * @param int|null $reftime The time to determine the list on. Will default to current time if null.
-     * @return array List of timestamps, indexed by dataflow ID.
+     * @return array List of timestamps and dataflow IDs.
      * @throws \dml_exception
      */
     public static function get_due_dataflows(?int $reftime = null): array {
@@ -79,7 +79,7 @@ class scheduler {
         if (is_null($reftime)) {
             $reftime = time();
         }
-        return $DB->get_records_select_menu(
+        return $DB->get_records_select(
             self::TABLE,
             'nextruntime <= :time',
             ['time' => $reftime],

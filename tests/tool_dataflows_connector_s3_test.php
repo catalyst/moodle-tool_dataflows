@@ -110,6 +110,8 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
         ob_start();
         $engine = new engine($dataflow, $isdryrun);
         $engine->initialise(); // Scratch directory is currently created as part of engine init.
+        $engine->set_status(engine::STATUS_FINISHED);
+        $engine->finalise();
         ob_get_clean();
 
         // Get the step type instance (which is linked with the engine).

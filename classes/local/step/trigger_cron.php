@@ -237,11 +237,30 @@ class trigger_cron extends trigger_step {
     }
 
     /**
+     * Hook function that gets called when an engine step has been initialised.
+     */
+    public function on_initialise() {
+        if ($this->stepdef->dataflow->is_concurrency_enabled()) {
+            // Reschedule on initialisation, so that it can run on the next cron schedule, even if this
+            // run has not yet finished.
+            $this->reschedule();
+        }
+    }
+
+    /**
      * Hook function that gets called when an engine step has been finalised.
-     *
-     * @throws \dml_exception
      */
     public function on_finalise() {
+        if (!$this->stepdef->dataflow->is_concurrency_enabled()) {
+            // Reschedule on finalise, to avoid conflicts.
+            $this->reschedule();
+        }
+    }
+
+    /**
+     * Reschedules the dataflow.
+     */
+    protected function reschedule() {
         if (!$this->enginestep->engine->isdryrun) {
             $dataflowid = $this->stepdef->dataflowid;
 

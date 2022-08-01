@@ -57,7 +57,9 @@ if (!empty($id)) {
 $customdata = [
     'persistent' => $persistent ?? null, // An instance, or null.
     'userid' => $USER->id, // For the hidden userid field.
+    'concurrencyallowed' => $persistent ? $persistent->is_concurrency_supported() : true,
 ];
+
 $form = new dataflow_form($PAGE->url->out(false), $customdata);
 if ($form->is_cancelled()) {
     redirect($overviewurl);

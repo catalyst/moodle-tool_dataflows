@@ -54,6 +54,21 @@ class reader_sql extends reader_step {
     }
 
     /**
+     * Can dataflows with this step be executed in parallel.
+     *
+     * @return string|true True if concurrency is supported, or a string giving a reason why it doesn't.
+     */
+    public function is_concurrency_supported() {
+        if (isset($this->stepdef)) {
+            $config = $this->stepdef->config;
+            return empty($config->counterfield) ? true : get_string('reader_sql:counterfield_not_empty', 'tool_dataflows');
+        }
+
+        // If we don't know the stepdef, the play it safe and return false.
+        return get_string('reader_sql:settings_unknown', 'tool_dataflows');
+    }
+
+    /**
      * Get the iterator for the step, based on configurations.
      *
      * @return iterator

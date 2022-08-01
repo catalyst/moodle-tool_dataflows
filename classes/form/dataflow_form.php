@@ -49,6 +49,21 @@ class dataflow_form extends \core\form\persistent {
         $mform->addElement('advcheckbox', 'enabled', get_string('dataflow_enabled', 'tool_dataflows'));
         $mform->setDefault('enabled', 0);
 
+        // Enable/Disable concurrency.
+        $mform->addElement('advcheckbox', 'concurrencyenabled', get_string('concurrency_enabled', 'tool_dataflows'));
+        $mform->setDefault('concurrencyenabled', 0);
+
+        if ($this->_customdata['concurrencyallowed'] !== true) {
+            $reasons = '';
+            foreach ($this->_customdata['concurrencyallowed'] as $name => $reason) {
+                $reasons .= \html_writer::tag('li', "$name: $reason");
+            }
+            $reasons = \html_writer::tag('ul', $reasons);
+
+            $mform->addElement('static', 'concurrencyenableddisabled', '',
+                    get_string('concurrency_enabled_disabled_desc', 'tool_dataflows') . $reasons);
+        }
+
         // Configuration - YAML format.
         $mform->addElement(
             'textarea',
