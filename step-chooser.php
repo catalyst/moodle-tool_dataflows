@@ -73,12 +73,17 @@ $items = array_reduce($steptypes, function ($acc, $steptype) use ($dataflow) {
     $step->type = get_class($steptype);
 
     $acc[$steptype->get_group()] = $acc[$steptype->get_group()] ?? [];
+    if (\tool_dataflows\helper::is_graphviz_dot_installed()) {
+        $label = visualiser::generate($step->get_dotscript(false), 'svg');
+    } else {
+        $label = $step->name;
+    }
     $acc[$steptype->get_group()][] = [
         'href' => new \moodle_url(
             '/admin/tool/dataflows/step.php',
             ['dataflowid' => $dataflow->id, 'type' => get_class($steptype)]
         ),
-        'label' => visualiser::generate($step->get_dotscript(false), 'svg'),
+        'label' => $label,
     ];
     return $acc;
 }, []);

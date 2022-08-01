@@ -35,6 +35,12 @@ class helper {
     /** String used to indicate the dataroot directory. */
     public const DATAROOT_PLACEHOLDER = '[dataroot]';
 
+    /** Alternate icon to display if Graphviz is not available. */
+    public const GRAPHVIZ_ALT_ICON = 'i/incorrect';
+
+    /** Location of the dependency section of the readme. */
+    public const README_DEPENDENCY_LINK = 'https://github.com/catalyst/moodle-tool_dataflows#dependencies';
+
     /** @var null|bool Is this Windows?  */
     protected static $iswindows = null;
 
@@ -185,5 +191,20 @@ class helper {
         }
 
         return false;
+    }
+
+    /**
+     * Determines if the Graphviz dot program can be accessed.
+     *
+     * @return bool
+     */
+    public static function is_graphviz_dot_installed(): bool {
+        global $CFG;
+        if (!empty($CFG->pathtodot)) {
+            return is_executable($CFG->pathtodot);
+        }
+
+        // Don't know where dot is, so look for it.
+        return !empty(shell_exec('which dot'));
     }
 }

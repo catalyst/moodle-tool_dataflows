@@ -209,6 +209,9 @@ $string['path_not_absolute'] = 'Path "{$a}" is not an absolute path.';
 $string['unknown_placeholder'] = 'Placeholder "{$a}" is not recognised.';
 $string['invalid_value_for_field'] = 'Value "{$a->value}" for field "{$a->field}" is invalid.';
 $string['invalid_value'] = 'Value is invalid.';
+$string['no_dot_installed'] = 'A dependency "dot" could not be found. View dependencies and installation instructions {$a}.';
+$string['preview_unavailable'] = 'Preview unavailable';
+$string['here'] = 'here';
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';

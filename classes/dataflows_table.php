@@ -79,8 +79,16 @@ class dataflows_table extends \table_sql {
      * @return string
      */
     public function col_preview(\stdClass $record): string {
+        global $OUTPUT;
         $imgurl = new \moodle_url('/admin/tool/dataflows/visual.php', ['id' => $record->id, 'type' => 'png']);
-        $img = \html_writer::img($imgurl, "Dataflow #{$record->id} visualisation", ['height' => '30px', 'class' => 'lightbox']);
+        if (helper::is_graphviz_dot_installed()) {
+            $img = \html_writer::img($imgurl, "Dataflow #{$record->id} visualisation", ['height' => '30px', 'class' => 'lightbox']);
+        } else {
+            $img = $OUTPUT->render(
+                new \pix_icon(helper::GRAPHVIZ_ALT_ICON,
+                get_string('preview_unavailable', 'tool_dataflows'))
+            ) . get_string('preview_unavailable', 'tool_dataflows');
+        }
         $dataflowstepsurl = new \moodle_url('/admin/tool/dataflows/view.php', ['id' => $record->id]);
         return \html_writer::link($dataflowstepsurl, $img);
     }
