@@ -46,10 +46,12 @@ $string['permitted_dirs_desc'] = "List directories here to allow them to be read
 // Manage flows / Overview.
 $string['overview'] = 'Overview';
 $string['field_preview'] = 'Preview';
-$string['field_userid'] = 'User';
+$string['field_userid'] = 'Created/modified by';
 $string['field_actions'] = 'Actions';
 $string['field_stepcount'] = '# Steps';
 $string['field_details'] = 'Details';
+$string['field_lastrunstart'] = 'Last run started';
+$string['field_lastrunduration'] = 'Last run duration';
 $string['import_dataflow'] = 'Import Dataflow';
 $string['run_confirm'] = 'Are you sure you want to run the dataflow \'{$a}\' now? The will run on the web server and may take some time to complete.';
 $string['run_again'] = 'Run again';
@@ -61,6 +63,7 @@ $string['dataflow_enabled'] = 'Dataflow enabled';
 $string['all_runs'] = 'All runs';
 $string['recent_runs'] = 'Recent runs';
 $string['no_recent_runs'] = 'No recent runs';
+$string['last_run_timeago'] = '{$a} ago';
 
 // Dataflows (form).
 $string['field_name'] = 'Name';
