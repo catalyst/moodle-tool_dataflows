@@ -30,11 +30,42 @@ use tool_dataflows\helper;
  */
 class connector_curl extends connector_step {
 
-    /** @var bool whether or not this step type (potentially) contains a side effect or not */
-    protected $hassideeffect = true;
-
     /** @var int Time after which curl request is aborted */
     protected $timeout = 60;
+
+    /**
+     * Returns whether or not the step configured, has a side effect.
+     *
+     * For curl connectors, it is considered to have a side effect if the target is
+     * anywhere outside of the scratch directory, the method is anything other than
+     * 'get' or 'head', or if the 'has side effects' setting is checked.
+     *
+     * @return     bool whether or not this step has a side effect
+     * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+     */
+    public function has_side_effect(): bool {
+        if (isset($this->stepdef)) {
+            $config = $this->stepdef->config;
+
+            // Destination is outside of scratch directory.
+            if (!(empty($config->destination) || helper::path_is_relative($config->destination))) {
+                return true;
+            }
+
+            // Request is anything other than 'get' or 'head'.
+            if (!($config->method == 'get' || $config->method == 'head')) {
+                return true;
+            }
+
+            // Side effects setting is checked.
+            if (!empty($config->sideeffects)) {
+                return true;
+            }
+
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Return the definition of the fields available in this form.
@@ -199,13 +230,6 @@ class connector_curl extends connector_step {
         }
 
         $curl = new \curl();
-
-        $this->hassideeffect = !empty($config->sideeffects);
-
-        // For put and post methods automatically overrides/has side effects.
-        if ($config->method != 'get') {
-            $this->hassideeffect = true;
-        }
 
         // Provided a header is specified add header to request.
         if (!empty($config->headers)) {

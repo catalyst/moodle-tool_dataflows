@@ -29,11 +29,25 @@ use tool_dataflows\helper;
  */
 class connector_s3 extends connector_step {
 
-    /** @var bool whether or not this step type (potentially) contains a side effect or not */
-    protected $hassideeffect = true;
-
     /** @var string the prefix identifier for an s3 path, e.g. s3://path/to/file. */
     const S3_PREFIX = 's3://';
+
+    /**
+     * Returns whether or not the step configured, has a side effect.
+     *
+     * For s3 connectors, it is considered to have a side effect if the target is
+     * anywhere outside of the scratch directory.
+     *
+     * @return     bool whether or not this step has a side effect
+     * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+     */
+    public function has_side_effect(): bool {
+        if (isset($this->stepdef)) {
+            $config = $this->stepdef->config;
+            return !helper::path_is_relative($config->target);
+        }
+        return true;
+    }
 
     /**
      * Return the definition of the fields available in this form.

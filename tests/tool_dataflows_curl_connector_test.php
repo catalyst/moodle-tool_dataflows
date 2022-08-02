@@ -272,4 +272,96 @@ class tool_dataflows_curl_connector_test extends \advanced_testcase {
         set_config('permitted_dirs', '/var', 'tool_dataflows');
         $this->assertTrue($steptype->validate_for_run());
     }
+
+    /**
+     * Tests the curl connector reports side effects correctly.
+     *
+     * @dataProvider has_side_effect_provider
+     * @covers \tool_dataflows\local\step\connector_curl::has_side_effect
+     * @param string $destination
+     * @param string $method
+     * @param bool $hassideeffects
+     * @param bool $expected
+     */
+    public function test_has_side_effect(string $destination, string $method, bool $hassideeffects, bool $expected) {
+        $config = [
+            'curl' => 'https://some.dest',
+            'destination' => $destination,
+            'headers' => '',
+            'method' => $method,
+            'sideeffects' => $hassideeffects,
+            'rawpostdata' => 'raw data',
+            'outputs' => [
+                'httpcode' => '${{ response.httpcode }}',
+                'destination' => '${{ response.destination }}',
+            ],
+        ];
+
+        $dataflow = new dataflow();
+        $dataflow->name = 'dataflow';
+        $dataflow->enabled = true;
+        $dataflow->save();
+
+        $step = new step();
+        $step->name = 'somename';
+        $step->type = 'tool_dataflows\local\step\connector_curl';
+        $step->config = Yaml::dump($config);
+        $dataflow->add_step($step);
+        $steptype = $step->steptype;
+        $this->assertEquals($expected, $steptype->has_side_effect());
+    }
+
+    /**
+     * Provider function for test_has_side_effect().
+     *
+     * @return array[]
+     */
+    public function has_side_effect_provider(): array {
+        return [
+            ['my/in.txt', 'get', false, false],
+            ['my/in.txt', 'head', false, false],
+            ['file:///my/in.txt', 'get', false, true],
+            ['my/in.txt', 'put', false, true],
+            ['my/in.txt', 'patch', false, true],
+            ['my/in.txt', 'post', false, true],
+            ['my/in.txt', 'get', true, true],
+            ['file:///my/in.txt', 'post', true, true],
+        ];
+    }
+
+    /**
+     * Extra tests for side effects.
+     *
+     * @covers \tool_dataflows\local\step\connector_curl::has_side_effect
+     */
+    public function test_has_side_effect_extra() {
+        $config = [
+            'curl' => 'https://some.dest',
+            'destination' => 'my.in.txt',
+            'headers' => '',
+            'method' => 'get',
+            'outputs' => [
+                'httpcode' => '${{ response.httpcode }}',
+                'destination' => '${{ response.destination }}',
+            ],
+        ];
+
+        // Test for no configuration.
+        $steptype = new connector_curl();
+        $this->assertTrue($steptype->has_side_effect());
+
+        $dataflow = new dataflow();
+        $dataflow->name = 'dataflow';
+        $dataflow->enabled = true;
+        $dataflow->save();
+
+        // Test for configuration with sideeffects unset.
+        $step = new step();
+        $step->name = 'somename';
+        $step->type = 'tool_dataflows\local\step\connector_curl';
+        $step->config = Yaml::dump($config);
+        $dataflow->add_step($step);
+        $steptype = $step->steptype;
+        $this->assertFalse($steptype->has_side_effect());
+    }
 }

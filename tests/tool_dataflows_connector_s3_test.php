@@ -228,4 +228,50 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
         $step->config = Yaml::dump($config);
         $this->assertTrue($steptype->validate_for_run());
     }
+
+    /**
+     * Tests the s3 connector reports side effects correctly.
+     *
+     * @covers \tool_dataflows\local\step\connector_s3::has_side_effect
+     */
+    public function test_has_side_effect() {
+        $config = [
+            'bucket' => 'bucket',
+            'region' => 'region',
+            'key' => 'SOMEKEY',
+            'secret' => 'SOMESECRET',
+            'source' => 's3://test/source.csv',
+            'target' => 's3://test/target.csv',
+            'sourceremote' => true,
+        ];
+
+        // Test for no configuration.
+        $steptype = new connector_s3();
+        $this->assertTrue($steptype->has_side_effect());
+
+        $dataflow = new dataflow();
+        $dataflow->name = 'dataflow';
+        $dataflow->enabled = true;
+        $dataflow->save();
+
+        // Test both source and target being outside of scratch dir.
+        $step = new step();
+        $step->name = 'somename';
+        $step->type = 'tool_dataflows\local\step\connector_s3';
+        $step->config = Yaml::dump($config);
+        $dataflow->add_step($step);
+        $steptype = $step->steptype;
+        $this->assertTrue($steptype->has_side_effect());
+
+        // Test source only being outside of scratch dir.
+        $config['target'] = 'test/target.csv';
+        $step->config = Yaml::dump($config);
+        $this->assertFalse($steptype->has_side_effect());
+
+        // Test target only being outside of scratch dir.
+        $config['source'] = 'test/target.csv';
+        $config['target'] = 's3://test/target.csv';
+        $step->config = Yaml::dump($config);
+        $this->assertTrue($steptype->has_side_effect());
+    }
 }
