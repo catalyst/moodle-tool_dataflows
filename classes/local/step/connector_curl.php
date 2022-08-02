@@ -15,7 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_dataflows\local\step;
+
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\helper;
 
 /**
  * CURL connector step type
@@ -143,6 +145,24 @@ class connector_curl extends connector_step {
             $errors['config_rawpostdata'] = get_string('config_field_missing', 'tool_dataflows', 'rawpostdata', true);
         }
         return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Perform any extra validation that is required only for runs.
+     *
+     * @return true|array Will return true or an array of errors.
+     */
+    public function validate_for_run() {
+        $config = $this->stepdef->config;
+
+        if (!empty($config->destination)) {
+            $error = helper::path_validate($config->destination);
+            if ($error !== true) {
+                return ['config_destination' => $error];
+            }
+        }
+
+        return true;
     }
 
     /**
