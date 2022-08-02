@@ -73,6 +73,15 @@ class dataflows_table extends \table_sql {
     }
 
     /**
+     * Set sql sort value
+     *
+     * @return string
+     */
+    public function get_sql_sort() {
+        return 'enabled DESC, name';
+    }
+
+    /**
      * Display a small preview of the workflow
      *
      * @param \stdClass $record
