@@ -25,13 +25,6 @@ namespace tool_dataflows;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class graph {
-
-    /**
-     * Creates and returns an adjacency list based on the graph provided
-     *
-     * @param      array $graph of edges
-     * @return     array adjacency list
-     */
     public static function to_adjacency_list($graph): array {
         // Transform to adjacency list.
         $adjacencylist = [];
@@ -48,7 +41,6 @@ class graph {
      * or names e.g. if planning to validate as part of an import or validating
      * before storing.
      *
-     * @param      array $graph array of edges (node connections)
      * @return     bool whether or not the edges provided form a valid DAG
      */
     public static function is_dag($graph): bool {
