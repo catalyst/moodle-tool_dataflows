@@ -140,4 +140,92 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
             ['path', 'path'],
         ];
     }
+
+    /**
+     * Tests run validation.
+     *
+     * @dataProvider validate_for_run_provider
+     * @covers \tool_dataflows\local\step\connector_curl::validate_for_run
+     * @param string $source
+     * @param string $target
+     * @param array|true $expected
+     */
+    public function test_validate_for_run(string $source, string $target, $expected) {
+        $config = [
+            'bucket' => 'bucket',
+            'region' => 'region',
+            'key' => 'SOMEKEY',
+            'secret' => 'SOMESECRET',
+            'source' => $source,
+            'target' => $target,
+            'sourceremote' => true,
+        ];
+
+        $dataflow = new dataflow();
+        $dataflow->enabled = true;
+        $dataflow->name = 'dataflow';
+        $step = new step();
+        $step->name = 'name';
+        $step->type = 'tool_dataflows\local\step\connector_s3';
+        $step->config = Yaml::dump($config);
+        $dataflow->add_step($step);
+        $steptype = $step->steptype;
+
+        set_config('permitted_dirs', '', 'tool_dataflows');
+        $this->assertEquals($expected, $steptype->validate_for_run());
+    }
+
+    /**
+     * Provider method for test_validate_for_run().
+     *
+     * @return array[]
+     */
+    public function validate_for_run_provider(): array {
+        $s3file = 's3://test/source.csv';
+        $relativefile = 'test/source.csv';
+        $absolutefile = '/var/source.csv';
+        $errormsg = get_string('path_invalid', 'tool_dataflows', $absolutefile, true);
+        return [
+            [$s3file, $s3file, true],
+            [$s3file, $relativefile, true],
+            [$relativefile, $s3file, true],
+            [$absolutefile, $s3file, ['config_source' => $errormsg]],
+            [$s3file, $absolutefile, ['config_target' => $errormsg]],
+        ];
+    }
+
+    /**
+     * Extra tests for run validation.
+     *
+     * @covers \tool_dataflows\local\step\connector_curl::validate_for_run
+     */
+    public function test_validate_for_run_extra() {
+        $config = [
+            'bucket' => 'bucket',
+            'region' => 'region',
+            'key' => 'SOMEKEY',
+            'secret' => 'SOMESECRET',
+            'source' => 's3://test/source.csv',
+            'target' => '/var/source.csv',
+            'sourceremote' => true,
+        ];
+
+        $dataflow = new dataflow();
+        $dataflow->enabled = true;
+        $dataflow->name = 'dataflow';
+        $step = new step();
+        $step->name = 'name';
+        $step->type = 'tool_dataflows\local\step\connector_s3';
+        $step->config = Yaml::dump($config);
+        $dataflow->add_step($step);
+        $steptype = $step->steptype;
+
+        set_config('permitted_dirs', '/var', 'tool_dataflows');
+        $this->assertTrue($steptype->validate_for_run());
+
+        $config['source'] = '/var/source.csv';
+        $config['target'] = 's3://test/source.csv';
+        $step->config = Yaml::dump($config);
+        $this->assertTrue($steptype->validate_for_run());
+    }
 }
