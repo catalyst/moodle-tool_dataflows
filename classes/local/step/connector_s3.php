@@ -250,20 +250,27 @@ class connector_s3 extends connector_step {
             $errors['config_target'] = $errors['config_target'] ?? $errormsg;
         }
 
-        // Confirm the non s3 source is safe to use.
-        if (empty($sourceins3) && !isset($errors['config_source'])) {
-            $error = helper::path_validate($config->source);
-            if ($error !== true) {
-                $errors['config_source'] = $error;
-            }
+        return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Perform any extra validation that is required only for runs.
+     *
+     * @return true|array Will return true or an array of errors.
+     */
+    public function validate_for_run() {
+        $config = $this->stepdef->config;
+
+        $errors = [];
+
+        $error = helper::path_validate($config->source);
+        if ($error !== true) {
+            $errors['config_source'] = $error;
         }
 
-        // Confirm the non s3 target is safe to use.
-        if (empty($targetins3) && !isset($errors['config_target'])) {
-            $error = helper::path_validate($config->target);
-            if ($error !== true) {
-                $errors['config_target'] = $error;
-            }
+        $error = helper::path_validate($config->target);
+        if ($error !== true) {
+            $errors['config_target'] = $error;
         }
 
         return empty($errors) ? true : $errors;
