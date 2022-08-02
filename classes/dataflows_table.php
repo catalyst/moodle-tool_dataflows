@@ -30,10 +30,10 @@ class dataflows_table extends \table_sql {
     const COLUMNS = [
         'preview',
         'name',
-        'config',
         'userid',
-        'stepcount',
         'details',
+        'lastrunstart',
+        'lastrunduration',
     ];
 
     /** Columns that shouldn't be sorted. */
@@ -41,6 +41,12 @@ class dataflows_table extends \table_sql {
         'preview',
         'actions',
     ];
+
+    /** Maximum width of the preview image (in pixels). */
+    const PREVIEW_MAX_WIDTH = 250;
+
+    /** Maximum height of the preview image (in pixels). */
+    const PREVIEW_MAX_HEIGHT = 30;
 
     /**
      * Returns the columns defined for the table.
@@ -91,7 +97,14 @@ class dataflows_table extends \table_sql {
         global $OUTPUT;
         $imgurl = new \moodle_url('/admin/tool/dataflows/visual.php', ['id' => $record->id, 'type' => 'png']);
         if (helper::is_graphviz_dot_installed()) {
-            $img = \html_writer::img($imgurl, "Dataflow #{$record->id} visualisation", ['height' => '30px', 'class' => 'lightbox']);
+            $img = \html_writer::img(
+                $imgurl,
+                "Dataflow #{$record->id} visualisation",
+                [
+                    'class' => 'lightbox',
+                    'style' => 'max-width: ' . self::PREVIEW_MAX_WIDTH . 'px; max-height: ' . self::PREVIEW_MAX_HEIGHT . 'px'
+                ]
+            );
         } else {
             $img = $OUTPUT->render(
                 new \pix_icon(helper::GRAPHVIZ_ALT_ICON,
@@ -126,17 +139,6 @@ class dataflows_table extends \table_sql {
     }
 
     /**
-     * Display the number of steps stored for this dataflow and a link to edit them.
-     *
-     * @param \stdClass $record
-     * @return string
-     */
-    public function col_stepcount(\stdClass $record): string {
-        $dataflowstepsurl = new \moodle_url('/admin/tool/dataflows/view.php', ['id' => $record->id]);
-        return \html_writer::link($dataflowstepsurl, $record->stepcount);
-    }
-
-    /**
      * Display any extra information about the steps that doesn't fit into any other column.
      * Gathers 'extra' info from each step.
      *
@@ -158,6 +160,51 @@ class dataflows_table extends \table_sql {
             }
         }
         return implode('<br/>', $content);
+    }
+
+    /**
+     * Display the last time the dataflow was run.
+     *
+     * @param \stdClass $record
+     * @return string
+     */
+    public function col_lastrunstart(\stdClass $record): string {
+        global $DB;
+
+        $runrecords = $DB->get_records(
+            run::TABLE,
+            ['dataflowid' => $record->id],
+            'timestarted DESC', 'timestarted', 0, 1);
+
+        if (count($runrecords)) {
+            $time = (int) current($runrecords)->timestarted;
+            $timeago = time() - $time;
+            return get_string('last_run_timeago', 'tool_dataflows', format_time($timeago));
+        }
+        return '';
+    }
+
+    /**
+     * Display the duration of the last run.
+     *
+     * @param \stdClass $record
+     * @return string
+     */
+    public function col_lastrunduration(\stdClass $record): string {
+        global $DB;
+
+        $runrecords = $DB->get_records(
+            run::TABLE,
+            ['dataflowid' => $record->id],
+            'timestarted DESC', 'timestarted, timefinished', 0, 1);
+
+        if (count($runrecords)) {
+            $record = current($runrecords);
+
+            return number_format($record->timefinished - $record->timestarted, 4) . ' ' .
+                get_string('secs');
+        }
+        return '';
     }
 
     /**
@@ -213,16 +260,6 @@ class dataflows_table extends \table_sql {
 
         $content .= '</nobr>';
         return $content;
-    }
-
-    /**
-     * Display the configuration
-     *
-     * @param \stdClass $record
-     * @return string
-     */
-    public function col_config(\stdClass $record): string {
-        return \html_writer::tag('pre', $record->config);
     }
 
     /**
