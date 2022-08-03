@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,26 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\admin;
+
+use Symfony\Component\Yaml\Yaml;
+
 /**
- * Version
+ * A setting textarea for YAML format values.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2022080401;
-$plugin->release = 2022080401;
-
-$plugin->requires = 2017051500;    // Our lowest supported Moodle (3.3.0).
-
-$plugin->supported = [35, 401];    // Available as of Moodle 3.9.0 or later.
-// TODO $plugin->incompatible = ;  // Available as of Moodle 3.9.0 or later.
-
-$plugin->component = 'tool_dataflows';
-$plugin->maturity = MATURITY_ALPHA;
-
-$plugin->dependencies = [];
+class admin_setting_yaml extends \admin_setting_configtextarea {
+    /**
+     * Validate the setting data as a YAML config block.
+     *
+     * @param string $data Data to be validated.
+     * @return true|string true for success or string:error on failure
+     */
+    public function validate($data) {
+        try {
+            Yaml::parse($data);
+            return true;
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+}

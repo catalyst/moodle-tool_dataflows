@@ -210,7 +210,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
 
         // Check before state.
         $variables = $engine->get_variables();
-        $this->assertEquals(new \stdClass, $variables['global']);
+        $this->assertEquals(new \stdClass, $variables['global']->vars);
         $this->assertEquals(new \stdClass, $variables['dataflow']->config);
         $reader->read();
         $this->assertEmpty($reader->config->countervalue ?? null);
@@ -228,7 +228,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Check expected after state.
         $variables = $engine->get_variables();
         $this->assertEquals($dataflowvalue, $variables['dataflow']->config->dataflowvar);
-        $this->assertEquals($globalvalue, $variables['global']->globalvar);
+        $this->assertEquals($globalvalue, $variables['global']->vars->globalvar);
         $this->assertEquals(5, $variables['steps']->reader->config->countervalue);
 
         // Check persistence for dataflow and step scopes (global is always persisted).
@@ -239,7 +239,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
 
         // Throw in some expression tests as well.
         $expressionlanguage = new ExpressionLanguage();
-        $expressedglobalvalue = $expressionlanguage->evaluate('global.globalvar', $variables);
+        $expressedglobalvalue = $expressionlanguage->evaluate('global.vars.globalvar', $variables);
         $this->assertEquals($globalvalue, $expressedglobalvalue);
         $expresseddataflowvalue = $expressionlanguage->evaluate('dataflow.config.dataflowvar', $variables);
         $this->assertEquals($dataflowvalue, $expresseddataflowvalue);

@@ -26,6 +26,8 @@
 
 use \tool_dataflows\helper;
 use \tool_dataflows\admin\admin_setting_permitted_directories;
+use \tool_dataflows\admin\admin_setting_yaml;
+use \tool_dataflows\admin\admin_setting_cfg_list;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -69,6 +71,14 @@ if ($hassiteconfig) {
             'tool_dataflows/permitted_dirs',
             get_string('permitted_dirs', 'tool_dataflows'),
             get_string('permitted_dirs_desc', 'tool_dataflows', helper::DATAROOT_PLACEHOLDER),
+            '',
+            PARAM_RAW
+        ));
+
+        $settings->add(new admin_setting_yaml(
+            'tool_dataflows/global_vars',
+            get_string('global_vars', 'tool_dataflows'),
+            get_string('global_vars_desc', 'tool_dataflows'),
             '',
             PARAM_RAW
         ));
