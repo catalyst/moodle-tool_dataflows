@@ -199,6 +199,9 @@ class step_form extends \core\form\persistent {
                 foreach ($availablepositions as $position) {
                     // If the step has a defined key / label for this entry, then use that label instead.
                     // For example: 'case #14' could instead be 'case: even number detected'.
+                    if (is_null($position)) {
+                        continue;
+                    }
                     $outputlabel = $step->steptype->get_output_label($position);
 
                     $label = "{$step->name} → $outputlabel";
