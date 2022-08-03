@@ -84,7 +84,7 @@
         for (var i = 0; i < expression.length; i++) {
             expression[i].addEventListener('click', function(e) {
                 var exp = e.target.closest('.leaf');
-                var text = exp.getElementsByTagName('textarea')[0]
+                var text = exp.getElementsByTagName('textarea')[0];
                 text.select();
                 document.execCommand("copy");
 
