@@ -267,19 +267,26 @@ class step_form extends \core\form\persistent {
      * @param array $allfields unformatted array
      * @return array $allfields
      */
-    public function add_recursive_keys($allfields) {
+    public function add_recursive_keys($allfields, $level = 1) {
         foreach ($allfields as $key => $value) {
             if (is_array($value)) {
-                $fields = $this->add_recursive_keys($value);
-                $value = array_merge(['name' => $key], ['fields' => $fields]);
-                $allfields[] = $value;
+                $fields = $this->add_recursive_keys($value, $level + 1);
+                $allfields[] = [
+                    'name'   => $key,
+                    'fields' => $fields,
+                    'open'   => ($level == 1) ? 'open' : '', // Should the detail default open?
+                ];
                 unset($allfields[$key]);
             }
             if (is_string($value)) {
                 $tmp = $allfields[$key];
                 unset($allfields[$key]);
                 // Only inner fields have expression.
-                array_unshift($allfields, ['text' => $tmp, 'expression' => $key, 'fields' => null]);
+                array_unshift($allfields, [
+                    'name'       => $tmp,
+                    'expression' => $key,
+                    'leaf'       => true,
+                ]);
                 unset($tmp);
             }
         }

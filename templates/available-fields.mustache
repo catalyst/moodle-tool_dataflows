@@ -30,6 +30,8 @@
 
     Example context (json):
     {
+        "groups": {
+        }
     }
 
 }}
@@ -37,12 +39,32 @@
     <div class="col-md-3">
         <p>{{# str }} available_fields, tool_dataflows {{/ str }}</p>
     </div>
-    <div class="fieldcontainer col-md-9 form-inline felement">
+    <div class="fieldcontainer col-md-9 felement">
         <p>{{# str }} available_fields_help, tool_dataflows, <code>${<span></span>{ dataflow.name }}</code> {{/ str }}</p>
-        <div class="treeview w-20 border">
+        <div class="dataflow-tags">
             {{#groups}}
                 {{>tool_dataflows/tags}}
             {{/groups}}
         </div>
     </div>
 </div>
+<style>
+.dataflow-tags details {
+    padding: 0;
+    margin: 0 0 0 1em;
+    font-family: monospace;
+}
+.dataflow-tags summary {
+    margin: 0;
+	padding: 0;
+}
+.dataflow-tags .leaf {
+	margin-left: 2em;
+}
+.dataflow-tags .leaf-text {
+    display: inline-block;
+    min-width: 12em;
+    border-bottom: 1px dashed #ddd;
+}
+</style>
+

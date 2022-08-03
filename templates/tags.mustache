@@ -30,24 +30,50 @@
 
     Example context (json):
     {
+        "name": "env",
+        "open": "open",
+        "fields": [
+            {
+                "text": "level2a",
+                "expression": "${{env.level2a}",
+                "fields": [],
+                "leaf": 1
+            },
+            {
+                "text": "level2b",
+                "expression": "${{env.level2b}",
+                "fields": [
+                    {
+                        "text": "level3a",
+                        "expression": "${{env.level2b.level3a}",
+                        "fields": []
+                        "leaf": 1
+                    },
+                    {
+                        "text": "level3b",
+                        "expression": "${{env.level2b.level3b}",
+                        "fields": []
+                        "leaf": 1
+                    }
+                ]
+            }
+        ]
     }
 }}
-{{^expression}}
-    <ul>
-        <span type="button" data-toggle="collapse" data-target="#collapsable-{{name}}" aria-expanded="false" aria-controls="collapseExample">
-            {{#pix}}i/arrow-right{{/pix}}
-            {{name}}
-        </span>
-    </ul>
-{{/expression}}
-<ul class="collapse" id="collapsable-{{name}}">
-    {{#fields}}
-        {{>tool_dataflows/tags}}
-    {{/fields}}
-    {{^fields}}
-        <li data-expression="{{expression}}" type="button">
-            {{#pix}}t/clipboard{{/pix}}
-            {{text}}
-        </li>
-    {{/fields}}
-</ul>
+
+{{^leaf}}
+    <details {{open}}>
+        <summary>{{name}}</summary>
+        {{#fields}}
+            {{>tool_dataflows/tags}}
+        {{/fields}}
+    </details>
+{{/leaf}}
+
+{{#leaf}}
+    <div class="leaf">
+        <span class="leaf-text">{{name}}</span>
+        <code>{{expression}}</code>
+    </div>
+{{/leaf}}
+
