@@ -207,6 +207,7 @@ class flow_logic_case extends flow_logic_step {
                 // efficiency.
                 // See issue #347 for more details.
                 $parser = new parser;
+                $casefailures = 0;
                 foreach ($this->cases as $caseindex => $case) {
                     $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', ['record' => $value]);
 
@@ -215,6 +216,15 @@ class flow_logic_case extends flow_logic_step {
                         // We know it passed, but did it pass on the correct step output connection?
                         $result = $caseindex === $casenumber;
                         break;
+                    } else {
+                        $casefailures++;
+                        // Check if all cases have failed, if so pull next record.
+                        if ($casefailures === count($this->cases)) {
+                            // Log details for when a no cases matches.
+                            $this->step->log(get_string('flow_logic_case:nomatchingcases', 'tool_dataflows'));
+                            $this->input->next($this);
+                            break;
+                        }
                     }
 
                     // If this is on the same index as the case, break the loop.

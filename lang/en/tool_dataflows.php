@@ -346,6 +346,7 @@ $string['check:dataflows_run_status'] = 'Run {$a->name} - {$a->state}';
 $string['flow_logic_case:cases'] = 'Cases';
 $string['flow_logic_case:cases_help'] = 'Each line represents a case, and each case has a label for display, and an expression separated by a colon "<code>:</code>", used to determine whether the linked step will consume the data that flows or not. If no label is present, it will instead use the line number for that connection. You can use <code>default: 1</code> as the last entry to ensure it always matches on at least one step - should all other expressions fail. Otherwise, if all expressions fail to match, the record will not flow through and would be skipped.';
 $string['flow_logic_case:casenotfound'] = 'The output position of #{$a} did not match any existing case';
+$string['flow_logic_case:nomatchingcases'] = 'No matching cases, skipping record';
 
 // Wait connector.
 $string['connector_wait:timesec'] = 'Time in seconds';
