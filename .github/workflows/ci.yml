@@ -10,6 +10,7 @@ jobs:
       # Required if you plan to publish (uncomment the below)
       # moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}
     with:
+      internal_workflow_branch: '64-fix-phpdoc-checks'
       codechecker_max_warnings: 0 # CI should now fail on phpcs / code checker warnings.
       disable_behat: true
       disable_grunt: true
