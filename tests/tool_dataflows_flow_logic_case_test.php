@@ -303,4 +303,46 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
             )
         );
     }
+
+    /**
+     * Test case step is resolving no matched cases.
+     *
+     * @covers \tool_dataflows\local\step\flow_logic_case
+     */
+    public function test_case_no_matching_cases() {
+        [$dataflow] = $this->create_dataflow();
+        $isdryrun = false;
+        $this->assertTrue($dataflow->validate_dataflow());
+
+        $stepsbyalias = $dataflow->get_steps();
+        $case = $stepsbyalias->case;
+        $case->config = Yaml::dump([
+            'cases' => [
+                'even numbers' => 'record["value"] % 2 == 1.5',
+                'odd numbers' => 'record["value"] % 2 == 1',
+            ],
+        ]);
+
+        ob_start();
+        $engine = new engine($dataflow, $isdryrun);
+        $engine->execute();
+        ob_get_clean();
+
+        $odd = $engine->resolve_path('odd.json');
+        $odd = file_get_contents($odd);
+        $odd = json_decode($odd);
+        $even = $engine->resolve_path('even.json');
+        $even = file_get_contents($even);
+        $even = json_decode($even);
+
+        // Even numbers don't match any case file should be empty, odd file should contain 5 1s.
+        $even = array_column($even, 'value');
+        $this->assertCount(0, $even);
+        $this->assertEquals(0, array_sum($even));
+        $odd = array_column($odd, 'value');
+        $this->assertCount(5, $odd);
+        $this->assertEquals(5, array_sum($odd));
+
+        $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
+    }
 }
