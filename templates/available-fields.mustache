@@ -80,11 +80,11 @@
 </div>
 {{#js}}
     require(['core/toast', 'core/str'], function(addToast, getString) {
-        let expression = document.querySelectorAll('.leaf-expression');
-        for (let i = 0; i < expression.length; i++) {
-            expression[i].addEventListener('click', e => {
-                let exp = e.target.closest('.leaf');
-                let text = exp.getElementsByTagName('textarea')[0]
+        var expression = document.querySelectorAll('.leaf-expression');
+        for (var i = 0; i < expression.length; i++) {
+            expression[i].addEventListener('click', function(e) {
+                var exp = e.target.closest('.leaf');
+                var text = exp.getElementsByTagName('textarea')[0]
                 text.select();
                 document.execCommand("copy");
 
