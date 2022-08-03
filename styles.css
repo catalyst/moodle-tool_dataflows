@@ -104,3 +104,21 @@ tr:where(.field_timestarted, .field_timefinished) {
     100% { background-position-x: 0; }
 }
 
+.tool_dataflow-tags details {
+    padding: 0;
+    margin: 0 0 0 1em;
+    font-family: monospace;
+}
+.tool_dataflow-tags summary {
+    margin: 0;
+	padding: 0;
+}
+.tool_dataflow-tags .leaf {
+	margin-left: 2em;
+}
+.tool_dataflow-tags .leaf-text {
+    display: inline-block;
+    min-width: 12em;
+    border-bottom: 1px dashed #ddd;
+}
+
