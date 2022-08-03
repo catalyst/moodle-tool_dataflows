@@ -192,6 +192,7 @@ class flow_logic_case extends flow_logic_step {
                     $this->passed = false;
                 }
                 $value = $this->input->current();
+                $steps = $caller->step->engine->get_variables()['steps'];
 
                 $casenumber = $this->stepcasemap[$caller->step->id];
                 $position = $casenumber + 1;
@@ -209,7 +210,7 @@ class flow_logic_case extends flow_logic_step {
                 $parser = new parser;
                 $casefailures = 0;
                 foreach ($this->cases as $caseindex => $case) {
-                    $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', ['record' => $value]);
+                    $result = (bool) $parser->evaluate_or_fail('${{' . $case . '}}', ['record' => $value, 'steps' => $steps]);
 
                     // If there was a passing expression, break the loop.
                     if ($result === true) {

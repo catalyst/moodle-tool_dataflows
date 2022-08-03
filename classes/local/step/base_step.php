@@ -124,6 +124,16 @@ abstract class base_step {
             $parser = new parser;
             $allvariables = array_merge($this->stepdef->variables, $this->variables);
             $outputs = $parser->evaluate_recursive($config->outputs, $allvariables);
+            // Check that outputs have been assessed.
+            foreach ($outputs as $key => $output) {
+                // If type is an object it means it has been assessed.
+                if (!is_object($output)) {
+                    [$hasexpression] = $parser->has_expression($output);
+                    if ($hasexpression) {
+                        $outputs->$key = null;
+                    }
+                }
+            }
             $this->stepdef->set_output($outputs);
         }
     }
