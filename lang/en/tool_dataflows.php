@@ -179,6 +179,7 @@ $string['hassideeffect'] = 'Has a side effect';
 $string['nodataflowfile'] = 'No dataflow file found.';
 $string['dataflowisnotavaliddag'] = 'Dataflow is not a valid Directed Acyclic Graph (DAG).';
 $string['dataflowrequiredforstepcreation'] = 'Dataflow selected does not exist. Please create one before adding a step.';
+$string['successfullycopiedtoclipboard'] = 'Successfully copied to clipboard {$a}';
 $string['steptypedoesnotexist'] = 'The step type "{$a}" does not exist.';
 $string['stepdependencydoesnotexist'] = 'The step dependency "{$a}" does not exist.';
 $string['stepinvalidinputflowcount'] = 'Invalid number of input flows (Found: {$a}).';
