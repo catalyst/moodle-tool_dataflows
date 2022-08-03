@@ -42,7 +42,13 @@ have an 'event trigger' step and so should be a complete super set of the tool_t
 
 https://github.com/catalyst/moodle-tool_trigger/
 
+### local_webhooks
 
+This is very similar to tool_trigger in that can only work with moodle events and the only action
+it can take is a curl call in a fairly specific shape. It does not support retries, timeouts and
+cannot do asynconous trigger so has a performance impact on pages which trigger events.
+
+https://github.com/valentineus/moodle-webhooks
 
 
 ## Installation
