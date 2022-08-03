@@ -555,22 +555,22 @@ class engine {
      */
     public function set_global_var($name, $value) {
         // Grabs the current config.
-        $config = get_config('tool_dataflows', 'config');
-        $config = Yaml::parse($config, Yaml::PARSE_OBJECT_FOR_MAP) ?: new \stdClass;
+        $vars = get_config('tool_dataflows', 'global_vars');
+        $vars = Yaml::parse($vars, Yaml::PARSE_OBJECT_FOR_MAP) ?: new \stdClass;
 
         // Updates the field in question.
-        $previous = $config->{$name} ?? '';
-        $config->{$name} = $value;
+        $previous = $vars->{$name} ?? '';
+        $vars->{$name} = $value;
 
         // Updates the stored config.
-        $config = Yaml::dump(
-            (array) $config,
+        $yaml = Yaml::dump(
+            (array) $vars,
             helper::YAML_DUMP_INLINE_LEVEL,
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
         );
         $this->log("Setting global '$name' to '$value' (from '{$previous}')");
-        set_config('config', $config, 'tool_dataflows');
+        set_config('global_vars', $yaml, 'tool_dataflows');
     }
 
     /**

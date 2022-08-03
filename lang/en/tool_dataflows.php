@@ -37,11 +37,17 @@ $string['enabled_help'] = '';
 $string['permitted_dirs'] = 'Permitted directories';
 $string['permitted_dirs_desc'] = "List directories here to allow them to be read from/written to by dataflow steps.
     One directory per line. Each directory must be an absolute path. You can use the place holder '{\$a}' for the
-    site's data root directory. You can also include comments using /* and */.\n
+    site's data root directory. Comments using '/* .. */' and '#' can be included. Blank lines will be ignored.\n
     Examples.
     /tmp
     /home/me/mydata
     {\$a}/somedir";
+$string['global_vars'] = 'Global variables';
+$string['global_vars_desc'] = "Global variables that can be accessed via expressions within all dataflows as \${{global.vars.&lt;name&gt;}}'.
+    Values are defined in YAML format, with nested values being converted into a dot separated sequence.\n
+    Example.
+    abc:
+      def: 12  # Accessed as \${{global.vars.abc.def}}";
 
 // Manage flows / Overview.
 $string['overview'] = 'Overview';
