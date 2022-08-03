@@ -244,7 +244,7 @@ class step_form extends \core\form\persistent {
      * @param array $fields unformatted array
      * @return array $allfields
      */
-    public function build_treetag($fields) {
+    public function build_treetag($fields): array {
         $allfields = [];
         $groupcreated = [];
         foreach ($fields as $key => $value) {
@@ -269,7 +269,7 @@ class step_form extends \core\form\persistent {
      * @param array $level depth of recursion
      * @return array $allfields
      */
-    public function add_recursive_keys($values, $allfields, $level = 1) {
+    public function add_recursive_keys($values, $allfields, $level = 1): array {
         foreach ($allfields as $key => $value) {
             if (is_array($value)) {
                 $fields = $this->add_recursive_keys($values, $value, $level + 1);
