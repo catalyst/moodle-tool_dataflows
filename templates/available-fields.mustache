@@ -30,8 +30,38 @@
 
     Example context (json):
     {
-        "groups": {
-        }
+        "groups": [
+            {
+                "name": "env",
+                "open": "open",
+                "fields": [
+                    {
+                        "text": "level2a",
+                        "expression": "env.level2a",
+                        "fields": [],
+                        "leaf": 1
+                    },
+                    {
+                        "text": "level2b",
+                        "expression": "env.level2b",
+                        "fields": [
+                            {
+                                "text": "level3a",
+                                "expression": "env.level2b.level3a",
+                                "fields": [],
+                                "leaf": 1
+                            },
+                            {
+                                "text": "level3b",
+                                "expression": "env.level2b.level3b",
+                                "fields": [],
+                                "leaf": 1
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
     }
 
 }}
