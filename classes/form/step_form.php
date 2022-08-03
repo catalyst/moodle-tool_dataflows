@@ -264,7 +264,9 @@ class step_form extends \core\form\persistent {
     /**
      * Sets up properkeys for mustache templates
      *
+     * @param array $values array of keys to values
      * @param array $allfields unformatted array
+     * @param array $level depth of recursion
      * @return array $allfields
      */
     public function add_recursive_keys($values, $allfields, $level = 1) {
