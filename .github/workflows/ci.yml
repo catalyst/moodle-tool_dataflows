@@ -13,6 +13,7 @@ jobs:
       codechecker_max_warnings: 0 # CI should now fail on phpcs / code checker warnings.
       disable_behat: true
       disable_grunt: true
+      disable_mustache: true
       extra_plugin_runners: |
           moodle-plugin-ci add-plugin catalyst/moodle-local_aws --branch ci-for-tool_dataflows;
           sudo sed -i 's/azure\.//' /etc/apt/sources.list

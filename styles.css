@@ -118,10 +118,18 @@ tr:where(.field_timestarted, .field_timefinished) {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+.tool_dataflow-tags .leaf textarea {
+    width: 1px;
+    height: 1px;
+    opacity: 1%;
+}
 .tool_dataflow-tags .leaf-text {
     display: inline-block;
     min-width: 12em;
     border-bottom: 1px dashed #ddd;
+}
+.tool_dataflow-tags .leaf-expression {
+    cursor: copy;
 }
 .tool_dataflow-tags .leaf-value {
     color: #999;
