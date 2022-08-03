@@ -276,7 +276,7 @@ class step_form extends \core\form\persistent {
                 $allfields[] = [
                     'name'   => $key,
                     'fields' => $fields,
-                    'open'   => ($level == 1) ? 'open' : '', // Should the detail default open?
+                    'open'   => ($level === 1) ? 'open' : '',
                 ];
                 unset($allfields[$key]);
             }
