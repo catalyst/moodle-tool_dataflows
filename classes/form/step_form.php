@@ -233,7 +233,7 @@ class step_form extends \core\form\persistent {
 
         // Annoyingly, will need to reconvert this into an array so it can be looped over in mustache.
         $allfields = $this->build_treetag($fields);
-        $allfields = $this->add_recursive_keys($allfields);
+        $allfields = $this->add_recursive_keys($fields, $allfields);
         $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
         return $fieldhtml;
     }
@@ -248,7 +248,7 @@ class step_form extends \core\form\persistent {
         $allfields = [];
         $groupcreated = [];
         foreach ($fields as $key => $value) {
-            $expression = '${{ ' . $key . ' }}';
+            $expression = $key;
             $groups = explode('.', $key);
             $last = array_pop($groups);
             $count = 0;
@@ -267,10 +267,10 @@ class step_form extends \core\form\persistent {
      * @param array $allfields unformatted array
      * @return array $allfields
      */
-    public function add_recursive_keys($allfields, $level = 1) {
+    public function add_recursive_keys($values, $allfields, $level = 1) {
         foreach ($allfields as $key => $value) {
             if (is_array($value)) {
-                $fields = $this->add_recursive_keys($value, $level + 1);
+                $fields = $this->add_recursive_keys($values, $value, $level + 1);
                 $allfields[] = [
                     'name'   => $key,
                     'fields' => $fields,
@@ -284,7 +284,8 @@ class step_form extends \core\form\persistent {
                 // Only inner fields have expression.
                 array_unshift($allfields, [
                     'name'       => $tmp,
-                    'expression' => $key,
+                    'expression' => '${{' . $key . '}}',
+                    'value'      => $values[$key],
                     'leaf'       => true,
                 ]);
                 unset($tmp);
