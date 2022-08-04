@@ -126,6 +126,16 @@
             </div>
         {{/hasflowlogics}}
 
+        <!-- flows -->
+        {{#hasflows}}
+            <div class="col-sm">
+                <h6 class="dropdown-header">{{#str}} stepgroupflows, tool_dataflows {{/str}}</h6>
+                {{#items.flows}}
+                    <a class="dropdown-item" href="{{{href}}}">{{{label}}}</a>
+                {{/items.flows}}
+            </div>
+        {{/hasflows}}
+
         <!-- flowtransformers -->
         {{#hasflowtransformers}}
             <div class="col-sm">
