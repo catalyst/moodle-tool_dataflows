@@ -226,17 +226,19 @@ class dataflow extends persistent {
         unset($dataflow->steps);
         $dataflow->config = $this->get_config(false);
         $dataflow->states = $this->states;
+        $dataflow->id     = $this->id;
+        $dataflow->run    = (object) [
+            'id'        => $this->engine->run->id ?? null,
+            'name'      => $this->engine->run->name ?? null,
+        ];
 
         // Test reading a value directly.
         $variables = [
-            'global' => (object) ['vars' => $globalvars],
-            'env' => (object) [
-                'DATAFLOW_ID' => $this->id,
-                'DATAFLOW_RUN_ID' => $this->engine->run->id ?? null,
-                'DATAFLOW_RUN_NAME' => $this->engine->run->name ?? null,
+            'global' => (object) [
+                'vars' => $globalvars,
             ],
-            'dataflow' => $dataflow,
-            'steps' => $steps,
+            'dataflow'  => $dataflow,
+            'steps'     => $steps,
         ];
         return $variables;
     }
