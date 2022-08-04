@@ -19,6 +19,7 @@ namespace tool_dataflows;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\local\provider\expression_provider;
 
 /**
  * Expression Parsing helper class
@@ -36,17 +37,8 @@ class parser {
      * Sets an expression language object and registers any supported methods.
      */
     public function __construct() {
-        $expressionlanguage = new ExpressionLanguage();
+        $expressionlanguage = new ExpressionLanguage(null, [new expression_provider()]);
 
-        // Register the fromJSON helper function to convert a json string into a php object.
-        $expressionlanguage->register('fromJSON', function ($str) {
-            return sprintf('(is_string(%1$s) ? json_decode(%1$s) : %1$s)', $str);
-        }, function ($arguments, $str) {
-            if (!is_string($str)) {
-                return $str;
-            }
-            return json_decode($str);
-        });
         $this->expressionlanguage = $expressionlanguage;
     }
 
@@ -180,7 +172,7 @@ class parser {
                     }
                     // Set the evalulated expression to the one that passed through the expression language.
                     if (isset($result)) {
-                        if (!is_object($result)) {
+                        if (!is_object($result) && is_string($result)) {
                             // Normally, the result returned from the expression is a non-scalar value. Replace the occurance of
                             // it in the original provided expression with the result.
                             $evaluatedexpression = str_replace($match['expressionwrapper'], $result, $evaluatedexpression);
