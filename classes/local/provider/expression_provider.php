@@ -19,6 +19,16 @@ namespace tool_dataflows\local\provider;
 use Symfony\Component\ExpressionLanguage\ExpressionFunction;
 use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 
+/**
+ * Expression Provider
+ *
+ * A collection of functions that have been added to extend the functionality of expressions
+ *
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class expression_provider implements ExpressionFunctionProviderInterface {
 
     /**

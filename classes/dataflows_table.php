@@ -102,7 +102,7 @@ class dataflows_table extends \table_sql {
                 "",
                 [
                     'class' => 'lightbox',
-                    'style' => 'max-width: ' . self::PREVIEW_MAX_WIDTH . 'px; max-height: ' . self::PREVIEW_MAX_HEIGHT . 'px'
+                    'style' => 'max-width: ' . self::PREVIEW_MAX_WIDTH . 'px; max-height: ' . self::PREVIEW_MAX_HEIGHT . 'px',
                 ]
             );
         } else {
