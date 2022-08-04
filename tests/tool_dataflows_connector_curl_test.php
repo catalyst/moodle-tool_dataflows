@@ -31,7 +31,7 @@ use tool_dataflows\dataflow;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_dataflows_curl_connector_test extends \advanced_testcase {
+class tool_dataflows_connector_curl_test extends \advanced_testcase {
 
     /**
      * Set up before each test
