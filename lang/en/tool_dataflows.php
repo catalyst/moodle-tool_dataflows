@@ -334,7 +334,7 @@ $string['connector_sns_notify:sending_message'] = 'Sending SNS notification to t
 // Connector cURL.
 $string['connector_curl:curl'] = 'URL';
 $string['connector_curl:destination'] = 'File / Response destination';
-$string['connector_curl:destination_help'] = 'If set, then the response body will be saved to this path. If blank, then the response body be will available in the step variable: ...response.result';
+$string['connector_curl:destination_help'] = 'If set, then the response body will be saved to this path. If blank, then the response body will be available in the step variable: ...response.result';
 $string['connector_curl:headers'] = 'HTTP request headers';
 $string['connector_curl:rawpostdata'] = 'Raw post data';
 $string['connector_curl:sideeffects'] = 'Does this request have side effects?';
