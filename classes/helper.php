@@ -127,6 +127,40 @@ class helper {
     }
 
     /**
+     * Gets a config value and breaks it down into a list (one per line), while ignoring comments and blank lines.
+     *
+     * @param string $plugin
+     * @param string $name
+     * @return array
+     */
+    public static function get_config_as_list(string $plugin, string $name): array {
+        $data = get_config($plugin, $name);
+
+        // Strip comments.
+        $data = preg_replace('!/\*.*?\*/!s', '', $data);
+
+        $lines = explode(PHP_EOL, $data);
+
+        $values = [];
+        foreach ($lines as $line) {
+
+            // Strip # comments, and trim.
+            $line = trim(preg_replace('/#.*$/', '', $line));
+
+            if ($line == '') {
+                continue;
+            }
+
+            if (isset($callback)) {
+                $line = callback($line);
+            }
+
+            $values[] = $line;
+        }
+        return $values;
+    }
+
+    /**
      * Gets the list of permitted directories that steps are allowed to interact with.
      * The [dataroot] placeholder will be substituted with the correct dir.
      *
@@ -135,30 +169,14 @@ class helper {
     public static function get_permitted_dirs(): array {
         global $CFG;
 
-        $data = get_config('tool_dataflows', 'permitted_dirs');
-
-        // Strip comments.
-        $data = preg_replace('!/\*.*?\*/!s', '', $data);
-
-        $dirs = explode(PHP_EOL, $data);
-
-        $permitteddirs = [];
-        foreach ($dirs as $dir) {
-
-            // Strip # comments, and trim.
-            $dir = trim(preg_replace('/#.*$/', '', $dir));
-
-            if ($dir == '') {
-                continue;
-            }
-
+        $dirs = self::get_config_as_list('tool_dataflows', 'permitted_dirs');
+        foreach ($dirs as &$dir) {
             // Substitute '[dataroot]' placeholder with the site's data root directory.
             if (substr($dir, 0, strlen(self::DATAROOT_PLACEHOLDER)) == self::DATAROOT_PLACEHOLDER) {
                 $dir = $CFG->dataroot . substr($dir, strlen(self::DATAROOT_PLACEHOLDER));
             }
-            $permitteddirs[] = $dir;
         }
-        return $permitteddirs;
+        return $dirs;
     }
 
     /**

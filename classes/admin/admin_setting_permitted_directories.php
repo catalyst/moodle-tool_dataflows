@@ -26,59 +26,36 @@ use \tool_dataflows\helper;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_permitted_directories extends \admin_setting_configtextarea {
+class admin_setting_permitted_directories extends admin_setting_list {
 
     /** File scheme string. */
     protected const FILE_SCHEME = 'file://';
 
     /**
-     * Validate the setting data as a list of filepaths.
+     * Validates a single line of the submitted data.
      *
-     * @param string $data Data to be validated.
-     * @return bool|mixed|string true for success or string:error on failure
+     * @param string $line
+     * @return true|string True if the line validates, or a string containing an explanation.
      */
-    public function validate($data) {
+    protected function validate_line(string $line) {
         global $CFG;
 
-        // Strip /*..*/ comments.
-        $data = preg_replace('!/\*.*?\*/!s', '', $data);
-
-        if (empty(trim($data))) {
-            return true;
+        // Substitute dataroot placeholder, if found.
+        if (substr($line, 0, strlen(helper::DATAROOT_PLACEHOLDER)) === helper::DATAROOT_PLACEHOLDER) {
+            $line = $CFG->dataroot . substr($line, strlen(helper::DATAROOT_PLACEHOLDER));
         }
 
-        $lines = explode(PHP_EOL, $data);
-
-        $errors = [];
-        foreach ($lines as $line) {
-
-            // Strip # comments, and trim.
-            $line = trim(preg_replace('/#.*$/', '', $line));
-
-            // Ignore empty lines.
-            if ($line == '') {
-                continue;
-            }
-
-            // Substitute dataroot placeholder, if found.
-            if (substr($line, 0, strlen(helper::DATAROOT_PLACEHOLDER)) === helper::DATAROOT_PLACEHOLDER) {
-                $line = $CFG->dataroot . substr($line, strlen(helper::DATAROOT_PLACEHOLDER));
-            }
-
-            // Remove file scheme, if found.
-            if (substr($line, 0, strlen(self::FILE_SCHEME)) === self::FILE_SCHEME) {
-                $line = substr($line, strlen(self::FILE_SCHEME));
-            }
-
-            // Test for path validity. Must be valid and absolute.
-            if (!helper::is_filepath($line)) {
-                $errors[] = get_string('path_invalid', 'tool_dataflows', $line);
-            } else if (helper::path_is_relative($line)) {
-                $errors[] = get_string('path_not_absolute', 'tool_dataflows', $line);
-            }
+        // Remove file scheme, if found.
+        if (substr($line, 0, strlen(self::FILE_SCHEME)) === self::FILE_SCHEME) {
+            $line = substr($line, strlen(self::FILE_SCHEME));
         }
-        if (count($errors)) {
-            return implode(' ', $errors);
+
+        // Test for path validity. Must be valid and absolute.
+        if (!helper::is_filepath($line)) {
+            return get_string('path_invalid', 'tool_dataflows', $line);
+        }
+        if (helper::path_is_relative($line)) {
+            return get_string('path_not_absolute', 'tool_dataflows', $line);
         }
         return true;
     }

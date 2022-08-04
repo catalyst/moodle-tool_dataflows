@@ -82,6 +82,14 @@ if ($hassiteconfig) {
             '',
             PARAM_RAW
         ));
+
+        $settings->add(new admin_setting_cfg_list(
+            'tool_dataflows/config_vars',
+            get_string('config_vars', 'tool_dataflows'),
+            get_string('config_vars_desc', 'tool_dataflows'),
+            '',
+            PARAM_RAW
+        ));
     }
 
     $ADMIN->add('tool_dataflows', $settings);

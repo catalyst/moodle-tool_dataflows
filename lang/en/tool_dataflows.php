@@ -48,6 +48,11 @@ $string['global_vars_desc'] = "Global variables that can be accessed via express
     Example.
     abc:
       def: 12  # Accessed as \${{global.vars.abc.def}}";
+$string['config_vars'] = 'Included config settings';
+$string['config_vars_desc'] = "A list of \$CFG settings that can be accessed via expressions as \${{global.cfg.&lt;name&gt;}}, one per line. Comments using '/* .. */' and '#' can be included. Blank lines will be ignored.\n
+    Example.
+    wwwroot  # Accessed as \${{global.cfg.wwwroot}}
+    dataroot # Accessed as \${{global.cfg.dataroot}}";
 
 // Manage flows / Overview.
 $string['overview'] = 'Overview';
@@ -229,6 +234,7 @@ $string['here'] = 'here';
 $string['concurrency_disabled'] = 'Concurrency is not possible with this dataflow. Concurrent running flag has been set to false.';
 $string['concurrency_enabled_disabled_desc'] = '<i>Concurrent running is not possible because one or more steps are unable to support concurrency.
  While you can still edit this setting, it\'s value will be ignored. Reasons are:</i>';
+$string['cfg_value_undefined'] = 'Config \'{$a}\' is undefined.';
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';

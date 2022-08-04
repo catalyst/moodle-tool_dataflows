@@ -139,8 +139,15 @@ class dataflow extends persistent {
      * @return     array of variables typically passed to the expression parser
      */
     public function get_variables(): array {
+        global $CFG;
+
         $globalvars = Yaml::parse(get_config('tool_dataflows', 'global_vars'), Yaml::PARSE_OBJECT_FOR_MAP)
                 ?? new \stdClass();
+        $configvarnames = helper::get_config_as_list('tool_dataflows', 'config_vars');
+        $configvars = new \stdClass();
+        foreach ($configvarnames as $name) {
+            $configvars->{$name} = $CFG->{$name};
+        }
 
         // Prepare the list of variables available from each step.
         $steps = [];
@@ -229,7 +236,7 @@ class dataflow extends persistent {
 
         // Test reading a value directly.
         $variables = [
-            'global' => (object) ['vars' => $globalvars],
+            'global' => (object) ['vars' => $globalvars, 'cfg' => $configvars],
             'env' => (object) [
                 'DATAFLOW_ID' => $this->id,
                 'DATAFLOW_RUN_ID' => $this->engine->run->id ?? null,

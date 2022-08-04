@@ -211,6 +211,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Check before state.
         $variables = $engine->get_variables();
         $this->assertEquals(new \stdClass, $variables['global']->vars);
+        $this->assertEquals(new \stdClass, $variables['global']->cfg);
         $this->assertEquals(new \stdClass, $variables['dataflow']->config);
         $reader->read();
         $this->assertEmpty($reader->config->countervalue ?? null);
