@@ -14,26 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\local\step;
+
 /**
- * Version
+ * No-op step type
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
+ * @package    tool_dataflows
+ * @author     Brendan Heywood <brendan@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class flow_noop extends flow_step {
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2022080400;
-$plugin->release = 2022080400;
-
-$plugin->requires = 2017051500;    // Our lowest supported Moodle (3.3.0).
-
-$plugin->supported = [35, 401];    // Available as of Moodle 3.9.0 or later.
-// TODO $plugin->incompatible = ;  // Available as of Moodle 3.9.0 or later.
-
-$plugin->component = 'tool_dataflows';
-$plugin->maturity = MATURITY_ALPHA;
-
-$plugin->dependencies = [];
+    /**
+     * Executes the step
+     *
+     * This will logs the input via debugging and passes the input value as-is to the output.
+     *
+     * @param mixed $input
+     * @return mixed $output
+     */
+    public function execute($input) {
+        $output = $input;
+        return $output;
+    }
+}

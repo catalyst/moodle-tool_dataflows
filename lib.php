@@ -56,6 +56,7 @@ function tool_dataflows_step_types() {
         new step\connector_wait,
         new step\flow_logic_case,
         new step\flow_logic_join,
+        new step\flow_noop,
         new step\flow_web_service,
         new step\reader_json,
         new step\reader_sql,
