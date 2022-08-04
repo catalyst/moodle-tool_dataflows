@@ -2,8 +2,8 @@ name: Example Dataflow
 
 config:
     expression: with steps ${{ steps.notify.name }} and ${{ steps.read_value.name }}
-    expression_test_id: ${{ env.DATAFLOW_ID }}
-    expression_math: ${{ env.DATAFLOW_ID + 777 }}
+    expression_test_id: ${{ dataflow.id }}
+    expression_math: ${{ dataflow.id + 777 }}
     expression_dataflow_name: ${{ dataflow.name }}
     expression_concat: ${{ steps.notify.alias~steps.read_value.alias }}
 

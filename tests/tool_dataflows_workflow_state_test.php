@@ -106,7 +106,7 @@ class tool_dataflows_workflow_state_test extends \advanced_testcase {
         // Test they are different.
         $this->assertNotEquals(json_encode($initialdata), json_encode($finaldata));
         // Yet the same.
-        $this->assertEquals($initialdata['env']['DATAFLOW_ID'], $finaldata['env']['DATAFLOW_ID']);
+        $this->assertEquals($initialdata['dataflow']['id'], $finaldata['dataflow']['id']);
         // Only the "new" state should be set.
         $this->assertCount(1, $initialdata['steps']['reader']['states']);
         // But by the end, more state timestamps should have been added.
