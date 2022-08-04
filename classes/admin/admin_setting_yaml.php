@@ -27,6 +27,7 @@ use Symfony\Component\Yaml\Yaml;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class admin_setting_yaml extends \admin_setting_configtextarea {
+
     /**
      * Validate the setting data as a YAML config block.
      *
