@@ -157,7 +157,7 @@ class step_form extends \core\form\persistent {
                 // Check if the current step is a dependant, and if so, INCLUDE the option (and ensure it is selected).
                 $currentstepid = $persistent->id;
                 $selectedposition = null;
-                if (!empty($currentstepid) && isset($dependants[$currentstepid])) {
+                if (!empty($currentstepid) && isset($dependants[$currentstepid]->position)) {
                     $selectedposition = $dependants[$currentstepid]->position;
                     $availablepositions[] = $selectedposition;
                     sort($availablepositions);
