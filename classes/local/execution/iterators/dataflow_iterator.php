@@ -160,12 +160,13 @@ class dataflow_iterator implements iterator {
         $this->value = $this->input->current();
 
         // If the current value is false, it should just fall right through and do nothing.
-        $newvalue = false;
-        if ($this->value !== false) {
-            // Do the actions defined for the particular step.
-            $this->on_next();
-            $newvalue = $this->steptype->execute($this->value);
+        if ($this->value === false) {
+            return false;
         }
+
+        // Do the actions defined for the particular step.
+        $this->on_next();
+        $newvalue = $this->steptype->execute($this->value);
 
         // Handle step outputs - noting that for flow steps, the values may change between each iteration.
         $this->steptype->prepare_outputs();
