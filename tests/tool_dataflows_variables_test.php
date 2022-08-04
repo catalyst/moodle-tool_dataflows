@@ -86,15 +86,15 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $variables = $engine->get_variables();
         ob_get_clean();
 
-        $expressionlanguage = new ExpressionLanguage();
-        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.something', $variables);
-        $this->assertEquals(1, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.counterfield', $variables);
-        $this->assertEquals(11, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.countervalue', $variables);
-        $this->assertEquals(11 * 2, $expressedvalue);
-        $expressedvalue = $expressionlanguage->evaluate('steps.reader.config.sql', $variables);
+        $parser = new parser;
+        $expressedvalue = $parser->evaluate('${{steps.reader.config.sql}}', $variables);
         $this->assertEquals('select 23', $expressedvalue);
+        $expressedvalue = $parser->evaluate('${{steps.reader.config.something}}', $variables);
+        $this->assertEquals(1, $expressedvalue);
+        $expressedvalue = $parser->evaluate('${{steps.reader.config.counterfield}}', $variables);
+        $this->assertEquals(11, $expressedvalue);
+        $expressedvalue = $parser->evaluate('${{steps.reader.config.countervalue}}', $variables);
+        $this->assertEquals(11 * 2, $expressedvalue);
     }
 
     /**

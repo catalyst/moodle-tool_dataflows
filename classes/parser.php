@@ -172,9 +172,10 @@ class parser {
                     }
                     // Set the evalulated expression to the one that passed through the expression language.
                     if (isset($result)) {
-                        if (!is_object($result) && is_string($result)) {
-                            // Normally, the result returned from the expression is a non-scalar value. Replace the occurance of
-                            // it in the original provided expression with the result.
+                        if (!is_object($result) && $match['expressionwrapper'] !== $string) {
+                            // If the result returned from the expression is a non-scalar value, and the expression was only
+                            // part of the bigger picture. Replace the occurance of it in the original provided expression with
+                            // the result.
                             $evaluatedexpression = str_replace($match['expressionwrapper'], $result, $evaluatedexpression);
                         } else if (count($matches) === 1) {
                             // Number of expressions in this string is one, so we can safely return the result of the evaluation.
