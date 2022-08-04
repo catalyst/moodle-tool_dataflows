@@ -168,13 +168,11 @@ class writer_stream extends writer_step {
              */
             public function on_next() {
                 $value = $this->input->current();
-                if ($value !== false) {
-                    if (fwrite($this->handle, $this->writer->encode_record($value, $this->iterationcount)) === false) {
-                        $this->step->log(error_get_last()['message']);
-                        throw new \moodle_exception(
-                            get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname)
-                        );
-                    }
+                if (fwrite($this->handle, $this->writer->encode_record($value, $this->iterationcount)) === false) {
+                    $this->step->log(error_get_last()['message']);
+                    throw new \moodle_exception(
+                        get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname)
+                    );
                 }
             }
 
