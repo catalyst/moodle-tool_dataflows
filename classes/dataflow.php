@@ -227,9 +227,12 @@ class dataflow extends persistent {
         $dataflow->config = $this->get_config(false);
         $dataflow->states = $this->states;
         $dataflow->id     = $this->id;
-        $dataflow->run    = (object) [
-            'id'        => $this->engine->run->id ?? null,
-            'name'      => $this->engine->run->name ?? null,
+
+        $url = new \moodle_url('/admin/tool/dataflows/view-run.php', ['id' => $this->engine->run->id ?? 'xxx']);
+        $dataflow->run = (object) [
+            'id'    => $this->engine->run->id ?? null,
+            'name'  => $this->engine->run->name ?? null,
+            'url'   => $url->out(),
         ];
 
         // Test reading a value directly.
