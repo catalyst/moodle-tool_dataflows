@@ -454,11 +454,11 @@ class engine {
         } else {
             $message = '';
         }
+        $this->log('Aborted: ' . $message);
         $this->exception = $reason;
         foreach ($this->enginesteps as $enginestep) {
             $enginestep->abort();
         }
-        $this->log('Aborted: ' . $message);
         $this->set_status(self::STATUS_ABORTED);
         $this->release_lock();
 
