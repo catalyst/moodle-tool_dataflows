@@ -106,6 +106,7 @@ $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 // Step names.
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
+$string['step_name_connector_email'] = 'Email notification';
 $string['step_name_connector_s3'] = 'S3 file copy connector';
 $string['step_name_connector_sns_notify'] = 'AWS SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
@@ -313,6 +314,13 @@ $string['trigger_cron:crontab'] = 'Schedule in cron tab format';
 $string['trigger_cron:crontab_desc'] = 'The schedule is edited as five values: minute, hour, day, month and day of month, in that order. The values are in crontab format.';
 $string['trigger_cron:strftime_datetime'] = '%d %b %Y, %H:%M';
 $string['trigger_cron:next_run_time'] = 'Next run time: {$a}';
+
+// Email notification.
+$string['connector_email:message'] = 'Message';
+$string['connector_email:sending_message'] = 'Sending email to <{$a}>';
+$string['connector_email:subject'] = 'Subject';
+$string['connector_email:to'] = 'Recipeints email address';
+$string['connector_email:name'] = 'Recipients name';
 
 // S3 File Copy.
 $string['connector_s3:bucket'] = 'Bucket';
