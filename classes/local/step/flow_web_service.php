@@ -29,7 +29,7 @@ use tool_dataflows\parser;
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class flow_web_service extends flow_logic_step {
+class flow_web_service extends flow_step {
 
     /** @var bool whether or not this step type (potentially) has side effects, this will vary depending on Web Service */
     protected $hassideeffect = true;
