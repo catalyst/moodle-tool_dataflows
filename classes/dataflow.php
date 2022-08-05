@@ -265,8 +265,7 @@ class dataflow extends persistent {
         foreach ($yaml as &$string) {
             // TODO: Perhaps some $key should not be evaluated?
 
-            // NOTE: This does not support nested expressions.
-            $string = $parser->evaluate($string, $this->variables);
+            $string = $parser->evaluate_recursive($string, $this->variables);
         }
 
         return $yaml;

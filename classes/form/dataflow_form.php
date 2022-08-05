@@ -72,6 +72,9 @@ class dataflow_form extends \core\form\persistent {
             ['cols' => 50, 'rows' => 7]
         );
 
+        $mform->addElement('static', 'config_help', '',\html_writer::nonempty_tag('pre',
+                get_string('field_config_help', 'tool_dataflows')));
+
         $this->add_action_buttons();
     }
 }
