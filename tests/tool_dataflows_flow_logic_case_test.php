@@ -345,4 +345,48 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
 
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
+
+    /**
+     * Test that variables outside of the flow group can be utilised in the expressions if needed
+     *
+     * @covers \tool_dataflows\local\step\flow_logic_case
+     */
+    public function test_case_variables_available_from_full_context() {
+        [$dataflow] = $this->create_dataflow();
+        $isdryrun = false;
+        $this->assertTrue($dataflow->validate_dataflow());
+
+        $stepsbyalias = $dataflow->get_steps();
+        $stepsbyalias->reader->config = Yaml::dump(['somefield' => 22]);
+
+        $case = $stepsbyalias->case;
+        $case->config = Yaml::dump([
+            'cases' => [
+                'even numbers' => 'steps.reader.config.somefield == 22',
+                'odd numbers' => '0',
+            ],
+        ]);
+
+        ob_start();
+        $engine = new engine($dataflow, $isdryrun);
+        $engine->execute();
+        ob_get_clean();
+
+        $odd = $engine->resolve_path('odd.json');
+        $odd = file_get_contents($odd);
+        $odd = json_decode($odd);
+        $even = $engine->resolve_path('even.json');
+        $even = file_get_contents($even);
+        $even = json_decode($even);
+
+        // Everything should be thrown into even.json.
+        $even = array_column($even, 'value');
+        $this->assertCount(9, $even);
+        $this->assertEquals(5, array_sum($even));
+        $odd = array_column($odd, 'value');
+        $this->assertCount(0, $odd);
+        $this->assertEquals(0, array_sum($odd));
+
+        $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
+    }
 }

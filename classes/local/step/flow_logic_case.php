@@ -200,6 +200,10 @@ class flow_logic_case extends flow_logic_step {
                     throw new \moodle_exception(get_string('flow_logic_case:casenotfound', 'tool_dataflows', $casenumber));
                 }
 
+                // Prepare variables for expression parsing.
+                $variables = $caller->step->engine->get_variables();
+                $variables['record'] = $value;
+
                 // By default, this step should go through the list of
                 // expressions, in order, and stop at the first matching case.
                 // It should also stop at the first failing case that matches
@@ -209,7 +213,7 @@ class flow_logic_case extends flow_logic_step {
                 $parser = new parser;
                 $casefailures = 0;
                 foreach ($this->cases as $caseindex => $case) {
-                    $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', ['record' => $value]);
+                    $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', $variables);
 
                     // If there was a passing expression, break the loop.
                     if ($result === true) {
