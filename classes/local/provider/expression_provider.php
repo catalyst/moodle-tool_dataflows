@@ -59,6 +59,10 @@ class expression_provider implements ExpressionFunctionProviderInterface {
             $fromjson,
             $isset,
             ExpressionFunction::fromPhp('count', 'count'),
+            ExpressionFunction::fromPhp('format_time', 'format_time'),
+            ExpressionFunction::fromPhp('round', 'round'),
+            ExpressionFunction::fromPhp('time', 'time'),
+            ExpressionFunction::fromPhp('userdate', 'userdate'),
         ];
     }
 }
