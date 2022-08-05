@@ -41,6 +41,16 @@ class helper {
     /** Location of the dependency section of the readme. */
     public const README_DEPENDENCY_LINK = 'https://github.com/catalyst/moodle-tool_dataflows#dependencies';
 
+    /** CFG and SITE settings to be included as variables. */
+    public const CFG_VARS = [
+        'fullname',
+        'shortname',
+        'supportemail',
+        'supportname',
+        'supportpage',
+        'wwwroot',
+    ];
+
     /** @var null|bool Is this Windows?  */
     protected static $iswindows = null;
 
@@ -206,5 +216,24 @@ class helper {
 
         // Don't know where dot is, so look for it.
         return !empty(shell_exec('which dot'));
+    }
+
+    /**
+     * Creates a list of variables from CFG and SITE settings.
+     *
+     * @return \stdClass
+     */
+    public static function get_cfg_vars(): \stdClass {
+        global $CFG, $SITE;
+
+        $configvars = new \stdClass();
+        foreach (self::CFG_VARS as $name) {
+            if (property_exists($CFG, $name)) {
+                $configvars->{$name} = $CFG->{$name};
+            } else if (property_exists($SITE, $name)) {
+                $configvars->{$name} = $SITE->{$name};
+            }
+        }
+        return $configvars;
     }
 }
