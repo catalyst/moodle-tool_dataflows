@@ -16,6 +16,8 @@
 
 namespace tool_dataflows\local\execution;
 
+use tool_dataflows\parser;
+
 /**
  * Manages the execution of a flow step.
  *
@@ -84,10 +86,24 @@ class flow_engine_step extends engine_step {
         // such as 'dataflow.id' and 'steps.mystep.name' for example.
         $variables = $this->engine->get_variables();
         $step = $variables['steps']->{$this->stepdef->alias};
+
+        // Pull out the config.
+        $config = $step->config;
+
+        // Set the record as an available variable.
+        if ($this->iterator) {
+            $variables['record'] = (array) $this->iterator->current();
+
+            // Evaluate the config again with the record context, unless the
+            // step type doesn't want to (e.g. SQL reader does it own handling).
+            $parser = new parser;
+            $parser->evaluate_recursive($config, $variables);
+        }
+
         return array_merge(
             $variables,
             ['step' => $step],
-            (array) $step->config
+            (array) $config,
         );
     }
 }
