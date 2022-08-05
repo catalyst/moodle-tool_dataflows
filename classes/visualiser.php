@@ -337,32 +337,20 @@ class visualiser {
      * Prepares and displays the dataflows details page
      *
      * @param  dataflow $dataflow
+     * @param int $id which run is selected
      */
-    public static function display_dataflows_runs_chooser($dataflow) {
+    public static function display_dataflows_runs_chooser($dataflow, $id = 0) {
 
-
-        echo \html_writer::start_div('tool_dataflow-runs-bar');
+        echo '<ul class="pagination tool_dataflow-runs-bar">';
         // Display the most recent runs across the top, if it goes over a
         // certain amount then it will link to a paginated table listing out the
         // previous runs. This can have a background color to indicate the
         // status of the run and only display the run name, etc.
         // TODO: for now link to the "All runs" (for this dataflow) page containing the table.
 
-        $maxrunstoshow = 10;
+        $maxrunstoshow = 5;
         $runs = $dataflow->get_runs($maxrunstoshow);
 
-        // Show this when the number of runs equals the max runs, and the first run in the list is NOT run #1.
-        if (count($runs) === $maxrunstoshow && ((int) reset($runs)->name !== 1)) {
-            $allrunsurl = new \moodle_url('/admin/tool/dataflows/runs.php', ['id' => $dataflow->id]);
-            echo \html_writer::link($allrunsurl, get_string('all_runs', 'tool_dataflows'), ['class' => 'btn btn-run-default']);
-        }
-
-        // Show up to the last 10 runs.
-        foreach ($runs as $run) {
-            $runurl = new \moodle_url('/admin/tool/dataflows/view-run.php', ['id' => $run->id]);
-            $runstate = engine::STATUS_LABELS[$run->status];
-            echo \html_writer::link($runurl, $run->name, ['class' => "btn btn-run-default run-state-{$runstate}"]);
-        }
 
         // Recent runs label (no recent, or recent runs to describe the list).
         if (!empty($runs)) {
@@ -370,10 +358,28 @@ class visualiser {
         } else {
             $recentrunsstr = get_string('no_recent_runs', 'tool_dataflows');
         }
-        $recentrunslabel = \html_writer::tag('span', $recentrunsstr, ['class' => 'btn btn-text']);
-        echo $recentrunslabel;
+        echo '<li class="page-item disabled">';
+        echo \html_writer::tag('span', $recentrunsstr, ['class' => 'page-link ']);
+        echo '</li>';
 
-        echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-runs-bar div.
+        // Show up to the last 10 runs.
+        foreach (array_reverse($runs) as $run) {
+            $runurl = new \moodle_url('/admin/tool/dataflows/view-run.php', ['id' => $run->id]);
+            $runstate = engine::STATUS_LABELS[$run->status];
+            echo '<li class="page-item">';
+            echo \html_writer::link($runurl, $run->name, ['class' => "page-link btn-run-default run-state-{$runstate}"]);
+            echo '</li>';
+        }
+
+        // Show this when the number of runs equals the max runs, and the first run in the list is NOT run #1.
+        if (count($runs) === $maxrunstoshow && ((int) reset($runs)->name !== 1)) {
+            $allrunsurl = new \moodle_url('/admin/tool/dataflows/runs.php', ['id' => $dataflow->id]);
+            echo '<li class="page-item">';
+            echo \html_writer::link($allrunsurl, get_string('all_runs', 'tool_dataflows') . ' &raquo;', ['class' => 'page-link']);
+            echo '</li>';
+        }
+
+        echo '</ul>'; // Closing tag for the .tool_dataflow-runs-bar.
 
     }
 

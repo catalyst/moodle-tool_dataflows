@@ -89,6 +89,8 @@ $PAGE->set_heading($pluginname . ': ' . $dataflow->name);
 echo $output->header();
 echo $output->heading($pageheading);
 
+visualiser::display_dataflows_runs_chooser($dataflow, $id);
+
 // Run Summary information (at the top).
 $defaulttimezone = date_default_timezone_get();
 $table = new html_table();
