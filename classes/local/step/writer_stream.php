@@ -79,8 +79,8 @@ class writer_stream extends writer_step {
      */
     public static function form_define_fields(): array {
         return [
-            'streamname' => ['type' => PARAM_TEXT],
-            'format' => ['type' => PARAM_TEXT],
+            'streamname' => ['type' => PARAM_TEXT, 'required' => true],
+            'format' => ['type' => PARAM_TEXT, 'required' => true],
             'prettyprint' => ['type' => PARAM_BOOL],
         ];
     }
@@ -199,10 +199,10 @@ class writer_stream extends writer_step {
      */
     public function validate_config($config) {
         $errors = [];
-        if (!isset($config->streamname)) {
+        if (empty($config->streamname)) {
             $errors['config_streamname'] = get_string('config_field_missing', 'tool_dataflows', 'streamname', true);
         }
-        if (!isset($config->format)) {
+        if (empty($config->format)) {
             $errors['config_format'] = get_string('config_field_missing', 'tool_dataflows', 'format', true);
         } else {
             $format = self::resolve_encoder($config->format);
