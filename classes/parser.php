@@ -88,7 +88,7 @@ class parser {
 
                         // If it doesn't have an expression, then it is resolved so no longer needed.
                         unset($unresolvedvalues->{$key});
-                        if (!is_object($resolved)) {
+                        if (!is_object($resolved) && !is_array($resolved)) {
                             [$hasexpression] = $this->has_expression($resolved);
                             if ($hasexpression) {
                                 $unresolvedvalues->{$key} = $resolved;

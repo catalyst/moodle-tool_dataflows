@@ -198,6 +198,9 @@ class reader_sql extends reader_step {
                 // Throw the original exception (i.e. for the real stack trace).
                 throw $e;
             });
+            if (!is_string($finalsql)) {
+                throw new \moodle_exception('reader_sql:finalsql_not_string', 'tool_dataflows');
+            }
             [$hasexpression] = $parser->has_expression($finalsql);
             $max--;
         }

@@ -299,6 +299,7 @@ $string['reader_sql:countervalue_help'] = 'Current value from the counter field'
 $string['reader_sql:variable_not_valid_in_position_replacement_text'] = "Invalid expression \${{ {\$a->expression} }} as `{\$a->expressionpath}` could not be resolved at line {\$a->line} character {\$a->column} in:\n{\$a->sql}"; // phpcs:disable moodle.Strings.ForbiddenStrings.Found
 $string['reader_sql:counterfield_not_empty'] = 'Counterfield value is non-empty.';
 $string['reader_sql:settings_unknown'] = 'The settings are unknown.';
+$string['reader_sql:finalsql_not_string'] = 'SQL must evaluate to a string.';
 
 // Reader JSON.
 $string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON. For example, {$a->expression} will return the users array from the following JSON (If empty it is assumed the starting point of the JSON file is an array):{$a->jsonexample}';

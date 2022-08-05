@@ -217,4 +217,48 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $this->assertEquals($previousvalue, $reader->config->countervalue);
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
+
+    /**
+     * Tests that reader_sql throws an exception when the SQL does not evaluate to a string.
+     *
+     * @covers \tool_dataflows\local\step\reader_sql::construct_query
+     */
+    public function test_sql_bad_type() {
+        $dataflow = new dataflow();
+        $dataflow->name = 'sql-bad';
+        $dataflow->enabled = true;
+        $dataflow->config = Yaml::dump([
+            'badvalue' => [1, 2, 3],
+        ]);
+        $dataflow->save();
+
+        $reader = new step();
+        $reader->name = 'reader';
+        $reader->type = 'tool_dataflows\local\step\reader_sql';
+
+        // Set the SQL query via a YAML config string.
+        $reader->config = Yaml::dump([
+            'sql' => '${{dataflow.config.badvalue}}',
+        ]);
+        $dataflow->add_step($reader);
+
+        $writer = new step();
+        $writer->name = 'writer';
+        $writer->type = 'tool_dataflows\local\step\writer_debugging';
+
+        $writer->depends_on([$reader]);
+        $dataflow->add_step($writer);
+
+        $this->expectException('\moodle_exception');
+        $this->expectExceptionMessage(get_string('reader_sql:finalsql_not_string', 'tool_dataflows'));
+
+        // Execute.
+        ob_start();
+        try {
+            $engine = new engine($dataflow);
+            $engine->execute();
+        } finally {
+            ob_get_clean();
+        }
+    }
 }
