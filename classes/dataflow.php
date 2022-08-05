@@ -234,9 +234,12 @@ class dataflow extends persistent {
 
         // Test reading a value directly.
         $variables = [
-            'global' => (object) ['vars' => $globalvars],
-            'dataflow'  => $dataflow,
-            'steps'     => $steps,
+            'global' => (object) [
+                'vars' => $globalvars,
+                'cfg'  => helper::get_cfg_vars(),
+            ],
+            'dataflow' => $dataflow,
+            'steps'    => $steps,
         ];
         return $variables;
     }
