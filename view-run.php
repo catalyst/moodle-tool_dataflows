@@ -82,9 +82,10 @@ $pluginname = get_string('pluginname', 'tool_dataflows');
 $table->define_baseurl($url);
 
 $pageheading = "{$dataflow->name} #{$run->name}";
-$PAGE->set_title($pluginname . ': ' . $pageheading);
+$PAGE->set_title($pluginname . ': ' . $dataflow->name . ': ' . $pageheading);
 $PAGE->set_pagelayout('admin');
-$PAGE->set_heading($pluginname);
+$PAGE->set_heading($pluginname . ': ' . $dataflow->name);
+
 echo $output->header();
 echo $output->heading($pageheading);
 
