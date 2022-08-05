@@ -293,4 +293,26 @@ abstract class engine_step {
                 break;
         }
     }
+
+    /**
+     * Returns an array with all the variables available, with the context of the step
+     *
+     * @return  array
+     */
+    public function get_variables(): array {
+        // Config values are directly referenceable, step values go through
+        // step.fieldname, everything else is available through expressions,
+        // such as 'dataflow.id' and 'steps.mystep.name' for example.
+        $variables = $this->engine->get_variables();
+        $step = $variables['steps']->{$this->stepdef->alias};
+
+        // Pull out the config.
+        $config = $step->config;
+
+        return array_merge(
+            $variables,
+            ['step' => $step],
+            (array) $config,
+        );
+    }
 }
