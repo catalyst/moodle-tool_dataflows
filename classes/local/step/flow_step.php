@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\local\step;
 
+use tool_dataflows\local\execution\connector_engine_step;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
 use tool_dataflows\local\execution\iterators\iterator;
@@ -43,6 +44,9 @@ abstract class flow_step extends base_step {
      * @return bool
      */
     final public function is_flow(): bool {
+        if ($this->stepdef->id === 131) {
+            return false;
+        }
         return true;
     }
 
@@ -69,13 +73,12 @@ abstract class flow_step extends base_step {
      * @return engine_step
      */
     protected function generate_engine_step(engine $engine): engine_step {
-        return new flow_engine_step($engine, $this->stepdef, $this);
-        if (!isset($this->enginestep)) {
-            $enginestep = new flow_engine_step($engine, $this->stepdef, $this);
-            $this->enginestep = $enginestep;
+        // Determine if it should return a flow (iterator based) or connector (no iterator) engine step.
+        if ($this->is_flow()) {
+            return new flow_engine_step($engine, $this->stepdef, $this);
+        } else {
+            return new connector_engine_step($engine, $this->stepdef, $this);
         }
-
-        return $this->enginestep;
     }
 
     /**
