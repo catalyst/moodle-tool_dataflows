@@ -361,6 +361,14 @@ class step_form extends \core\form\persistent {
         if (!empty($type) && class_exists($type)) {
             $steptype = new $type();
             $data = $steptype->form_get_default_data($data);
+
+            // Automatically fill in the name with something hopefully sane.
+            $classname = $type;
+            $position = strrpos($classname, '\\');
+            $basename = substr($classname, $position + 1);
+            if ($position !== false) {
+                $data->name = str_replace('_step', '', $basename); // So curl_step becomes curl.
+            }
         }
 
         return $data;
