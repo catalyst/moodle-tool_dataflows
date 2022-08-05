@@ -100,6 +100,7 @@ require_sesskey();
 echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'), 'post', ['class' => 'mb-3']);
 
 // Prepare to handle output via mtrace.
+echo html_writer::start_tag('small');
 echo html_writer::start_tag('pre');
 $CFG->mtrace_wrapper = 'tool_dataflows_mtrace_wrapper';
 try {
@@ -116,6 +117,7 @@ try {
 }
 
 echo html_writer::end_tag('pre');
+echo html_writer::end_tag('small');
 
 // Re-run the specified flow (this will output an error if it doesn't exist).
 echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'), 'post', ['class' => 'mb-3']);

@@ -62,11 +62,15 @@ class logging_context {
             return;
         }
 
-        $logstr = 'Engine "' . $this->engine->name . '"';
+        $name = $this->engine->name;
+        $logstr = "Engine '{$name}'";
+        $strlen = min(20, strlen($name));
+        $dots = str_repeat('.' , 25 - $strlen);
         if (!is_null($this->enginestep)) {
-            $logstr .= ', step "' . $this->enginestep->name . '"';
+            $name = $this->enginestep->name;
+            $logstr .= " step {$name}{$dots}";
         }
-        $logstr .= ': ' . $message;
+        $logstr .= ' ' . $message;
         mtrace($logstr);
     }
 }
