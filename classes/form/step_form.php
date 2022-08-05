@@ -149,10 +149,7 @@ class step_form extends \core\form\persistent {
                 // are linked. It should show 6 possible options for the next
                 // step that can get linked.
                 $outputlabelscount = count($step->steptype->get_output_labels());
-                $allpositions = range(1, min($max, $outputlabelscount));
-
-                $takenpositions = array_column($dependants, 'position');
-                $availablepositions = array_diff($allpositions, $takenpositions);
+                $availablepositions = range(1, min($max, $outputlabelscount));
 
                 // Check if the current step is a dependant, and if so, INCLUDE the option (and ensure it is selected).
                 $currentstepid = $persistent->id;
