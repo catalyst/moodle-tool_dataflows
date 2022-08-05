@@ -201,8 +201,11 @@ class dataflows_table extends \table_sql {
         if (count($runrecords)) {
             $record = current($runrecords);
 
-            return number_format($record->timefinished - $record->timestarted, 4) . ' ' .
-                get_string('secs');
+            $delta = $record->timefinished - $record->timestarted;
+            if ($delta > 10) {
+                return number_format($delta, 0) . ' ' . get_string('secs');
+            }
+            return number_format($delta, 1) . ' ' . get_string('secs');
         }
         return '';
     }
