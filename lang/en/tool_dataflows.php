@@ -342,7 +342,7 @@ $string['connector_curl:sideeffects'] = 'Does this request have side effects?';
 $string['connector_curl:sideeffects_help'] = 'Most read requests done via http GET do not have side effects ie they change state on the remote server, and generally any POST or PUT does have side effects. Curl calls with side effects are not actually executed in dry run mode.';
 $string['connector_curl:timeout'] = 'Timeout';
 $string['connector_curl:timeout_help'] = 'Time in seconds after which the request will abort, default is 60 seconds.';
-$string['connector_curl:field_headers_help'] = 'Headers should be in the following JSON format: {$a->json} You can also use the following YAML format: {$a->yaml}';
+$string['connector_curl:field_headers_help'] = 'Headers should be in the following YAML format: {$a->yaml}';
 $string['connector_curl:output_response_result'] = 'Returns a string that contains the response to the request as text, or null if the request was unsuccessful or has not yet been sent.';
 
 // Checks.
