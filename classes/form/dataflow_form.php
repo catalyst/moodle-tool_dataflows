@@ -71,6 +71,13 @@ class dataflow_form extends \core\form\persistent {
             get_string('field_config', 'tool_dataflows'),
             ['cols' => 50, 'rows' => 7]
         );
+        $outputsexample['reference'] = \html_writer::tag('code',  htmlentities('${{dataflow.config.<name>}}'));
+        $examplestring = <<<'EOT'
+data:
+  configvar: 12     # Accessed as ${{dataflow.config.data.configvar}}
+EOT;
+        $outputsexample['example'] = \html_writer::tag('pre', $examplestring);
+        $mform->addElement('static', 'config_help', '', get_string('field_config_help', 'tool_dataflows', $outputsexample));
 
         $this->add_action_buttons();
     }
