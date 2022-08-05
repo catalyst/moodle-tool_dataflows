@@ -129,7 +129,7 @@ class curl_step extends flow_step {
             'patch'  => 'PATCH',
             'put'    => 'PUT',
         ]);
-        $urlarray[] =& $mform->createElement('text', 'config_curl', '');
+        $urlarray[] =& $mform->createElement('text', 'config_curl', '', ['style' => 'width: 36rem']);
 
         $mform->addGroup($urlarray, 'buttonar', get_string('connector_curl:curl', 'tool_dataflows'), [' '], false);
         $mform->addRule('buttonar', get_string('required'), 'required', null, 'server');
@@ -199,14 +199,14 @@ class curl_step extends flow_step {
      */
     public function execute($input) {
         // Get variables.
-        $config = $this->enginestep->stepdef->config;
-        $isdryrun = $this->enginestep->engine->isdryrun;
+        $config = $this->get_config();
+        $isdryrun = $this->is_dry_run();
+
+        $url = $config->curl;
         $method = $config->method;
 
-        $this->enginestep->log($config->curl);
-
-        $dbgcommand = 'curl -X ' .  strtoupper($method) . ' ' . $config->curl;
-        $result = null;
+        $this->log($url);
+        $dbgcommand = 'curl -X ' .  strtoupper($method) . ' ' . $url;
 
         if (!empty($config->timeout)) {
             $this->timeout = (int) $config->timeout;
@@ -255,8 +255,9 @@ class curl_step extends flow_step {
         }
 
         // Perform call.
+        $result = null;
         if (!$isdryrun) {
-            $result = $curl->$method($config->curl, [], $options);
+            $result = $curl->$method($url, [], $options);
         }
 
         if (!empty($file)) {
@@ -276,7 +277,7 @@ class curl_step extends flow_step {
         }
 
         // Log the raw curl command.
-        $this->enginestep->log($dbgcommand);
+        $this->log($dbgcommand);
         $this->set_variables('dbgcommand', $dbgcommand);
 
         if (!$isdryrun) {
@@ -288,6 +289,7 @@ class curl_step extends flow_step {
                 'destination' => $destination,
             ]);
         }
-        return true;
+
+        return $input;
     }
 }

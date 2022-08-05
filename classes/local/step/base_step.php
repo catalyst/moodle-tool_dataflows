@@ -607,4 +607,37 @@ abstract class base_step {
         $label = $labels[$position] ?? (string) $position;
         return $label;
     }
+
+    /**
+     * Get the step's (definition) current config.
+     *
+     * Helper method to reduce the complexity when authoring step types.
+     *
+     * @return  \stdClass configuration object
+     */
+    protected function get_config() {
+        return $this->enginestep->stepdef->config;
+    }
+
+    /**
+     * Returns whether the engine's run is dry
+     *
+     * Helper method to reduce the complexity when authoring step types.
+     *
+     * @return  bool mode is in dry run or not
+     */
+    protected function is_dry_run() {
+        return $this->enginestep->engine->isdryrun;
+    }
+
+    /**
+     * Emits a log message
+     *
+     * Helper method to reduce the complexity when authoring step types.
+     *
+     * @param string $message
+     */
+    protected function log($message) {
+        $this->enginestep->log($message);
+    }
 }
