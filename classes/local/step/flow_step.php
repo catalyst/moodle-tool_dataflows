@@ -70,6 +70,12 @@ abstract class flow_step extends base_step {
      */
     protected function generate_engine_step(engine $engine): engine_step {
         return new flow_engine_step($engine, $this->stepdef, $this);
+        if (!isset($this->enginestep)) {
+            $enginestep = new flow_engine_step($engine, $this->stepdef, $this);
+            $this->enginestep = $enginestep;
+        }
+
+        return $this->enginestep;
     }
 
     /**
