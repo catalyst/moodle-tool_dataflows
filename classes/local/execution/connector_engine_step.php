@@ -46,7 +46,7 @@ class connector_engine_step extends engine_step {
                 try {
                     $result = $this->steptype->execute($this);
                     $this->steptype->prepare_outputs();
-                    if ($result === true) {
+                    if ($result !== false) {
                         $this->set_status(engine::STATUS_FINISHED);
                     } else {
                         $this->set_status(engine::STATUS_CANCELLED);
