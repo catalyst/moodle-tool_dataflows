@@ -144,7 +144,7 @@ class provider implements \core_privacy\local\metadata\provider,
                     ];
                 }
                 writer::with_context($context)->export_data(
-                    [get_string('privacy:metadata:dataflows', 'tool_dataflows_steps')],
+                    [get_string('privacy:metadata:dataflows', 'tool_dataflows')],
                     (object) $list
                 );
 
@@ -159,7 +159,7 @@ class provider implements \core_privacy\local\metadata\provider,
                     ];
                 }
                 writer::with_context($context)->export_data(
-                    [get_string('privacy:metadata:dataflows', 'tool_dataflows_runs')],
+                    [get_string('privacy:metadata:dataflows', 'tool_dataflows')],
                     (object) $list
                 );
             }
