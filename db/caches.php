@@ -15,21 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version
+ * tool_dataflows cache definitions.
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
+ * @package    tool_dataflows
+ * @category   cache
+ * @author     Ghaly Marc-Alexandre <marc-alexandreghaly@catalyst-ca.net>
+ * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2022080600;
-$plugin->release = 2022080600;
-$plugin->requires = 2017051500;    // Our lowest supported Moodle (3.3.0).
-$plugin->supported = [35, 401];    // Available as of Moodle 3.9.0 or later.
-// TODO $plugin->incompatible = ;  // Available as of Moodle 3.9.0 or later.
-$plugin->component = 'tool_dataflows';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->dependencies = [];
+$definitions = [
+    'dot' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'canuselocalstore' => true,
+    ]
+];

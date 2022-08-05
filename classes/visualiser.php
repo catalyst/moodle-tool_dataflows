@@ -75,6 +75,13 @@ class visualiser {
     public static function generate(string $dotscript, ?string $type = 'svg') {
         global $CFG, $OUTPUT;
 
+        $cache = \cache::make('tool_dataflows', 'dot');
+        $hash = hash('sha256', $dotscript . $type);
+
+        if ($data = $cache->get($hash)) {
+            return $data;
+        }
+
         if (!helper::is_graphviz_dot_installed()) {
             return $OUTPUT->render(
                 new \pix_icon(helper::GRAPHVIZ_ALT_ICON,
@@ -115,6 +122,7 @@ class visualiser {
             fclose($stderr);
             fclose($stdout);
             proc_close($process);
+            $cache->set($hash, $output);
             return $output;
         }
 
