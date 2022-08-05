@@ -139,8 +139,8 @@ class flow_web_service extends flow_step {
      *
      * Performs web service call.
      *
-     * @param object|mixed $input
-     * @return bool Returns true if successful, false otherwise.
+     * @param   mixed $input
+     * @return  mixed $input
      */
     public function execute($input) {
         global $DB, $SESSION, $USER, $OUTPUT;
@@ -216,6 +216,6 @@ class flow_web_service extends flow_step {
             // Output will then evaluate result.
             $this->set_variables('result', $response['data']);
         }
-        return true;
+        return $input;
     }
 }
