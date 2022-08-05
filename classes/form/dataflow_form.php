@@ -71,9 +71,11 @@ class dataflow_form extends \core\form\persistent {
             get_string('field_config', 'tool_dataflows'),
             ['cols' => 50, 'rows' => 7]
         );
-
-        $mform->addElement('static', 'config_help', '',\html_writer::nonempty_tag('pre',
-                get_string('field_config_help', 'tool_dataflows')));
+        $outputsexample['reference'] = \html_writer::tag('code', ' ${{dataflows.config.&lt;name&gt;}}');
+        $outputsexample['example'] = \html_writer::tag('code', ' ${{dataflows.config.abc.def}}');
+        $mform->addElement('static', 'config_help', '',
+        \html_writer::nonempty_tag('pre',
+        get_string('field_config_help', 'tool_dataflows', $outputsexample)));
 
         $this->add_action_buttons();
     }
