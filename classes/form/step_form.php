@@ -87,6 +87,10 @@ class step_form extends \core\form\persistent {
         );
         $select->setMultiple(true);
 
+        // Is like a connector step? Does not operate within a flow group.
+        $mform->addElement('advcheckbox', 'connector', 'Behave like a connector step? (WIP)', false);
+        $mform->setType('connector', PARAM_BOOL);
+
         // List all the available fields available for configuration, in dot syntax.
         $variables = $this->get_available_references();
         $mform->addElement('html', $this->prepare_available_fields($variables));
@@ -362,12 +366,14 @@ class step_form extends \core\form\persistent {
             $steptype = new $type();
             $data = $steptype->form_get_default_data($data);
 
-            // Automatically fill in the name with something hopefully sane.
-            $classname = $type;
-            $position = strrpos($classname, '\\');
-            $basename = substr($classname, $position + 1);
-            if ($position !== false) {
-                $data->name = str_replace('_step', '', $basename); // So curl_step becomes curl.
+            // Automatically fill in the name with something hopefully sane for new steps.
+            if (empty($data->id)) {
+                $classname = $type;
+                $position = strrpos($classname, '\\');
+                $basename = substr($classname, $position + 1);
+                if ($position !== false) {
+                    $data->name = str_replace('_step', '', $basename); // So curl_step becomes curl.
+                }
             }
         }
 

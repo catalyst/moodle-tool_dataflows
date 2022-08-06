@@ -128,5 +128,21 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         }
     }
 
+
+    if ($oldversion < 2022080600) {
+
+        // Define field connector to be added to tool_dataflows_steps.
+        $table = new xmldb_table('tool_dataflows_steps');
+        $field = new xmldb_field('connector', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'usermodified');
+
+        // Conditionally launch add field connector.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022080600, 'tool', 'dataflows');
+    }
+
     return true;
 }

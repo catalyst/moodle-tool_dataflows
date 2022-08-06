@@ -106,6 +106,7 @@ class step extends persistent {
             'description' => ['type' => PARAM_TEXT, 'default' => ''],
             'type' => ['type' => PARAM_TEXT],
             'name' => ['type' => PARAM_TEXT],
+            'connector' => ['type' => PARAM_BOOL, 'default' => false],
             'config' => ['type' => PARAM_TEXT, 'default' => ''],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],
@@ -829,7 +830,7 @@ class step extends persistent {
         $classname = $this->type;
         if (class_exists($classname)) {
             // Styles specific for this step type.
-            $steptype = new $classname();
+            $steptype = $this->steptype;
             $stepstyles = $steptype->get_node_styles();
         } else {
             // Invalid step type styles.

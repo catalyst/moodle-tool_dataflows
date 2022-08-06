@@ -44,7 +44,7 @@ abstract class flow_step extends base_step {
      * @return bool
      */
     final public function is_flow(): bool {
-        if ($this->stepdef->id === 131) {
+        if ($this->stepdef->connector == 1) {
             return false;
         }
         return true;
@@ -92,16 +92,32 @@ abstract class flow_step extends base_step {
      */
     public function get_node_styles(): array {
         $basestyles = parent::get_node_styles();
-        $styles = [
-            'shape'     => 'rect',
-            'fillcolor' => '#8cd0db',
-            'fontcolor' => '#000000',
-            'style'     => 'filled,rounded',
-        ];
 
-        if ($this->has_side_effect()) {
-            $styles['fillcolor'] = '#008196';
-            $styles['fontcolor'] = '#ffffff';
+        if ($this->is_flow()) {
+            // Flow styles.
+            $styles = [
+                'shape'     => 'rect',
+                'fillcolor' => '#8cd0db',
+                'fontcolor' => '#000000',
+                'style'     => 'filled,rounded',
+            ];
+
+            if ($this->has_side_effect()) {
+                $styles['fillcolor'] = '#008196';
+                $styles['fontcolor'] = '#ffffff';
+            }
+        } else {
+            // Connector styles.
+            $styles = [
+                'shape'     => 'record',
+                'fillcolor' => '#cccccc',
+            ];
+
+            if ($this->has_side_effect()) {
+                $styles['shape']     = 'rect';
+                $styles['style']     = 'filled';
+                $styles['fillcolor'] = '#ffc107';
+            }
         }
 
         return array_merge($basestyles, $styles);

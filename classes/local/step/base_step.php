@@ -627,7 +627,7 @@ abstract class base_step {
      * @return  \stdClass configuration object
      */
     protected function get_config() {
-        return $this->enginestep->stepdef->config;
+        return $this->enginestep->stepdef->config ?? $this->stepdef->config;
     }
 
     /**
