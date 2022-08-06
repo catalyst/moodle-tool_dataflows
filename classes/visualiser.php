@@ -275,7 +275,7 @@ class visualiser {
         ]);
         echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-actions-bar div.
 
-        // Show runs
+        // Show runs.
         self::display_dataflows_runs_chooser($dataflow);
 
         echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-top-bar div.
@@ -350,7 +350,6 @@ class visualiser {
 
         $maxrunstoshow = 5;
         $runs = $dataflow->get_runs($maxrunstoshow);
-
 
         // Recent runs label (no recent, or recent runs to describe the list).
         if (!empty($runs)) {

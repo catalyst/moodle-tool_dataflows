@@ -194,7 +194,7 @@ class dataflows_table extends \table_sql {
             $delta = $record->timefinished - $record->timestarted;
             if ($delta < 0) {
                 $delta = (time() - $record->timestarted);
-                return '<span class="badge badge-warning">'
+                return '<span class="badge badge-warning btn-run-default run-state-processing">'
                     . '<span class="spinner-border spinner-border-sm" role="status"><span class="sr-only">Loading...</span></span> '
                     . get_string('runningfor', 'tool_dataflows', format_time($delta, 0)) . '</span>';
             }
