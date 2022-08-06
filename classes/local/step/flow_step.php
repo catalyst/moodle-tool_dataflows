@@ -65,23 +65,6 @@ abstract class flow_step extends base_step {
     }
 
     /**
-     * Generates an engine step for this type.
-     *
-     * This should be sufficient for most cases. Override this function if needed.
-     *
-     * @param engine $engine
-     * @return engine_step
-     */
-    protected function generate_engine_step(engine $engine): engine_step {
-        // Determine if it should return a flow (iterator based) or connector (no iterator) engine step.
-        if ($this->is_flow()) {
-            return new flow_engine_step($engine, $this->stepdef, $this);
-        } else {
-            return new connector_engine_step($engine, $this->stepdef, $this);
-        }
-    }
-
-    /**
      * Get the iterator for the step, based on configurations.
      *
      * @return iterator

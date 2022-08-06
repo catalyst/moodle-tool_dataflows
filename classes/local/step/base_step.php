@@ -18,8 +18,10 @@ namespace tool_dataflows\local\step;
 
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\helper;
+use tool_dataflows\local\execution\connector_engine_step;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
+use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\parser;
 use tool_dataflows\step;
 
@@ -482,12 +484,21 @@ abstract class base_step {
     }
 
     /**
-     * Generate the engine step for the step type.
+     * Generates an engine step for this type.
+     *
+     * This should be sufficient for most cases. Override this function if needed.
      *
      * @param engine $engine
      * @return engine_step
      */
-    abstract protected function generate_engine_step(engine $engine): engine_step;
+    protected function generate_engine_step(engine $engine): engine_step {
+        // Determine if it should return a flow (iterator based) or connector (no iterator) engine step.
+        if ($this->is_flow()) {
+            return new flow_engine_step($engine, $this->stepdef, $this);
+        }
+
+        return new connector_engine_step($engine, $this->stepdef, $this);
+    }
 
     /**
      * Returns the group (string) this step type is categorised under.

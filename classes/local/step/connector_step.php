@@ -58,18 +58,6 @@ abstract class connector_step extends base_step {
     }
 
     /**
-     * Generates an engine step for this type.
-     *
-     * This should be sufficient for most cases. Override this function if needed.
-     *
-     * @param engine $engine
-     * @return engine_step
-     */
-    protected function generate_engine_step(engine $engine): engine_step {
-        return new connector_engine_step($engine, $this->stepdef, $this);
-    }
-
-    /**
      * Returns an array with styles used to draw the dot graph
      *
      * @return  array containing the styles
