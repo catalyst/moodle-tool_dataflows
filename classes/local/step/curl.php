@@ -43,7 +43,8 @@ class curl extends flow_step {
      * @return  bool whether or not this step has a side effect
      */
     public function has_side_effect(): bool {
-        if (!empty($this->stepdef->id)) {
+        $id = $this->stepdef->id;
+        if ($id) {
             $config = $this->stepdef->config;
 
             // Destination is outside of scratch directory.
