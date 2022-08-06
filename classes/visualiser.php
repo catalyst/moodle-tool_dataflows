@@ -341,7 +341,7 @@ class visualiser {
      */
     public static function display_dataflows_runs_chooser($dataflow, $id = 0) {
 
-        echo '<ul class="pagination tool_dataflow-runs-bar">';
+        echo '<ul class="pagination tool_dataflow-runs-bar justify-content-end">';
         // Display the most recent runs across the top, if it goes over a
         // certain amount then it will link to a paginated table listing out the
         // previous runs. This can have a background color to indicate the

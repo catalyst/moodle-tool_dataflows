@@ -41,6 +41,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    float: left;
 }
 .tool_dataflow-actions-bar {
     margin-bottom: 15px;
