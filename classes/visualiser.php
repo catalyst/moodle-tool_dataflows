@@ -273,12 +273,12 @@ class visualiser {
             'enabletext' => get_string($dataflow->enabled ? 'disable' : 'enable'),
 
         ]);
-        echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-actions-bar div.
 
         // Show runs.
         self::display_dataflows_runs_chooser($dataflow);
 
         echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-top-bar div.
+        echo '<div class="clearfix"></div>';
 
         // Generate the image based on the DOT script.
         $contents = self::generate($dataflow->get_dotscript(), 'svg');
@@ -379,7 +379,6 @@ class visualiser {
         }
 
         echo '</ul>'; // Closing tag for the .tool_dataflow-runs-bar.
-        echo '<div class="clearfix"></div>';
     }
 
     /**
