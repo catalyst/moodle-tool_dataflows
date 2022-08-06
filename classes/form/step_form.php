@@ -128,6 +128,33 @@ class step_form extends \core\form\persistent {
         $persistent = $this->get_persistent();
         $steps = $dataflow->steps;
         $options = [];
+
+        // First lets find the 'depth' of each step in the DAG.
+        $keys = array_keys((array)$steps);
+        $depths = [];
+        foreach ($keys as $key) {
+            $depths[$key] = -1;
+            $dependants = $steps->{$key}->dependencies();
+            if (count($dependants) == 0) {
+                $depths[$key] = 0;
+            }
+        }
+        for ($c = 0; $c < count($depths); $c++) {
+            foreach ($keys as $key) {
+                if ($depths[$key] >= 0) {
+                    continue;
+                }
+                $dependants = $steps->{$key}->dependencies();
+                foreach ($dependants as $depends) {
+                    $dep = $depends->alias;
+                    if ($depths[$dep] >= 0) {
+                        $depths[$key] = $depths[$dep] + 1;
+                        break 2;
+                    }
+                }
+            }
+        }
+
         // Loop through the steps but only show steps where a connection can be
         // added (or if it's a current dependency).
         foreach ($steps as $step) {
@@ -135,6 +162,7 @@ class step_form extends \core\form\persistent {
             if ($step->id === $persistent->id) {
                 continue;
             }
+            $leader = str_repeat('. ', $depths[$step->alias]);
 
             [, $maxoutputflows] = $step->steptype->get_number_of_output_flows();
             [, $maxoutputconnectors] = $step->steptype->get_number_of_output_connectors();
@@ -199,10 +227,10 @@ class step_form extends \core\form\persistent {
                     $outputlabel = $step->steptype->get_output_label($position);
 
                     $label = "{$step->name} → $outputlabel";
-                    $options[$step->id . self::$persistentclass::DEPENDS_ON_POSITION_SPLITTER . $position] = $label;
+                    $options[$step->id . self::$persistentclass::DEPENDS_ON_POSITION_SPLITTER . $position] = $leader . $label;
                 }
             } else {
-                $options[$step->id] = $step->name; // Will always set a new value.
+                $options[$step->id] = $leader . $step->name; // Will always set a new value.
             }
         }
 
