@@ -44,7 +44,7 @@ class connector_curl extends connector_step {
      * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
      */
     public function has_side_effect(): bool {
-        if (isset($this->stepdef)) {
+        if (!empty($this->stepdef->id)) {
             $config = $this->stepdef->config;
 
             // Destination is outside of scratch directory.

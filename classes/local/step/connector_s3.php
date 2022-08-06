@@ -42,7 +42,7 @@ class connector_s3 extends connector_step {
      * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
      */
     public function has_side_effect(): bool {
-        if (isset($this->stepdef)) {
+        if (!empty($this->stepdef->id)) {
             $config = $this->stepdef->config;
             return !helper::path_is_relative($config->target);
         }
