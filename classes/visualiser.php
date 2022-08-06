@@ -230,7 +230,7 @@ class visualiser {
         echo \html_writer::start_div('tool_dataflow-top-bar');
 
         echo $OUTPUT->render_from_template('tool_dataflows/dataflow-actions', [
-            'runnow' => (new \moodle_url('/admin/tool/dataflows/run.php', [
+            'runnowurl' => (new \moodle_url('/admin/tool/dataflows/run.php', [
                 'dataflowid' => $dataflow->id,
                 'returnurl'  => $PAGE->url->out(false)
             ]))->out(false),
