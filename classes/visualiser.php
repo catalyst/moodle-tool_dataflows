@@ -211,7 +211,7 @@ class visualiser {
      * @param  string $pageheading
      */
     public static function display_dataflows_view_page(int $dataflowid, steps_table $table, \moodle_url $url, string $pageheading) {
-        global $PAGE;
+        global $PAGE, $OUTPUT;
 
         $output = $PAGE->get_renderer('tool_dataflows');
         $pluginname = get_string('pluginname', 'tool_dataflows');
@@ -229,94 +229,50 @@ class visualiser {
 
         echo \html_writer::start_div('tool_dataflow-top-bar');
 
-        echo \html_writer::start_div('tool_dataflow-actions-bar');
-        // Display the run now button (disabling it if dataflow is not valid).
-        if ($validation === true) {
-            $buttoncolour = 'btn-success';
-            $buttonicon = 't/go';
-        } else {
-            $buttoncolour = 'btn-danger';
-            $buttonicon = 't/block';
-        }
-        $runurl = new \moodle_url(
-            '/admin/tool/dataflows/run.php',
-            [
+        echo $OUTPUT->render_from_template('tool_dataflows/dataflow-actions', [
+            'runnow' => (new \moodle_url('/admin/tool/dataflows/run.php', [
                 'dataflowid' => $dataflow->id,
-                'returnurl' => $PAGE->url->out(false),
-            ]);
-        $runbuttonattributes = ['class' => 'btn ' . $buttoncolour];
-        if ($validation !== true) {
-            $runbuttonattributes['disabled'] = true;
-        }
-        $icon = $output->render(new \pix_icon($buttonicon, get_string('run_now', 'tool_dataflows')));
-        $runbutton = \html_writer::tag('button', $icon . get_string('run_now', 'tool_dataflows'), $runbuttonattributes);
-        echo \html_writer::link($runurl, $runbutton);
+                'returnurl'  => $PAGE->url->out(false)
+            ]))->out(false),
+            'runnowcolor'    => $validation ? 'btn-success' : 'btn-danger',
+            'runnowicon'     => $validation ? 't/go' : 't/block',
+            'runnowdisabled' => $validation ? '' : 'disabled',
 
-        $runurl->param('dryrun', true);
+            'dryrunnowurl' => (new \moodle_url('/admin/tool/dataflows/run.php', [
+                'dryrun'     => true,
+                'dataflowid' => $dataflow->id,
+                'returnurl'  => $PAGE->url->out(false),
+            ]))->out(false),
 
-        $runbuttonattributes['class'] = 'btn btn-secondary mx-2';
-        $dryrunbutton = \html_writer::tag('button', $icon . get_string('dry_run', 'tool_dataflows'), $runbuttonattributes);
-        echo \html_writer::link($runurl, $dryrunbutton);
+            'editurl' => (new \moodle_url('/admin/tool/dataflows/edit.php', [
+                'id'        => $dataflow->id,
+            ]))->out(false),
 
-        // Edit dataflow button.
-        $icon = $output->render(new \pix_icon('i/settings', get_string('edit')));
-        $importurl = new \moodle_url(
-            '/admin/tool/dataflows/edit.php',
-            ['id' => $dataflow->id]);
-        $exportbtn = \html_writer::tag(
-            'button',
-            $icon . get_string('edit'),
-            ['class' => 'btn btn-secondary mx-2']
-        );
-        echo \html_writer::link($importurl, $exportbtn);
+            'exporturl' => (new \moodle_url('/admin/tool/dataflows/export.php', [
+                'id'        => $dataflow->id,
+            ]))->out(false),
 
-        // Display the export button.
-        $icon = $output->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows')));
-        $exportactionurl = new \moodle_url(
-            '/admin/tool/dataflows/export.php',
-            ['dataflowid' => $dataflowid, 'sesskey' => sesskey()]);
-        $btnuid = 'exportbuttoncontents';
-        $btn = $output->single_button($exportactionurl, $btnuid);
-        $exportbtn = str_replace($btnuid, $icon . get_string('export', 'tool_dataflows'), $btn);
-        echo $exportbtn;
+            'exporttxturl' => (new \moodle_url('/admin/tool/dataflows/export.php', [
+                'id'        => $dataflow->id,
+                'format'    => 'txt',
+            ]))->out(false),
 
-        // Display the import button, which links to the import page.
-        $icon = $output->render(new \pix_icon('i/upload', get_string('import', 'tool_dataflows')));
-        $importurl = new \moodle_url(
-            '/admin/tool/dataflows/import.php',
-            ['dataflowid' => $dataflow->id]);
-        $exportbtn = \html_writer::tag(
-            'button',
-            $icon . get_string('import', 'tool_dataflows'),
-            ['class' => 'btn btn-secondary ml-2' ]
-        );
-        echo \html_writer::link($importurl, $exportbtn);
+            'exportpreviewurl' => (new \moodle_url('/admin/tool/dataflows/export.php', [
+                'id'        => $dataflow->id,
+                'format'    => 'preview',
+            ]))->out(false),
 
-        // Display the standard enable and disable icon.
-        if ($dataflow->enabled) {
-            $icon = $output->render(new \pix_icon('t/show', get_string('disable'), 'moodle'));
-            $action = 'disable';
-        } else {
-            $icon = $output->render(new \pix_icon('t/hide', get_string('enable'), 'moodle'));
-            $action = 'enable';
-        }
-        $enableurl = new \moodle_url('/admin/tool/dataflows/dataflow-action.php',
-            ['id' => $dataflow->id, 'action' => $action, 'sesskey' => sesskey(), 'retview' => 1]);
-        $enablebtn = \html_writer::tag(
-                'button',
-                $icon . get_string($action),
-                ['class' => 'btn btn-secondary ml-2']
-            );
-        echo \html_writer::link($enableurl, $enablebtn);
+            'enableurl' => (new \moodle_url('/admin/tool/dataflows/dataflow-action.php', [
+                'id'        => $dataflow->id,
+                'format'    => 'preview',
+                'sesskey'   => sesskey(),
+                'action'    => $dataflow->enabled ? 'disable' : 'enable',
+                'retview'   => 1,
+            ]))->out(false),
+            'enableicon' => $dataflow->enabled ? 't/show' : 't/hide',
+            'enabletext' => get_string($dataflow->enabled ? 'disable' : 'enable'),
 
-        // Remove dataflow button.
-        $icon = $output->render(new \pix_icon('t/delete', get_string('delete')));
-        $deleteurl = new \moodle_url('/admin/tool/dataflows/remove-dataflow.php', ['id' => $dataflow->id]);
-        $deletebutton = new \single_button($deleteurl, $btnuid);
-        $deletebutton->add_confirm_action(get_string('remove_dataflow_confirm', 'tool_dataflows', $dataflow->name));
-        $deletebutton->class .= ' ml-2';
-        $content = $output->render($deletebutton);
-        echo str_replace($btnuid, $icon . get_string('delete'), $content);
+        ]);
         echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-actions-bar div.
 
         echo \html_writer::start_div('tool_dataflow-runs-bar');

@@ -28,10 +28,9 @@ class dataflows_table extends \table_sql {
 
     /** Columns to display. */
     const COLUMNS = [
-        'preview',
         'name',
+        'preview',
         'userid',
-        'details',
         'lastrunstart',
         'lastrunduration',
     ];
@@ -43,7 +42,7 @@ class dataflows_table extends \table_sql {
     ];
 
     /** Maximum width of the preview image (in pixels). */
-    const PREVIEW_MAX_WIDTH = 250;
+    const PREVIEW_MAX_WIDTH = 300;
 
     /** Maximum height of the preview image (in pixels). */
     const PREVIEW_MAX_HEIGHT = 30;
@@ -123,29 +122,7 @@ class dataflows_table extends \table_sql {
      */
     public function col_name(\stdClass $record): string {
         $url = new \moodle_url('/admin/tool/dataflows/view.php', ['id' => $record->id]);
-        return \html_writer::link($url, $record->name);
-    }
-
-    /**
-     * Display the user who created it
-     *
-     * @param \stdClass $record
-     * @return string
-     */
-    public function col_userid(\stdClass $record): string {
-        $url = new \moodle_url('/user/profile.php', ['id' => $record->userid]);
-        $fullname = fullname($record);
-        return \html_writer::link($url, $fullname);
-    }
-
-    /**
-     * Display any extra information about the steps that doesn't fit into any other column.
-     * Gathers 'extra' info from each step.
-     *
-     * @param \stdClass $record
-     * @return string
-     */
-    public function col_details(\stdClass $record): string {
+        $html = \html_writer::tag('h6', \html_writer::link($url, $record->name));
         $content = [];
         $dataflow = new dataflow($record->id);
         foreach ($dataflow->steps as $step) {
@@ -159,7 +136,20 @@ class dataflows_table extends \table_sql {
                 $content[] = $extrainfo;
             }
         }
-        return implode('<br/>', $content);
+        $html .= implode('<br/>', $content);
+        return $html;
+    }
+
+    /**
+     * Display the user who created it
+     *
+     * @param \stdClass $record
+     * @return string
+     */
+    public function col_userid(\stdClass $record): string {
+        $url = new \moodle_url('/user/profile.php', ['id' => $record->userid]);
+        $fullname = fullname($record);
+        return \html_writer::link($url, $fullname);
     }
 
     /**
@@ -244,7 +234,7 @@ class dataflows_table extends \table_sql {
         $icon = $OUTPUT->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows'), 'moodle'));
         $exportactionurl = new \moodle_url(
             '/admin/tool/dataflows/export.php',
-            ['dataflowid' => $record->id, 'sesskey' => sesskey()]);
+            ['id' => $record->id]);
         $content .= \html_writer::link($exportactionurl, $icon, ['class' => 'action-icon']);
 
         // Display the standard enable and disable icon.

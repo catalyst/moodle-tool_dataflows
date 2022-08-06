@@ -34,7 +34,8 @@ $context = context_system::instance();
 // Check for caps.
 require_capability('tool/dataflows:managedataflows', $context);
 
-$dataflowid = required_param('dataflowid', PARAM_INT);
+$dataflowid = required_param('id', PARAM_INT);
+$format = optional_param('format', '', PARAM_TEXT);
 
 $dataflow = new dataflow($dataflowid);
-$dataflow->download();
+$dataflow->download($format);
