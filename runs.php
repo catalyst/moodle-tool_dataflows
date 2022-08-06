@@ -83,6 +83,7 @@ echo $output->header();
 
 // No hide/show links under each column.
 $table->collapsible(false);
+$table->attributes['class'] = 'table-sm w-auto';
 // Columns are presorted.
 $table->sortable(false);
 // Table does not show download options by default, an import/export option will be available instead.

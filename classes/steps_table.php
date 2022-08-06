@@ -31,11 +31,8 @@ class steps_table extends \table_sql {
     /** Columns to display. */
     const COLUMNS = [
         'name',
-        'alias',
         'description',
-        'type',
         'config',
-        'dependson',
         'details',
     ];
 
@@ -92,7 +89,8 @@ class steps_table extends \table_sql {
      * @param \stdClass $record
      * @return string
      */
-    public function col_type(\stdClass $record): string {
+    public function col_description(\stdClass $record): string {
+
         // Prepare the base class name and fully qualified class name (FQCN).
         $classname = $record->type;
         $position = strrpos($classname, '\\');
@@ -121,7 +119,11 @@ class steps_table extends \table_sql {
         if (count($icons)) {
             $str .= \html_writer::tag('span', implode(' ', $icons), ['class' => 'text-muted small mr-1']);
         }
-        $str .= $basename;
+        $str .= \html_writer::tag('code', '${{steps.' . $record->alias . '}}') . '<br>';
+        $str .= "$basename<br>";
+        $str .= "<small><pre>" . s($record->type) . "</pre></small><br>";
+        $str .= $record->description;
+
         return $str;
     }
 
@@ -140,7 +142,7 @@ class steps_table extends \table_sql {
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
         );
-        return \html_writer::tag('pre', $output);
+        return \html_writer::tag('pre', $output, ['style' => 'max-width: 30em;']);
     }
 
     /**
