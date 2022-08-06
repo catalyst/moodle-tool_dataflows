@@ -6,10 +6,10 @@
     --dataflow-state-waiting: #e9e7e7;
     --dataflow-state-processing: yellow;
     --dataflow-state-flowing: yellow; /* Background animates, text stays black */
-    --dataflow-state-finished: #17DB6D;
+    --dataflow-state-finished: #64d796;
     --dataflow-state-cancelled: #6D6969; /* Font color dims - background is 'new' */
     --dataflow-state-aborted: #f07676;
-    --dataflow-state-finalised: #17DB6D;
+    --dataflow-state-finalised: #64d796;
 }
 
 .dataflow_invalid_step polygon {
