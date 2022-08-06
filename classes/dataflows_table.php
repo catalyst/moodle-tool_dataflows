@@ -230,6 +230,13 @@ class dataflows_table extends \table_sql {
         $icon = $OUTPUT->render(new \pix_icon('i/settings', get_string('edit')));
         $content .= \html_writer::link($editurl, $icon, ['class' => 'action-icon']);
 
+        // Display the run logs button, which will link to runs summary page.
+        $runsurl = new \moodle_url(
+            '/admin/tool/dataflows/runs.php',
+            ['id' => $record->id]);
+        $icon = $OUTPUT->render(new \pix_icon('i/log', get_string('alllogs')));
+        $content .= \html_writer::link($runsurl, $icon, ['class' => 'action-icon']);
+
         // Display the export button (adjusted to be a small icon button).
         $icon = $OUTPUT->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows'), 'moodle'));
         $exportactionurl = new \moodle_url(
