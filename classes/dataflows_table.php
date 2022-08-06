@@ -202,10 +202,16 @@ class dataflows_table extends \table_sql {
             $record = current($runrecords);
 
             $delta = $record->timefinished - $record->timestarted;
-            if ($delta > 10) {
-                return number_format($delta, 0) . ' ' . get_string('secs');
+            if ($delta < 0) {
+                $delta = (time() - $record->timestarted);
+                return '<span class="badge badge-warning">'
+                    . '<span class="spinner-border spinner-border-sm" role="status"><span class="sr-only">Loading...</span></span> '
+                    . get_string('runningfor', 'tool_dataflows', format_time($delta, 0)) . '</span>';
             }
-            return number_format($delta, 1) . ' ' . get_string('secs');
+            if ($delta > 10) {
+                return format_time(number_format($delta, 0));
+            }
+            return format_time(number_format($delta, 1));
         }
         return '';
     }

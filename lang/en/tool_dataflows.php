@@ -174,6 +174,7 @@ $string['path_help_examples'] = "
 
 $string['requires_with_or'] = 'Requires {$a->str1} or {$a->str2}.';
 $string['requires'] = 'Requires {$a->str1} and {$a->str2}.';
+$string['runningfor'] = 'Running for {$a}';
 
 // Step Chooser.
 $string['stepchooser'] = 'Step chooser';
