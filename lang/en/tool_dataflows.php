@@ -384,3 +384,6 @@ $string['flow_web_service:abortflow'] = 'Abort flow';
 $string['flow_web_service:field_parameters_help'] = 'Parameters should be in the following YAML format: {$a->yaml} You can also use the following JSON format <br> Note: Structure depends on webservice called
 <br><br> You can reference a value from JSON with the following : <code>${{ data.customkey }}<br> ie : ${{ data.GUID }} - $ {{ data.username }}</code>';
 $string['flow_web_service:path'] = 'Failure path recording';
+
+// Cache definition.
+$string['cachedef_dot'] = 'This cache stores internal fragments of dot binaries';
