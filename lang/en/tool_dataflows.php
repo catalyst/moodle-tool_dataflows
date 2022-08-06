@@ -104,7 +104,7 @@ $string['endstate'] = 'End state';
 $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 
 // Step names.
-$string['step_name_curl_step'] = 'cURL';
+$string['step_name_curl'] = 'cURL';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_s3'] = 'S3 file copy connector';

@@ -28,7 +28,7 @@ use tool_dataflows\helper;
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class curl_step extends flow_step {
+class curl extends flow_step {
 
     /** @var int time after which curl request is aborted */
     protected $timeout = 60;

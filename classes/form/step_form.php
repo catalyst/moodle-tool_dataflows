@@ -372,7 +372,7 @@ class step_form extends \core\form\persistent {
                 $position = strrpos($classname, '\\');
                 $basename = substr($classname, $position + 1);
                 if ($position !== false) {
-                    $data->name = str_replace('_step', '', $basename); // So curl_step becomes curl.
+                    $data->name = $basename;
                 }
             }
         }
