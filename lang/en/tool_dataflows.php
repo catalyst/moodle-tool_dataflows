@@ -52,7 +52,7 @@ $string['global_vars_desc'] = "Global variables that can be accessed via express
 // Manage flows / Overview.
 $string['overview'] = 'Overview';
 $string['field_preview'] = 'Preview';
-$string['field_userid'] = 'Created/modified by';
+$string['field_userid'] = 'Created by';
 $string['field_actions'] = 'Actions';
 $string['field_stepcount'] = '# Steps';
 $string['field_details'] = 'Details';
