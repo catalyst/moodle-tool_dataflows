@@ -284,7 +284,7 @@ class visualiser {
         $contents = self::generate($dataflow->get_dotscript(), 'svg');
 
         // Display the current dataflow visually.
-        echo \html_writer::div($contents, 'text-center p-4');
+        echo \html_writer::div($contents, 'text-center p-4 overflow-auto');
 
         if ($validation !== true) {
             $errors = '';
