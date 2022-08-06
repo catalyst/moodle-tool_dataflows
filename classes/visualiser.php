@@ -273,7 +273,6 @@ class visualiser {
             'enabletext' => get_string($dataflow->enabled ? 'disable' : 'enable'),
 
         ]);
-        echo \html_writer::end_div(); // Closing tag for the .tool_dataflow-actions-bar div.
 
         // Show runs.
         self::display_dataflows_runs_chooser($dataflow);
