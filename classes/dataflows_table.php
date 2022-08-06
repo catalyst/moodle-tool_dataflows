@@ -238,7 +238,7 @@ class dataflows_table extends \table_sql {
         $icon = $OUTPUT->render(new \pix_icon('t/download', get_string('export', 'tool_dataflows'), 'moodle'));
         $exportactionurl = new \moodle_url(
             '/admin/tool/dataflows/export.php',
-            ['dataflowid' => $record->id, 'sesskey' => sesskey()]);
+            ['id' => $record->id]);
         $content .= \html_writer::link($exportactionurl, $icon, ['class' => 'action-icon']);
 
         // Display the standard enable and disable icon.

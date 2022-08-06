@@ -85,8 +85,15 @@ trait exportable {
     /**
      * Download the flow/step in YAML format.
      */
-    public function download() {
-        $this->send_header($this->filename);
+    public function download($format = 'yaml') {
+        if ($format == 'preview') {
+            // Preview in the browser.
+            header("Content-Type: text/plain\n");
+        } else if ($format == 'txt') {
+            $this->send_header($this->filename . '.txt');
+        } else {
+            $this->send_header($this->filename);
+        }
         echo $this->export();
         exit;
     }
