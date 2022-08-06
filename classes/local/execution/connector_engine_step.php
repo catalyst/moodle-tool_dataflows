@@ -44,7 +44,7 @@ class connector_engine_step extends engine_step {
         switch ($this->proceed_status()) {
             case self::PROCEED_GO:
                 try {
-                    $result = $this->steptype->execute($this);
+                    $result = $this->steptype->execute(new \stdClass);
                     $this->steptype->prepare_outputs();
                     if ($result !== false) {
                         $this->set_status(engine::STATUS_FINISHED);
