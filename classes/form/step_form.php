@@ -273,7 +273,7 @@ class step_form extends \core\form\persistent {
                 $allfields[] = [
                     'name'   => $key,
                     'fields' => $fields,
-                    'open'   => ($level === 1) ? 'open' : '',
+                    'open'   => '',
                 ];
                 unset($allfields[$key]);
             }
