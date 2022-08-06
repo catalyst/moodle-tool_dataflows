@@ -84,6 +84,7 @@ trait exportable {
 
     /**
      * Download the flow/step in YAML format.
+     * @param string $format
      */
     public function download($format = 'yaml') {
         if ($format == 'preview') {
