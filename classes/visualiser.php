@@ -379,7 +379,7 @@ class visualiser {
         }
 
         echo '</ul>'; // Closing tag for the .tool_dataflow-runs-bar.
-
+        echo '<div class="clearfix"></div>';
     }
 
     /**

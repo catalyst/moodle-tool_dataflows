@@ -48,6 +48,7 @@
 }
 .tool_dataflow-runs-bar {
     margin-bottom: 15px;
+    float: right;
 }
 
 :where(.tool_dataflow-runs-bar, [id^="dataflow_runs_table"]) a.btn-run-default {
