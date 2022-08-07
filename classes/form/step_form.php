@@ -56,6 +56,8 @@ class step_form extends \core\form\persistent {
         $mform->addElement('hidden', 'type');
         $mform->setConstant('type', $this->_customdata['type']);
 
+        $mform->addElement('header', 'general', get_string('general'));
+
         // Name of the step.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
         $mform->addRule('name', get_string('missingfield', 'error', 'name'), 'required', null, 'client');

@@ -147,6 +147,8 @@ $string['field_outputs_help'] = 'An optional list of custom named fields you wan
 $string['field_type'] = 'Step type';
 $string['update_step'] = 'Update step';
 $string['new_step'] = 'New step';
+$string['stepextras'] = 'Extra settings';
+
 
 $string['inputs'] = 'Inputs';
 $string['outputs'] = 'Outputs';
