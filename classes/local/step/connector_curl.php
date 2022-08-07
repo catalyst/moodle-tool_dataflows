@@ -101,7 +101,6 @@ class connector_curl extends connector_step {
                     'connect_time' => null,
                     'total_time' => null,
                     'size_upload' => null,
-                    '*' => null,
                 ],
                 'destination' => get_string('connector_curl:destination', 'tool_dataflows'),
             ],
