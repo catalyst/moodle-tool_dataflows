@@ -116,14 +116,15 @@ EOF;
 
         $mform->addElement('select', 'config_failure', get_string('flow_web_service:failure', 'tool_dataflows'),
             [
-                'abortstep' => get_string('flow_web_service:abortstep', 'tool_dataflows'),
                 'abortflow' => get_string('flow_web_service:abortflow', 'tool_dataflows'),
+                'skiprecord' => get_string('flow_web_service:skiprecord', 'tool_dataflows'),
             ]
         );
         $mform->addHelpButton('config_failure', 'flow_web_service:failure', 'tool_dataflows');
+
         $mform->addElement('text' , 'config_path', get_string('flow_web_service:path', 'tool_dataflows'));
-        $mform->hideIf('config_path', 'config_failure', 'neq', 'record');
-        $mform->disabledIf('config_path', 'config_failure', 'neq', 'record');
+        $mform->hideIf('config_path', 'config_failure', 'neq', 'skiprecord');
+        $mform->disabledIf('config_path', 'config_failure', 'neq', 'skiprecord');
     }
 
     /**
@@ -220,8 +221,8 @@ EOF;
                 if ($failure === 'abortflow') {
                     throw new \moodle_exception($response['exception']->debuginfo ?? $response['exception']->message);
                 }
-                if ($failure === 'abortstep') {
-                    $this->enginestep->log($response['exception']->debuginfo ?? $response['exception']->message);
+                if ($failure === 'skiprecord') {
+                    $this->enginestep->log('Warn skipping record: ' . $response['exception']->debuginfo ?? $response['exception']->message);
                     return false;
                 }
             }
