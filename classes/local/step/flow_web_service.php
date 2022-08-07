@@ -188,7 +188,7 @@ EOF;
             $this->hassideeffect = false;
         };
 
-        if (!$isdryrun) {
+        if (!$isdryrun || !$this->hassideeffect) {
             $response = external_api::call_external_function($config->webservice, $params);
             // Restore the previous user to avoid any side-effects occuring in later steps / code.
             // Avoid moodle state errors because of webservice call - we are still in body.
