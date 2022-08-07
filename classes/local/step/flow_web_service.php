@@ -68,24 +68,23 @@ class flow_web_service extends flow_step {
             'placeholder' => get_string('flow_web_service:selectuser', 'tool_dataflows'),
         ];
 
-        $jsonexample = [
-            'users' => [
-                [
-                    'username' => 'john1234',
-                    'password' => 'Pwdtest123*&12',
-                    'firstname' => 'john',
-                    'lastname' => 'doe',
-                    'email' => 'john@doe.ca',
-                ],
-            ],
-        ];
         $class = ['class' => 'badge badge-dark rounded-0'];
         $outputexample['somekey'] = \html_writer::nonempty_tag('span', 'steps.' . ($this->stepdef->alias ?? 'alias') . '.somekey',
             $class);
         $outputexample['id'] = \html_writer::nonempty_tag('span', 'steps.' . ($this->stepdef->alias ?? 'alias') . '.id', $class);
         $outputexample['username'] = \html_writer::nonempty_tag('span', 'steps.' . ($this->stepdef->alias ?? 'alias') . '.username',
             $class);
-        $examples['yaml'] = \html_writer::nonempty_tag('pre', Yaml::dump($jsonexample, 3));
+
+        $yaml = <<<EOF
+users:
+  - username: john1234
+    password: Pwdtest123*&12
+    firstname: john
+    lastname: doe
+    email: john@doe.ca
+EOF;
+
+        $examples['yaml'] = \html_writer::nonempty_tag('pre', $yaml);
 
         $mform->addElement('text', 'config_webservice', get_string('flow_web_service:webservice', 'tool_dataflows'));
         $mform->addElement('static', 'config_webservice_help', '',
