@@ -95,7 +95,8 @@ class step_form extends \core\form\persistent {
 
         // List all the available fields available for configuration, in dot syntax.
         $variables = $this->get_available_references();
-        $mform->addElement('html', $this->prepare_available_fields($variables));
+        $mform->addElement('static', 'fields', get_string('available_fields', 'tool_dataflows'),
+            $this->prepare_available_fields($variables));
 
         // Check and set custom form inputs if required. Defaulting to a
         // textarea config input for those not yet configured.
