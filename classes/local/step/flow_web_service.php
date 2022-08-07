@@ -213,4 +213,20 @@ EOF;
         }
         return $input;
     }
+
+    /**
+     * A list of outputs and their description if applicable.
+     *
+     * These fields can be used as aliases in the custom output mapping
+     *
+     * @return  array of outputs
+     */
+    public function define_outputs(): array {
+        return [
+            'result' => [
+                '*' => null,
+            ],
+        ];
+    }
+
 }
