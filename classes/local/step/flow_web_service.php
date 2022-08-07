@@ -31,6 +31,9 @@ use tool_dataflows\parser;
  */
 class flow_web_service extends flow_step {
 
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
+
     /** @var bool whether or not this step type (potentially) has side effects, this will vary depending on Web Service */
     protected $hassideeffect = true;
 
@@ -59,51 +62,68 @@ class flow_web_service extends flow_step {
      * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
+        global $DB, $CFG;
+
         $options = [
             'multiple' => false,
             'noselectionstring' => get_string('flow_web_service:selectuser', 'tool_dataflows'),
             'placeholder' => get_string('flow_web_service:selectuser', 'tool_dataflows'),
         ];
 
-        $jsonexample = [
-            'users' => [
-                [
-                    'username' => 'john1234',
-                    'password' => 'Pwdtest123*&12',
-                    'firstname' => 'john',
-                    'lastname' => 'doe',
-                    'email' => 'john@doe.ca',
-                ],
-            ],
-        ];
         $class = ['class' => 'badge badge-dark rounded-0'];
         $outputexample['somekey'] = \html_writer::nonempty_tag('span', 'steps.' . ($this->stepdef->alias ?? 'alias') . '.somekey',
             $class);
         $outputexample['id'] = \html_writer::nonempty_tag('span', 'steps.' . ($this->stepdef->alias ?? 'alias') . '.id', $class);
         $outputexample['username'] = \html_writer::nonempty_tag('span', 'steps.' . ($this->stepdef->alias ?? 'alias') . '.username',
             $class);
-        $examples['yaml'] = \html_writer::nonempty_tag('pre', Yaml::dump($jsonexample, 3));
 
-        $mform->addElement('text', 'config_webservice', get_string('flow_web_service:webservice', 'tool_dataflows'));
+        $yaml = <<<EOF
+users:
+  - username: john1234
+    password: Pwdtest123*&12
+    firstname: john
+    lastname: doe
+    email: john@doe.ca
+EOF;
+        $examples['yaml'] = \html_writer::nonempty_tag('pre', $yaml);
+
+        require_once($CFG->dirroot . "/webservice/lib.php");
+        $webservicemanager = new \webservice();
+        $functions = $webservicemanager->get_not_associated_external_functions($data['id']);
+
+        // List of tjhe web services functions.
+        $options = [];
+        foreach ($functions as $functionid => $functionname) {
+            $function = external_api::external_function_info($functionname);
+            if (empty($function->deprecated)) {
+                $options[$function->name] = $function->name . ': ' . $function->description;
+            }
+        }
+        $mform->addElement('searchableselector', 'config_webservice', get_string('webservice', 'webservice'), $options, array(''));
+
         $mform->addElement('static', 'config_webservice_help', '',
             get_string('flow_web_service:webservice_help', 'tool_dataflows'));
+
         $mform->addElement('text', 'config_user', get_string('flow_web_service:user', 'tool_dataflows'));
         $mform->addHelpButton('config_user', 'flow_web_service:user', 'tool_dataflows');
+
         $mform->addElement('textarea', 'config_parameters', get_string('flow_web_service:parameters', 'tool_dataflows'),
             ['cols' => 50, 'rows' => 7]);
         $mform->addHelpButton('config_parameters', 'flow_web_service:parameters', 'tool_dataflows');
         $mform->addElement('static', 'parameters_help', '',
             get_string('flow_web_service:field_parameters_help', 'tool_dataflows', $examples));
+
         $mform->addElement('select', 'config_failure', get_string('flow_web_service:failure', 'tool_dataflows'),
             [
-                'abortstep' => get_string('flow_web_service:abortstep', 'tool_dataflows'),
                 'abortflow' => get_string('flow_web_service:abortflow', 'tool_dataflows'),
+                'skiprecord' => get_string('flow_web_service:skiprecord', 'tool_dataflows'),
             ]
         );
         $mform->addHelpButton('config_failure', 'flow_web_service:failure', 'tool_dataflows');
+
         $mform->addElement('text' , 'config_path', get_string('flow_web_service:path', 'tool_dataflows'));
-        $mform->hideIf('config_path', 'config_failure', 'neq', 'record');
-        $mform->disabledIf('config_path', 'config_failure', 'neq', 'record');
+        $mform->hideIf('config_path', 'config_failure', 'neq', 'skiprecord');
+        $mform->disabledIf('config_path', 'config_failure', 'neq', 'skiprecord');
     }
 
     /**
@@ -181,19 +201,12 @@ class flow_web_service extends flow_step {
             $item = strtolower($item);
         });
         $failure = !isset($config->failure) ? 'abortflow' : $config->failure;
-        $path = $config->path ?? null;
-
-        if ($path) {
-            if ($path[0] === '/') {
-                $path = ltrim($path, '/');
-            }
-        }
 
         if (external_api::external_function_info($config->webservice)->type === 'read') {
             $this->hassideeffect = false;
         };
 
-        if (!$isdryrun) {
+        if (!$isdryrun || !$this->hassideeffect) {
             $response = external_api::call_external_function($config->webservice, $params);
             // Restore the previous user to avoid any side-effects occuring in later steps / code.
             // Avoid moodle state errors because of webservice call - we are still in body.
@@ -207,8 +220,9 @@ class flow_web_service extends flow_step {
                 if ($failure === 'abortflow') {
                     throw new \moodle_exception($response['exception']->debuginfo ?? $response['exception']->message);
                 }
-                if ($failure === 'abortstep') {
-                    $this->enginestep->log($response['exception']->debuginfo ?? $response['exception']->message);
+                if ($failure === 'skiprecord') {
+                    $this->enginestep->log('Warn skipping record: ' .
+                        $response['exception']->debuginfo ?? $response['exception']->message);
                     return false;
                 }
             }
@@ -218,4 +232,20 @@ class flow_web_service extends flow_step {
         }
         return $input;
     }
+
+    /**
+     * A list of outputs and their description if applicable.
+     *
+     * These fields can be used as aliases in the custom output mapping
+     *
+     * @return  array of outputs
+     */
+    public function define_outputs(): array {
+        return [
+            'result' => [
+                '*' => null,
+            ],
+        ];
+    }
+
 }
