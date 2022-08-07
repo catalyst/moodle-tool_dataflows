@@ -94,7 +94,11 @@ class dataflows_table extends \table_sql {
      */
     public function col_preview(\stdClass $record): string {
         global $OUTPUT;
-        $imgurl = new \moodle_url('/admin/tool/dataflows/visual.php', ['id' => $record->id, 'type' => 'png']);
+        $imgurl = new \moodle_url('/admin/tool/dataflows/visual.php', [
+            'id' => $record->id,
+            'type' => 'png',
+            'hash' => $record->confighash,
+        ]);
         if (helper::is_graphviz_dot_installed()) {
             $img = \html_writer::img(
                 $imgurl,
