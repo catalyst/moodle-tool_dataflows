@@ -514,7 +514,7 @@ class tool_dataflows_test extends \advanced_testcase {
         $step3 = new \tool_dataflows\step();
         $step3->name = 'write1';
         $step3->type = local\step\writer_stream::class;
-        $step3->config = Yaml::dump(['format' => 'json', 'streamname' => '']);
+        $step3->config = Yaml::dump(['format' => 'json', 'streamname' => 'somestreamname']);
         $dataflow->add_step($step3);
         $validate = $step3->validate_inputs();
         $this->assertNotTrue($validate);
