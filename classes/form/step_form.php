@@ -79,12 +79,16 @@ class step_form extends \core\form\persistent {
             'select',
             'dependson',
             get_string('field_dependson', 'tool_dataflows'),
-            $options,
+            [],
             [
                 'class' => empty($options) ? 'hidden' : '', // Hidden if there are no options to select from.
                 'size' => count($options),
             ]
         );
+        foreach ($options as $opt) {
+            $select->addOption($opt['text'], $opt['key'], $opt['attr']);
+        }
+
         $select->setMultiple(true);
 
         // List all the available fields available for configuration, in dot syntax.
@@ -158,10 +162,6 @@ class step_form extends \core\form\persistent {
         // Loop through the steps but only show steps where a connection can be
         // added (or if it's a current dependency).
         foreach ($steps as $step) {
-            // We never want a step to depend on itself.
-            if ($step->id === $persistent->id) {
-                continue;
-            }
             $leader = str_repeat('. ', $depths[$step->alias]);
 
             [, $maxoutputflows] = $step->steptype->get_number_of_output_flows();
@@ -227,10 +227,20 @@ class step_form extends \core\form\persistent {
                     $outputlabel = $step->steptype->get_output_label($position);
 
                     $label = "{$step->name} → $outputlabel";
-                    $options[$step->id . self::$persistentclass::DEPENDS_ON_POSITION_SPLITTER . $position] = $leader . $label;
+                    $key = $step->id . self::$persistentclass::DEPENDS_ON_POSITION_SPLITTER . $position;
+                    $options[$key] = [
+                        'key'  => $key,
+                        'text' => $leader . $label,
+                        'attr' => ($step->id === $persistent->id) ? ['disabled'] : [],
+                    ];
                 }
             } else {
-                $options[$step->id] = $leader . $step->name; // Will always set a new value.
+                $key = $step->id;
+                $options[$key] = [
+                    'key'  => $key,
+                    'text' => $leader . $step->name,
+                    'attr' => ($step->id === $persistent->id) ? ['disabled'] : [],
+                ]; // Will always set a new value.
             }
         }
 
