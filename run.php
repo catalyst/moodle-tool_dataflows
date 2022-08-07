@@ -42,7 +42,17 @@ function tool_dataflows_mtrace_wrapper($message, $eol) {
     $parts = sscanf($time, '%d%f');
     $display = userdate($time, '%Y %b %e, %H:%M:%S');
     $micro = substr(sprintf("%0.3f", $parts[1]), 1);
-    echo sprintf("%s%s %s %s", $display, $micro, s($message), $eol);
+    $class = '';
+
+    $message = str_replace("\n", "\n    ", $message);
+
+    // Mark up errors..
+    if (preg_match('/error/im', $message)) {
+        $class = 'bg-danger text-white';
+    } else if (preg_match('/warn/im', $message)) {
+        $class = 'bg-warning';
+    }
+    echo html_writer::tag('div', sprintf("%s%s %s %s", $display, $micro, s($message), $eol), ['class' => $class]);
 }
 
 // Allow execution of single dataflow. This requires login and has different rules.
