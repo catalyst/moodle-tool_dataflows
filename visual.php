@@ -32,9 +32,9 @@ require_once($CFG->libdir.'/adminlib.php');
 require_login(null, false);
 require_capability('moodle/site:config', context_system::instance());
 
-// TODO: require an id to the dataflow so it can load and render the resulting graph/visual.
 $id = required_param('id', PARAM_INT);
 $type = optional_param('type', 'svg', PARAM_TEXT);
+$hash = optional_param('hash', '', PARAM_TEXT);
 
 // Generate DOT script based on the configured dataflow.
 $dataflow = new dataflow($id);
@@ -46,6 +46,21 @@ $contents = \tool_dataflows\visualiser::generate($dotscript, $type);
 // If it's an non-svg image, it should send the appropriate headers to ensure it doesn't render as text.
 if (in_array($type, ['gif', 'png', 'jpg', 'jpeg'])) {
     header("Content-Type: image/$type");
+}
+
+// Is the calling code knew the hash, and the hashes match then we can safely
+// cache this in the browser forever.
+if ($hash) {
+    if ($hash === $dataflow->confighash) {
+        header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + WEEKSECS));
+        header('Cache-Control: public, max-age=604800, immutable');
+        header('Pragma: ');
+    }
+} else {
+    // If we don't have a hash lets fix that for next time.
+    if (empty($dataflow->confighash)) {
+        $dataflow->save_config_version();
+    }
 }
 
 // Output the results to the client.
