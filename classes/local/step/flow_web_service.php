@@ -183,13 +183,6 @@ EOF;
             $item = strtolower($item);
         });
         $failure = !isset($config->failure) ? 'abortflow' : $config->failure;
-        $path = $config->path ?? null;
-
-        if ($path) {
-            if ($path[0] === '/') {
-                $path = ltrim($path, '/');
-            }
-        }
 
         if (external_api::external_function_info($config->webservice)->type === 'read') {
             $this->hassideeffect = false;
