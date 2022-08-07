@@ -62,6 +62,8 @@ class flow_web_service extends flow_step {
      * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
+        global $DB, $CFG;
+
         $options = [
             'multiple' => false,
             'noselectionstring' => get_string('flow_web_service:selectuser', 'tool_dataflows'),
@@ -83,19 +85,35 @@ users:
     lastname: doe
     email: john@doe.ca
 EOF;
-
         $examples['yaml'] = \html_writer::nonempty_tag('pre', $yaml);
 
-        $mform->addElement('text', 'config_webservice', get_string('flow_web_service:webservice', 'tool_dataflows'));
+        require_once($CFG->dirroot . "/webservice/lib.php");
+        $webservicemanager = new \webservice();
+        $functions = $webservicemanager->get_not_associated_external_functions($data['id']);
+
+        $options = [];
+        //we add the descriptions to the functions
+        foreach ($functions as $functionid => $functionname) {
+            //retrieve full function information (including the description)
+            $function = external_api::external_function_info($functionname);
+            if (empty($function->deprecated)) {
+                $options[$function->name] = $function->name . ': ' . $function->description;
+            }
+        }
+        $mform->addElement('searchableselector', 'config_webservice', get_string('webservice', 'webservice'), $options, array(''));
+
         $mform->addElement('static', 'config_webservice_help', '',
             get_string('flow_web_service:webservice_help', 'tool_dataflows'));
+
         $mform->addElement('text', 'config_user', get_string('flow_web_service:user', 'tool_dataflows'));
         $mform->addHelpButton('config_user', 'flow_web_service:user', 'tool_dataflows');
+
         $mform->addElement('textarea', 'config_parameters', get_string('flow_web_service:parameters', 'tool_dataflows'),
             ['cols' => 50, 'rows' => 7]);
         $mform->addHelpButton('config_parameters', 'flow_web_service:parameters', 'tool_dataflows');
         $mform->addElement('static', 'parameters_help', '',
             get_string('flow_web_service:field_parameters_help', 'tool_dataflows', $examples));
+
         $mform->addElement('select', 'config_failure', get_string('flow_web_service:failure', 'tool_dataflows'),
             [
                 'abortstep' => get_string('flow_web_service:abortstep', 'tool_dataflows'),
