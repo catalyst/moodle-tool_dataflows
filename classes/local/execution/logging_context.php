@@ -64,10 +64,10 @@ class logging_context {
 
         $name = $this->engine->name;
         $logstr = "Engine '{$name}'";
-        $strlen = min(20, strlen($name));
-        $dots = str_repeat('.' , 25 - $strlen);
         if (!is_null($this->enginestep)) {
             $name = $this->enginestep->name;
+            $strlen = min(20, strlen($name));
+            $dots = str_repeat('.' , 20 - $strlen);
             $logstr .= " step {$name}{$dots}";
         }
         $logstr .= ' ' . $message;
