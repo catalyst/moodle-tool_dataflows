@@ -65,18 +65,11 @@
     }
 
 }}
-<div class="form-group row">
-    <div class="col-md-3">
-        <p>{{# str }} available_fields, tool_dataflows {{/ str }}</p>
-    </div>
-    <div class="fieldcontainer col-md-9 felement">
-        <p>{{# str }} available_fields_help, tool_dataflows, <code>${<span></span>{ dataflow.name }}</code> {{/ str }}</p>
-        <div class="tool_dataflow-tags">
-            {{#groups}}
-                {{>tool_dataflows/tags}}
-            {{/groups}}
-        </div>
-    </div>
+<p>{{# str }} available_fields_help, tool_dataflows, <code>${<span></span>{ dataflow.name }}</code> {{/ str }}</p>
+<div class="tool_dataflow-tags">
+    {{#groups}}
+        {{>tool_dataflows/tags}}
+    {{/groups}}
 </div>
 {{#js}}
     require(['core/toast', 'core/str'], function(addToast, getString) {
