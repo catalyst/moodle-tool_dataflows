@@ -91,10 +91,9 @@ EOF;
         $webservicemanager = new \webservice();
         $functions = $webservicemanager->get_not_associated_external_functions($data['id']);
 
+        // List of tjhe web services functions.
         $options = [];
-        //we add the descriptions to the functions
         foreach ($functions as $functionid => $functionname) {
-            //retrieve full function information (including the description)
             $function = external_api::external_function_info($functionname);
             if (empty($function->deprecated)) {
                 $options[$function->name] = $function->name . ': ' . $function->description;
@@ -222,7 +221,8 @@ EOF;
                     throw new \moodle_exception($response['exception']->debuginfo ?? $response['exception']->message);
                 }
                 if ($failure === 'skiprecord') {
-                    $this->enginestep->log('Warn skipping record: ' . $response['exception']->debuginfo ?? $response['exception']->message);
+                    $this->enginestep->log('Warn skipping record: ' .
+                        $response['exception']->debuginfo ?? $response['exception']->message);
                     return false;
                 }
             }
