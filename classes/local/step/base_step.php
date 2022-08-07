@@ -299,11 +299,10 @@ abstract class base_step {
      * @param \MoodleQuickForm $mform
      */
     public function form_setup(\MoodleQuickForm &$mform) {
-        $mform->addElement('header', 'step', $this->get_name());
-        $mform->setExpanded('step');
+        $mform->addElement('header', 'stepheader', $this->get_name());
         $this->form_add_custom_inputs($mform);
 
-        $mform->addElement('header', 'extra', get_string('stepextras', 'tool_dataflows'));
+        $mform->addElement('header', 'extraheader', get_string('stepextras', 'tool_dataflows'));
         $this->form_set_input_types($mform);
 
         $this->form_set_input_rules($mform);
