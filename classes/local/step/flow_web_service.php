@@ -31,6 +31,9 @@ use tool_dataflows\parser;
  */
 class flow_web_service extends flow_step {
 
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
+
     /** @var bool whether or not this step type (potentially) has side effects, this will vary depending on Web Service */
     protected $hassideeffect = true;
 
