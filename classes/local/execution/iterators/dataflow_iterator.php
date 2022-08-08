@@ -164,15 +164,21 @@ class dataflow_iterator implements iterator {
             return false;
         }
 
-        // Do the actions defined for the particular step.
-        $this->on_next();
-        $newvalue = $this->steptype->execute($this->value);
+        try {
+            // Do the actions defined for the particular step.
+            $this->on_next();
+            $newvalue = $this->steptype->execute($this->value);
 
-        // Handle step outputs - noting that for flow steps, the values may change between each iteration.
-        $this->steptype->prepare_outputs();
+            // Handle step outputs - noting that for flow steps, the values may change between each iteration.
+            $this->steptype->prepare_outputs();
 
-        ++$this->iterationcount;
-        $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
+            ++$this->iterationcount;
+            $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
+        } catch (\Throwable $e) {
+            $this->step->log($e->getMessage());
+            $this->abort();
+            throw $e;
+        }
 
         return $newvalue;
     }

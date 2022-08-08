@@ -192,65 +192,69 @@ class flow_logic_case extends flow_logic_step {
                     $this->passed = false;
                 }
                 $value = $this->input->current();
+                try {
+                    $casenumber = $this->stepcasemap[$caller->step->id];
+                    $position = $casenumber + 1;
+                    $case = $this->cases[$casenumber] ?? null;
+                    if (!isset($case)) {
+                        throw new \moodle_exception(get_string('flow_logic_case:casenotfound', 'tool_dataflows', $casenumber));
+                    }
 
-                $casenumber = $this->stepcasemap[$caller->step->id];
-                $position = $casenumber + 1;
-                $case = $this->cases[$casenumber] ?? null;
-                if (!isset($case)) {
-                    throw new \moodle_exception(get_string('flow_logic_case:casenotfound', 'tool_dataflows', $casenumber));
-                }
+                    // Prepare variables for expression parsing.
+                    $variables = $caller->step->engine->get_variables();
+                    $variables['record'] = $value;
 
-                // Prepare variables for expression parsing.
-                $variables = $caller->step->engine->get_variables();
-                $variables['record'] = $value;
+                    // By default, this step should go through the list of
+                    // expressions, in order, and stop at the first matching case.
+                    // It should also stop at the first failing case that matches
+                    // the position of the step that is 'pulling' on this one for
+                    // efficiency.
+                    // See issue #347 for more details.
+                    $parser = new parser;
+                    $casefailures = 0;
+                    foreach ($this->cases as $caseindex => $case) {
+                        $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', $variables);
 
-                // By default, this step should go through the list of
-                // expressions, in order, and stop at the first matching case.
-                // It should also stop at the first failing case that matches
-                // the position of the step that is 'pulling' on this one for
-                // efficiency.
-                // See issue #347 for more details.
-                $parser = new parser;
-                $casefailures = 0;
-                foreach ($this->cases as $caseindex => $case) {
-                    $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', $variables);
+                        // If there was a passing expression, break the loop.
+                        if ($result === true) {
+                            // We know it passed, but did it pass on the correct step output connection?
+                            $result = $caseindex === $casenumber;
+                            break;
+                        } else {
+                            $casefailures++;
+                            // Check if all cases have failed, if so pull next record.
+                            if ($casefailures === count($this->cases)) {
+                                // Log details for when a no cases matches.
+                                $this->step->log(get_string('flow_logic_case:nomatchingcases', 'tool_dataflows'));
+                                $this->input->next($this);
+                                break;
+                            }
+                        }
 
-                    // If there was a passing expression, break the loop.
-                    if ($result === true) {
-                        // We know it passed, but did it pass on the correct step output connection?
-                        $result = $caseindex === $casenumber;
-                        break;
-                    } else {
-                        $casefailures++;
-                        // Check if all cases have failed, if so pull next record.
-                        if ($casefailures === count($this->cases)) {
-                            // Log details for when a no cases matches.
-                            $this->step->log(get_string('flow_logic_case:nomatchingcases', 'tool_dataflows'));
-                            $this->input->next($this);
+                        // If this is on the same index as the case, break the loop.
+                        if ($caseindex === $casenumber) {
                             break;
                         }
                     }
 
-                    // If this is on the same index as the case, break the loop.
-                    if ($caseindex === $casenumber) {
-                        break;
+                    // If the matching failed, do not pass the iterator value downstream.
+                    if (!$result) {
+                        $this->value = false;
+                        return false;
                     }
-                }
 
-                // If the matching failed, do not pass the iterator value downstream.
-                if (!$result) {
-                    $this->value = false;
-                    return false;
+                    // Log details for when a case matches.
+                    $output = sprintf(
+                        'Matching case "%s" (position #%d) with expression: %s',
+                        $this->steptype->get_output_label($position),
+                        $position,
+                        $case
+                    );
+                    $this->step->log($output);
+                } catch (\Exception $e) {
+                    $this->step->log($e->getMessage());
+                    throw $e;
                 }
-
-                // Log details for when a case matches.
-                $output = sprintf(
-                    'Matching case "%s" (position #%d) with expression: %s',
-                    $this->steptype->get_output_label($position),
-                    $position,
-                    $case
-                );
-                $this->step->log($output);
 
                 $this->value = $value;
                 $this->passed = true;
