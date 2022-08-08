@@ -404,6 +404,11 @@ class step_form extends \core\form\persistent {
             $data = $steptype->form_get_default_data($data);
         }
 
+        // Automatically fill in the name for new steps.
+        if (empty($data->id)) {
+            $data->name = $steptype->get_name();
+        }
+
         return $data;
     }
 
