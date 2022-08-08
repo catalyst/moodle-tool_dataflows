@@ -122,7 +122,13 @@ abstract class base_step {
         $config = $this->stepdef->get_raw_config();
         if (isset($config->outputs)) {
             $parser = new parser;
-            $allvariables = array_merge($this->stepdef->variables, $this->variables);
+            $enginestep = $this->get_engine_step();
+            if ($enginestep) {
+                $variables = $enginestep->get_variables();
+            } else {
+                $variables = $this->stepdef->variables;
+            }
+            $allvariables = array_merge($variables, $this->variables);
             $outputs = $parser->evaluate_recursive($config->outputs, $allvariables);
             $this->stepdef->set_output($outputs);
         }
@@ -620,7 +626,7 @@ abstract class base_step {
      * @return  \stdClass configuration object
      */
     protected function get_config(): \stdClass {
-        return $this->enginestep->stepdef->config ?? $this->stepdef->config;
+        return $this->stepdef->config;
     }
 
     /**

@@ -78,9 +78,9 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $variables = $engine->get_variables()['steps']->connector;
         // Result can be anything but for readability decoded to see vars.
         $result = $variables->result;
-        $this->assertEquals($result->uuid, '3d188fbf-d0b7-4d4e-ae4d-4b5548df824e');
+        $this->assertEquals('3d188fbf-d0b7-4d4e-ae4d-4b5548df824e', $result->uuid);
 
-        $this->assertEquals($variables->httpcode, 200);
+        $this->assertEquals(200, $variables->httpcode);
         $this->assertObjectHasAttribute('connecttime', $variables);
         $this->assertObjectHasAttribute('totaltime', $variables);
         $this->assertObjectHasAttribute('sizeupload', $variables);
@@ -110,7 +110,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $variables = $engine->get_variables()['steps']->connector;
 
         $this->assertEmpty($variables->result);
-        $this->assertEquals($variables->httpcode, 200);
+        $this->assertEquals(200, $variables->httpcode);
         $this->assertObjectHasAttribute('connecttime', $variables);
         $this->assertObjectHasAttribute('totaltime', $variables);
         $this->assertObjectHasAttribute('sizeupload', $variables);
@@ -138,7 +138,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $variables = $engine->get_variables()['steps']->connector;
 
         $this->assertEmpty($variables->result);
-        $this->assertEquals($variables->httpcode, 200);
+        $this->assertEquals(200, $variables->httpcode);
         $this->assertObjectHasAttribute('connecttime', $variables);
         $this->assertObjectHasAttribute('totaltime', $variables);
         $this->assertObjectHasAttribute('sizeupload', $variables);
