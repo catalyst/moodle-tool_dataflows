@@ -30,6 +30,9 @@ use tool_dataflows\helper;
  */
 class connector_curl extends connector_step {
 
+    /** Lowest number for HTTP errors. */
+    public const HTTP_ERROR = 400;
+
     /** @var int Time after which curl request is aborted */
     protected $timeout = 60;
 
@@ -205,20 +208,38 @@ class connector_curl extends connector_step {
     public function execute(): bool {
         // Get variables.
         $config = $this->enginestep->stepdef->config;
-        $isdryrun = $this->enginestep->engine->isdryrun;
         $method = $config->method;
 
         $this->enginestep->log($config->curl);
 
         $dbgcommand = 'curl -X ' .  strtoupper($method) . ' ' . $config->curl;
-        $result = null;
 
         if (!empty($config->timeout)) {
             $this->timeout = (int) $config->timeout;
             $dbgcommand .= ' --max-time ' . $config->timeout;
         }
 
+        $headers = $config->headers;
+        if (!empty($headers)) {
+            $dbgcommand .= ' -H \'' . $headers . '\'';
+        }
+
         $options = ['CURLOPT_TIMEOUT' => $this->timeout];
+
+        // Sets post data.
+        if (!empty($config->rawpostdata)) {
+            $options['CURLOPT_POSTFIELDS'] = $config->rawpostdata;
+            $dbgcommand .= ' -d \'' . $config->rawpostdata . '\'';
+        }
+
+        // Log the raw curl command.
+        $this->enginestep->log($dbgcommand);
+        $this->set_variables('dbgcommand', $dbgcommand);
+
+        // We do not need to go any further if curl is not going to be called.
+        if ($this->enginestep->engine->isdryrun && $this->has_side_effect()) {
+            return true;
+        }
 
         if ($method === 'post') {
             $options['CURLOPT_POST'] = 1;
@@ -231,7 +252,7 @@ class connector_curl extends connector_step {
         $curl = new \curl();
 
         // Provided a header is specified add header to request.
-        if (!empty($config->headers)) {
+        if (!empty($headers)) {
             $headers = $config->headers;
             if (!is_array($headers)) {
                 $headers = json_decode($headers, true);
@@ -240,17 +261,10 @@ class connector_curl extends connector_step {
                 $headers = Yaml::parse($config->headers);
             }
             $curl->setHeader($headers);
-            $dbgcommand .= ' -H \'' . $config->headers . '\'';
-        }
-
-        // Sets post data.
-        if (!empty($config->rawpostdata)) {
-            $options['CURLOPT_POSTFIELDS'] = $config->rawpostdata;
-            $dbgcommand .= ' -d \'' . $config->rawpostdata . '\'';
         }
 
         // Download response to file provided destination is set.
-        if (!empty($config->destination) && !$isdryrun) {
+        if (!empty($config->destination)) {
             if ($config->destination[0] === '/') {
                 $config->destination = ltrim($config->destination, '/');
             }
@@ -260,9 +274,8 @@ class connector_curl extends connector_step {
         }
 
         // Perform call.
-        if (!$isdryrun) {
-            $result = $curl->$method($config->curl, [], $options);
-        }
+        $this->enginestep->log('Performing curl call.');
+        $result = $curl->$method($config->curl, [], $options);
 
         if (!empty($file)) {
             fclose($file);
@@ -276,23 +289,18 @@ class connector_curl extends connector_step {
         $destination = !empty($config->destination) ? $config->destination : null;
         $errno = $curl->get_errno();
 
-        if (($httpcode >= 400 || empty($response) || $errno == 28) && !$isdryrun) {
+        if (($httpcode >= self::HTTP_ERROR || empty($response) || $errno == CURLE_OPERATION_TIMEDOUT)) {
             throw new \moodle_exception($httpcode . ':' . $result);
         }
 
-        // Log the raw curl command.
-        $this->enginestep->log($dbgcommand);
-        $this->set_variables('dbgcommand', $dbgcommand);
+        // TODO: It would be good to define and list any fixed but exposed
+        // fields which the user can use and map to on the edit page.
+        $this->set_variables('response', (object) [
+            'result' => $result,
+            'info' => (object) $info,
+            'destination' => $destination,
+        ]);
 
-        if (!$isdryrun) {
-            // TODO: It would be good to define and list any fixed but exposed
-            // fields which the user can use and map to on the edit page.
-            $this->set_variables('response', (object) [
-                'result' => $result,
-                'info' => (object) $info,
-                'destination' => $destination,
-            ]);
-        }
         return true;
     }
 }
