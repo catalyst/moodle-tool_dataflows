@@ -128,5 +128,18 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         }
     }
 
+    if ($oldversion < 2022080801) {
+
+        // Changing type of field config on table tool_dataflows_steps to text.
+        $table = new xmldb_table('tool_dataflows_steps');
+        $field = new xmldb_field('config', XMLDB_TYPE_TEXT, null, null, null, null, null, 'name');
+
+        // Launch change of type for field config.
+        $dbman->change_field_type($table, $field);
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022080801, 'tool', 'dataflows');
+    }
+
     return true;
 }
