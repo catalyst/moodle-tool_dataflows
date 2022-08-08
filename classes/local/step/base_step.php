@@ -481,7 +481,7 @@ abstract class base_step {
      *
      * @return engine_step
      */
-    final public function get_engine_step(): engine_step {
+    final public function get_engine_step(): ?engine_step {
         return $this->enginestep;
     }
 

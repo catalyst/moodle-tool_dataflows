@@ -239,10 +239,19 @@ class step extends persistent {
 
         // Normally expressions are parsed when evaluating the statement, for use in a dataflow run.
         if ($expressions) {
+            // Get variables, based on whether the engine is running or is idle.
+            $enginestep = $steptype->get_engine_step();
+            if ($enginestep) {
+                $variables = $enginestep->get_variables();
+            } else {
+                $variables = $this->variables;
+            }
+
             // Prepare this as a php object (stdClass), as it makes expressions easier to write.
-            $parser = new parser();
-            $variables = $this->variables;
-            $yaml = $parser->evaluate_recursive($yaml, $variables);
+            if (isset($yaml)) {
+                $parser = new parser();
+                $yaml = $parser->evaluate_recursive($yaml, $variables);
+            }
 
             // Sets it to the parsed results.
             $variables['steps']->{$this->alias}->config = $yaml;

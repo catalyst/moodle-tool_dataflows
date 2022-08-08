@@ -182,8 +182,10 @@ class tool_dataflows_web_service_flow_test extends \advanced_testcase {
         $writer->depends_on([$wsflowstep]);
         $newdataflow->add_step($writer);
 
+        // Gets the dataflow from the DB and executes the dataflow.
+        $seconddataflow = new dataflow($newdataflow->id);
         ob_start();
-        $engine = new engine($newdataflow, false, false);
+        $engine = new engine($seconddataflow, false, false);
         $engine->execute();
         ob_get_clean();
 
