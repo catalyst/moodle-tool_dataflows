@@ -212,7 +212,9 @@ class dataflow extends persistent {
 
                     if (is_object($field)) {
                         foreach ($field as &$fieldlet) {
-                            $localparse($fieldlet);
+                            if (!is_object($fieldlet) && !is_array($fieldlet)) {
+                                $localparse($fieldlet);
+                            }
                         }
                     } else {
                         $localparse($field);
