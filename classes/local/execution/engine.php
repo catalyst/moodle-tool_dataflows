@@ -147,6 +147,8 @@ class engine {
             return;
         }
 
+        $this->scratchdir = make_request_directory();
+
         // Create engine steps for each step in the dataflow.
         foreach ($dataflow->steps as $stepdef) {
             $classname = $stepdef->type;
@@ -275,8 +277,6 @@ class engine {
             // Add sinks to the execution queue.
             $this->queue = $this->sinks;
             $this->set_status(self::STATUS_INITIALISED);
-
-            $this->scratchdir = make_request_directory();
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
         }
