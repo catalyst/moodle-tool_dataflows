@@ -92,7 +92,7 @@ class flow_engine_step extends engine_step {
 
         // Set the record as an available variable.
         if ($this->iterator) {
-            $variables['record'] = (array) $this->iterator->current();
+            $variables['record'] = $this->iterator->current();
 
             // Evaluate the config again with the record context, unless the
             // step type doesn't want to (e.g. SQL reader does it own handling).

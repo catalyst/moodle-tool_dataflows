@@ -170,8 +170,8 @@ EOF;
         $currentoutput = $OUTPUT;
         $outertransaction = $DB->is_transaction_started();
 
-        $config = $this->enginestep->stepdef->config;
-        $isdryrun = $this->enginestep->engine->isdryrun;
+        $config = $this->get_config();
+        $isdryrun = $this->is_dry_run();
         $userid = $DB->get_field('user', 'id', ['username' => $config->user]);
         $user = \core_user::get_user($userid);
         $user->ignoresesskey = true;
