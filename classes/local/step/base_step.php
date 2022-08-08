@@ -125,6 +125,14 @@ abstract class base_step {
             $allvariables = array_merge($this->stepdef->variables, $this->variables);
             $outputs = $parser->evaluate_recursive($config->outputs, $allvariables);
             $this->stepdef->set_output($outputs);
+
+            $yaml = Yaml::dump(
+                (array) $outputs,
+                helper::YAML_DUMP_INLINE_LEVEL,
+                helper::YAML_DUMP_INDENT_LEVEL,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+            );
+            $this->enginestep->log("Debug: Setting step defined output vars:\n" . trim($yaml));
         }
     }
 
