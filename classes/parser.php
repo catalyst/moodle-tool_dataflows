@@ -16,6 +16,8 @@
 
 namespace tool_dataflows;
 
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -37,7 +39,13 @@ class parser {
      * Sets an expression language object and registers any supported methods.
      */
     public function __construct() {
-        $expressionlanguage = new ExpressionLanguage(null, [new expression_provider()]);
+        global $CFG;
+        if (function_exists('apcu_enabled') && apcu_enabled()) {
+            $cache = new ApcuAdapter();
+        } else {
+            $cache = new FilesystemAdapter('dataflows', 0, $CFG->cachedir);
+        }
+        $expressionlanguage = new ExpressionLanguage($cache, [new expression_provider()]);
 
         $this->expressionlanguage = $expressionlanguage;
     }
