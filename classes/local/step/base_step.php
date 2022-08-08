@@ -122,7 +122,13 @@ abstract class base_step {
         $config = $this->stepdef->get_raw_config();
         if (isset($config->outputs)) {
             $parser = new parser;
-            $allvariables = array_merge($this->stepdef->variables, $this->variables);
+            $enginestep = $this->get_engine_step();
+            if ($enginestep) {
+                $variables = $enginestep->get_variables();
+            } else {
+                $variables = $this->stepdef->variables;
+            }
+            $allvariables = array_merge($variables, $this->variables);
             $outputs = $parser->evaluate_recursive($config->outputs, $allvariables);
             $this->stepdef->set_output($outputs);
 
@@ -489,7 +495,7 @@ abstract class base_step {
      *
      * @return engine_step
      */
-    final public function get_engine_step(): engine_step {
+    final public function get_engine_step(): ?engine_step {
         return $this->enginestep;
     }
 
@@ -618,5 +624,38 @@ abstract class base_step {
         $labels = $this->get_output_labels();
         $label = $labels[$position] ?? (string) $position;
         return $label;
+    }
+
+    /**
+     * Get the step's (definition) current config.
+     *
+     * Helper method to reduce the complexity when authoring step types.
+     *
+     * @return  \stdClass configuration object
+     */
+    protected function get_config(): \stdClass {
+        return $this->stepdef->config;
+    }
+
+    /**
+     * Returns whether the engine's run is dry
+     *
+     * Helper method to reduce the complexity when authoring step types.
+     *
+     * @return  bool mode is in dry run or not
+     */
+    protected function is_dry_run(): bool {
+        return $this->enginestep->engine->isdryrun;
+    }
+
+    /**
+     * Emits a log message
+     *
+     * Helper method to reduce the complexity when authoring step types.
+     *
+     * @param string $message
+     */
+    protected function log(string $message) {
+        $this->enginestep->log($message);
     }
 }
