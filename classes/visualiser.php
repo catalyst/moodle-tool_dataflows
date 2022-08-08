@@ -232,7 +232,7 @@ class visualiser {
         echo $OUTPUT->render_from_template('tool_dataflows/dataflow-actions', [
             'runnowurl' => (new \moodle_url('/admin/tool/dataflows/run.php', [
                 'dataflowid' => $dataflow->id,
-                'returnurl'  => $PAGE->url->out(false)
+                'returnurl'  => $PAGE->url->out(false),
             ]))->out(false),
             'runnowcolor'    => $validation ? 'btn-success' : 'btn-danger',
             'runnowicon'     => $validation ? 't/go' : 't/block',
