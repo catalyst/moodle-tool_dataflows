@@ -133,36 +133,37 @@ class tool_dataflows_web_service_flow_test extends \advanced_testcase {
         $newdataflow->enabled = true;
         $newdataflow->save();
 
-        // Re-add curl step.
-        $curlstep->config = Yaml::dump([
-            'curl' => $this->getExternalTestFileUrl('/h5pcontenttypes.json'),
-            'destination' => 'test1.html',
-            'headers' => '',
-            'method' => 'get',
+        $jsonpath = 'jsoninput.json';
+        $jsondata = json_encode([
+            [
+                'username' => 'john1234567',
+                'createpassword' => true,
+                'firstname' => 'john',
+                'lastname' => 'doe',
+                'email' => 'john@dodoe.ca',
+            ],
         ]);
-        $newdataflow->add_step($curlstep);
 
         // Json read step new config.
         $jsonstep = new step();
         $jsonstep->name = 'reader';
         $jsonstep->type = 'tool_dataflows\local\step\reader_json';
         $jsonstep->config = Yaml::dump([
-            'pathtojson' => '${{ steps.connector.config.destination }}',
-            'arrayexpression' => 'contentTypes',
+            'pathtojson' => $jsonpath,
+            'arrayexpression' => '',
             'arraysortexpression' => '',
         ]);
-
-        $jsonstep->depends_on([$curlstep]);
         $newdataflow->add_step($jsonstep);
+
         // Update wsflow.
         $jsonexample = [
             'users' => [
                 0 => [
-                    'username' => 'john1234567',
+                    'username' => '${{data.username}}',
                     'createpassword' => true,
-                    'firstname' => '${{ data.owner }}',
-                    'lastname' => 'doe',
-                    'email' => 'john@dodoe.ca',
+                    'firstname' => '${{ data.firstname }}',
+                    'lastname' => '${{data.lastname}}',
+                    'email' => '${{data.email}}',
                     'firstnamephonetic' => '',
                     'lastnamephonetic' => '',
                     'middlename' => '',
@@ -186,13 +187,15 @@ class tool_dataflows_web_service_flow_test extends \advanced_testcase {
         $seconddataflow = new dataflow($newdataflow->id);
         ob_start();
         $engine = new engine($seconddataflow, false, false);
+        $path = $engine->resolve_path($jsonpath);
+        file_put_contents($path, $jsondata);
         $engine->execute();
         ob_get_clean();
 
         $lastcount = $DB->count_records('user');
         $this->assertEquals($originalusercount + 2, $lastcount);
-        $dataowner = $DB->get_field('user', 'firstname', ['username' => 'john1234567']);
-        $this->assertEquals('joubel', $dataowner);
+        $firstname = $DB->get_field('user', 'firstname', ['username' => 'john1234567']);
+        $this->assertEquals('john', $firstname);
     }
 
     /**
