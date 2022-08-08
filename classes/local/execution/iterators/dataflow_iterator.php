@@ -55,6 +55,9 @@ class dataflow_iterator implements iterator {
      * @param \Iterator|iterator|moodle_recordset $input An iterator of some sort
      */
     public function __construct(flow_engine_step $step, $input) {
+        if (is_null($input)) {
+            throw new \moodle_exception('dataflow_iterator:null_input', 'tool_dataflows', '', $step->stepdef->alias);
+        }
         $this->step = $step;
         $this->input = $input;
         $this->steptype = $step->steptype;

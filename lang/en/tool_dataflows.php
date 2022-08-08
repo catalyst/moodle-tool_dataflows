@@ -392,3 +392,6 @@ $string['flow_web_service:path'] = 'Failure path recording';
 
 // Cache definition.
 $string['cachedef_dot'] = 'This cache stores internal fragments of dot binaries';
+
+// Dataflow iterator.
+$string['dataflow_iterator:null_input'] = 'Trying to construct an iterator without an upstream iterator for step {$a}';
