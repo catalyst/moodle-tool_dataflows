@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220720" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
+<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220808" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -32,7 +32,7 @@
         <FIELD NAME="dataflowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="type" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" COMMENT="Fully Qualified Class Name of the step."/>
         <FIELD NAME="name" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" COMMENT="Display name for the step, used in the UI and graph"/>
-        <FIELD NAME="config" TYPE="char" LENGTH="512" NOTNULL="false" SEQUENCE="false" COMMENT="JSON encoded configuration object, relevant for the step class defined"/>
+        <FIELD NAME="config" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON encoded configuration object, relevant for the step class defined"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was created"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The user who created this record"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was modified."/>
