@@ -883,8 +883,8 @@ class step extends persistent {
      * @param  mixed $value
      */
     public function set_var($name, $value) {
-        // Grabs the current config.
-        $config = $this->config;
+        // Grabs the current raw config.
+        $config = $this->get_config(false);
 
         // Updates the field in question.
         $config->{$name} = $value;
