@@ -30,5 +30,5 @@ $definitions = [
     'dot' => [
         'mode' => cache_store::MODE_APPLICATION,
         'canuselocalstore' => true,
-    ]
+    ],
 ];

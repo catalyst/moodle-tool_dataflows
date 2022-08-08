@@ -99,7 +99,7 @@ EOF;
                 $options[$function->name] = $function->name . ': ' . $function->description;
             }
         }
-        $mform->addElement('searchableselector', 'config_webservice', get_string('webservice', 'webservice'), $options, array(''));
+        $mform->addElement('searchableselector', 'config_webservice', get_string('webservice', 'webservice'), $options, ['']);
 
         $mform->addElement('static', 'config_webservice_help', '',
             get_string('flow_web_service:webservice_help', 'tool_dataflows'));
@@ -242,10 +242,7 @@ EOF;
      */
     public function define_outputs(): array {
         return [
-            'result' => [
-                '*' => null,
-            ],
+            'result' => ['*' => null],
         ];
     }
-
 }
