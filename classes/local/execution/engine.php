@@ -280,6 +280,11 @@ class engine {
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
         }
+        // Register shutdown handler - if request is ended by client, abort and finalise flow.
+        \core_shutdown_manager::register_function(function (){
+            $this->set_status(self::STATUS_ABORTED);
+            $this->run->finalise($this->status, $this->export());
+        });
     }
 
     /**
