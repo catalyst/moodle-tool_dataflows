@@ -45,7 +45,7 @@ class dataflows_table extends \table_sql {
     const PREVIEW_MAX_WIDTH = 300;
 
     /** Maximum height of the preview image (in pixels). */
-    const PREVIEW_MAX_HEIGHT = 30;
+    const PREVIEW_MAX_HEIGHT = 75;
 
     /**
      * Returns the columns defined for the table.
@@ -115,7 +115,7 @@ class dataflows_table extends \table_sql {
             ) . get_string('preview_unavailable', 'tool_dataflows');
         }
         $dataflowstepsurl = new \moodle_url('/admin/tool/dataflows/view.php', ['id' => $record->id]);
-        return \html_writer::link($dataflowstepsurl, $img);
+        return \html_writer::link($dataflowstepsurl, $img, ['class' => 'd-inline-block']);
     }
 
     /**
