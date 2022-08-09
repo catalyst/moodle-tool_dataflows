@@ -192,6 +192,13 @@ class flow_logic_case extends flow_logic_step {
                     $this->passed = false;
                 }
                 $value = $this->input->current();
+
+                // If the current value is false, it should just fall right through and do nothing.
+                if ($value === false) {
+                    $this->value = false;
+                    return false;
+                }
+
                 try {
                     $casenumber = $this->stepcasemap[$caller->step->id];
                     $position = $casenumber + 1;
