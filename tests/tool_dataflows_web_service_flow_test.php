@@ -156,26 +156,22 @@ class tool_dataflows_web_service_flow_test extends \advanced_testcase {
         $newdataflow->add_step($jsonstep);
 
         // Update wsflow.
-        $jsonexample = [
-            'users' => [
-                0 => [
-                    'username' => '${{data.username}}',
-                    'createpassword' => true,
-                    'firstname' => '${{ data.firstname }}',
-                    'lastname' => '${{data.lastname}}',
-                    'email' => '${{data.email}}',
-                    'firstnamephonetic' => '',
-                    'lastnamephonetic' => '',
-                    'middlename' => '',
-                    'alternatename' => '',
-                ],
-            ],
-        ];
-
+        $rawparameters = <<<'EOF'
+users:
+  - username: ${{record.username}}
+    createpassword: true
+    firstname: ${{record.firstname}}
+    lastname: ${{record.lastname}}
+    email: ${{record.email}}
+    firstnamephonetic:
+    lastnamephonetic:
+    middlename:
+    alternatename:
+EOF;
         $wsflowstep->config = Yaml::dump([
             'webservice' => 'core_user_create_users',
             'user' => 'admin',
-            'parameters' => json_encode($jsonexample),
+            'parameters' => $rawparameters,
             'failure' => 'abortflow',
         ]);
         $wsflowstep->depends_on([$jsonstep]);
