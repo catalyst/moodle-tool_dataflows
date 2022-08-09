@@ -45,9 +45,9 @@ class run extends persistent {
             'timestarted' => ['type' => PARAM_FLOAT, 'default' => 0],
             'timepaused' => ['type' => PARAM_FLOAT, 'default' => 0],
             'timefinished' => ['type' => PARAM_FLOAT, 'default' => 0],
-            'startstate' => ['type' => PARAM_TEXT, 'default' => ''],
-            'currentstate' => ['type' => PARAM_TEXT, 'default' => ''],
-            'endstate' => ['type' => PARAM_TEXT, 'default' => ''],
+            'startstate' => ['type' => PARAM_RAW, 'default' => ''],
+            'currentstate' => ['type' => PARAM_RAW, 'default' => ''],
+            'endstate' => ['type' => PARAM_RAW, 'default' => ''],
         ];
     }
 
