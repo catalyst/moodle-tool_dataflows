@@ -28,16 +28,30 @@ namespace tool_dataflows\local\execution;
 class engine_flow_cap extends flow_engine_step {
 
     /**
-     * Performs the base go handling, without creating and setting an iterator
-     * as the flow cap handles them differently.
+     * Attempt to execute the step. If flowing, will run the iterator.
      *
-     * @return  int status
+     * @return int status
      */
-    public function handle_status_for_execution(): int {
+    public function go(): int {
         switch ($this->proceed_status()) {
             case self::PROCEED_GO:
                 try {
                     $this->set_status(engine::STATUS_FLOWING);
+                    foreach ($this->upstreams as $upstream) {
+                        $iterators[] = $this->steptype->get_upstream_iterator($upstream);
+                    }
+
+                    // Pull down (check) and see if things can flow through. If not, pull down on the next upstream.
+                    $this->iterator = current($iterators);
+                    while (!$this->iterator->is_finished()) {
+                        foreach ($iterators as $iterator) {
+                            $iterator->next($this);
+                        }
+                    }
+
+                    if ($this->iterator->is_finished()) {
+                        $this->set_status(engine::STATUS_FINISHED);
+                    }
                 } catch (\Throwable $thrown) {
                     $this->exception = $thrown;
                     $this->set_status(engine::STATUS_ABORTED);
@@ -50,41 +64,36 @@ class engine_flow_cap extends flow_engine_step {
                 $this->set_status(engine::STATUS_WAITING);
                 break;
         }
+
         return $this->status;
     }
 
     /**
-     * Attempt to execute the step. If flowing, will run the iterator.
+     * Tells whether the engine step can proceed or not.
      *
-     * @return int status
+     * The rules for flow caps are:
+     * - If at least one upstream is waiting, then continue to wait.
+     * - Otherwise, if at least one upstream can flow, them go go go.
+     * - Otherwise halt (cancel).
+     *
+     * @return int
      */
-    public function go(): int {
-        $status = $this->handle_status_for_execution();
-
-        try {
-            if ($status === engine::STATUS_FLOWING) {
-                foreach ($this->upstreams as $upstream) {
-                    $iterators[] = $this->steptype->get_upstream_iterator($upstream);
-                }
-
-                // Pull down (check) and see if things can flow through. If not, pull down on the next upstream.
-                $this->iterator = current($iterators);
-                while (!$this->iterator->is_finished()) {
-                    foreach ($iterators as $iterator) {
-                        $iterator->next($this);
-                    }
-                }
-
-                if ($this->iterator->is_finished()) {
-                    $this->set_status(engine::STATUS_FINISHED);
-                }
+    protected function proceed_status(): int {
+        $goodtogo = false;
+        foreach ($this->upstreams as $upstream) {
+            switch ($upstream->status) {
+                case engine::STATUS_WAITING:
+                    return self::PROCEED_WAIT;
+                case engine::STATUS_FLOWING:
+                    $goodtogo = true;
+                    break;
+                default:
+                    break;
             }
-        } catch (\Throwable $e) {
-            $this->set_status(engine::STATUS_ABORTED);
-            $this->engine->log($e->getMessage());
-            $this->exception = $e;
         }
-
-        return $this->status;
+        if ($goodtogo) {
+            return self::PROCEED_GO;
+        }
+        return self::PROCEED_STOP;
     }
 }

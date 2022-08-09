@@ -400,7 +400,7 @@ class engine {
      * @param engine_step $step
      */
     public function add_to_queue(engine_step $step) {
-        if (!in_array($step, $this->enginesteps) && !in_array($step, $this->flowcaps)) {
+        if (!in_array($step, $this->enginesteps, true) && !in_array($step, $this->flowcaps, true)) {
             throw new \moodle_exception('engine:bad_step', 'tool_dataflows', $step->name);
         }
         $this->queue[] = $step;
