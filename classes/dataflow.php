@@ -597,7 +597,10 @@ class dataflow extends persistent {
             }
             trim($styles);
 
-            $connection = implode('" -> "', [$this->escape_dot($srcstep->name), $this->escape_dot($deststep->name)]);
+            $srcname = $srcstep->get_dotscript_name();
+            $destname = $deststep->get_dotscript_name();
+
+            $connection = implode('" -> "', [$srcname, $destname]);
             $link = "\"{$connection}\" [$styles]";
             $connections[] = $link;
         }
@@ -605,6 +608,7 @@ class dataflow extends persistent {
 
         $dotscript = "digraph G {
                           rankdir=LR;
+                          nodesep=0.3;
                           bgcolor=\"transparent\";
                           node [shape=record, height=.1];
                           {$connections}

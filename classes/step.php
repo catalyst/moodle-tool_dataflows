@@ -812,6 +812,20 @@ class step extends persistent {
     }
 
     /**
+     * Returns an escaped dot script fragment for the node name
+     *
+     * By replacing whitespace with newlines we get chunkier balloons
+     * so the overll graph is less wide for comlpex long flows.
+     * @return string dotscript
+     */
+    public function get_dotscript_name(): string {
+        $name = $this->name;
+        $name = $this->get_dataflow()->escape_dot($name);
+        $name = str_replace(' ', '\n', $name);
+        return $name;
+    }
+
+    /**
      * Returns a dotscript of the step
      *
      * NOTE: this returns the fragment by default
@@ -861,7 +875,8 @@ class step extends persistent {
         }
         $styles = implode(', ', $styles);
 
-        $content = "\"{$this->get_dataflow()->escape_dot($this->name)}\" [$styles]";
+        $name = $this->get_dotscript_name();
+        $content = "\"{$name}\" [$styles]";
         if ($contentonly) {
             return $content;
         }

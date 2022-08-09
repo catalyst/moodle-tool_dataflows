@@ -537,6 +537,7 @@ abstract class base_step {
             'fontsize'  => '10',
             'fontname'  => 'Arial',
             'style'     => 'filled',
+            'height'    => 0.5,
         ];
         // TODO The border color is reserved so we can make it red for steps with errors.
         return $styles;
