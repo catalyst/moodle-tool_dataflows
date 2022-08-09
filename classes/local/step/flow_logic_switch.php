@@ -258,7 +258,7 @@ class flow_logic_switch extends flow_logic_step {
                         $case
                     );
                     $this->step->log($output);
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $this->step->log($e->getMessage());
                     throw $e;
                 }

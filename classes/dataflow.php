@@ -155,7 +155,7 @@ class dataflow extends persistent {
             // steps.alias.outputs.somefield, it would just be
             // steps.alias.somefield.
             foreach ($step->outputs as $somefield => $somevalue) {
-                $steps[$key][$somefield] = $somevalue;
+                $steps[$key]['vars'][$somefield] = $somevalue;
             }
         }
 
