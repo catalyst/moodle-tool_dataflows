@@ -20,10 +20,10 @@ Dataflows is a generic workflow and processing engine which can be configured to
 
 ## Branches
 
-| Moodle version    | Branch           | PHP  |
-|-------------------|------------------|------|
-| Moodle 3.5+       | MOODLE_35_STABLE | 7.1+ |
-| Totara 10+        | MOODLE_35_STABLE | 7.1+ |
+| Moodle version    | Branch           | PHP       |
+|-------------------|------------------|-----------|
+| Moodle 3.5+       | MOODLE_35_STABLE | 7.1 - 7.4 |
+| Totara 10+        | MOODLE_35_STABLE | 7.1 - 7.4 |
 
 ## Alternatives
 
