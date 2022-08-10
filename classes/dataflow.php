@@ -681,6 +681,11 @@ class dataflow extends persistent {
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
         ) : '';
+        if (isset($yaml['config'])) {
+            foreach ($yaml['config'] as $key => $field) {
+                $this->$key = $field;
+            }
+        }
         try {
             $transaction = $DB->start_delegated_transaction();
             $this->save();
@@ -732,6 +737,14 @@ class dataflow extends persistent {
                 $yaml[$field] = $value;
             }
         }
+
+        // Add settings (except name) under 'config'.
+        $configfields = ['enabled', 'concurrencyenabled'];
+        $yaml['config'] = new \stdClass();
+        foreach ($configfields as $field) {
+            $yaml['config']->$field = $this->raw_get($field);
+        }
+
         $steps = $this->steps;
         foreach ($steps as $key => $step) {
             $yaml['steps'][$key] = $step->get_export_data();

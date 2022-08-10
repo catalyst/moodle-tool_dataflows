@@ -1,4 +1,7 @@
 name: 'Example Dataflow'
+config:
+  enabled: '0'
+  concurrencyenabled: '0'
 steps:
   read:
     name: read
