@@ -74,17 +74,17 @@ class dataflow_form extends \core\form\persistent {
         // Configuration - YAML format.
         $mform->addElement(
             'textarea',
-            'config',
-            get_string('field_config', 'tool_dataflows'),
+            'vars',
+            get_string('field_vars', 'tool_dataflows'),
             ['cols' => 50, 'rows' => 7]
         );
-        $outputsexample['reference'] = \html_writer::tag('code',  htmlentities('${{dataflow.config.<name>}}'));
+        $outputsexample['reference'] = \html_writer::tag('code',  htmlentities('${{dataflow.vars.<name>}}'));
         $examplestring = <<<'EOT'
 data:
-  configvar: 12     # Accessed as ${{dataflow.config.data.configvar}}
+  something: 12     # Accessed as ${{dataflow.vars.data.something}}
 EOT;
         $outputsexample['example'] = \html_writer::tag('pre', $examplestring);
-        $mform->addElement('static', 'config_help', '', get_string('field_config_help', 'tool_dataflows', $outputsexample));
+        $mform->addElement('static', 'vars_help', '', get_string('field_vars_help', 'tool_dataflows', $outputsexample));
 
         $this->add_action_buttons();
     }

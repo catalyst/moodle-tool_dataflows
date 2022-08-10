@@ -1,6 +1,6 @@
 name: Example Dataflow
 
-config:
+vars:
     expression: with steps ${{ steps.notify.name }} and ${{ steps.read_value.name }}
     expression_test_id: ${{ dataflow.id }}
     expression_math: ${{ dataflow.id + 777 }}

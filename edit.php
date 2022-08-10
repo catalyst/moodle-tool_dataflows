@@ -68,7 +68,7 @@ if ($form->is_cancelled()) {
 }
 
 if ($persistent) {
-    $currentconfig = $persistent->get('config');
+    $currentvars = $persistent->get('vars');
 }
 
 if (($data = $form->get_data())) {
@@ -85,8 +85,8 @@ if (($data = $form->get_data())) {
             // Or, do the following if you don't want capability checks (discouraged).
             $persistent->from_record($data);
 
-            // Unset config hash if config has changed, so it will be resaved on next run.
-            if ($currentconfig !== $persistent->get('config')) {
+            // Unset config hash if vars has changed, so it will be resaved on next run.
+            if ($currentvars !== $persistent->get('vars')) {
                 $persistent->set('confighash', '');
             }
             $persistent->update();

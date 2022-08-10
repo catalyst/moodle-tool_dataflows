@@ -96,7 +96,7 @@ class dataflow extends persistent {
             'name' => ['type' => PARAM_TEXT],
             'enabled' => ['type' => PARAM_BOOL, 'default' => false],
             'concurrencyenabled' => ['type' => PARAM_BOOL, 'default' => false],
-            'config' => ['type' => PARAM_TEXT, 'default' => ''],
+            'vars' => ['type' => PARAM_TEXT, 'default' => ''],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
@@ -221,7 +221,7 @@ class dataflow extends persistent {
         // Prepare variable data for the dataflow key.
         $dataflow = (object) $this->get_export_data();
         unset($dataflow->steps);
-        $dataflow->config = $this->get_config(false);
+        $dataflow->vars = $this->get_vars(false);
         $dataflow->states = $this->states;
         $dataflow->id     = $this->id;
 
@@ -245,15 +245,15 @@ class dataflow extends persistent {
     }
 
     /**
-     * Return the configuration of the dataflow, parsed such that any
+     * Return the vars of the dataflow, parsed such that any
      * expressions are evaluated at this point in time.
      *
-     * @param   bool $expressions whether or not to parse expressions when returning the config
-     * @return  \stdClass configuration object
+     * @param   bool $expressions whether or not to parse expressions when returning the vars
+     * @return  \stdClass vars object
      */
-    protected function get_config($expressions = true): \stdClass {
-        $yaml = Yaml::parse($this->raw_get('config'), Yaml::PARSE_OBJECT_FOR_MAP);
-        // If there is no config, return an empty object.
+    protected function get_vars($expressions = true): \stdClass {
+        $yaml = Yaml::parse($this->raw_get('vars'), Yaml::PARSE_OBJECT_FOR_MAP);
+        // If there is no vars, return an empty object.
         if (empty($yaml)) {
             return new \stdClass();
         }
@@ -675,8 +675,8 @@ class dataflow extends persistent {
         global $DB;
 
         $this->name = $yaml['name'] ?? '';
-        $this->config = isset($yaml['config']) ? Yaml::dump(
-            $yaml['config'],
+        $this->vars = isset($yaml['vars']) ? Yaml::dump(
+            $yaml['vars'],
             helper::YAML_DUMP_INLINE_LEVEL,
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
@@ -722,7 +722,7 @@ class dataflow extends persistent {
     public function get_export_data() {
         // Exportable fields for dataflows.
         $yaml = [];
-        $dataflowfields = ['name', 'config'];
+        $dataflowfields = ['name', 'vars'];
         foreach ($dataflowfields as $field) {
             // Only set the field if it does not match the default value (e.g. if one exists).
             // Note the fallback should not match any dataflow field value.
@@ -741,21 +741,21 @@ class dataflow extends persistent {
     }
 
     /**
-     * Updates the value stored in the dataflow's config
+     * Updates the value stored in the dataflow's vars
      *
      * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
      * @param  mixed $value
      */
     public function set_var($name, $value) {
-        // Grabs the current config.
-        $config = $this->config;
+        // Grabs the current vars.
+        $vars = $this->vars;
 
         // Updates the field in question.
-        $config->{$name} = $value;
+        $vars->{$name} = $value;
 
-        // Updates the stored config.
-        $this->config = Yaml::dump(
-            (array) $config,
+        // Updates the stored vars.
+        $this->vars = Yaml::dump(
+            (array) $vars,
             helper::YAML_DUMP_INLINE_LEVEL,
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
@@ -768,21 +768,21 @@ class dataflow extends persistent {
     public function save_config_version() {
         global $DB;
         if (empty($this->confighash)) {
-            $config = $this->export();
+            $vars = $this->export();
             $configyaml = Yaml::dump(
-                (array) $config,
+                (array) $vars,
                 helper::YAML_DUMP_INLINE_LEVEL,
                 helper::YAML_DUMP_INDENT_LEVEL,
                 Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
             );
             $newconfighash = sha1($configyaml);
 
-            // Inserts the stored config if it is a new config.
+            // Inserts the stored vars if it is a new vars.
             if (!$DB->record_exists('tool_dataflows_versions', ['dataflowid' => $this->id, 'confighash' => $newconfighash])) {
                 $DB->insert_record('tool_dataflows_versions',
                     (object) ['dataflowid' => $this->id, 'confighash' => $newconfighash, 'configyaml' => $configyaml]);
             }
-            // Set the config hash in dataflows table.
+            // Set the vars hash in dataflows table.
             $DB->update_record('tool_dataflows', (object) ['id' => $this->id, 'confighash' => $newconfighash]);
         }
     }

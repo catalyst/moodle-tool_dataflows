@@ -212,7 +212,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Check before state.
         $variables = $engine->get_variables();
         $this->assertEquals(new \stdClass, $variables['global']->vars);
-        $this->assertEquals(new \stdClass, $variables['dataflow']->config);
+        $this->assertEquals(new \stdClass, $variables['dataflow']->vars);
         $reader->read();
         $this->assertEmpty($reader->config->countervalue ?? null);
 
@@ -228,7 +228,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
 
         // Check expected after state.
         $variables = $engine->get_variables();
-        $this->assertEquals($dataflowvalue, $variables['dataflow']->config->dataflowvar);
+        $this->assertEquals($dataflowvalue, $variables['dataflow']->vars->dataflowvar);
         $this->assertEquals($globalvalue, $variables['global']->vars->globalvar);
         $this->assertEquals(5, $variables['steps']->reader->config->countervalue);
 
@@ -236,13 +236,13 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $reader->read();
         $this->assertEquals(5, $reader->config->countervalue);
         $dataflow->read();
-        $this->assertEquals($dataflowvalue, $dataflow->config->dataflowvar);
+        $this->assertEquals($dataflowvalue, $dataflow->vars->dataflowvar);
 
         // Throw in some expression tests as well.
         $expressionlanguage = new ExpressionLanguage();
         $expressedglobalvalue = $expressionlanguage->evaluate('global.vars.globalvar', $variables);
         $this->assertEquals($globalvalue, $expressedglobalvalue);
-        $expresseddataflowvalue = $expressionlanguage->evaluate('dataflow.config.dataflowvar', $variables);
+        $expresseddataflowvalue = $expressionlanguage->evaluate('dataflow.vars.dataflowvar', $variables);
         $this->assertEquals($dataflowvalue, $expresseddataflowvalue);
         $expressedstepvalue = $expressionlanguage->evaluate('steps.reader.config.countervalue', $variables);
         $this->assertEquals(5, $expressedstepvalue);
