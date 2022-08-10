@@ -7,15 +7,13 @@
 * [Alternatives](#alternatives)
 * [Installation](#installation)
 * [Configuration](#configuration)
+* [Guides](#guides)
 * [Support](#support)
 * [Warm thanks](#warm-thanks)
 
 ## What is this?
 
 Dataflows is a generic workflow and processing engine which can be configured to do a large variety of tasks.
-
-
-
 
 
 ## Branches
@@ -73,6 +71,9 @@ https://graphviz.org/documentation/
 
 ### Best practices for workflows
 
+## Guides
+
+* [Creating a new step type](./NEW_STEP.md)
 
 
 ## Support
@@ -89,7 +90,7 @@ sponsor a new feature then please contact
 
 Thanks to various orgnisations for support in developing this plugin:
 
-### University College London 
+### University College London
 ![image](https://user-images.githubusercontent.com/187449/180128782-474fcdab-62c5-4848-ab6b-92ff4ece5d6f.png)
 
 
