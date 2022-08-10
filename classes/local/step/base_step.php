@@ -132,6 +132,12 @@ abstract class base_step {
             $outputs = $parser->evaluate_recursive($config->outputs, $allvariables);
             $this->stepdef->set_output($outputs);
 
+            array_walk_recursive($outputs, function(&$item){
+                if (is_object($item)) {
+                    $item = (array) $item;
+                };
+            });
+
             $yaml = Yaml::dump(
                 (array) $outputs,
                 helper::YAML_DUMP_INLINE_LEVEL,
