@@ -148,6 +148,7 @@ class dataflow extends persistent {
             $steps[$key] = $step->get_export_data();
             $steps[$key]['alias'] = $key;
             $steps[$key]['states'] = $step->states;
+            $steps[$key]['config'] = isset($steps[$key]['config']) ? (object) $steps[$key]['config'] : new \stdClass();
 
             // For a 'better' experience, the output values will be referencable
             // from the base step key itself, e.g. instead of
@@ -159,13 +160,7 @@ class dataflow extends persistent {
         }
 
         foreach ($steps as &$step) {
-            foreach ($step as &$field) {
-                if (is_array($field)) {
-                    $field = (object) $field;
-                }
-            }
             $step = (object) $step;
-            $step->config = $step->config ?? new \stdClass;
         }
         $steps = (object) $steps;
         $parser = new parser();

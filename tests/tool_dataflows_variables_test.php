@@ -23,6 +23,7 @@ use tool_dataflows\local\execution\engine;
 use tool_dataflows\step;
 use tool_dataflows\local\execution;
 use tool_dataflows\local\step\connector_curl;
+use tool_dataflows\local\step\connector_debugging;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -322,6 +323,34 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Test the shorthand version also.
         $result = $expressionlanguage->evaluate("steps.{$stepdef->name}.customOutputKey", $variables);
         $this->assertEquals('H5P.Accordion', $result);
+    }
+
+    /**
+     * Test to ensure that array values are not converted to objects.
+     *
+     * @covers \tool_dataflows\dataflow::get_variables
+     */
+    public function test_var_arrays() {
+        $dataflow = new dataflow();
+        $dataflow->name = 'connector-step';
+        $dataflow->enabled = true;
+        $dataflow->config = Yaml::dump(['abc' => [1, 2, 3]]);
+
+        $stepdef = new step();
+        $stepdef->name = 'deb';
+        $stepdef->type = connector_debugging::class;
+        $stepdef->config = Yaml::dump([
+            'outputs' => ['out' => '${{ dataflow.config.abc}}'],
+        ]);
+        $dataflow->add_step($stepdef);
+
+        ob_start();
+        $engine = new engine($dataflow, false, false);
+        $engine->execute();
+        ob_get_clean();
+
+        $vars = $dataflow->variables;
+        $this->assertEquals([1, 2, 3], $vars['steps']->deb->out);
     }
 
     /**
