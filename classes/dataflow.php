@@ -533,9 +533,14 @@ class dataflow extends persistent {
 
         // Fetch the dot script node from each step to construct them.
         $steps = $this->steps;
+
         $nodes = [];
         $contentonly = true;
+        $steparray = [];
+        $outputlabels = [];
         foreach ($steps as $step) {
+            $steparray[$step->id] = $step;
+            $outputlabels[$step->id] = $step->steptype->get_output_labels();
             $nodes[] = $step->get_dotscript($contentonly);
         }
         $nodes = implode(';' . PHP_EOL, $nodes);
@@ -550,8 +555,8 @@ class dataflow extends persistent {
         ];
         foreach ($edges as $edge) {
             [$srcid, $destid] = $edge;
-            $srcstep = new step($srcid);
-            $deststep = new step($destid);
+            $srcstep = $steparray[$srcid];
+            $deststep = $steparray[$destid];
 
             $localstyles = [];
             $typesvalid = class_exists($srcstep->type) && class_exists($deststep->type);
@@ -578,7 +583,8 @@ class dataflow extends persistent {
                 'stepid' => $destid,
             ]);
             if (isset($dependency->position)) {
-                $outputlabel = $srcstep->steptype->get_output_label($dependency->position);
+                $outputlabel = $outputlabels[$srcid][$dependency->position];
+
                 $connectionstyles = [
                     'label' => $outputlabel,
                     'fontsize'  => '10',
