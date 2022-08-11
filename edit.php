@@ -67,10 +67,6 @@ if ($form->is_cancelled()) {
     redirect($returnurl ?? $overviewurl);
 }
 
-if ($persistent) {
-    $currentvars = $persistent->get('vars');
-}
-
 if (($data = $form->get_data())) {
     try {
         if (empty($data->id)) {
@@ -80,15 +76,14 @@ if (($data = $form->get_data())) {
             $persistent = new dataflow(0, $data);
             $persistent->create();
         } else {
+            // Reset the config hash so it can be recalculated with the next run.
+            $data->confighash = '';
+
             // We had an ID, this means that we are going to update a record.
             // Call your API to update the persistent from the data.
             // Or, do the following if you don't want capability checks (discouraged).
             $persistent->from_record($data);
 
-            // Unset config hash if vars has changed, so it will be resaved on next run.
-            if ($currentvars !== $persistent->get('vars')) {
-                $persistent->set('confighash', '');
-            }
             $persistent->update();
         }
         \core\notification::success(get_string('changessaved'));

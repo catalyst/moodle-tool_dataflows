@@ -150,12 +150,10 @@ class dataflow extends persistent {
             $steps[$key]['states'] = $step->states;
             $steps[$key]['config'] = isset($steps[$key]['config']) ? (object) $steps[$key]['config'] : new \stdClass();
 
-            // For a 'better' experience, the output values will be referencable
-            // from the base step key itself, e.g. instead of
-            // steps.alias.outputs.somefield, it would just be
-            // steps.alias.somefield.
+            // Store output variables under '.vars'.
+            $steps[$key]['vars'] = new \stdClass();
             foreach ($step->outputs as $somefield => $somevalue) {
-                $steps[$key]['vars'][$somefield] = $somevalue;
+                $steps[$key]['vars']->{$somefield} = $somevalue;
             }
         }
 
@@ -790,12 +788,12 @@ class dataflow extends persistent {
             );
             $newconfighash = sha1($configyaml);
 
-            // Inserts the stored vars if it is a new vars.
+            // Inserts the stored config if it is a new config.
             if (!$DB->record_exists('tool_dataflows_versions', ['dataflowid' => $this->id, 'confighash' => $newconfighash])) {
                 $DB->insert_record('tool_dataflows_versions',
                     (object) ['dataflowid' => $this->id, 'confighash' => $newconfighash, 'configyaml' => $configyaml]);
             }
-            // Set the vars hash in dataflows table.
+            // Set the config hash in dataflows table.
             $DB->update_record('tool_dataflows', (object) ['id' => $this->id, 'confighash' => $newconfighash]);
         }
     }

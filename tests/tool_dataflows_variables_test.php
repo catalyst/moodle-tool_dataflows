@@ -338,13 +338,13 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $dataflow = new dataflow();
         $dataflow->name = 'connector-step';
         $dataflow->enabled = true;
-        $dataflow->config = Yaml::dump(['abc' => [1, 2, 3]]);
+        $dataflow->vars = Yaml::dump(['abc' => [1, 2, 3]]);
 
         $stepdef = new step();
         $stepdef->name = 'deb';
         $stepdef->type = connector_debugging::class;
         $stepdef->config = Yaml::dump([
-            'outputs' => ['out' => '${{ dataflow.config.abc}}'],
+            'outputs' => ['out' => '${{ dataflow.vars.abc}}'],
         ]);
         $dataflow->add_step($stepdef);
 
@@ -354,7 +354,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         ob_get_clean();
 
         $vars = $dataflow->variables;
-        $this->assertEquals([1, 2, 3], $vars['steps']->deb->out);
+        $this->assertEquals([1, 2, 3], $vars['steps']->deb->vars->out);
     }
 
     /**
