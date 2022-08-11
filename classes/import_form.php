@@ -78,8 +78,7 @@ class import_form extends \moodleform {
         // Check if file is valid YAML.
         $content = $file->get_content();
         if (!empty($content)) {
-            $parser = new parser;
-            $validation = $parser->validate_yaml($content);
+            $validation = parser::validate_yaml($content);
             if ($validation !== true) {
                 $validationerrors['userfile'] = $validation;
             }

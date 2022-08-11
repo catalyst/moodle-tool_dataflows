@@ -145,6 +145,14 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
             $DB->update_record('tool_dataflows_steps', $record);
         }
 
+        $table = new xmldb_table('tool_dataflows_steps');
+
+        // Vars is a standard field defined in all steps.
+        $field = new xmldb_field('vars', XMLDB_TYPE_TEXT, null, null, null, null, null, 'config');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
         // Dataflows savepoint reached.
         upgrade_plugin_savepoint(true, 2022090600, 'tool', 'dataflows');
     }

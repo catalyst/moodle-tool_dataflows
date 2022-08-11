@@ -107,6 +107,7 @@ class step extends persistent {
             'type' => ['type' => PARAM_TEXT],
             'name' => ['type' => PARAM_TEXT],
             'config' => ['type' => PARAM_TEXT, 'default' => ''],
+            'vars' => ['type' => PARAM_TEXT, 'default' => ''],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
@@ -151,6 +152,50 @@ class step extends persistent {
     public function get_variables(): array {
         $dataflow = $this->get_dataflow();
         return $dataflow->variables;
+    }
+
+    /**
+     * Returns the variables stored under the step's 'vars' subtree.
+     * @param bool $expressions
+     * @return \stdClass
+     * @throws \coding_exception
+     */
+    protected function get_vars(bool $expressions = true): \stdClass {
+        $vars = Yaml::parse($this->raw_get('vars'), Yaml::PARSE_OBJECT_FOR_MAP);
+
+        if (empty($vars)) {
+            return new \stdClass();
+        }
+
+        // Normally expressions are parsed when evaluating the statement, for use in a dataflow run.
+        if ($expressions) {
+            $steptype = $this->get_steptype();
+
+            // Get variables, based on whether the engine is running or is idle.
+            $enginestep = $steptype->get_engine_step();
+            if ($enginestep) {
+                $variables = $enginestep->get_variables();
+            } else {
+                $variables = $this->variables;
+            }
+
+            if (isset($vars)) {
+                $parser = new parser();
+                $vars = $parser->evaluate_recursive($vars, $variables);
+            }
+        }
+
+        return $vars;
+    }
+
+    /**
+     * Validate the 'vars' field.
+     *
+     * @return true|\lang_string
+     * @throws \coding_exception
+     */
+    protected function validate_vars($vars) {
+        return parser::validate_yaml($vars);
     }
 
     /**
@@ -500,6 +545,16 @@ class step extends persistent {
             )
             : '';
 
+        // Set the config as a valid YAML string.
+        $this->vars = !empty($stepdata['vars'])
+            ? Yaml::dump(
+                $stepdata['vars'],
+                helper::YAML_DUMP_INLINE_LEVEL,
+                helper::YAML_DUMP_INDENT_LEVEL,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+            )
+            : '';
+
         // Set up the dependencies, connected to each other via their step aliases.
         if (!empty($stepdata['depends_on'])) {
             $dependson = (array) $stepdata['depends_on'];
@@ -523,6 +578,11 @@ class step extends persistent {
             if ($value !== $default) {
                 $yaml[$field] = $value;
             }
+        }
+
+        $vars = (array) $this->get_vars(false);
+        if (!empty($vars)) {
+            $yaml['vars'] = $vars;
         }
 
         // Conditionally export the configuration if it has content.
@@ -555,6 +615,7 @@ class step extends persistent {
             'depends_on',
             'type',
             'config',
+            'vars',
         ];
         $commonkeys = array_intersect_key(array_flip($ordered), $yaml);
         $yaml = array_replace($commonkeys, $yaml);

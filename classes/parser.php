@@ -215,7 +215,7 @@ class parser {
      * @param   string $contents
      * @return  true|string True if the contents is valid yaml, or an error as a string if not
      */
-    public function validate_yaml($contents) {
+    public static function validate_yaml($contents) {
         $invalidyaml = false;
         try {
             $yaml = Yaml::parse($contents, Yaml::PARSE_OBJECT_FOR_MAP);

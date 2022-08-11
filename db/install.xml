@@ -33,6 +33,7 @@
         <FIELD NAME="type" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" COMMENT="Fully Qualified Class Name of the step."/>
         <FIELD NAME="name" TYPE="char" LENGTH="200" NOTNULL="false" SEQUENCE="false" COMMENT="Display name for the step, used in the UI and graph"/>
         <FIELD NAME="config" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="JSON encoded configuration object, relevant for the step class defined"/>
+        <FIELD NAME="vars" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="YAML encoded variables"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was created"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The user who created this record"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was modified."/>

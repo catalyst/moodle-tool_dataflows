@@ -109,16 +109,17 @@ class step_form extends \core\form\persistent {
         // Configuration - YAML format.
         $mform->addElement(
             'textarea',
-            'config_outputs',
-            get_string('field_outputs', 'tool_dataflows'),
+            'vars',
+            get_string('field_vars', 'tool_dataflows'),
             ['cols' => 50, 'rows' => 7, 'placeholder' => "alias: \${{ <expression> }}\nanother: \${{ <expression> }}"]
         );
-        $mform->setType('config_outputs', PARAM_TEXT);
-        $exampleconfig = trim(Yaml::dump(['icon' => '${{ response.deeply.nested.data[0].icon }}']));
-        $outputsexample['config'] = \html_writer::tag('code', $exampleconfig);
-        $alias = $persistent->alias ?? 'alias';
-        $outputsexample['reference'] = \html_writer::tag('code', '${{ steps.' . $alias . '.icon }}');
-        $mform->addElement('static', 'outputs_help', '', get_string('field_outputs_help', 'tool_dataflows', $outputsexample));
+        $mform->setType('vars', PARAM_TEXT);
+        $alias = $persistent->alias ?? '&lt;alias>';
+        $a = [
+            'reference' => \html_writer::tag('code', '${{ steps.' . $alias . '.vars.&lt;var> }}'),
+            'example' => "icon: \${{ response.deeply.nested.data[0].icon }}  # Accessed as steps.$alias.vars.icon",
+        ];
+        $mform->addElement('static', 'vars_help', '', get_string('field_step_vars_help', 'tool_dataflows', $a));
 
         $this->add_action_buttons();
     }
@@ -358,22 +359,20 @@ class step_form extends \core\form\persistent {
             // This will only display documentation for step exposed outputs,
             // and not any real values since they are not available yet.
             $outputs = $step->steptype->define_outputs();
+            foreach ($outputs as $field => $def) {
+                $variables['steps']->{$alias}->{$field} = $def;
+            }
 
             // This is a list of user defined output mappings. This will display their expression / value set.
-            $userdefinedoutputs = (array) ($step->get_raw_config()->outputs ?? []);
-            $outputs = array_merge($outputs, $userdefinedoutputs);
-            if (!isset($variables['steps']->{$alias}->vars)) {
-                $variables['steps']->{$alias}->vars = new \stdClass();
+            $vars = $step->vars;
+            if (!empty($vars)) {
+                if (!isset($variables['steps']->{$alias}->vars)) {
+                    $variables['steps']->{$alias}->vars = new \stdClass();
+                }
+                foreach ($vars as $field => $def) {
+                    $variables['steps']->{$alias}->vars->{$field} = $def;
+                }
             }
-            foreach ($outputs as $field => $description) {
-                $variables['steps']->{$alias}->vars->{$field} = $description;
-            }
-
-            // Remove *.config.outputs from the available references.
-            // Since this is just mapping data and doesn't contain the actual
-            // output values, this shouldn't be exposed. The user most likely
-            // wants to reference the output itself not the configuration.
-            unset($variables['steps']->{$alias}->config->outputs);
         }
 
         return $variables;
@@ -462,10 +461,17 @@ class step_form extends \core\form\persistent {
             $errors['alias'] = get_string('aliastaken', 'tool_dataflows', $data->alias);
         }
 
+        // 'vars' field must be valid YAML.
+        if (isset($data->vars)) {
+            $validation = parser::validate_yaml($data->vars);
+            if ($validation !== true) {
+                $errors['vars'] = $validation;
+            }
+        }
+
         // If the config field has been provided, ensure it is in valid YAML.
         if (isset($data->config)) {
-            $parser = new parser;
-            $validation = $parser->validate_yaml($data->config);
+            $validation = parser::validate_yaml($data->config);
             if ($validation !== true) {
                 $errors['config'] = $validation;
             }

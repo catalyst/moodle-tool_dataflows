@@ -725,7 +725,7 @@ class dataflow extends persistent {
     public function get_export_data() {
         // Exportable fields for dataflows.
         $yaml = [];
-        $dataflowfields = ['name', 'vars'];
+        $dataflowfields = ['name'];
         foreach ($dataflowfields as $field) {
             // Only set the field if it does not match the default value (e.g. if one exists).
             // Note the fallback should not match any dataflow field value.
@@ -734,6 +734,11 @@ class dataflow extends persistent {
             if ($value !== $default) {
                 $yaml[$field] = $value;
             }
+        }
+
+        $vars = $this->get_vars(false);
+        if (!empty($vars)) {
+            $yaml['vars'] = $vars;
         }
 
         // Add settings (except name) under 'config'.
