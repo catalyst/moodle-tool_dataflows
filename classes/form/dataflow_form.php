@@ -42,6 +42,13 @@ class dataflow_form extends \core\form\persistent {
         $mform->addElement('hidden', 'userid');
         $mform->setConstant('userid', $this->_customdata['userid']);
 
+        // Get returnurl if not coming from the edit page.
+        if (get_local_referer() != new \moodle_url("/admin/tool/dataflows/edit.php")) {
+            $mform->addElement('hidden', 'returnurl');
+            $mform->setType('returnurl', PARAM_LOCALURL);
+            $mform->setConstant('returnurl', new \moodle_url(get_local_referer(false)));
+        }
+
         // Name of the dataflow.
         $mform->addElement('text', 'name', get_string('field_name', 'tool_dataflows'));
 

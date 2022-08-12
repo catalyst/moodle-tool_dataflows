@@ -39,6 +39,8 @@ require_login();
 
 $overviewurl = new moodle_url("/admin/tool/dataflows/index.php");
 $url = new moodle_url("/admin/tool/dataflows/edit.php", ['id' => $id]);
+$returnurl = optional_param('returnurl', null, PARAM_LOCALURL);
+
 $context = context_system::instance();
 
 // Check capabilities and setup page.
@@ -62,7 +64,7 @@ $customdata = [
 
 $form = new dataflow_form($PAGE->url->out(false), $customdata);
 if ($form->is_cancelled()) {
-    redirect($overviewurl);
+    redirect($returnurl ?? $overviewurl);
 }
 
 if ($persistent) {
@@ -97,7 +99,7 @@ if (($data = $form->get_data())) {
     }
 
     // We are done, so let's redirect somewhere.
-    redirect($overviewurl);
+    redirect($returnurl ?? $overviewurl);
 }
 
 // Display the mandatory header and footer.
