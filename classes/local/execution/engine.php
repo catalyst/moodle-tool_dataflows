@@ -282,8 +282,11 @@ class engine {
         }
         // Register shutdown handler - if request is ended by client, abort and finalise flow.
         \core_shutdown_manager::register_function(function (){
-            $this->set_status(self::STATUS_ABORTED);
-            $this->run->finalise($this->status, $this->export());
+            // If the script has stopped and flow is not finalised then abort.
+            if (!in_array($this->status, [self::STATUS_FINALISED, self::STATUS_ABORTED])) {
+                $this->set_status(self::STATUS_ABORTED);
+                $this->run->finalise($this->status, $this->export());
+            }
         });
     }
 
