@@ -55,6 +55,12 @@ class step extends persistent {
     /** @var \stdClass keep track of any outputs, exposed by the user for each step */
     private $outputs;
 
+    /** @var \stdClass Variables to set which will go in the step's root subtree. */
+    private $rootvariables;
+
+    /** @var \stdClass Variables to set which will go in the step's vars subtree. */
+    private $varsvariables;
+
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      *
@@ -189,12 +195,21 @@ class step extends persistent {
     }
 
     /**
+     * Returns vars without resolving expressions.
+     *
+     * @return \stdClass
+     */
+    public function get_raw_vars(): \stdClass {
+        return $this->get_vars(false);
+    }
+
+    /**
      * Validate the 'vars' field.
      *
+     * @param string $vars
      * @return true|\lang_string
-     * @throws \coding_exception
      */
-    protected function validate_vars($vars) {
+    protected function validate_vars(string $vars) {
         return parser::validate_yaml($vars);
     }
 
@@ -580,8 +595,8 @@ class step extends persistent {
             }
         }
 
-        $vars = (array) $this->get_vars(false);
-        if (!empty($vars)) {
+        $vars = $this->get_vars(false);
+        if (!helper::obj_empty($vars)) {
             $yaml['vars'] = $vars;
         }
 
@@ -981,8 +996,47 @@ class step extends persistent {
      * @param  mixed $attributes array of output fields to set. This is merged with any existing values.
      */
     public function set_output($attributes) {
+        throw new \moodle_exception('set_output');
         $this->outputs = $this->outputs ?? new \stdClass;
         $this->outputs = (object) array_merge((array) $this->outputs, (array) $attributes);
+    }
+
+    /**
+     * Set variables to set under in the step root.
+     *
+     * @param mixed $variables
+     */
+    public function set_rootvariables($variables) {
+        $this->rootvariables = $this->rootvariables ?? new \stdClass;
+        $this->rootvariables = (object) array_merge((array) $this->rootvariables, (array) $variables);
+    }
+
+    /**
+     * Returns the step's variables for the root.
+     *
+     * @return  \stdClass
+     */
+    public function get_rootvariables(): \stdClass {
+        return $this->rootvariables ?? new \stdClass;
+    }
+
+    /**
+     * Set variables to set under the 'vars' subtree.
+     *
+     * @param mixed $variables
+     */
+    public function set_varsvariables($variables) {
+        $this->varsvariables = $this->varsvariables ?? new \stdClass;
+        $this->varsvariables = (object) array_merge((array) $this->varsvariables, (array) $variables);
+    }
+
+    /**
+     * Returns the step's variable for the 'vars' subtree.
+     *
+     * @return  \stdClass
+     */
+    public function get_varsvariables(): \stdClass {
+        return $this->varsvariables ?? new \stdClass;
     }
 
     /**

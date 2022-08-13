@@ -150,9 +150,14 @@ class dataflow extends persistent {
             $steps[$key]['states'] = $step->states;
             $steps[$key]['config'] = isset($steps[$key]['config']) ? (object) $steps[$key]['config'] : new \stdClass();
 
-            // Store output variables under '.vars'.
+            // Store root variables directly under the step.
+            foreach ($step->rootvariables as $somefield => $somevalue) {
+                $steps[$key][$somefield] = $somevalue;
+            }
+
+            // Store vars variables under '.vars'.
             $steps[$key]['vars'] = new \stdClass();
-            foreach ($step->outputs as $somefield => $somevalue) {
+            foreach ($step->varsvariables as $somefield => $somevalue) {
                 $steps[$key]['vars']->{$somefield} = $somevalue;
             }
         }
@@ -737,7 +742,7 @@ class dataflow extends persistent {
         }
 
         $vars = $this->get_vars(false);
-        if (!empty($vars)) {
+        if (!helper::obj_empty($vars)) {
             $yaml['vars'] = $vars;
         }
 

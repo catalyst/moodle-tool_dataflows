@@ -14,7 +14,7 @@ steps:
     type: \tool_dataflows\local\step\reader_sql
     config:
       sql: SELECT 1
-    outputs:
+    vars:
       # Here "version" will be an output name (available under steps.check.outputs.version)
       # Here "value" is the step's internal reference, which happens to be using the output path of "value".
       version: value

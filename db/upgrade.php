@@ -144,6 +144,17 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
             $record->type = 'tool_dataflows\local\step\flow_logic_switch';
             $DB->update_record('tool_dataflows_steps', $record);
         }
+        upgrade_plugin_savepoint(true, 2022090600, 'tool', 'dataflows');
+    }
+
+    if ($oldversion < 2022090700 ) {
+        // Changing type of field config on table tool_dataflows_steps to text.
+        $table = new xmldb_table('tool_dataflows');
+
+        $field = new xmldb_field('config', XMLDB_TYPE_TEXT, null, null, null, null, null, 'concurrencyenabled');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'vars');
+        }
 
         $table = new xmldb_table('tool_dataflows_steps');
 
@@ -153,8 +164,30 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
+        // Transfer vars from config field to vars field.
+        $records = $DB->get_records('tool_dataflows_steps', null, '', 'id, config');
+        foreach ($records as $record) {
+            $config = \Symfony\Component\Yaml\Yaml::parse($record->config);
+            if (isset($config['outputs'])) {
+                $vars = $config['outputs'];
+                unset($config['outputs']);
+                $record->config = \Symfony\Component\Yaml\Yaml::dump($config);
+                $record->vars = \Symfony\Component\Yaml\Yaml::dump($vars);
+            } else {
+                $record->vars = ''; // Vars field cannot be null.
+            }
+            $DB->update_record('tool_dataflows_steps', $record);
+        }
+
+        // Erase confighash to force it to be recalculated.
+        $records = $DB->get_records('tool_dataflows', null, '', 'id');
+        foreach ($records as $record) {
+            $record->confighash = '';
+            $DB->update_record('tool_dataflows', $record);
+        }
+
         // Dataflows savepoint reached.
-        upgrade_plugin_savepoint(true, 2022090600, 'tool', 'dataflows');
+        upgrade_plugin_savepoint(true, 2022090700, 'tool', 'dataflows');
     }
 
     return true;

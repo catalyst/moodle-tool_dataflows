@@ -306,13 +306,11 @@ abstract class engine_step {
         $variables = $this->engine->get_variables();
         $step = $variables['steps']->{$this->stepdef->alias};
 
-        // Pull out the config.
-        $config = $step->config ?? new \stdClass;
-
+        // We copy the contents of the step subtree into the root, to enable 'localised' access to the step variables.
+        // E.g. we can use ${{config.setting}} instead of ${{steps.first.config.setting}}.
         return array_merge(
             $variables,
-            ['step' => $step],
-            (array) $config
+            (array) $step
         );
     }
 }

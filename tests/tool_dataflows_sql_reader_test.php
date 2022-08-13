@@ -141,7 +141,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
                   FROM {config_plugins}
                  WHERE plugin = \'' . $template['plugin'] . '\'
                 [[
-                    AND ' . $DB->sql_cast_char2int('value') . ' > ${{countervalue}}
+                    AND ' . $DB->sql_cast_char2int('value') . ' > ${{config.countervalue}}
                 ]]
               ORDER BY ' . $DB->sql_cast_char2int('value') . ' ASC
                  LIMIT 3';

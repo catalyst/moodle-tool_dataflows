@@ -138,7 +138,7 @@ class steps_table extends sql_table {
         $redactedconfig = $step->get_redacted_config(false);
 
         // We want to display the vars definitions as well.
-        $vars = (array) $step->vars ;
+        $vars = (array) $step->vars;
         if (!empty($vars)) {
             $redactedconfig->vars = $step->vars;
         }

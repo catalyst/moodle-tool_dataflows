@@ -461,7 +461,7 @@ class step_form extends \core\form\persistent {
             $errors['alias'] = get_string('aliastaken', 'tool_dataflows', $data->alias);
         }
 
-        // 'vars' field must be valid YAML.
+        // The 'vars' field must be valid YAML.
         if (isset($data->vars)) {
             $validation = parser::validate_yaml($data->vars);
             if ($validation !== true) {

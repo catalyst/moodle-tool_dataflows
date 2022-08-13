@@ -177,7 +177,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $sql = 'SELECT *
                   FROM {config_plugins}
                  WHERE plugin = \'' . $template['plugin'] . '\'
-                [[ AND ' . $DB->sql_cast_char2int('value') . ' > ${{countervalue}} ]]
+                [[ AND ' . $DB->sql_cast_char2int('value') . ' > ${{config.countervalue}} ]]
               ORDER BY ' . $DB->sql_cast_char2int('value') . ' ASC
                  LIMIT 10';
 
@@ -310,9 +310,11 @@ class tool_dataflows_variables_test extends \advanced_testcase {
             'destination' => '',
             'headers' => '',
             'method' => 'get',
-            // Sets expressed values typically for values in scope with this step, so they can be accessed from other steps.
-            'outputs' => ['customOutputKey' => '${{ fromJSON(response.result).contentTypes[0].id }}'],
         ]);
+
+        // Sets expressed values typically for values in scope with this step, so they can be accessed from other steps.
+        $stepdef->vars = Yaml::dump(['customOutputKey' => '${{ fromJSON(response.result).contentTypes[0].id }}']);
+
         $stepdef->name = 'connector';
         $stepdef->type = connector_curl::class;
         $dataflow->add_step($stepdef);
@@ -343,9 +345,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $stepdef = new step();
         $stepdef->name = 'deb';
         $stepdef->type = connector_debugging::class;
-        $stepdef->config = Yaml::dump([
-            'outputs' => ['out' => '${{ dataflow.vars.abc}}'],
-        ]);
+        $stepdef->vars = Yaml::dump(['out' => '${{ dataflow.vars.abc}}']);
         $dataflow->add_step($stepdef);
 
         ob_start();

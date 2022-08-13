@@ -65,13 +65,13 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'destination' => '',
             'headers' => '',
             'method' => 'get',
-            'outputs' => [
-                'result' => '${{ fromJSON(response.result) }}',
-                'httpcode' => '${{ response.info.http_code }}',
-                'connecttime' => '${{ response.info.connect_time }}',
-                'totaltime' => '${{ response.info.total_time }}',
-                'sizeupload' => '${{ response.info.size_upload }}',
-            ],
+        ]);
+        $stepdef->vars = Yaml::dump([
+            'result' => '${{ fromJSON(response.result) }}',
+            'httpcode' => '${{ response.info.http_code }}',
+            'connecttime' => '${{ response.info.connect_time }}',
+            'totaltime' => '${{ response.info.total_time }}',
+            'sizeupload' => '${{ response.info.size_upload }}',
         ]);
         $stepdef->name = 'connector';
         $stepdef->type = 'tool_dataflows\local\step\connector_curl';
@@ -99,13 +99,13 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'headers' => '',
             'method' => 'post',
             'rawpostdata' => 'data=moodletest',
-            'outputs' => [
-                'result' => '${{ response.result }}',
-                'httpcode' => '${{ response.info.http_code }}',
-                'connecttime' => '${{ response.info.connect_time }}',
-                'totaltime' => '${{ response.info.total_time }}',
-                'sizeupload' => '${{ response.info.size_upload }}',
-            ],
+        ]);
+        $stepdef->vars = Yaml::dump([
+            'result' => '${{ response.result }}',
+            'httpcode' => '${{ response.info.http_code }}',
+            'connecttime' => '${{ response.info.connect_time }}',
+            'totaltime' => '${{ response.info.total_time }}',
+            'sizeupload' => '${{ response.info.size_upload }}',
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
@@ -127,13 +127,13 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'headers' => '',
             'method' => 'put',
             'rawpostdata' => 'data=moodletest',
-            'outputs' => [
-                'result' => '${{ response.result }}',
-                'httpcode' => '${{ response.info.http_code }}',
-                'connecttime' => '${{ response.info.connect_time }}',
-                'totaltime' => '${{ response.info.total_time }}',
-                'sizeupload' => '${{ response.info.size_upload }}',
-            ],
+        ]);
+        $stepdef->vars = Yaml::dump([
+            'result' => '${{ response.result }}',
+            'httpcode' => '${{ response.info.http_code }}',
+            'connecttime' => '${{ response.info.connect_time }}',
+            'totaltime' => '${{ response.info.total_time }}',
+            'sizeupload' => '${{ response.info.size_upload }}',
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
@@ -158,8 +158,8 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
                 "name": "morpheus",
                 "job": "leader"
             }',
-            'outputs' => ['curlcmd' => '${{ dbgcommand }}'],
         ]);
+        $stepdef->vars = Yaml::dump(['curlcmd' => '${{ dbgcommand }}']);
         $dataflow->add_step($stepdef);
         ob_start();
         $engine = new engine($dataflow, true, false);
@@ -173,7 +173,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             }'";
         // Use trim here because it seems that some versions of Yaml put a EOL when dumping, and others don't.
         $this->assertEquals($expected, trim($variables->vars->curlcmd));
-        $this->assertEquals($expected, trim($variables->vars->dbgcommand)); // Should also exist.
+        $this->assertEquals($expected, trim($variables->dbgcommand)); // Should also exist.
 
         // Test file writting.
         $tofile = 'test.html';
@@ -182,10 +182,10 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'destination' => $tofile,
             'headers' => '',
             'method' => 'get',
-            'outputs' => [
-                'httpcode' => '${{ response.httpcode }}',
-                'destination' => '${{ response.destination }}',
-            ],
+        ]);
+        $stepdef->vars = Yaml::dump([
+            'httpcode' => '${{ response.httpcode }}',
+            'destination' => '${{ response.destination }}',
         ]);
         $dataflow->add_step($stepdef);
         ob_start();
@@ -251,10 +251,6 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'destination' => 'tmp.json',
             'headers' => '',
             'method' => 'get',
-            'outputs' => [
-                'httpcode' => '${{ response.httpcode }}',
-                'destination' => '${{ response.destination }}',
-            ],
         ];
 
         $dataflow = new dataflow();
@@ -296,10 +292,6 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'method' => $method,
             'sideeffects' => $hassideeffects,
             'rawpostdata' => 'raw data',
-            'outputs' => [
-                'httpcode' => '${{ response.httpcode }}',
-                'destination' => '${{ response.destination }}',
-            ],
         ];
 
         $dataflow = new dataflow();
@@ -345,10 +337,6 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'destination' => 'my.in.txt',
             'headers' => '',
             'method' => 'get',
-            'outputs' => [
-                'httpcode' => '${{ response.httpcode }}',
-                'destination' => '${{ response.destination }}',
-            ],
         ];
 
         // Test for no configuration.
