@@ -55,6 +55,7 @@ function tool_dataflows_step_types() {
         new step\connector_sns_notify,
         new step\connector_s3,
         new step\connector_wait,
+        new step\flow_email,
         new step\flow_logic_case,
         new step\flow_logic_join,
         new step\flow_noop,
