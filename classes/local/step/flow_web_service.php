@@ -16,9 +16,17 @@
 
 namespace tool_dataflows\local\step;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/externallib.php');
+
+use core_user;
+use core\session\manager;
 use external_api;
+use moodle_exception;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
+use Throwable;
 use tool_dataflows\parser;
 
 /**
@@ -173,10 +181,10 @@ EOF;
         $config = $this->get_config();
         $isdryrun = $this->is_dry_run();
         $userid = $DB->get_field('user', 'id', ['username' => $config->user]);
-        $user = \core_user::get_user($userid);
+        $user = core_user::get_user($userid);
         $user->ignoresesskey = true;
-        \core\session\manager::init_empty_session();
-        \core\session\manager::set_user($user);
+        manager::init_empty_session();
+        manager::set_user($user);
         set_login_session_preferences();
 
         // Fake it till you make it - set the the lastaccess in advance to avoid
@@ -207,10 +215,10 @@ EOF;
         };
 
         if (!$isdryrun || !$this->hassideeffect) {
-            $response = external_api::call_external_function($config->webservice, $params);
+            $response = static::call_external_function($config->webservice, $params);
             // Restore the previous user to avoid any side-effects occuring in later steps / code.
             // Avoid moodle state errors because of webservice call - we are still in body.
-            \core\session\manager::set_user($previoususer);
+            manager::set_user($previoususer);
             $SESSION = $session;
             $OUTPUT = $currentoutput;
             if ($response['error']) {
@@ -218,7 +226,7 @@ EOF;
                     $DB->force_transaction_rollback();
                 }
                 if ($failure === 'abortflow') {
-                    throw new \moodle_exception($response['exception']->debuginfo ?? $response['exception']->message);
+                    throw new moodle_exception($response['exception']->debuginfo ?? $response['exception']->message);
                 }
                 if ($failure === 'skiprecord') {
                     $this->enginestep->log('Warn skipping record: ' .
@@ -231,6 +239,106 @@ EOF;
             $this->set_variables('result', $response['data']);
         }
         return $input;
+    }
+
+    /**
+     * This function is a replication of external api call_external_function, to bypass cron job servicerequireslogin
+     * issues.
+     *
+     * Call an external function validating all params/returns correctly.
+     *
+     * Note that an external function may modify the state of the current page, so this wrapper
+     * saves and restores tha PAGE and COURSE global variables before/after calling the external function.
+     *
+     * @param string $function A webservice function name.
+     * @param array $args Params array (named params)
+     * @return array containing keys for error (bool), exception and data.
+     */
+    public static function call_external_function($function, $args) {
+        global $PAGE, $COURSE, $CFG, $SITE;
+
+        require_once($CFG->libdir . "/pagelib.php");
+
+        $externalfunctioninfo = external_api::external_function_info($function);
+
+        $currentpage = $PAGE;
+        $currentcourse = $COURSE;
+        $response = [];
+
+        try {
+            // Taken straight from from setup.php.
+            if (!empty($CFG->moodlepageclass)) {
+                if (!empty($CFG->moodlepageclassfile)) {
+                    require_once($CFG->moodlepageclassfile);
+                }
+                $classname = $CFG->moodlepageclass;
+            } else {
+                $classname = 'moodle_page';
+            }
+            $PAGE = new $classname();
+            $COURSE = clone($SITE);
+
+            // Do not allow access to write or delete webservices as a public user.
+            if ($externalfunctioninfo->loginrequired && !WS_SERVER) {
+                if (!isloggedin()) {
+                    throw new moodle_exception('servicerequireslogin', 'webservice');
+                } else {
+                    require_sesskey();
+                }
+            }
+            // Validate params, this also sorts the params properly, we need the correct order in the next part.
+            $callable = [$externalfunctioninfo->classname, 'validate_parameters'];
+            $params = call_user_func($callable,
+                                     $externalfunctioninfo->parameters_desc,
+                                     $args);
+            $params = array_values($params);
+
+            // Allow any Moodle plugin a chance to override this call. This is a convenient spot to
+            // make arbitrary behaviour customisations. The overriding plugin could call the 'real'
+            // function first and then modify the results, or it could do a completely separate
+            // thing.
+            $callbacks = get_plugins_with_function('override_webservice_execution');
+            $result = false;
+            foreach ($callbacks as $plugintype => $plugins) {
+                foreach ($plugins as $plugin => $callback) {
+                    $result = $callback($externalfunctioninfo, $params);
+                    if ($result !== false) {
+                        break 2;
+                    }
+                }
+            }
+
+            // If the function was not overridden, call the real one.
+            if ($result === false) {
+                $callable = [$externalfunctioninfo->classname, $externalfunctioninfo->methodname];
+                $result = call_user_func_array($callable, $params);
+            }
+
+            // Validate the return parameters.
+            if ($externalfunctioninfo->returns_desc !== null) {
+                $callable = [$externalfunctioninfo->classname, 'clean_returnvalue'];
+                $result = call_user_func($callable, $externalfunctioninfo->returns_desc, $result);
+            }
+
+            $response['error'] = false;
+            $response['data'] = $result;
+        } catch (Throwable $e) {
+            $exception = get_exception_info($e);
+            unset($exception->a);
+            $exception->backtrace = format_backtrace($exception->backtrace, true);
+            if (!debugging('', DEBUG_DEVELOPER)) {
+                unset($exception->debuginfo);
+                unset($exception->backtrace);
+            }
+            $response['error'] = true;
+            $response['exception'] = $exception;
+            // Do not process the remaining requests.
+        }
+
+        $PAGE = $currentpage;
+        $COURSE = $currentcourse;
+
+        return $response;
     }
 
     /**
