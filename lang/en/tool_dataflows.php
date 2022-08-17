@@ -112,6 +112,7 @@ $string['step_name_connector_email'] = 'Email notification';
 $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
+$string['step_name_flow_email'] = 'Flow email notification';
 $string['step_name_flow_logic_case'] = 'Case';
 $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_noop'] = 'No-op';
@@ -364,6 +365,13 @@ $string['check:dataflows_completed_successfully'] = 'All recent dataflow runs co
 $string['check:dataflows_no_runs'] = 'No dataflow runs executed.';
 $string['check:dataflows_not_enabled'] = 'No dataflows enabled.';
 $string['check:dataflows_run_status'] = 'Run {$a->name} - {$a->state}';
+
+// Email notification.
+$string['flow_email:message'] = 'Message';
+$string['flow_email:sending_message'] = 'Sending email to <{$a}>';
+$string['flow_email:subject'] = 'Subject';
+$string['flow_email:to'] = 'Recipeints email address';
+$string['flow_email:name'] = 'Recipients name';
 
 // Flow logic: Case.
 $string['flow_logic_case:cases'] = 'Cases';
