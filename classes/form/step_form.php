@@ -322,12 +322,12 @@ class step_form extends \core\form\persistent {
                 $tmp = $allfields[$key];
                 unset($allfields[$key]);
                 // Only inner fields have expression.
-                array_unshift($allfields, [
+                $allfields[] = [
                     'name'       => $tmp,
                     'expression' => '${{' . $key . '}}',
                     'value'      => $values[$key],
                     'leaf'       => true,
-                ]);
+                ];
                 unset($tmp);
             }
         }
