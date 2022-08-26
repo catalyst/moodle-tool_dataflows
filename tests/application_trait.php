@@ -37,6 +37,16 @@ namespace tool_dataflows;
  */
 trait application_trait {
 
+    /**
+     * Returns the path to the mock url to use
+     *
+     * @param   string $path
+     * @return  string mock url to use
+     */
+    public function get_mock_url(string $path): string {
+        return 'http://download.moodle.org/unittest'.$path;
+    }
+
     // @codingStandardsIgnoreStart
 
     /**

@@ -289,7 +289,7 @@ class connector_curl extends connector_step {
         $destination = !empty($config->destination) ? $config->destination : null;
         $errno = $curl->get_errno();
 
-        if (($httpcode >= self::HTTP_ERROR || empty($response) || $errno == CURLE_OPERATION_TIMEDOUT)) {
+        if (($httpcode >= self::HTTP_ERROR || $errno == CURLE_OPERATION_TIMEDOUT)) {
             throw new \moodle_exception($httpcode . ':' . $result);
         }
 

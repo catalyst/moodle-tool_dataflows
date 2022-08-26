@@ -292,7 +292,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
      */
     public function test_output_variables() {
         // Create curl step.
-        $testgeturl = $this->getExternalTestFileUrl('/h5pcontenttypes.json');
+        $testgeturl = $this->get_mock_url('/h5pcontenttypes.json');
 
         $stepdef = new step();
         $dataflow = new dataflow();
