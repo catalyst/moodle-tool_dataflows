@@ -207,7 +207,7 @@ class connector_curl extends connector_step {
      */
     public function execute(): bool {
         // Get variables.
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_config();
         $method = $config->method;
 
         $this->enginestep->log($config->curl);
