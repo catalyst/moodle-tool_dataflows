@@ -198,7 +198,6 @@ class connector_s3 extends connector_step {
                 $this->enginestep->log(get_string('s3_copy_failed', 'tool_dataflows'));
                 return false;
             }
-
         }
 
         return true;

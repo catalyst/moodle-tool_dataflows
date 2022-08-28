@@ -24,10 +24,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use \tool_dataflows\helper;
-use \tool_dataflows\admin\admin_setting_permitted_directories;
-use \tool_dataflows\admin\admin_setting_yaml;
-use \tool_dataflows\admin\admin_setting_cfg_list;
+use tool_dataflows\helper;
+use tool_dataflows\admin\admin_setting_permitted_directories;
+use tool_dataflows\admin\admin_setting_yaml;
+use tool_dataflows\admin\admin_setting_cfg_list;
 
 defined('MOODLE_INTERNAL') || die();
 

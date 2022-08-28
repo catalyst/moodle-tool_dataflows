@@ -16,7 +16,7 @@
 
 namespace tool_dataflows\admin;
 
-use \tool_dataflows\helper;
+use tool_dataflows\helper;
 
 /**
  * A custom setting for the permitted directories that a dataflow can interact with.
@@ -51,7 +51,6 @@ class admin_setting_permitted_directories extends \admin_setting_configtextarea 
 
         $errors = [];
         foreach ($lines as $line) {
-
             // Strip # comments, and trim.
             $line = trim(preg_replace('/#.*$/', '', $line));
 

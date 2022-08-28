@@ -53,7 +53,7 @@ class connector_email extends connector_step {
         $mform->addElement('text', 'config_name', get_string('connector_email:name', 'tool_dataflows'));
         $mform->addElement('text', 'config_subject', get_string('connector_email:subject', 'tool_dataflows'), 'size=50');
         $mform->addElement('textarea', 'config_message',
-                get_string('connector_email:message', 'tool_dataflows'), ['cols' => 50, 'rows' => 10 ]);
+                get_string('connector_email:message', 'tool_dataflows'), ['cols' => 50, 'rows' => 10]);
     }
 
     /**
@@ -65,7 +65,7 @@ class connector_email extends connector_step {
 
         // Do not execute operations during a dry run.
         if ($this->enginestep->engine->isdryrun) {
-            $this->enginestep->log("Do not send email notification as this is a dry run.");
+            $this->enginestep->log('Do not send email notification as this is a dry run.');
             return true;
         }
 

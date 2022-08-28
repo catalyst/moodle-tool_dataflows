@@ -46,7 +46,7 @@ class csv extends encoder_base {
         foreach ($record as $field) {
             if (!is_scalar($field)) { // TODO: Just ignoring complex values for now.
                 $line[] = '';
-            } else if ($field === "ID") { // Special case for SYLK problem.
+            } else if ($field === 'ID') { // Special case for SYLK problem.
                 $line[] = '"ID"';
             } else if ($this->options | self::ESC_DOUBLEQUOTES) {
                 $line[] = $this->escape_field_doublequotes($field);
@@ -88,9 +88,9 @@ class csv extends encoder_base {
      * @return string
      */
     protected function escape_field_slashes(string $value): string {
-        if ((mb_strpos ($value, '"') !== false) || (mb_strpos ($value, ',') !== false) ||
-            (mb_strpos ($value, "\n") !== false) || (mb_strpos ($value, "\r") !== false)) {
-            return '"' . str_replace('"', '\\"', str_replace ('\\', '\\\\', $value)) . '"';
+        if ((mb_strpos($value, '"') !== false) || (mb_strpos($value, ',') !== false) ||
+            (mb_strpos($value, "\n") !== false) || (mb_strpos($value, "\r") !== false)) {
+            return '"' . str_replace('"', '\\"', str_replace('\\', '\\\\', $value)) . '"';
         } else {
             return $value;
         }

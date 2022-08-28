@@ -171,7 +171,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $this->assertEquals($expected, trim($variables->dbgcommand)); // Should also exist.
 
         // Test file writting.
-        $tofile = "test.html";
+        $tofile = 'test.html';
         $stepdef->config = Yaml::dump([
             'curl' => $testgeturl,
             'destination' => $tofile,

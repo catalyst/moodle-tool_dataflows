@@ -188,11 +188,11 @@ if (is_null($persistent)) {
 }
 $data = [
     'inputlist' => array_values(array_map(
-            function($v) {
+            function ($v) {
                 return ['href' => new moodle_url('/admin/tool/dataflows/step.php', ['id' => $v->id]), 'label' => $v->name];
             }, $dependencies)),
     'outputlist' => array_values(array_map(
-            function($v) {
+            function ($v) {
                 return ['href' => new moodle_url('/admin/tool/dataflows/step.php', ['id' => $v->id]), 'label' => $v->name];
             }, $persistent->dependents())),
     'dotimage' => visualiser::generate($persistent->get_dotscript(), 'svg'),

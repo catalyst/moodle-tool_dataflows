@@ -55,7 +55,7 @@ class flow_email extends flow_step {
         $mform->addElement('text', 'config_name', get_string('flow_email:name', 'tool_dataflows'));
         $mform->addElement('text', 'config_subject', get_string('flow_email:subject', 'tool_dataflows'), 'size=50');
         $mform->addElement('textarea', 'config_message',
-                get_string('flow_email:message', 'tool_dataflows'), ['cols' => 50, 'rows' => 10 ]);
+                get_string('flow_email:message', 'tool_dataflows'), ['cols' => 50, 'rows' => 10]);
     }
 
     /**
@@ -68,7 +68,7 @@ class flow_email extends flow_step {
 
         // Do not execute operations during a dry run.
         if ($this->enginestep->engine->isdryrun) {
-            $this->enginestep->log("Do not send email notification as this is a dry run.");
+            $this->enginestep->log('Do not send email notification as this is a dry run.');
             return true;
         }
 

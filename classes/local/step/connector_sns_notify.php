@@ -61,7 +61,7 @@ class connector_sns_notify extends connector_step {
         $mform->addElement('passwordunmask', 'config_secret', get_string('connector_s3:secret', 'tool_dataflows'));
         $mform->addElement('text', 'config_topic', get_string('connector_sns_notify:topic', 'tool_dataflows'));
         $mform->addElement('textarea', 'config_message',
-                get_string('connector_sns_notify:message', 'tool_dataflows'), ['cols' => 50, 'rows' => 7 ]);
+                get_string('connector_sns_notify:message', 'tool_dataflows'), ['cols' => 50, 'rows' => 7]);
     }
 
     /**
@@ -85,7 +85,7 @@ class connector_sns_notify extends connector_step {
 
         // Do not execute operations during a dry run.
         if ($this->enginestep->engine->isdryrun) {
-            $this->enginestep->log("Do not send SNS notification as this is a dry run.");
+            $this->enginestep->log('Do not send SNS notification as this is a dry run.');
             return true;
         }
 

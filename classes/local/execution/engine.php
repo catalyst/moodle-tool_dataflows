@@ -391,7 +391,6 @@ class engine {
             if ($this->status == self::STATUS_ABORTED) {
                 return;
             }
-
         }
 
         $this->finalise();
@@ -417,7 +416,7 @@ class engine {
             $this->set_status(self::STATUS_PROCESSING);
         }
         if ($this->status !== self::STATUS_PROCESSING) {
-            throw new \moodle_exception("bad_status", "tool_dataflows");
+            throw new \moodle_exception('bad_status', 'tool_dataflows');
         }
         if (count($this->queue) == 0) {
             $this->set_status(self::STATUS_FINISHED);
@@ -639,7 +638,7 @@ class engine {
      */
     protected function status_check(int $expected) {
         if ($this->status !== $expected) {
-            throw new \moodle_exception("bad_status", "tool_dataflows", '',
+            throw new \moodle_exception('bad_status', 'tool_dataflows', '',
                 [
                     'status' => get_string('engine_status:'.self::STATUS_LABELS[$this->status], 'tool_dataflows'),
                     'expected' => get_string('engine_status:'.self::STATUS_LABELS[$expected], 'tool_dataflows'),

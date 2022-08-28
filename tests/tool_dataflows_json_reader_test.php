@@ -117,9 +117,9 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
      */
     public function set_initial_test_data() {
         $users = [
-            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
-            (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
-            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
+            (object) ['id' => '2', 'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
+            (object) ['id' => '1', 'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
+            (object) ['id' => '3', 'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
         ];
 
         $json = json_encode((object) [
@@ -146,9 +146,9 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
 
         // Test unsorted array.
         $users = [
-            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
-            (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
-            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
+            (object) ['id' => '2', 'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
+            (object) ['id' => '1', 'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
+            (object) ['id' => '3', 'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
         ];
 
         $json = json_encode((object) [
@@ -205,9 +205,9 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         ]);
 
         $sorteduserarray = [
-            (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
-            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
-            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
+            (object) ['id' => '1', 'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
+            (object) ['id' => '3', 'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
+            (object) ['id' => '2', 'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
         ];
 
         $writer->config = Yaml::dump([
@@ -284,9 +284,9 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         ]);
 
         $reversesorteduserarray = [
-            (object) ['id' => '2',  'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
-            (object) ['id' => '3',  'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
-            (object) ['id' => '1',  'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
+            (object) ['id' => '2', 'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
+            (object) ['id' => '3', 'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
+            (object) ['id' => '1', 'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
         ];
 
         $writer->config = Yaml::dump([

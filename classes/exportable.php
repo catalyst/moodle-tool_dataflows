@@ -110,7 +110,7 @@ trait exportable {
 
         $filename = str_replace(' ', '_', $this->name);
         $filename = clean_filename($filename);
-        $filename .= clean_filename('_' . gmdate("Ymd_Hi", $now));
+        $filename .= clean_filename('_' . gmdate('Ymd_Hi', $now));
         $filename .= '.yml';
 
         return $filename;

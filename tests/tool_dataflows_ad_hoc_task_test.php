@@ -81,6 +81,6 @@ class tool_dataflows_ad_hoc_task_test extends \advanced_testcase {
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);
 
-        return (object) ['dataflowid' => $dataflow->id, 'nextruntime' => time() ];
+        return (object) ['dataflowid' => $dataflow->id, 'nextruntime' => time()];
     }
 }
