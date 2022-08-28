@@ -113,7 +113,7 @@ class step_form extends \core\form\persistent {
             get_string('field_outputs', 'tool_dataflows'),
             ['cols' => 50, 'rows' => 7, 'placeholder' => "alias: \${{ <expression> }}\nanother: \${{ <expression> }}"]
         );
-        $mform->setType("config_outputs", PARAM_TEXT);
+        $mform->setType('config_outputs', PARAM_TEXT);
         $exampleconfig = trim(Yaml::dump(['icon' => '${{ response.deeply.nested.data[0].icon }}']));
         $outputsexample['config'] = \html_writer::tag('code', $exampleconfig);
         $alias = $persistent->alias ?? 'alias';
@@ -137,7 +137,7 @@ class step_form extends \core\form\persistent {
         $options = [];
 
         // First lets find the 'depth' of each step in the DAG.
-        $keys = array_keys((array)$steps);
+        $keys = array_keys((array) $steps);
         $depths = [];
         foreach ($keys as $key) {
             $depths[$key] = -1;

@@ -121,7 +121,7 @@ class steps_table extends \table_sql {
         }
         $str .= \html_writer::tag('code', '${{steps.' . $record->alias . '}}') . '<br>';
         $str .= "$basename<br>";
-        $str .= "<small><pre>" . s($record->type) . "</pre></small><br>";
+        $str .= '<small><pre>' . s($record->type) . '</pre></small><br>';
         $str .= $record->description;
 
         return $str;

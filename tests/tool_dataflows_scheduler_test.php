@@ -51,7 +51,7 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
             (object) ['dataflowid' => 23, 'stepid' => 10, 'lastruntime' => 123, 'nextruntime' => 150]
         );
 
-        $this->assertEquals((object)['lastruntime' => 123, 'nextruntime' => 150], scheduler::get_scheduled_times(10));
+        $this->assertEquals((object) ['lastruntime' => 123, 'nextruntime' => 150], scheduler::get_scheduled_times(10));
     }
 
     /**
@@ -61,13 +61,13 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
      */
     public function test_update_next_scheduled_time() {
         scheduler::set_scheduled_times(33, 11, 160, 120);
-        $this->assertEquals((object)['lastruntime' => 120, 'nextruntime' => 160], scheduler::get_scheduled_times(11));
+        $this->assertEquals((object) ['lastruntime' => 120, 'nextruntime' => 160], scheduler::get_scheduled_times(11));
 
         scheduler::set_scheduled_times(33, 11, 180);
 
         scheduler::set_scheduled_times(33, 12, 220, 160);
-        $this->assertEquals((object)['lastruntime' => 120, 'nextruntime' => 180], scheduler::get_scheduled_times(11));
-        $this->assertEquals((object)['lastruntime' => 160, 'nextruntime' => 220], scheduler::get_scheduled_times(12));
+        $this->assertEquals((object) ['lastruntime' => 120, 'nextruntime' => 180], scheduler::get_scheduled_times(11));
+        $this->assertEquals((object) ['lastruntime' => 160, 'nextruntime' => 220], scheduler::get_scheduled_times(12));
     }
 
     /**

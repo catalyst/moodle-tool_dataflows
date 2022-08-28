@@ -124,7 +124,7 @@ class reader_json extends reader_step {
      */
     public function sort_by_config_value(array $array, string $sortbyexpression): array {
         $expressionlanguage = new ExpressionLanguage();
-        usort($array, function($a, $b) use ($sortbyexpression, $expressionlanguage) {
+        usort($array, function ($a, $b) use ($sortbyexpression, $expressionlanguage) {
             $a = $expressionlanguage->evaluate(
                 'data.'.$sortbyexpression,
                 ['data' => $a]
@@ -193,7 +193,7 @@ class reader_json extends reader_step {
             'data' => (object) [
                 'list' => [
                     'users' => [
-                        [ "id" => "1",  "userdetails" => ["firstname" => "Bob", "lastname" => "Smith", "name" => "Name1"]],
+                        ['id' => '1', 'userdetails' => ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
                     ],
                 ],
             ],

@@ -154,7 +154,6 @@ class helper {
 
         $permitteddirs = [];
         foreach ($dirs as $dir) {
-
             // Strip # comments, and trim.
             $dir = trim(preg_replace('/#.*$/', '', $dir));
 
@@ -191,7 +190,7 @@ class helper {
 
         if (self::$iswindows) {
             // Look for a drive name (e.g. C:).
-            if (strpos($path, ":") === 1 && preg_match('/[a-zA-Z]/', $path[0])) {
+            if (strpos($path, ':') === 1 && preg_match('/[a-zA-Z]/', $path[0])) {
                 // Strip the drive name.
                 $localpath = substr($path, 2);
                 // Match against valid Windows path syntax.

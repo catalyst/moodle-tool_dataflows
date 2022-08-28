@@ -76,7 +76,7 @@ class trigger_cron extends trigger_step {
 
         if ($this->stepdef) {
             $times = scheduler::get_scheduled_times($this->stepdef->id);
-            if (!(bool)$this->stepdef->dataflow->enabled) {
+            if (!(bool) $this->stepdef->dataflow->enabled) {
                 $nextrun = get_string('trigger_cron:flow_disabled', 'tool_dataflows');
             } else if ($times->nextruntime > time()) {
                 $nextrun = userdate($times->nextruntime);
@@ -164,8 +164,8 @@ class trigger_cron extends trigger_step {
      */
     public static function validate_fields($field, $value) {
         switch ($field) {
-            case 'minute' :
-            case 'hour' :
+            case 'minute':
+            case 'hour':
                 $regex = "/\A\*\z|\A[0-5]?[0-9]\z|\A\*\/[0-5]?[0-9]\z|\A[0-5]?[0-9](,[0-5]?[0-9])*\z|\A[0-5]?[0-9]-[0-5]?[0-9]\z/";
                 break;
             case 'day':
@@ -182,7 +182,7 @@ class trigger_cron extends trigger_step {
             default:
                 return false;
         }
-        return (bool)preg_match($regex, $value);
+        return (bool) preg_match($regex, $value);
     }
 
     /**
@@ -193,7 +193,7 @@ class trigger_cron extends trigger_step {
      */
     public function get_details(): string {
         $times = scheduler::get_scheduled_times($this->stepdef->id);
-        if (!(bool)$this->stepdef->dataflow->enabled) {
+        if (!(bool) $this->stepdef->dataflow->enabled) {
             $nextrun = get_string('trigger_cron:flow_disabled', 'tool_dataflows');
         } else if ($times->nextruntime > time()) {
             $nextrun = userdate($times->nextruntime, get_string('trigger_cron:strftime_datetime', 'tool_dataflows'));

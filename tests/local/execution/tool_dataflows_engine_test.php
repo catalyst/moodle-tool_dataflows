@@ -106,7 +106,7 @@ class tool_dataflows_engine_test extends \advanced_testcase {
             $upstreams = $enginestep->upstreams;
             // Extract the IDs.
             $deps = array_map(
-                function($dep) {
+                function ($dep) {
                     return $dep->id;
                 },
                 $steps[$enginestep->id]->dependencies()
@@ -124,7 +124,7 @@ class tool_dataflows_engine_test extends \advanced_testcase {
 
         // Test that sinks are properly found.
         $sinks = array_map(
-            function($s) {
+            function ($s) {
                 return $s->id;
             },
             $engine->sinks
@@ -138,7 +138,7 @@ class tool_dataflows_engine_test extends \advanced_testcase {
         foreach ($flowcaps as $cap) {
             $flowsinks[] = array_values(
                 array_map(
-                    function($s) {
+                    function ($s) {
                         return (int) $s->id;
                     },
                     $cap->upstreams

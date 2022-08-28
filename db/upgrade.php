@@ -34,7 +34,6 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2022070501) {
-
         // Changing type of field timestarted, timepaused, timefinished on table
         // tool_dataflows_runs to number and precision to (14, 4).
         $table = new xmldb_table('tool_dataflows_runs');
@@ -50,7 +49,6 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022071900) {
-
         // Define table tool_dataflows_versions to be created.
         $table = new xmldb_table('tool_dataflows_versions');
 
@@ -83,7 +81,6 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022072502) {
-
         // Define field position to be added to tool_dataflows_step_depends.
         $table = new xmldb_table('tool_dataflows_step_depends');
         $field = new xmldb_field('position', XMLDB_TYPE_INTEGER, '4', null, null, null, null, 'dependson');
@@ -98,7 +95,6 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080101) {
-
         $table = new xmldb_table('tool_dataflows');
 
         $field = new xmldb_field('concurrencyenabled', XMLDB_TYPE_INTEGER, '1', null, null, null, null, 'enabled');
@@ -111,7 +107,6 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
 
         // Conditionally launch create table for tool_dataflows_lock_metadata.
         if (!$dbman->table_exists($table)) {
-
             // Adding fields to table tool_dataflows_lock_metadata.
             $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
             $table->add_field('dataflowid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
@@ -129,7 +124,6 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080801) {
-
         // Changing type of field config on table tool_dataflows_steps to text.
         $table = new xmldb_table('tool_dataflows_steps');
         $field = new xmldb_field('config', XMLDB_TYPE_TEXT, null, null, null, null, null, 'name');

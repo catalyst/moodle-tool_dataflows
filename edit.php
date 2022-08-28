@@ -72,7 +72,6 @@ if ($persistent) {
 }
 
 if (($data = $form->get_data())) {
-
     try {
         if (empty($data->id)) {
             // If we don't have an ID, we know that we must create a new record.
@@ -91,7 +90,6 @@ if (($data = $form->get_data())) {
                 $persistent->set('confighash', '');
             }
             $persistent->update();
-
         }
         \core\notification::success(get_string('changessaved'));
     } catch (Exception $e) {

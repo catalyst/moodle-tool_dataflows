@@ -102,7 +102,7 @@ class dataflows_table extends \table_sql {
         if (helper::is_graphviz_dot_installed()) {
             $img = \html_writer::img(
                 $imgurl,
-                "",
+                '',
                 [
                     'class' => 'lightbox',
                     'style' => 'max-width: ' . self::PREVIEW_MAX_WIDTH . 'px; max-height: ' . self::PREVIEW_MAX_HEIGHT . 'px',

@@ -16,7 +16,7 @@
 
 namespace tool_dataflows;
 
-use \tool_dataflows\admin\admin_setting_permitted_directories;
+use tool_dataflows\admin\admin_setting_permitted_directories;
 
 defined('MOODLE_INTERNAL') || die();
 

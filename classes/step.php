@@ -849,8 +849,8 @@ class step extends persistent {
         } else {
             // Invalid step type styles.
             $stepstyles = [
-               'fillcolor' => '#ca3120',
-               'fontcolor' => '#ffffff',
+                'fillcolor' => '#ca3120',
+                'fontcolor' => '#ffffff',
             ];
         }
 

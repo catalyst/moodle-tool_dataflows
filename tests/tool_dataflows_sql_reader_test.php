@@ -105,12 +105,12 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
      */
     public function test_validate_config() {
         // Test valid configuration.
-        $config = (object)['sql' => 'SELECT * FROM {config}'];
+        $config = (object) ['sql' => 'SELECT * FROM {config}'];
         $reader = new reader_sql();
         $this->assertTrue($reader->validate_config($config));
 
         // Test missing sql value.
-        $config = (object)['notsql' => 'SELECT * FROM {config}'];
+        $config = (object) ['notsql' => 'SELECT * FROM {config}'];
         $result = $reader->validate_config($config);
         $this->assertTrue(is_array($result));
         $this->assertArrayHasKey('config_sql', $result);
@@ -237,9 +237,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $reader->type = 'tool_dataflows\local\step\reader_sql';
 
         // Set the SQL query via a YAML config string.
-        $reader->config = Yaml::dump([
-            'sql' => '${{dataflow.config.badvalue}}',
-        ]);
+        $reader->config = Yaml::dump(['sql' => '${{dataflow.config.badvalue}}']);
         $dataflow->add_step($reader);
 
         $writer = new step();
