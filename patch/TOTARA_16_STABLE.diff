@@ -1,0 +1,64 @@
+From b4d68a244e9cf95726689a6ab56852219858b8da Mon Sep 17 00:00:00 2001
+From: Damyon Wiese <damyon@moodle.com>
+Date: Thu, 16 Mar 2017 15:45:22 +0800
+Subject: [PATCH] MDL-58280 curl: improve put function handling
+
+PARTIAL:
+Only partially backported / sideported. The underlying curl handling is
+much different on Totara and will not populate the response information
+as expected.
+---
+ server/lib/filelib.php | 35 +++++++++++++++++++++++------------
+ 1 file changed, 23 insertions(+), 12 deletions(-)
+
+diff --git a/server/lib/filelib.php b/server/lib/filelib.php
+index b05558b1db3..d54ade80411 100644
+--- a/server/lib/filelib.php
++++ b/server/lib/filelib.php
+@@ -4037,20 +4037,31 @@ class curl {
+      * @return bool
+      */
+     public function put($url, $params = array(), $options = array()) {
+-        $file = $params['file'];
+-        if (!is_file($file)) {
+-            return null;
+-        }
+-        $fp   = fopen($file, 'r');
+-        $size = filesize($file);
+-        $options['CURLOPT_PUT']        = 1;
+-        $options['CURLOPT_INFILESIZE'] = $size;
+-        $options['CURLOPT_INFILE']     = $fp;
+-        if (!isset($this->options['CURLOPT_USERPWD'])) {
+-            $this->setopt(array('CURLOPT_USERPWD'=>'anonymous: noreply@moodle.org'));
++        $file = '';
++        $fp = false;
++        if (isset($params['file'])) {
++            $file = $params['file'];
++            if(is_file($file)) {
++                $fp   = fopen($file, 'r');
++                $size = filesize($file);
++                $options['CURLOPT_PUT']        = 1;
++                $options['CURLOPT_INFILESIZE'] = $size;
++                $options['CURLOPT_INFILE']     = $fp;
++            } else {
++                return null;
++            }
++            if (!isset($this->options['CURLOPT_USERPWD'])) {
++                $this->setopt(array('CURLOPT_USERPWD'=>'anonymous: noreply@moodle.org'));
++            }
++        } else {
++            $options['CURLOPT_CUSTOMREQUEST'] = 'PUT';
++            $options['CURLOPT_POSTFIELDS'] = $params;
+         }
++
+         $ret = $this->request($url, $options);
+-        fclose($fp);
++        if ($fp !== false) {
++            fclose($fp);
++        }
+         return $ret;
+     }
+ 
+-- 
+2.36.1
+

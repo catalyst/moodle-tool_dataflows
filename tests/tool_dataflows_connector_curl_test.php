@@ -23,6 +23,10 @@ use tool_dataflows\local\execution\engine;
 use tool_dataflows\step;
 use tool_dataflows\dataflow;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/application_trait.php');
+
 /**
  * Unit test for the curl connector step.
  *
@@ -32,6 +36,7 @@ use tool_dataflows\dataflow;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_connector_curl_test extends \advanced_testcase {
+    use application_trait;
 
     /**
      * Set up before each test
@@ -47,7 +52,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
      * @covers \tool_dataflows\local\step\connector_curl::execute
      */
     public function test_execute() {
-        $testgeturl = $this->getExternalTestFileUrl('/h5puuid.json');
+        $testgeturl = $this->get_mock_url('/h5puuid.json');
 
         $stepdef = new step();
         $dataflow = new dataflow();
@@ -85,7 +90,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $this->assertObjectHasAttribute('totaltime', $variables);
         $this->assertObjectHasAttribute('sizeupload', $variables);
 
-        $testurl = $this->getExternalTestFileUrl('/test_post.php');
+        $testurl = $this->get_mock_url('/test_post.php');
 
         // Tests post method.
         $stepdef->config = Yaml::dump([
@@ -137,7 +142,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         ob_get_clean();
         $variables = $engine->get_variables()['steps']->connector;
 
-        $this->assertEmpty($variables->result);
+        // PUT has no response body so it shouldn't be checked.
         $this->assertEquals(200, $variables->httpcode);
         $this->assertObjectHasAttribute('connecttime', $variables);
         $this->assertObjectHasAttribute('totaltime', $variables);
@@ -213,7 +218,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
     public function test_validate_config() {
         // Test valid configuration.
         $config = (object) [
-            'curl' => $this->getExternalTestFileUrl('/h5puuid.json'),
+            'curl' => $this->get_mock_url('/h5puuid.json'),
             'method' => 'get',
         ];
         $connectorcurl = new connector_curl();
