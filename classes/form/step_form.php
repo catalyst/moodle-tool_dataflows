@@ -272,7 +272,10 @@ class step_form extends \core\form\persistent {
         // Annoyingly, will need to reconvert this into an array so it can be looped over in mustache.
         $allfields = $this->build_treetag($fields);
         $allfields = $this->add_recursive_keys($fields, $allfields);
-        $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', ['groups' => $allfields]);
+        $fieldhtml = $OUTPUT->render_from_template('tool_dataflows/available-fields', [
+            'groups' => $allfields,
+            'help' => get_string('available_fields_help', 'tool_dataflows', '<code>${{ dataflow.name }}</code>'),
+        ]);
         return $fieldhtml;
     }
 
