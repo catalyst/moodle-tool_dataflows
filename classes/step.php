@@ -835,8 +835,9 @@ class step extends persistent {
      */
     public function get_dotscript($contentonly = false): string {
         $localstyles = ['tooltip' => $this->description ?: $this->name];
-        if ($this->id !== 0) { // If ID is zero, then there is nothing to link to.
-            $localstyles['URL'] = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->id]))->out();
+        $stepid = $this->id;
+        if (!empty($stepid)) { // If ID is zero, then there is nothing to link to.
+            $localstyles['URL'] = (new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $stepid]))->out();
         }
 
         // If the class exists, use the styles from that step type.
@@ -855,7 +856,7 @@ class step extends persistent {
         }
 
         // TODO. Have a valid/not-valid state so this does not have to be repeated.
-        if ($this->id != 0) { // Do no try to validate a step that has not yet been created.
+        if (!empty($stepid)) { // Do no try to validate a step that has not yet been created.
             if ($this->validate_step() !== true || $this->validate_inputs() !== true || $this->validate_outputs() !== true) {
                 $stepstyles['color'] = '#ca3120';
                 $stepstyles['class'] = 'dataflow_invalid_step';
