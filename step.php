@@ -106,7 +106,7 @@ if (($data = $form->get_data())) {
             // If we don't have an ID, we know that we must create a new record.
             // Call your API to create a new persistent from this data.
             // Or, do the following if you don't want capability checks (discouraged).
-            $dependson = $data->dependson;
+            $dependson = $data->dependson ?? [];
             unset($data->dependson);
             $persistent = new step(0, $data);
             // Only unset field (as it should be set based on the name) if it is empty.
