@@ -24,7 +24,7 @@ namespace tool_dataflows;
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class dataflows_table extends \table_sql {
+class dataflows_table extends sql_table {
 
     /** Columns to display. */
     const COLUMNS = [

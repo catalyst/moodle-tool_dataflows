@@ -26,7 +26,7 @@ use tool_dataflows\local\execution\engine;
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class runs_table extends \table_sql {
+class runs_table extends sql_table {
 
     /** Columns to display. */
     const COLUMNS = [

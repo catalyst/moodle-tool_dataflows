@@ -237,7 +237,8 @@ class tool_dataflows_secret_service_test extends \advanced_testcase {
 
         // Capture table output.
         ob_start();
-        $table->out(1, false); // Pagesize needs to be 1 for compatibility with 3.5.
+        $table->set_page_size(1);
+        $table->build();
         $output = ob_get_clean();
         $regex = '/' . self::SECRET . '/';
 
