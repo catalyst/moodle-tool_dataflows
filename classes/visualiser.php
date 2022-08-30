@@ -226,16 +226,19 @@ class visualiser {
 
         // Validate current dataflow, displaying any reason why the flow is not valid.
         $validation = $dataflow->validate_dataflow();
+        $valid = $validation === true;
 
         echo \html_writer::start_div('tool_dataflow-top-bar');
 
         echo $OUTPUT->render_from_template('tool_dataflows/dataflow-actions', [
+            'valid'          => $valid,
+            'enabled'        => $dataflow->enabled,
+
             'runnowurl' => (new \moodle_url('/admin/tool/dataflows/run.php', [
                 'dataflowid' => $dataflow->id,
                 'returnurl'  => $PAGE->url->out(false),
             ]))->out(false),
             'runnowcolor'    => $validation ? 'btn-success' : 'btn-danger',
-            'runnowicon'     => $validation ? 't/go' : 't/block',
             'runnowdisabled' => $validation ? '' : 'disabled',
 
             'dryrunnowurl' => (new \moodle_url('/admin/tool/dataflows/run.php', [
@@ -269,7 +272,6 @@ class visualiser {
                 'action'    => $dataflow->enabled ? 'disable' : 'enable',
                 'retview'   => 1,
             ]))->out(false),
-            'enableicon' => $dataflow->enabled ? 't/show' : 't/hide',
             'enabletext' => get_string($dataflow->enabled ? 'disable' : 'enable'),
 
         ]);
@@ -286,7 +288,7 @@ class visualiser {
         // Display the current dataflow visually.
         echo \html_writer::div($contents, 'text-center p-4 overflow-auto');
 
-        if ($validation !== true) {
+        if (!$valid) {
             $errors = '';
             foreach ($validation as $message) {
                 $errors .= \html_writer::tag('li', $message);

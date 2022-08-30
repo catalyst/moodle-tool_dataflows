@@ -41,12 +41,17 @@
 
 <div class="tool_dataflow-actions-bar">
     <a href="{{runnowurl}}" class="btn {{runnowcolor}}">
-        {{#pix}} {{runnowicon}} {{/pix}}
-        {{#str}} run_now, tool_dataflows{{/str}}
+        {{#valid}}
+            {{#pix}} t/go {{/pix}}
+        {{/valid}}
+        {{^valid}}
+            {{#pix}} t/block {{/pix}}
+        {{/valid}}
+        {{#str}} run_now, tool_dataflows {{/str}}
     </a>
     <a href="{{dryrunnowurl}}" class="btn btn-secondary">
         {{#pix}} t/go {{/pix}}
-        {{#str}} dry_run, tool_dataflows{{/str}}
+        {{#str}} dry_run, tool_dataflows {{/str}}
     </a>
 
     <a href="{{editurl}}" class="btn btn-secondary">
@@ -73,7 +78,12 @@
     </div>
 
     <a href="{{enableurl}}" class="btn btn-secondary">
-        {{#pix}} {{enableicon}} {{/pix}}
+        {{#enabled}}
+            {{#pix}} t/show {{/pix}}
+        {{/enabled}}
+        {{^enabled}}
+            {{#pix}} t/hide {{/pix}}
+        {{/enabled}}
         {{enabletext}}
     </a>
 
