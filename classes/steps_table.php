@@ -26,7 +26,7 @@ use Symfony\Component\Yaml\Yaml;
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class steps_table extends \table_sql {
+class steps_table extends sql_table {
 
     /** Columns to display. */
     const COLUMNS = [

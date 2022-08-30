@@ -191,13 +191,7 @@ class visualiser {
 
         echo \html_writer::tag('div', $newdataflow . $importdataflow, ['class' => 'mb-3']);
 
-        // No hide/show links under each column.
-        $table->collapsible(false);
-        // Columns are presorted.
-        $table->sortable(false);
-        // Table does not show download options by default, an import/export option will be available instead.
-        $table->is_downloadable(false);
-        $table->out($table->pagesize, false);
+        $table->build();
 
         echo $output->footer();
     }
@@ -307,28 +301,16 @@ class visualiser {
         $addurl = new \moodle_url('/admin/tool/dataflows/step-chooser.php', ['id' => $dataflowid]);
         echo \html_writer::link($addurl, $addbutton);
 
-        // No hide/show links under each column.
-        $table->collapsible(false);
-        // Columns are presorted.
-        $table->sortable(false);
-        // Table does not show download options by default, an import/export option will be available instead.
-        $table->is_downloadable(false);
-
-        // Output the table manually based on the step order.
-        $table->setup();
-        $table->query_db(0); // No limit, fetch all rows.
-        $table->pageable(false);
-        $table->close_recordset();
-
-        // Custom sort on the step order.
-        $newdata = [];
-        foreach ($dataflow->step_order as $stepid) {
-            $newdata[] = $table->rawdata[$stepid];
-        }
-        $table->rawdata = $newdata;
-
-        $table->build_table();
-        $table->finish_output();
+        // Output the table, but the steps are sorted manually based on the step order.
+        $table->set_page_size(0); // Output all the records.
+        $table->build(function ($table) use ($dataflow) {
+            // Custom sort on the step order.
+            $newdata = [];
+            foreach ($dataflow->step_order as $stepid) {
+                $newdata[] = $table->rawdata[$stepid];
+            }
+            $table->rawdata = $newdata;
+        });
 
         echo $output->footer();
     }

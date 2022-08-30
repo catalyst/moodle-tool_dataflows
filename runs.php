@@ -82,21 +82,7 @@ echo $output->header();
 
 
 // No hide/show links under each column.
-$table->collapsible(false);
 $table->attributes['class'] = 'table-sm w-auto';
-// Columns are presorted.
-$table->sortable(false);
-// Table does not show download options by default, an import/export option will be available instead.
-$table->is_downloadable(false);
-
-// Query the data and prepare the output.
-$table->setup();
-$table->query_db(0); // No limit, fetch all rows.
-$table->pageable(false);
-$table->close_recordset();
-
-// Render the table.
-$table->build_table();
-$table->finish_output();
+$table->build();
 
 echo $output->footer();
