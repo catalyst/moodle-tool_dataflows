@@ -136,7 +136,20 @@ echo html_writer::start_tag('pre', ['class' => 'tool_dataflow-output']);
 // into an element with no ongoing javascript.
 echo <<<EOF
 <script>
-document.getElementById('output-container').append(document.getElementsByClassName('tool_dataflow-output')[0]);
+var output = document.getElementsByClassName('tool_dataflow-output')[0]
+document.getElementById('output-container').append(output);
+
+observer = new MutationObserver(scrollIntoView);
+
+function scrollIntoView(mutations) {
+    for (let mutation of mutations) {
+        if (mutation.type === 'childList') {
+            mutation.addedNodes[0].scrollIntoView();
+        }
+    }
+}
+
+observer.observe(output, { childList: true });
 </script>
 EOF;
 $CFG->mtrace_wrapper = 'tool_dataflows_mtrace_wrapper';
