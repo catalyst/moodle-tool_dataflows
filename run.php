@@ -112,9 +112,33 @@ core_php_time_limit::raise(300);
 // Re-run the specified flow (this will output an error if it doesn't exist).
 echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'), 'post', ['class' => 'mb-3']);
 
+echo html_writer::tag('small', '', ['id' => 'output-container']);
+
+// Re-run the specified flow (this will output an error if it doesn't exist).
+echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'), 'post', ['class' => 'mb-3']);
+
+echo html_writer::link(
+    new moodle_url('/admin/tool/dataflows/index.php'),
+    get_string('pluginmanage', 'tool_dataflows'));
+
+echo html_writer::link(
+    new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflow->id]),
+    get_string('back_to', 'tool_dataflows'),
+    ['class' => 'ml-2']);
+
+echo $OUTPUT->footer();
+
 // Prepare to handle output via mtrace.
-echo html_writer::start_tag('small');
-echo html_writer::start_tag('pre');
+echo html_writer::start_tag('pre', ['class' => 'tool_dataflow-output']);
+
+// See this video https://www.youtube.com/watch?v=LLRig4s1_yA&t=1022s
+// to explain this cool hack to stream unbuffered html output directly
+// into an element with no ongoing javascript.
+echo <<<EOF
+<script>
+document.getElementById('output-container').append(document.getElementsByClassName('tool_dataflow-output')[0]);
+</script>
+EOF;
 $CFG->mtrace_wrapper = 'tool_dataflows_mtrace_wrapper';
 try {
     $engine = new engine($dataflow, $dryrun, false);
@@ -130,18 +154,3 @@ try {
 }
 
 echo html_writer::end_tag('pre');
-echo html_writer::end_tag('small');
-
-// Re-run the specified flow (this will output an error if it doesn't exist).
-echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'), 'post', ['class' => 'mb-3']);
-
-echo html_writer::link(
-    new moodle_url('/admin/tool/dataflows/index.php'),
-    get_string('pluginmanage', 'tool_dataflows'));
-
-echo html_writer::link(
-    new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflow->id]),
-    get_string('back_to', 'tool_dataflows'),
-    ['class' => 'ml-2']);
-
-echo $OUTPUT->footer();
