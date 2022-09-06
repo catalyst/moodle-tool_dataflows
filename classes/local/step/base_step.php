@@ -163,9 +163,7 @@ abstract class base_step {
      * @return array
      */
     public static function form_define_fields(): array {
-        return [
-            'config' => ['type' => PARAM_TEXT, 'default' => ''],
-        ];
+        return [];
     }
 
     /**
@@ -313,13 +311,15 @@ abstract class base_step {
      * @param \MoodleQuickForm $mform
      */
     public function form_setup(\MoodleQuickForm &$mform) {
-        $mform->addElement('header', 'stepheader', $this->get_name());
-        $this->form_add_custom_inputs($mform);
+        // Add custom configuration fields under their own header, but only if there are custom fields to add.
+        if (!empty(static::form_define_fields())) {
+            $mform->addElement('header', 'stepheader', $this->get_name());
+            $this->form_add_custom_inputs($mform);
+            $this->form_set_input_types($mform);
+            $this->form_set_input_rules($mform);
+        }
 
         $mform->addElement('header', 'extraheader', get_string('stepextras', 'tool_dataflows'));
-        $this->form_set_input_types($mform);
-
-        $this->form_set_input_rules($mform);
     }
 
     /**
@@ -332,13 +332,6 @@ abstract class base_step {
      * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
-        // Configuration - YAML format.
-        $mform->addElement(
-            'textarea',
-            'config',
-            get_string('field_config', 'tool_dataflows'),
-            ['cols' => 50, 'rows' => 7]
-        );
     }
 
     /**
@@ -381,6 +374,10 @@ abstract class base_step {
      * @return array of additional errors, or overridden errors.
      */
     public function form_extra_validation($data, $files, array &$errors) {
+        if (empty(static::form_define_fields())) {
+            return [];
+        }
+
         $yaml = Yaml::parse($data->config, Yaml::PARSE_OBJECT_FOR_MAP);
         if (empty($yaml)) {
             $yaml = new \stdClass();
