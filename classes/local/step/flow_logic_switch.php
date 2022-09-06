@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Flow logic: case
+ * Flow logic: switch
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
@@ -31,14 +31,14 @@ use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\parser;
 
 /**
- * Flow logic: case
+ * Flow logic: switch
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class flow_logic_case extends flow_logic_step {
+class flow_logic_switch extends flow_logic_step {
 
     /**
      * For this step, it should have a maximum of 1 input flow.
@@ -106,7 +106,7 @@ class flow_logic_case extends flow_logic_step {
         $mform->addElement(
             'textarea',
             'config_cases',
-            get_string('flow_logic_case:cases', 'tool_dataflows'),
+            get_string('flow_logic_switch:cases', 'tool_dataflows'),
             [
                 'placeholder' => "label: <expression>\nsome other label: <expression>\ndefault: 1",
                 'cols' => 50,
@@ -119,7 +119,7 @@ class flow_logic_case extends flow_logic_step {
         // Help text for the cases input: Showing a small example, that
         // everything on the right side is an expression by default so does not
         // require the ${{ }}, and lists the current mappings.
-        $mform->addElement('static', 'config_cases_help', '', get_string('flow_logic_case:cases_help', 'tool_dataflows'));
+        $mform->addElement('static', 'config_cases_help', '', get_string('flow_logic_switch:cases_help', 'tool_dataflows'));
     }
 
     /**
@@ -204,7 +204,7 @@ class flow_logic_case extends flow_logic_step {
                     $position = $casenumber + 1;
                     $case = $this->cases[$casenumber] ?? null;
                     if (!isset($case)) {
-                        throw new \moodle_exception(get_string('flow_logic_case:casenotfound', 'tool_dataflows', $casenumber));
+                        throw new \moodle_exception(get_string('flow_logic_switch:casenotfound', 'tool_dataflows', $casenumber));
                     }
 
                     // Prepare variables for expression parsing.
@@ -232,7 +232,7 @@ class flow_logic_case extends flow_logic_step {
                             // Check if all cases have failed, if so pull next record.
                             if ($casefailures === count($this->cases)) {
                                 // Log details for when a no cases matches.
-                                $this->step->log(get_string('flow_logic_case:nomatchingcases', 'tool_dataflows'));
+                                $this->step->log(get_string('flow_logic_switch:nomatchingcases', 'tool_dataflows'));
                                 $this->input->next($this);
                                 break;
                             }

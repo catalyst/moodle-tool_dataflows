@@ -135,5 +135,19 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022080801, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2022090600) {
+
+        // Update flows to change instances of case step to switch.
+        $records = $DB->get_records('tool_dataflows_steps',
+                ['type' => 'tool_dataflows\local\step\flow_logic_case'], '', 'id, type');
+        foreach ($records as $record) {
+            $record->type = 'tool_dataflows\local\step\flow_logic_switch';
+            $DB->update_record('tool_dataflows_steps', $record);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022090600, 'tool', 'dataflows');
+    }
+
     return true;
 }
