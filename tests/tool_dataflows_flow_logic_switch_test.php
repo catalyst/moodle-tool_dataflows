@@ -18,7 +18,7 @@ namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
-use tool_dataflows\local\step\flow_logic_case;
+use tool_dataflows\local\step\flow_logic_switch;
 use tool_dataflows\local\step\writer_stream;
 use tool_dataflows\local\step\connector_debug_file_display;
 use tool_dataflows\local\execution\array_in_type;
@@ -30,14 +30,14 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/local/execution/array_in_type.php');
 
 /**
- * Unit tests for flow_logic_case step.
+ * Unit tests for flow_logic_switch step.
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
+class tool_dataflows_flow_logic_switch_test extends \advanced_testcase {
 
     /**
      * Set up before each test
@@ -54,14 +54,14 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
      */
     public function create_dataflow() {
         $dataflow = new dataflow();
-        $dataflow->name = 'case step test';
+        $dataflow->name = 'switch step test';
         $dataflow->enabled = true;
         $dataflow->save();
 
         /*
-         * To test case steps, we ideally want at least a branch in the flow,
+         * To test switch steps, we ideally want at least a branch in the flow,
          * that is more than one level deep on both sides, and a check to ensure
-         * the results are different. Note there is a 'reader' before the case step.
+         * the results are different. Note there is a 'reader' before the switch step.
          *
          * ┌────────►  number even ───────► even.json
          * Case
@@ -93,18 +93,18 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         }, $source);
 
         // Case step.
-        $case = new step();
-        $case->name = 'case';
-        $case->type = flow_logic_case::class;
-        $case->config = Yaml::dump([
+        $switch = new step();
+        $switch->name = 'switch';
+        $switch->type = flow_logic_switch::class;
+        $switch->config = Yaml::dump([
             'cases' => [
                 'even numbers' => 'record["value"] % 2 == 0',
                 'odd numbers' => 'record["value"] % 2 == 1',
             ],
         ]);
-        $case->depends_on([$reader]);
-        $dataflow->add_step($case);
-        $steps[$case->id] = $case;
+        $switch->depends_on([$reader]);
+        $dataflow->add_step($switch);
+        $steps[$switch->id] = $switch;
 
         // Writer step for evens.
         $even = new step();
@@ -115,7 +115,7 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
             'streamname' => 'even.json',
             'format' => 'json',
         ]);
-        $even->depends_on(['case' . step::DEPENDS_ON_POSITION_SPLITTER . '1']);
+        $even->depends_on(['switch' . step::DEPENDS_ON_POSITION_SPLITTER . '1']);
         $dataflow->add_step($even);
         $steps[$even->id] = $even;
 
@@ -128,7 +128,7 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
             'streamname' => 'odd.json',
             'format' => 'json',
         ]);
-        $odd->depends_on(['case' . step::DEPENDS_ON_POSITION_SPLITTER . '2']);
+        $odd->depends_on(['switch' . step::DEPENDS_ON_POSITION_SPLITTER . '2']);
         $dataflow->add_step($odd);
         $steps[$odd->id] = $odd;
 
@@ -136,9 +136,9 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
     }
 
     /**
-     * Test case step is processed as expected
+     * Test switch step is processed as expected
      *
-     * @covers \tool_dataflows\local\step\flow_logic_case
+     * @covers \tool_dataflows\local\step\flow_logic_switch
      */
     public function test_path_is_resolved_as_expected() {
         [$dataflow] = $this->create_dataflow();
@@ -166,9 +166,9 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
     }
 
     /**
-     * Test case step is resolving matched cases in the expected order.
+     * Test switch step is resolving matched cases in the expected order.
      *
-     * @covers \tool_dataflows\local\step\flow_logic_case
+     * @covers \tool_dataflows\local\step\flow_logic_switch
      */
     public function test_case_matching_happens_in_order() {
         [$dataflow] = $this->create_dataflow();
@@ -176,8 +176,8 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $this->assertTrue($dataflow->validate_dataflow());
 
         $stepsbyalias = $dataflow->get_steps();
-        $case = $stepsbyalias->case;
-        $case->config = Yaml::dump([
+        $switch = $stepsbyalias->switch;
+        $switch->config = Yaml::dump([
             'cases' => [
                 'even numbers' => '1',
                 'odd numbers' => '1',
@@ -305,18 +305,18 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
     }
 
     /**
-     * Test case step is resolving no matched cases.
+     * Test switch step is resolving no matched cases.
      *
-     * @covers \tool_dataflows\local\step\flow_logic_case
+     * @covers \tool_dataflows\local\step\flow_logic_switch
      */
-    public function test_case_no_matching_cases() {
+    public function test_switch_no_matching_cases() {
         [$dataflow] = $this->create_dataflow();
         $isdryrun = false;
         $this->assertTrue($dataflow->validate_dataflow());
 
         $stepsbyalias = $dataflow->get_steps();
-        $case = $stepsbyalias->case;
-        $case->config = Yaml::dump([
+        $switch = $stepsbyalias->switch;
+        $switch->config = Yaml::dump([
             'cases' => [
                 'even numbers' => 'record["value"] % 2 == 1.5',
                 'odd numbers' => 'record["value"] % 2 == 1',
@@ -349,9 +349,9 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
     /**
      * Test that variables outside of the flow group can be utilised in the expressions if needed
      *
-     * @covers \tool_dataflows\local\step\flow_logic_case
+     * @covers \tool_dataflows\local\step\flow_logic_switch
      */
-    public function test_case_variables_available_from_full_context() {
+    public function test_switch_variables_available_from_full_context() {
         [$dataflow] = $this->create_dataflow();
         $isdryrun = false;
         $this->assertTrue($dataflow->validate_dataflow());
@@ -359,8 +359,8 @@ class tool_dataflows_flow_logic_case_test extends \advanced_testcase {
         $stepsbyalias = $dataflow->get_steps();
         $stepsbyalias->reader->config = Yaml::dump(['somefield' => 22]);
 
-        $case = $stepsbyalias->case;
-        $case->config = Yaml::dump([
+        $switch = $stepsbyalias->switch;
+        $switch->config = Yaml::dump([
             'cases' => [
                 'even numbers' => 'steps.reader.config.somefield == 22',
                 'odd numbers' => '0',
