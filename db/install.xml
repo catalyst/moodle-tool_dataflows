@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220808" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
+<XMLDB PATH="admin/tool/dataflows/db" VERSION="20220907" COMMENT="XMLDB file for Moodle admin/tool/dataflows"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -99,7 +99,7 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="runid" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="level" TYPE="char" LENGTH="5" NOTNULL="false" SEQUENCE="false" COMMENT="The logging level (e.g. DEBUG, INFO, WARN, ERROR, FATAL, TRACE)"/>
-        <FIELD NAME="group" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Grouping for logs. Can be used to filter logs for different steps (e.g. by their alias or similar) using something such as step.alias"/>
+        <FIELD NAME="loggroup" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Grouping for logs. Can be used to filter logs for different steps (e.g. by their alias or similar) using something such as step.alias"/>
         <FIELD NAME="message" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Content of the logged entry"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="11" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp of the log entry"/>
       </FIELDS>

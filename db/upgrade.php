@@ -136,10 +136,13 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022090600) {
-
         // Update flows to change instances of case step to switch.
-        $records = $DB->get_records('tool_dataflows_steps',
-                ['type' => 'tool_dataflows\local\step\flow_logic_case'], '', 'id, type');
+        $records = $DB->get_records(
+            'tool_dataflows_steps',
+            ['type' => 'tool_dataflows\local\step\flow_logic_case'],
+            '',
+            'id, type'
+        );
         foreach ($records as $record) {
             $record->type = 'tool_dataflows\local\step\flow_logic_switch';
             $DB->update_record('tool_dataflows_steps', $record);
@@ -147,6 +150,18 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
 
         // Dataflows savepoint reached.
         upgrade_plugin_savepoint(true, 2022090600, 'tool', 'dataflows');
+    }
+
+    if ($oldversion < 2022090700) {
+        // Rename field group on table tool_dataflows_logs to loggroup.
+        $table = new xmldb_table('tool_dataflows_logs');
+        $field = new xmldb_field('group', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'level');
+
+        // Launch rename field loggroup.
+        $dbman->rename_field($table, $field, 'loggroup');
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022090700, 'tool', 'dataflows');
     }
 
     return true;
