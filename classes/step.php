@@ -49,6 +49,12 @@ class step extends persistent {
     /** @var array $dependson */
     private $dependson = [];
 
+    /** @var array $dependents array for lazy loading step dependents */
+    private $dependants = null;
+
+    /** @var array $dependents array for lazy loading step dependants */
+    private $dependents = null;
+
     /** @var \stdClass of engine step states and timestamps */
     private $states;
 
@@ -414,9 +420,10 @@ class step extends persistent {
     /**
      * Returns a list of other steps that depend on this step before they can run.
      *
-     * @return  array step dependencies
+     * @param bool $reload
+     * @return  array|null step dependencies
      */
-    public function dependants(): array {
+    public function dependants($reload = false): array {
         global $DB;
         $sql = "SELECT step.id,
                        step.name,
@@ -427,19 +434,23 @@ class step extends persistent {
              LEFT JOIN {tool_dataflows_steps} step ON sd.stepid = step.id
                  WHERE sd.dependson = :dependson";
 
-        $deps = $DB->get_records_sql($sql, [
-            'dependson' => $this->id,
-        ]);
-        return $deps ?? [];
+        if ($this->dependants === null || $reload) {
+            $deps = $DB->get_records_sql($sql, [
+                'dependson' => $this->id,
+            ]);
+            $this->dependants = $deps;
+        }
+        return  $this->dependants;
     }
 
     /**
      * Returns a list of steps that depend on this step.
      *
+     * @param bool $reload
      * @return array
      * @throws \dml_exception
      */
-    public function dependents() {
+    public function dependents($reload = false): array {
         global $DB;
         $sql = "SELECT step.id,
                        step.name,
@@ -449,10 +460,13 @@ class step extends persistent {
              LEFT JOIN {tool_dataflows_steps} step ON sd.stepid = step.id
                  WHERE sd.dependson = :stepid";
 
-        $deps = $DB->get_records_sql($sql, [
-            'stepid' => $this->id,
-        ]);
-        return $deps;
+        if ($this->dependents === null || $reload) {
+            $deps = $DB->get_records_sql($sql, [
+                'stepid' => $this->id,
+            ]);
+            $this->dependents = $deps;
+        }
+        return  $this->dependents;
     }
 
     /**

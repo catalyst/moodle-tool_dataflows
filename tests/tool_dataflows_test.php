@@ -566,8 +566,55 @@ class tool_dataflows_test extends \advanced_testcase {
         // Test invalid outputs (2).
         $step2->depends_on([$flow4]);
         $step2->upsert();
+        // Force reload dependents.
+        $flow4->dependents(true);
+
         $validate = $flow4->validate_outputs();
         $this->assertNotTrue($validate);
         $this->assertArrayHasKey("invalid_count_outputflows_{$flow4->id}", $validate);
+    }
+
+    /**
+     * Testing caching step dependencies
+     *
+     * @covers \tool_dataflows\step::dependents
+     * @covers \tool_dataflows\step::dependants
+     */
+    public function test_dependency_caching() {
+        global $DB;
+
+        $dataflow = new dataflow();
+
+        $step1 = new \tool_dataflows\step();
+        $step1->name = 'read';
+        $step1->type = local\execution\array_in_type::class;
+        $dataflow->add_step($step1);
+
+        $step2 = new \tool_dataflows\step();
+        $step2->name = 'read2';
+        $step2->type = local\execution\array_in_type::class;
+        $step2->depends_on([$step1]);
+        $dataflow->add_step($step2);
+        $dependents = $step1->dependents();
+        $dependants = $step1->dependants();
+
+        // Assert dependencies have been loaded.
+        $this->assertEquals(reset($dependents)->id, $step2->id);
+        $this->assertEquals(reset($dependants)->id, $step2->id);
+
+        // Manually delete dependency.
+        $DB->delete_records('tool_dataflows_step_depends', ['stepid' => $step2->id]);
+
+        // Assert cached dependencies are still valid.
+        $dependents = $step1->dependents();
+        $dependants = $step1->dependants();
+        $this->assertEquals(reset($dependents)->id, $step2->id);
+        $this->assertEquals(reset($dependants)->id, $step2->id);
+
+        // Force reload and check dependencies are empty.
+        $dependents = $step1->dependents(true);
+        $dependants = $step1->dependants(true);
+        $this->assertEmpty($dependents);
+        $this->assertEmpty($dependants);
     }
 }
