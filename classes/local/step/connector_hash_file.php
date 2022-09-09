@@ -14,22 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\local\step;
+
 /**
- * Version
+ * Hash file connector step
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2022091500;
-$plugin->release = 2022091500;
-$plugin->requires = 2017051500;    // Our lowest supported Moodle (3.3.0).
-$plugin->supported = [35, 401];    // Available as of Moodle 3.9.0 or later.
-// TODO $plugin->incompatible = ;  // Available as of Moodle 3.9.0 or later.
-$plugin->component = 'tool_dataflows';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->dependencies = [];
+class connector_hash_file extends connector_step {
+    use hash_file_trait;
+}
