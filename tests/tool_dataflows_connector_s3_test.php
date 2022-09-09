@@ -164,6 +164,7 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
         $dataflow = new dataflow();
         $dataflow->enabled = true;
         $dataflow->name = 'dataflow';
+        $dataflow->save();
         $step = new step();
         $step->name = 'name';
         $step->type = 'tool_dataflows\local\step\connector_s3';
@@ -213,6 +214,7 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
         $dataflow = new dataflow();
         $dataflow->enabled = true;
         $dataflow->name = 'dataflow';
+        $dataflow->save();
         $step = new step();
         $step->name = 'name';
         $step->type = 'tool_dataflows\local\step\connector_s3';

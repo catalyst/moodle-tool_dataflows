@@ -542,6 +542,7 @@ class step extends persistent {
         $this->update_depends_on();
 
         $this->steptype->on_save();
+        $this->get_dataflow()->on_steps_save();
 
         return $this;
     }
@@ -689,6 +690,17 @@ class step extends persistent {
             $steptype->on_delete();
         }
 
+    }
+
+    /**
+     * Called after deleting.
+     *
+     * @param bool $result True if the delete was successful.
+     */
+    protected function after_delete($result) {
+        if ($result) {
+            $this->get_dataflow()->on_steps_save();
+        }
     }
 
     /**
