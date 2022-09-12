@@ -150,7 +150,19 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022090600, 'tool', 'dataflows');
     }
 
-    if ($oldversion < 2022090700 ) {
+    if ($oldversion < 2022090700) {
+        // Rename field group on table tool_dataflows_logs to loggroup.
+        $table = new xmldb_table('tool_dataflows_logs');
+        $field = new xmldb_field('group', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'level');
+
+        // Launch rename field loggroup.
+        $dbman->rename_field($table, $field, 'loggroup');
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022090700, 'tool', 'dataflows');
+    }
+
+    if ($oldversion < 2022091200) {
         // Changing type of field config on table tool_dataflows_steps to text.
         $table = new xmldb_table('tool_dataflows');
 
@@ -190,19 +202,7 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         }
 
         // Dataflows savepoint reached.
-        upgrade_plugin_savepoint(true, 2022090700, 'tool', 'dataflows');
-    }
-
-    if ($oldversion < 2022090700) {
-        // Rename field group on table tool_dataflows_logs to loggroup.
-        $table = new xmldb_table('tool_dataflows_logs');
-        $field = new xmldb_field('group', XMLDB_TYPE_CHAR, '50', null, null, null, null, 'level');
-
-        // Launch rename field loggroup.
-        $dbman->rename_field($table, $field, 'loggroup');
-
-        // Dataflows savepoint reached.
-        upgrade_plugin_savepoint(true, 2022090700, 'tool', 'dataflows');
+        upgrade_plugin_savepoint(true, 2022091200, 'tool', 'dataflows');
     }
 
     return true;
