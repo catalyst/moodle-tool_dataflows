@@ -46,15 +46,17 @@ class engine_flow_cap extends flow_engine_step {
                     while (!$this->iterator->is_finished()) {
                         foreach ($iterators as $iterator) {
                             $iterator->next($this);
+                            // If the run was aborted, then we return immediately (do not pass GO, do not collect $200).
+                            if ($this->status == engine::STATUS_ABORTED) {
+                                return $this->status;
+                            }
                         }
                     }
 
-                    if ($this->iterator->is_finished()) {
-                        $this->set_status(engine::STATUS_FINISHED);
-                    }
+                    $this->set_status(engine::STATUS_FINISHED);
                 } catch (\Throwable $thrown) {
                     $this->exception = $thrown;
-                    $this->set_status(engine::STATUS_ABORTED);
+                    $this->engine->abort();
                 }
                 break;
             case self::PROCEED_STOP:

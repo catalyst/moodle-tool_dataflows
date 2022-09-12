@@ -177,9 +177,9 @@ class writer_stream extends writer_step {
             }
 
             /**
-             * Any custom handling for on_abort
+             * Called when the iterator is stopped, either because of finishing ar due to an abort.
              */
-            public function on_abort() {
+            public function on_stop() {
                 if (fwrite($this->handle, $this->writer->close_output()) === false) {
                     $this->step->log(error_get_last()['message']);
                     throw new \moodle_exception(

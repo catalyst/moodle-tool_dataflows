@@ -116,6 +116,7 @@ $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
 $string['step_name_flow_copy_file'] = 'Copy File';
+$string['step_name_flow_abort'] = 'Abort';
 $string['step_name_flow_email'] = 'Flow email notification';
 $string['step_name_flow_logic_switch'] = 'Switch';
 $string['step_name_flow_logic_join'] = 'Join';

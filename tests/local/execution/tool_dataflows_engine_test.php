@@ -30,30 +30,7 @@ use tool_dataflows\step;
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * A engine subclass used for testing
- *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2022, Catalyst IT
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class test_engine extends engine {
-
-    /**
-     * Exposes all private fields for the purpose of testing them
-     *
-     * @param   mixed $p
-     * @return  mixed
-     */
-    public function __get($p) {
-        if (isset($this->$p)) {
-            return $this->$p;
-        } else {
-            return parent::__get($p);
-        }
-    }
-}
+require_once(__DIR__ . '/test_engine.php');
 
 /**
  * Unit tests covering the execution engine.

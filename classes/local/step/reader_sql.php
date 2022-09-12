@@ -92,9 +92,9 @@ class reader_sql extends reader_step {
             }
 
             /**
-             * Any custom handling for on_abort
+             * Called when the iterator is stopped, either because of finishing ar due to an abort.
              */
-            public function on_abort() {
+            public function on_stop() {
                 $this->input->close();
             }
         };
