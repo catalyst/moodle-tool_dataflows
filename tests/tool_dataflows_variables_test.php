@@ -177,7 +177,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $sql = 'SELECT *
                   FROM {config_plugins}
                  WHERE plugin = \'' . $template['plugin'] . '\'
-                [[ AND ' . $DB->sql_cast_char2int('value') . ' > ${{countervalue}} ]]
+                [[ AND ' . $DB->sql_cast_char2int('value') . ' > ${{config.countervalue}} ]]
               ORDER BY ' . $DB->sql_cast_char2int('value') . ' ASC
                  LIMIT 10';
 
@@ -185,6 +185,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $dataflow = new dataflow();
         $dataflow->name = 'readwrite';
         $dataflow->enabled = true;
+        $dataflow->concurrencyenabled = false;
         $dataflow->save();
 
         $reader = new step();
@@ -212,7 +213,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Check before state.
         $variables = $engine->get_variables();
         $this->assertEquals(new \stdClass, $variables['global']->vars);
-        $this->assertEquals(new \stdClass, $variables['dataflow']->config);
+        $this->assertEquals(new \stdClass, $variables['dataflow']->vars);
         $reader->read();
         $this->assertEmpty($reader->config->countervalue ?? null);
 
@@ -221,6 +222,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $globalvalue = 'global (plugin scope) test value';
         execution\reader_sql_variable_setter::$dataflowvar = $dataflowvalue;
         execution\reader_sql_variable_setter::$globalvar = $globalvalue;
+
         // Execute.
         $engine->execute();
         ob_get_clean();
@@ -228,7 +230,9 @@ class tool_dataflows_variables_test extends \advanced_testcase {
 
         // Check expected after state.
         $variables = $engine->get_variables();
-        $this->assertEquals($dataflowvalue, $variables['dataflow']->config->dataflowvar);
+        $this->assertEquals($dataflowvalue, $variables['dataflow']->vars->dataflowvar);
+        $this->assertTrue($variables['dataflow']->config->enabled);
+        $this->assertFalse($variables['dataflow']->config->concurrencyenabled);
         $this->assertEquals($globalvalue, $variables['global']->vars->globalvar);
         $this->assertEquals(5, $variables['steps']->reader->config->countervalue);
 
@@ -236,13 +240,13 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $reader->read();
         $this->assertEquals(5, $reader->config->countervalue);
         $dataflow->read();
-        $this->assertEquals($dataflowvalue, $dataflow->config->dataflowvar);
+        $this->assertEquals($dataflowvalue, $dataflow->vars->dataflowvar);
 
         // Throw in some expression tests as well.
         $expressionlanguage = new ExpressionLanguage();
         $expressedglobalvalue = $expressionlanguage->evaluate('global.vars.globalvar', $variables);
         $this->assertEquals($globalvalue, $expressedglobalvalue);
-        $expresseddataflowvalue = $expressionlanguage->evaluate('dataflow.config.dataflowvar', $variables);
+        $expresseddataflowvalue = $expressionlanguage->evaluate('dataflow.vars.dataflowvar', $variables);
         $this->assertEquals($dataflowvalue, $expresseddataflowvalue);
         $expressedstepvalue = $expressionlanguage->evaluate('steps.reader.config.countervalue', $variables);
         $this->assertEquals(5, $expressedstepvalue);
@@ -306,9 +310,11 @@ class tool_dataflows_variables_test extends \advanced_testcase {
             'destination' => '',
             'headers' => '',
             'method' => 'get',
-            // Sets expressed values typically for values in scope with this step, so they can be accessed from other steps.
-            'outputs' => ['customOutputKey' => '${{ fromJSON(response.result).contentTypes[0].id }}'],
         ]);
+
+        // Sets expressed values typically for values in scope with this step, so they can be accessed from other steps.
+        $stepdef->vars = Yaml::dump(['customOutputKey' => '${{ fromJSON(response.result).contentTypes[0].id }}']);
+
         $stepdef->name = 'connector';
         $stepdef->type = connector_curl::class;
         $dataflow->add_step($stepdef);
@@ -321,7 +327,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $expressionlanguage = new ExpressionLanguage();
         $variables = $engine->get_variables();
         // Test the shorthand version also.
-        $result = $expressionlanguage->evaluate("steps.{$stepdef->name}.customOutputKey", $variables);
+        $result = $expressionlanguage->evaluate("steps.{$stepdef->name}.vars.customOutputKey", $variables);
         $this->assertEquals('H5P.Accordion', $result);
     }
 
@@ -334,14 +340,12 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $dataflow = new dataflow();
         $dataflow->name = 'connector-step';
         $dataflow->enabled = true;
-        $dataflow->config = Yaml::dump(['abc' => [1, 2, 3]]);
+        $dataflow->vars = Yaml::dump(['abc' => [1, 2, 3]]);
 
         $stepdef = new step();
         $stepdef->name = 'deb';
         $stepdef->type = connector_debugging::class;
-        $stepdef->config = Yaml::dump([
-            'outputs' => ['out' => '${{ dataflow.config.abc}}'],
-        ]);
+        $stepdef->vars = Yaml::dump(['out' => '${{ dataflow.vars.abc}}']);
         $dataflow->add_step($stepdef);
 
         ob_start();
@@ -350,7 +354,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         ob_get_clean();
 
         $vars = $dataflow->variables;
-        $this->assertEquals([1, 2, 3], $vars['steps']->deb->out);
+        $this->assertEquals([1, 2, 3], $vars['steps']->deb->vars->out);
     }
 
     /**

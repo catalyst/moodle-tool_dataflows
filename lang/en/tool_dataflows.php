@@ -81,6 +81,8 @@ $string['remove_dataflow'] = 'Remove dataflow';
 $string['remove_dataflow_confirm'] = 'Are you sure you want to remove the dataflow \'{$a}\'? This action is irreversible.';
 $string['remove_dataflow_successful'] = 'Removed dataflow \'{$a}\' successfully.';
 $string['concurrency_enabled'] = 'Enable concurrent running';
+$string['field_vars'] = 'Variables';
+$string['field_vars_help'] = 'Dataflow variables that can be accessed via expressions within all dataflow steps as {$a->reference}. Values are defined in YAML format, with nested values being converted into a dot separated sequence. Example:{$a->example}';
 
 // Dataflow import form.
 $string['dataflow_file'] = 'Dataflow file';
@@ -142,14 +144,12 @@ $string['field_description'] = 'Description';
 $string['field_alias'] = 'Alias';
 $string['field_alias_help'] = 'A reference to this step, unique to this dataflow. This can be used in expressions to access the step. It must be made up of only letters, numbers, or underscores (\'_\'). If empty, then a snake case version of the name will be used. For example, if the name is "My Step", it will be populate this field as "my_step"';
 $string['field_config'] = 'Configuration';
-$string['field_config_help'] = 'Config variables that can be accessed via expressions within all dataflow steps as {$a->reference}. Values are defined in YAML format, with nested values being converted into a dot separated sequence. Example:{$a->example}';
-$string['field_outputs'] = 'Output Mapping';
-$string['field_outputs_help'] = 'An optional list of custom named fields you want mapped from the step\'s output in YAML format. For example if you set, {$a->config}, it can later be referenced as {$a->reference} from a future step. This can be useful as it allows you to create a shorter alias to a deeply nested value within the same context as the data.';
+$string['field_step_vars_help'] = "Variables that can be accessed from any step in the form {\$a->reference}. These variables are updated after a step has been executed, or after every iteration in a flow step. The setting is defined in YAML format.
+    Example: {\$a->example}";
 $string['field_type'] = 'Step type';
 $string['update_step'] = 'Update step';
 $string['new_step'] = 'New step';
 $string['stepextras'] = 'Extra settings';
-
 
 $string['inputs'] = 'Inputs';
 $string['outputs'] = 'Outputs';

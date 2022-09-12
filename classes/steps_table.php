@@ -136,12 +136,20 @@ class steps_table extends sql_table {
     public function col_config(\stdClass $record): string {
         $step = new step($record->id);
         $redactedconfig = $step->get_redacted_config(false);
-        $output = Yaml::dump(
-            (array) $redactedconfig,
-            helper::YAML_DUMP_INLINE_LEVEL,
-            helper::YAML_DUMP_INDENT_LEVEL,
-            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
-        );
+
+        // We want to display the vars definitions as well.
+        $vars = (array) $step->vars;
+        if (!empty($vars)) {
+            $redactedconfig->vars = $step->vars;
+        }
+        $redactedconfig = (array) $redactedconfig;
+        $output = !empty($redactedconfig) ?
+                Yaml::dump(
+                    $redactedconfig,
+                    helper::YAML_DUMP_INLINE_LEVEL,
+                    helper::YAML_DUMP_INDENT_LEVEL,
+                    Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
+                ) : '';
         return \html_writer::tag('pre', $output, ['style' => 'max-width: 30em;']);
     }
 

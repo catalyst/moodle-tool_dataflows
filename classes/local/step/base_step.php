@@ -115,6 +115,7 @@ abstract class base_step {
      * end of each step.
      */
     public function prepare_outputs() {
+        throw new \moodle_exception('prepare_outputs');
         // By default, it should make available all variables exposed by this step.
         $this->stepdef->set_output($this->variables);
 
@@ -134,6 +135,32 @@ abstract class base_step {
 
             $yaml = Yaml::dump(
                 (array) $outputs,
+                helper::YAML_DUMP_INLINE_LEVEL,
+                helper::YAML_DUMP_INDENT_LEVEL,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+            );
+            $this->enginestep->log("Debug: Setting step defined output vars:\n" . trim($yaml));
+        }
+    }
+
+    /**
+     * Resolves and sets variables for the 'vars' subtree.
+     */
+    public function prepare_vars() {
+        $vars = $this->stepdef->get_raw_vars();
+        if (!helper::obj_empty($vars)) {
+            $parser = new parser();
+            $enginestep = $this->get_engine_step();
+            if ($enginestep) {
+                $variables = $enginestep->get_variables();
+            } else {
+                $variables = $this->stepdef->variables;
+            }
+            $vars = $parser->evaluate_recursive($vars, $variables);
+            $this->stepdef->set_varsvariables($vars);
+
+            $yaml = Yaml::dump(
+                (array) $vars,
                 helper::YAML_DUMP_INLINE_LEVEL,
                 helper::YAML_DUMP_INDENT_LEVEL,
                 Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
@@ -594,7 +621,7 @@ abstract class base_step {
      * @param   mixed $value
      */
     public function set_variables(string $name, $value) {
-        $this->variables[$name] = $value;
+        $this->stepdef->set_rootvariables([$name => $value]);
     }
 
     /**

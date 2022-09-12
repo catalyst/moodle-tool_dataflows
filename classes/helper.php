@@ -235,4 +235,18 @@ class helper {
         }
         return $configvars;
     }
+
+    /**
+     * An efficient way to test if an object is empty.
+     *
+     * @param \stdClass $obj
+     * @return bool
+     */
+    public static function obj_empty(\stdClass $obj): bool {
+        foreach ($obj as $prop) {
+            return false;
+        }
+        return true;
+    }
+
 }

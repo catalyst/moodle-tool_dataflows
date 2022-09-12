@@ -539,7 +539,7 @@ class engine {
         // TODO: implement.
 
         $dataflow = $this->dataflow;
-        $previous = $dataflow->config->{$name} ?? '';
+        $previous = $dataflow->vars->{$name} ?? '';
         $this->log("Setting dataflow '$name' to '$value' (from '{$previous}')");
         $this->dataflow->set_var($name, $value);
 

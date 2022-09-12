@@ -100,10 +100,11 @@ class flow_engine_step extends engine_step {
             $parser->evaluate_recursive($config, $variables);
         }
 
+        // We copy the contents of the step subtree into the root, to enable 'localised' access to the step variables.
+        // E.g. we can use ${{config.setting}} instead of ${{steps.first.config.setting}}.
         return array_merge(
             $variables,
-            ['step' => $step],
-            (array) $config
+            (array) $step
         );
     }
 }

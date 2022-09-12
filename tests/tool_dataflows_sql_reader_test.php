@@ -141,7 +141,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
                   FROM {config_plugins}
                  WHERE plugin = \'' . $template['plugin'] . '\'
                 [[
-                    AND ' . $DB->sql_cast_char2int('value') . ' > ${{countervalue}}
+                    AND ' . $DB->sql_cast_char2int('value') . ' > ${{config.countervalue}}
                 ]]
               ORDER BY ' . $DB->sql_cast_char2int('value') . ' ASC
                  LIMIT 3';
@@ -227,7 +227,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $dataflow = new dataflow();
         $dataflow->name = 'sql-bad';
         $dataflow->enabled = true;
-        $dataflow->config = Yaml::dump([
+        $dataflow->vars = Yaml::dump([
             'badvalue' => [1, 2, 3],
         ]);
         $dataflow->save();
@@ -237,7 +237,9 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $reader->type = 'tool_dataflows\local\step\reader_sql';
 
         // Set the SQL query via a YAML config string.
-        $reader->config = Yaml::dump(['sql' => '${{dataflow.config.badvalue}}']);
+        $reader->config = Yaml::dump([
+            'sql' => '${{dataflow.vars.badvalue}}',
+        ]);
         $dataflow->add_step($reader);
 
         $writer = new step();

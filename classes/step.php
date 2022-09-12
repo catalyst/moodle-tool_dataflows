@@ -61,6 +61,12 @@ class step extends persistent {
     /** @var \stdClass keep track of any outputs, exposed by the user for each step */
     private $outputs;
 
+    /** @var \stdClass Variables to set which will go in the step's root subtree. */
+    private $rootvariables;
+
+    /** @var \stdClass Variables to set which will go in the step's vars subtree. */
+    private $varsvariables;
+
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      *
@@ -113,6 +119,7 @@ class step extends persistent {
             'type' => ['type' => PARAM_TEXT],
             'name' => ['type' => PARAM_TEXT],
             'config' => ['type' => PARAM_TEXT, 'default' => ''],
+            'vars' => ['type' => PARAM_TEXT, 'default' => ''],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
@@ -157,6 +164,59 @@ class step extends persistent {
     public function get_variables(): array {
         $dataflow = $this->get_dataflow();
         return $dataflow->variables;
+    }
+
+    /**
+     * Returns the variables stored under the step's 'vars' subtree.
+     * @param bool $expressions
+     * @return \stdClass
+     * @throws \coding_exception
+     */
+    protected function get_vars(bool $expressions = true): \stdClass {
+        $vars = Yaml::parse($this->raw_get('vars'), Yaml::PARSE_OBJECT_FOR_MAP);
+
+        if (empty($vars)) {
+            return new \stdClass();
+        }
+
+        // Normally expressions are parsed when evaluating the statement, for use in a dataflow run.
+        if ($expressions) {
+            $steptype = $this->get_steptype();
+
+            // Get variables, based on whether the engine is running or is idle.
+            $enginestep = $steptype->get_engine_step();
+            if ($enginestep) {
+                $variables = $enginestep->get_variables();
+            } else {
+                $variables = $this->variables;
+            }
+
+            if (isset($vars)) {
+                $parser = new parser();
+                $vars = $parser->evaluate_recursive($vars, $variables);
+            }
+        }
+
+        return $vars;
+    }
+
+    /**
+     * Returns vars without resolving expressions.
+     *
+     * @return \stdClass
+     */
+    public function get_raw_vars(): \stdClass {
+        return $this->get_vars(false);
+    }
+
+    /**
+     * Validate the 'vars' field.
+     *
+     * @param string $vars
+     * @return true|\lang_string
+     */
+    protected function validate_vars(string $vars) {
+        return parser::validate_yaml($vars);
     }
 
     /**
@@ -514,6 +574,16 @@ class step extends persistent {
             )
             : '';
 
+        // Set the config as a valid YAML string.
+        $this->vars = !empty($stepdata['vars'])
+            ? Yaml::dump(
+                $stepdata['vars'],
+                helper::YAML_DUMP_INLINE_LEVEL,
+                helper::YAML_DUMP_INDENT_LEVEL,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+            )
+            : '';
+
         // Set up the dependencies, connected to each other via their step aliases.
         if (!empty($stepdata['depends_on'])) {
             $dependson = (array) $stepdata['depends_on'];
@@ -537,6 +607,11 @@ class step extends persistent {
             if ($value !== $default) {
                 $yaml[$field] = $value;
             }
+        }
+
+        $vars = $this->get_vars(false);
+        if (!helper::obj_empty($vars)) {
+            $yaml['vars'] = $vars;
         }
 
         // Conditionally export the configuration if it has content.
@@ -569,6 +644,7 @@ class step extends persistent {
             'depends_on',
             'type',
             'config',
+            'vars',
         ];
         $commonkeys = array_intersect_key(array_flip($ordered), $yaml);
         $yaml = array_replace($commonkeys, $yaml);
@@ -934,8 +1010,47 @@ class step extends persistent {
      * @param  mixed $attributes array of output fields to set. This is merged with any existing values.
      */
     public function set_output($attributes) {
+        throw new \moodle_exception('set_output');
         $this->outputs = $this->outputs ?? new \stdClass;
         $this->outputs = (object) array_merge((array) $this->outputs, (array) $attributes);
+    }
+
+    /**
+     * Set variables to set under in the step root.
+     *
+     * @param mixed $variables
+     */
+    public function set_rootvariables($variables) {
+        $this->rootvariables = $this->rootvariables ?? new \stdClass;
+        $this->rootvariables = (object) array_merge((array) $this->rootvariables, (array) $variables);
+    }
+
+    /**
+     * Returns the step's variables for the root.
+     *
+     * @return  \stdClass
+     */
+    public function get_rootvariables(): \stdClass {
+        return $this->rootvariables ?? new \stdClass;
+    }
+
+    /**
+     * Set variables to set under the 'vars' subtree.
+     *
+     * @param mixed $variables
+     */
+    public function set_varsvariables($variables) {
+        $this->varsvariables = $this->varsvariables ?? new \stdClass;
+        $this->varsvariables = (object) array_merge((array) $this->varsvariables, (array) $variables);
+    }
+
+    /**
+     * Returns the step's variable for the 'vars' subtree.
+     *
+     * @return  \stdClass
+     */
+    public function get_varsvariables(): \stdClass {
+        return $this->varsvariables ?? new \stdClass;
     }
 
     /**
