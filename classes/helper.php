@@ -105,6 +105,7 @@ class helper {
      * @return string
      */
     public static function path_get_absolute(string $path, string $scratchdir): string {
+        $path = self::replace_dataroot_in_path($path);
         if (self::path_is_relative($path)) {
             return $scratchdir . '/' . $path;
         }
@@ -143,8 +144,6 @@ class helper {
      * @return array
      */
     public static function get_permitted_dirs(): array {
-        global $CFG;
-
         $data = get_config('tool_dataflows', 'permitted_dirs');
 
         // Strip comments.
@@ -162,12 +161,25 @@ class helper {
             }
 
             // Substitute '[dataroot]' placeholder with the site's data root directory.
-            if (substr($dir, 0, strlen(self::DATAROOT_PLACEHOLDER)) == self::DATAROOT_PLACEHOLDER) {
-                $dir = $CFG->dataroot . substr($dir, strlen(self::DATAROOT_PLACEHOLDER));
-            }
+            $dir = self::replace_dataroot_in_path($dir);
             $permitteddirs[] = $dir;
         }
         return $permitteddirs;
+    }
+
+    /**
+     * Substitutes '[dataroot]' placeholder with the site's data root directory.
+     *
+     * @param  string $path
+     * @return string $path
+     */
+    private static function replace_dataroot_in_path(string $path): string {
+        global $CFG;
+        // Replaces the placeholder with the dataroot path, if present.
+        if (substr($path, 0, strlen(self::DATAROOT_PLACEHOLDER)) == self::DATAROOT_PLACEHOLDER) {
+            $path = $CFG->dataroot . substr($path, strlen(self::DATAROOT_PLACEHOLDER));
+        }
+        return $path;
     }
 
     /**
