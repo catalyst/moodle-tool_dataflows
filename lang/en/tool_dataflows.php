@@ -111,6 +111,7 @@ $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_email'] = 'Email notification';
+$string['step_name_connector_file_exists'] = 'File exists';
 $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
@@ -382,6 +383,9 @@ $string['flow_logic_switch:nomatchingcases'] = 'No matching cases, skipping reco
 // Wait connector.
 $string['connector_wait:timesec'] = 'Time in seconds';
 $string['connector_wait:not_integer'] = 'Wait time value must evaluate to a positive integer (had "{$a}").';
+
+// File exists.
+$string['connector_file_exists:path'] = 'File path';
 
 // Flow Web service.
 $string['flow_web_service:webservice'] = 'Web service';
