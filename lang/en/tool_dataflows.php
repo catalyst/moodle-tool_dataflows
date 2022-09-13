@@ -115,6 +115,7 @@ $string['step_name_connector_file_exists'] = 'File exists';
 $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
+$string['step_name_flow_copy_file'] = 'Copy File';
 $string['step_name_flow_email'] = 'Flow email notification';
 $string['step_name_flow_logic_switch'] = 'Switch';
 $string['step_name_flow_logic_join'] = 'Join';
@@ -407,3 +408,8 @@ $string['cachedef_dot'] = 'This cache stores internal fragments of dot binaries'
 
 // Dataflow iterator.
 $string['dataflow_iterator:null_input'] = 'Trying to construct an iterator without an upstream iterator for step {$a}';
+
+// Copy File.
+$string['flow_copy_file:from'] = 'From';
+$string['flow_copy_file:to'] = 'To';
+$string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';

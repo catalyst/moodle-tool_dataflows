@@ -108,7 +108,7 @@ $data = [
         get_string('strftimedatetimeaccurate', 'tool_dataflows'),
         $defaulttimezone
     ),
-    'field_duration' => $duration ? format_time($duration) : ("0 {$secsstr}"),
+    'field_duration' => $duration ? format_time((float) $duration) : ("0 {$secsstr}"),
 ];
 $tabledata = [];
 foreach ($data as $key => $value) {

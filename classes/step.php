@@ -74,7 +74,14 @@ class step extends persistent {
      */
     public function __construct(...$args) {
         parent::__construct(...$args);
-        $this->states = new \stdClass;
+
+        // Ensure all states can be referenced, defaulting them to null.
+        $this->states = (object) array_combine(
+            // All the labels.
+            engine::STATUS_LABELS,
+            // Filled with null.
+            array_fill(0, count(engine::STATUS_LABELS), null)
+        );
     }
 
     /**
