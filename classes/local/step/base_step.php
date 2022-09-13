@@ -663,6 +663,17 @@ abstract class base_step {
     }
 
     /**
+     * Get the step's (definition) raw config
+     *
+     * Helper method to reduce the complexity when authoring step types.
+     *
+     * @return  \stdClass configuration object
+     */
+    protected function get_raw_config(): \stdClass {
+        return $this->stepdef->get_raw_config();
+    }
+
+    /**
      * Returns whether the engine's run is dry
      *
      * Helper method to reduce the complexity when authoring step types.

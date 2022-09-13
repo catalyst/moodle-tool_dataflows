@@ -496,9 +496,9 @@ class engine {
         $this->release_lock();
 
         // TODO: We may want to make this the responsibility of the caller.
-        // if (isset($reason)) {
-        //     // throw $reason;
-        // }
+        if (isset($reason)) {
+            throw $reason;
+        }
     }
 
     /**
@@ -635,7 +635,7 @@ class engine {
 
         if ($status === self::STATUS_INITIALISED) {
             $this->log('status: ' . self::STATUS_LABELS[$status] . ', config: ' . json_encode(['isdryrun' => $this->isdryrun]));
-        } else if (in_array($status, [self::STATUS_FINALISED, self::STATUS_ABORTED], true)) {
+        } else if (in_array($status, self::STATUS_TERMINATORS, true)) {
             $this->log('status: ' . self::STATUS_LABELS[$status]);
             $this->log("dumping state..\n" . $this->export());
         } else {

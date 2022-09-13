@@ -24,7 +24,7 @@ namespace tool_dataflows\local\step;
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class connector_abort_if extends connector_step {
+class connector_abort extends connector_step {
     use abort_trait;
 
     /** @var int[] number of output flows (min, max). */
