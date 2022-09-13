@@ -52,10 +52,10 @@ abstract class flow_step extends base_step {
      * Implementation can vary, this might be a transformer, resource, or
      * something else.
      *
-     * @param   mixed $input
-     * @return  mixed $input
+     * @param mixed|null $input
+     * @return mixed
      */
-    public function execute($input) {
+    public function execute($input = null) {
         // Default is to do nothing.
         return $input;
     }

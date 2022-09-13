@@ -205,7 +205,7 @@ class connector_curl extends connector_step {
      *
      * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(): bool {
+    public function execute($input = null) {
         // Get variables.
         $config = $this->get_config();
         $method = $config->method;

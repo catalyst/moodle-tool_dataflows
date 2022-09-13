@@ -34,7 +34,7 @@ class connector_debugging extends connector_step {
      *
      * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(): bool {
+    public function execute($input = null) {
         // TODO: Reach in and output the result of an expression via a debugging call.
         return true;
     }

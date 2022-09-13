@@ -79,7 +79,7 @@ class tiny_connector_s3 extends connector_s3 {
      *
      * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(): bool {
+    public function execute($input = null) {
         return true;
     }
 }

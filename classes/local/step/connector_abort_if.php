@@ -25,39 +25,11 @@ namespace tool_dataflows\local\step;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class connector_abort_if extends connector_step {
+    use abort_trait;
 
-    /**
-     * Return the definition of the fields available in this form.
-     *
-     * @return array
-     */
-    public static function form_define_fields(): array {
-        return [
-            'condition' => ['type' => PARAM_TEXT, 'required' => true],
-        ];
-    }
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
 
-    /**
-     * Inputs
-     *
-     * @param \MoodleQuickForm $mform
-     */
-    public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
-        $mform->addElement('text', 'config_condition', get_string('connector_abort_if:condition', 'tool_dataflows'));
-    }
-
-    /**
-     * Sends the email.
-     *
-     * @return bool Returns true if successful, false otherwise.
-     */
-    public function execute(): bool {
-        $config = $this->get_config();
-
-        if ($config->condition === true) {
-            throw new \Exception('Aborting');
-        }
-
-        return true;
-    }
+    /** @var int[] number of output connectors (min, max) */
+    protected $outputconnectors = [0, 1];
 }

@@ -96,7 +96,7 @@ class connector_s3 extends connector_step {
      *
      * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(): bool {
+    public function execute($input = null) {
         global $CFG;
         // Engine step contains the execution context, configuration, variables etc.
 

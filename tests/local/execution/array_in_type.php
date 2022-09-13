@@ -52,7 +52,7 @@ class array_in_type extends reader_step {
      * @param   mixed $input
      * @return  mixed $input
      */
-    public function execute($input) {
+    public function execute($input = null) {
         return $input;
     }
 }

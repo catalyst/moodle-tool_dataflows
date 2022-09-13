@@ -55,7 +55,7 @@ class array_out_type extends writer_step {
      * @param   mixed $input
      * @return  mixed $input
      */
-    public function execute($input) {
+    public function execute($input = null) {
         self::$dest[] = $input;
         return $input;
     }

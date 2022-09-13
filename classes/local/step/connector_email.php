@@ -61,7 +61,7 @@ class connector_email extends connector_step {
      *
      * @return bool Returns true if successful, false otherwise.
      */
-    public function execute(): bool {
+    public function execute($input = null) {
 
         // Do not execute operations during a dry run.
         if ($this->enginestep->engine->isdryrun) {

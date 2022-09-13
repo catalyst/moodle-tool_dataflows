@@ -170,7 +170,7 @@ EOF;
      * @param   mixed $input
      * @return  mixed $input
      */
-    public function execute($input) {
+    public function execute($input = null) {
         global $DB, $SESSION, $USER, $OUTPUT;
         // Store the previous user and session, setting it back once the step is finished.
         $previoususer = $USER;

@@ -34,7 +34,7 @@ class flow_noop extends flow_step {
      * @param mixed $input
      * @return mixed $output
      */
-    public function execute($input) {
+    public function execute($input = null) {
         $output = $input;
         return $output;
     }
