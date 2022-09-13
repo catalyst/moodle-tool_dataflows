@@ -111,6 +111,7 @@ $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_email'] = 'Email notification';
+$string['step_name_flow_copy_file'] = 'Copy File';
 $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
@@ -403,3 +404,8 @@ $string['cachedef_dot'] = 'This cache stores internal fragments of dot binaries'
 
 // Dataflow iterator.
 $string['dataflow_iterator:null_input'] = 'Trying to construct an iterator without an upstream iterator for step {$a}';
+
+// Copy File.
+$string['flow_copy_file:from'] = 'From';
+$string['flow_copy_file:to'] = 'To';
+$string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';
