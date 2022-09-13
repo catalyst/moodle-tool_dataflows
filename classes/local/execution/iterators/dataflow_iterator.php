@@ -139,6 +139,12 @@ class dataflow_iterator implements iterator {
      * @return  \stdClass|bool A JSON compatible \stdClass, or false if nothing returned.
      */
     public function next($caller) {
+        // Record the timestamp of when the step type handling has been entered
+        // into. This should be set as early as possible to encapsulate the time
+        // it takes.
+        $now = microtime(true);
+        $this->steptype->set_variables('timeentered', $now);
+
         if ($this->finished) {
             return false;
         }
@@ -176,6 +182,10 @@ class dataflow_iterator implements iterator {
             $this->steptype->prepare_vars();
 
             ++$this->iterationcount;
+
+            // Expose the number of times this step has been iterated over.
+            $this->steptype->set_variables('iterations', $this->iterationcount);
+
             $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
         } catch (\Throwable $e) {
             $this->step->log($e->getMessage());

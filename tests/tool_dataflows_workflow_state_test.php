@@ -108,7 +108,7 @@ class tool_dataflows_workflow_state_test extends \advanced_testcase {
         // Yet the same.
         $this->assertEquals($initialdata['dataflow']['id'], $finaldata['dataflow']['id']);
         // Only the "new" state should be set.
-        $this->assertCount(1, $initialdata['steps']['reader']['states']);
+        $this->assertCount(1, array_filter($initialdata['steps']['reader']['states']));
         // But by the end, more state timestamps should have been added.
         $this->assertGreaterThan(1, $finaldata['steps']['reader']['states']);
         // But it should still hold the same new value it once had.

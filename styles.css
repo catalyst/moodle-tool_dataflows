@@ -142,3 +142,8 @@ tr:where(.field_timestarted, .field_timefinished) {
 .tool_dataflow-output :hover {
     background: #333;
 }
+.tool_dataflow-output > * {
+    background: #111;
+    color: #eee;
+    font-size: 1em;
+}

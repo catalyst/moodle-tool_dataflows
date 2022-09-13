@@ -123,7 +123,7 @@ if (($data = $form->get_data())) {
             // We had an ID, this means that we are going to update a record.
             // Call your API to update the persistent from the data.
             // Or, do the following if you don't want capability checks (discouraged).
-            $dependson = $data->dependson;
+            $dependson = $data->dependson ?? [];
             unset($data->dependson);
             // Only unset field (as it should be set based on the name) if it is empty.
             if (empty($data->alias)) {
