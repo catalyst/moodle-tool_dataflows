@@ -38,7 +38,7 @@ abstract class engine_step {
     /** @var int Can go forward. Perform execution. */
     const PROCEED_GO = 2;
 
-    /** @var engine Dataflow_execution engine  */
+    /** @var engine Dataflow_execution engine */
     protected $engine;
 
     /** @var int ID as supplied by the step definition */
@@ -50,16 +50,16 @@ abstract class engine_step {
     /** @var base_step The step type definition. */
     protected $steptype;
 
-    /** @var array  The upstream steps. */
+    /** @var array The upstream steps. */
     public $upstreams = [];
 
-    /** @var array  The downstream steps. */
+    /** @var array The downstream steps. */
     public $downstreams = [];
 
     /** @var int The step's current status */
     protected $status;
 
-    /** @var \moodle_exception  Any exception that was thrown by this step. */
+    /** @var \moodle_exception Any exception that was thrown by this step. */
     protected $exception = null;
 
     /**

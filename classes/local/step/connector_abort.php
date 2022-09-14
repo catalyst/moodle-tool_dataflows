@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,28 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_dataflows\local\step;
-use tool_dataflows\local\execution\engine_step;
 
 /**
- * Debugging connector step type
+ * 'Abort if' step
  *
  * @package    tool_dataflows
  * @author     Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class connector_debugging extends connector_step {
+class connector_abort extends connector_step {
+    use abort_trait;
 
-    /**
-     * Executes the step
-     *
-     * This will logs the input via debugging and passes the input value as-is to the output.
-     *
-     * @param  mixed|null $input
-     * @return mixed
-     */
-    public function execute($input = null) {
-        // TODO: Reach in and output the result of an expression via a debugging call.
-        return true;
-    }
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
+
+    /** @var int[] number of output connectors (min, max) */
+    protected $outputconnectors = [0, 1];
 }

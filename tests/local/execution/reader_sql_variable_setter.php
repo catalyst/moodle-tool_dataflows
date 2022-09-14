@@ -56,7 +56,7 @@ class reader_sql_variable_setter extends reader_sql {
      * @param   mixed $input
      * @return  mixed $input
      */
-    public function execute($input) {
+    public function execute($input = null) {
         parent::execute($input);
         // Updates a dataflow scoped variable.
         $this->enginestep->set_dataflow_var('dataflowvar', self::$dataflowvar);

@@ -64,7 +64,7 @@ class flow_email extends flow_step {
      * @param   mixed $input
      * @return  mixed $input
      */
-    public function execute($input) {
+    public function execute($input = null) {
 
         // Do not execute operations during a dry run.
         if ($this->enginestep->engine->isdryrun) {

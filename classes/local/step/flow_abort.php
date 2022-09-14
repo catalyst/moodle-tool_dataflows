@@ -25,21 +25,11 @@ namespace tool_dataflows\local\step;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class flow_abort extends flow_step {
+    use abort_trait;
 
     /** @var int[] number of output flows (min, max). */
-    protected $outputflows = [0, 0];
+    protected $outputflows = [0, 1];
 
     /** @var int[] number of output connectors (min, max) */
-    protected $outputconnectors = [0, 0];
-
-    /**
-     * Executes the step, aborting the whole dataflow.
-     *
-     * @param mixed $input - Ignored
-     * @return false
-     */
-    public function execute($input) {
-        $this->enginestep->engine->abort();
-        return false;
-    }
+    protected $outputconnectors = [0, 1];
 }

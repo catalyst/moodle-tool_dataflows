@@ -97,5 +97,4 @@ class tool_dataflows_abort_test extends \advanced_testcase {
 
         return [$dataflow, $steps];
     }
-
 }

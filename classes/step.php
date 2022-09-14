@@ -46,13 +46,13 @@ class step extends persistent {
     /** Characters to strip out when converting a name. Taken from PARAM_ALPHANUMEXT. */
     const NOT_ALPHANUMEXT = '/[^a-zA-Z0-9_-]+/';
 
-    /** @var array $dependson */
+    /** @var array */
     private $dependson = [];
 
-    /** @var array $dependents array for lazy loading step dependents */
+    /** @var array array for lazy loading step dependents */
     private $dependants = null;
 
-    /** @var array $dependents array for lazy loading step dependants */
+    /** @var array array for lazy loading step dependants */
     private $dependents = null;
 
     /** @var \stdClass of engine step states and timestamps */

@@ -55,9 +55,10 @@ class connector_wait extends connector_step {
      *
      * This will sleep for the number of seconds set in the config.
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param  mixed|null $input
+     * @return mixed
      */
-    public function execute(): bool {
+    public function execute($input = null) {
         $timesec = $this->stepdef->config->timesec;
         if (!is_int($timesec) && !(is_string($timesec) && ctype_digit($timesec))) {
             throw new \moodle_exception('connector_wait:not_integer', 'tool_dataflows', '', $timesec);

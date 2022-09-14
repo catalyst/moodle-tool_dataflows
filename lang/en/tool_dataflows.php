@@ -108,6 +108,7 @@ $string['endstate'] = 'End state';
 $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 
 // Step names.
+$string['step_name_connector_abort'] = 'Abort connector';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_email'] = 'Email notification';
@@ -385,6 +386,9 @@ $string['flow_logic_switch:nomatchingcases'] = 'No matching cases, skipping reco
 // Wait connector.
 $string['connector_wait:timesec'] = 'Time in seconds';
 $string['connector_wait:not_integer'] = 'Wait time value must evaluate to a positive integer (had "{$a}").';
+
+// Abort If.
+$string['connector_abort:condition'] = 'Condition';
 
 // File exists.
 $string['connector_file_exists:path'] = 'File path';

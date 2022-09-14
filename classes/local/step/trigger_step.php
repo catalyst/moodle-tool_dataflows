@@ -43,9 +43,10 @@ abstract class trigger_step extends connector_step {
      * example if the event doesn't contain the expected fields, then it would
      * return false potentially.
      *
+     * @param  mixed|null $input
      * @return true for now, since this will be configured differently per step
      */
-    public function execute(): bool {
+    public function execute($input = null) {
         return true;
     }
 

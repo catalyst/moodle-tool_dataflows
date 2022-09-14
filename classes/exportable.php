@@ -40,7 +40,7 @@ trait exportable {
     /**
      * Mime type for the downloaded file.
      *
-     * @var string $mimetype
+     * @var string
      */
     private $mimetype = 'application/x-yaml';
 

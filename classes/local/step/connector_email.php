@@ -59,9 +59,10 @@ class connector_email extends connector_step {
     /**
      * Sends the email.
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param  mixed|null $input
+     * @return mixed
      */
-    public function execute(): bool {
+    public function execute($input = null) {
 
         // Do not execute operations during a dry run.
         if ($this->enginestep->engine->isdryrun) {

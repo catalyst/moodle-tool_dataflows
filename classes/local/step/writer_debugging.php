@@ -34,7 +34,7 @@ class writer_debugging extends writer_step {
      * @param mixed $input
      * @return mixed $output
      */
-    public function execute($input) {
+    public function execute($input = null) {
         $output = $input;
         debugging(json_encode($input));
         return $output;

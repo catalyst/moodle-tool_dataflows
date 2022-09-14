@@ -94,9 +94,10 @@ class connector_s3 extends connector_step {
      *
      * This will take the input and perform S3 interaction functions.
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param  mixed|null $input
+     * @return mixed
      */
-    public function execute(): bool {
+    public function execute($input = null) {
         global $CFG;
         // Engine step contains the execution context, configuration, variables etc.
 

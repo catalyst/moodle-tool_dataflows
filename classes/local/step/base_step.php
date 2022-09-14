@@ -36,7 +36,7 @@ abstract class base_step {
     /** @var engine_step Engine step made by this class for an execution. */
     protected $enginestep = null;
 
-    /** @var step The step definition use to create the engine step.  */
+    /** @var step The step definition use to create the engine step. */
     protected $stepdef = null;
 
     /** @var array of variables exposed for use from this step. */
@@ -45,7 +45,7 @@ abstract class base_step {
     /**
      * This is autopopulated by the dataflows manager.
      *
-     * @var string $component - The component / plugin this step belongs to.
+     * @var string - The component / plugin this step belongs to.
      */
     protected $component = 'tool_dataflows';
 
@@ -660,6 +660,17 @@ abstract class base_step {
      */
     protected function get_config(): \stdClass {
         return $this->stepdef->config;
+    }
+
+    /**
+     * Get the step's (definition) raw config
+     *
+     * Helper method to reduce the complexity when authoring step types.
+     *
+     * @return  \stdClass configuration object
+     */
+    protected function get_raw_config(): \stdClass {
+        return $this->stepdef->get_raw_config();
     }
 
     /**

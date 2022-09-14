@@ -237,9 +237,7 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $reader->type = 'tool_dataflows\local\step\reader_sql';
 
         // Set the SQL query via a YAML config string.
-        $reader->config = Yaml::dump([
-            'sql' => '${{dataflow.vars.badvalue}}',
-        ]);
+        $reader->config = Yaml::dump(['sql' => '${{dataflow.vars.badvalue}}']);
         $dataflow->add_step($reader);
 
         $writer = new step();

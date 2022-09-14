@@ -46,9 +46,10 @@ abstract class connector_step extends base_step {
     /**
      * Perform the task required by this connector.
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param mixed|null $input
+     * @return mixed
      */
-    abstract public function execute(): bool;
+    abstract public function execute($input = null);
 
     /**
      * {@inheritdoc}
