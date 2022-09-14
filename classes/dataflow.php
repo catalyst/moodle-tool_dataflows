@@ -44,6 +44,8 @@ class dataflow extends persistent {
     /** @var steps[] cache of steps connected to this dataflow */
     private $stepscache = [];
 
+    /** @var bool Set to true when the dataflow is in the process of deleting. */
+    private $isdeleting = false;
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      *
@@ -667,12 +669,33 @@ class dataflow extends persistent {
     }
 
     /**
+     * Called when steps are created, modified or removed.
+     */
+    public function on_steps_save() {
+        if (!$this->isdeleting) {
+            // Not needed if we are going to just delete the dataflow.
+            $this->set('confighash', '');
+            $this->save();
+        }
+    }
+
+    /**
      * Remove all the steps first.
      */
     protected function before_delete() {
+        $this->isdeleting = true;
         foreach ($this->steps as $step) {
             $this->remove_step($step);
         }
+    }
+
+    /**
+     * Called after deletion
+     *
+     * @param bool $result
+     */
+    protected function after_delete($result) {
+        $this->isdeleting = false;
     }
 
     /**

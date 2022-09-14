@@ -407,6 +407,9 @@ class tool_dataflows_test extends \advanced_testcase {
      */
     public function test_step_deletion() {
         $dataflow = new dataflow();
+        $dataflow->enabled = true;
+        $dataflow->name = 'dataflow';
+        $dataflow->save();
 
         $step1 = new \tool_dataflows\step();
         $step1->name = 'delete_via_step';
@@ -462,6 +465,9 @@ class tool_dataflows_test extends \advanced_testcase {
 
         // Test them being checked via a dataflow.
         $dataflow = new dataflow();
+        $dataflow->enabled = true;
+        $dataflow->name = 'dataflow';
+        $dataflow->save();
 
         $step1 = new \tool_dataflows\step();
         $step1->name = 'read';
@@ -492,6 +498,9 @@ class tool_dataflows_test extends \advanced_testcase {
      */
     public function test_link_validation() {
         $dataflow = new dataflow();
+        $dataflow->enabled = true;
+        $dataflow->name = 'dataflow';
+        $dataflow->save();
 
         // Test valid inputs (none).
         $step1 = new \tool_dataflows\step();
@@ -584,6 +593,9 @@ class tool_dataflows_test extends \advanced_testcase {
         global $DB;
 
         $dataflow = new dataflow();
+        $dataflow->enabled = true;
+        $dataflow->name = 'dataflow';
+        $dataflow->save();
 
         $step1 = new \tool_dataflows\step();
         $step1->name = 'read';

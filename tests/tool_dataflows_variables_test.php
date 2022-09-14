@@ -341,6 +341,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $dataflow->name = 'connector-step';
         $dataflow->enabled = true;
         $dataflow->vars = Yaml::dump(['abc' => [1, 2, 3]]);
+        $dataflow->save();
 
         $stepdef = new step();
         $stepdef->name = 'deb';
