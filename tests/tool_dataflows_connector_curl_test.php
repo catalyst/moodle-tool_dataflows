@@ -64,6 +64,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'curl' => $testgeturl,
             'destination' => '',
             'headers' => '',
+            'timeout' => '0',
             'method' => 'get',
         ]);
         $stepdef->vars = Yaml::dump([
@@ -98,6 +99,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'destination' => '',
             'headers' => '',
             'method' => 'post',
+            'timeout' => '0',
             'rawpostdata' => 'data=moodletest',
         ]);
         $stepdef->vars = Yaml::dump([
@@ -125,6 +127,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'curl' => $testurl,
             'destination' => '',
             'headers' => '',
+            'timeout' => '30',
             'method' => 'put',
             'rawpostdata' => 'data=moodletest',
         ]);
@@ -140,7 +143,8 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $vars = $engine->get_variables()['steps']->connector->vars;
+        $variables = $engine->get_variables()['steps']->connector;
+        $vars = $variables->vars;
 
         // PUT has no response body so it shouldn't be checked.
         $this->assertEquals(200, $vars->httpcode);
@@ -148,12 +152,16 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $this->assertObjectHasAttribute('totaltime', $vars);
         $this->assertObjectHasAttribute('sizeupload', $vars);
 
+        $expectedbash = "curl -s -X PUT {$testurl} --max-time 30 --data-raw 'data=moodletest'";
+        $this->assertEquals($expectedbash, $variables->dbgcommand);
+
         // Tests debug command when dry run.
         $stepdef->config = Yaml::dump([
             'curl' => $testurl,
             'destination' => '',
-            'headers' => '',
+            'headers' => "X-One:one\nX-Two: \nX-Three:th'ree",
             'method' => 'post',
+            'timeout' => '0',
             'rawpostdata' => '{
                 "name": "morpheus",
                 "job": "leader"
@@ -167,7 +175,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         ob_get_clean();
 
         $variables = $engine->get_variables()['steps']->connector;
-        $expected = "curl -X POST {$testurl} -d '{
+        $expected = "curl -s -X POST {$testurl} --max-time 60 -H 'X-One:one' -H 'X-Two;' -H 'X-Three:th'\\''ree' --data-raw '{
                 \"name\": \"morpheus\",
                 \"job\": \"leader\"
             }'";
@@ -181,6 +189,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
             'curl' => $testgeturl,
             'destination' => $tofile,
             'headers' => '',
+            'timeout' => '0',
             'method' => 'get',
         ]);
         $stepdef->vars = Yaml::dump([
@@ -220,6 +229,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $config = (object) [
             'curl' => $this->get_mock_url('/h5puuid.json'),
             'method' => 'get',
+            'headers' => "X-One:one\nX-Two:\nX-Three:three",
         ];
         $connectorcurl = new connector_curl();
         $this->assertTrue($connectorcurl->validate_config($config));

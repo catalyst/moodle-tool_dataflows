@@ -75,4 +75,59 @@ class tool_dataflows_helper_test extends \advanced_testcase {
             ],
         ];
     }
+
+    /**
+     * Tests the bash_escape() function.
+     *
+     * @dataProvider bash_escape_provider
+     * @covers \tool_dataflows\helper::bash_escape
+     * @param string $value
+     * @param string $expected
+     */
+    public function test_bash_escape(string $value, string $expected) {
+        $this->assertEquals($expected, helper::bash_escape($value));
+    }
+
+    /**
+     * Provider for test_bash_escape().
+     *
+     * @return \string[][]
+     */
+    public function bash_escape_provider(): array {
+        return [
+            ['', "''"],
+            ['something with a space', "'something with a space'"],
+            ['something with a \' quote', "'something with a '\'' quote'"],
+        ];
+    }
+
+    /**
+     * Tests extract_http_headers()
+     *
+     * @dataProvider extract_http_headers_provider
+     * @covers \tool_dataflows\helper::extract_http_headers
+     * @param string $content
+     * @param array|bool $expected
+     */
+    public function test_extract_http_headers(string $content, $expected) {
+        $this->assertEquals($expected, helper::extract_http_headers($content));
+    }
+
+    /**
+     * Data provider for test_extract_http_headers().
+     *
+     * @return array[]
+     */
+    public function extract_http_headers_provider(): array {
+        return [
+            ['', []],
+            ['0', false],
+            ['X-one: one', ['X-one' => ' one']],
+            ["X-one: one\n two", ['X-one' => ' one two']],
+            ["X-one: one\n two\nX-two:two\nX-three:three", ['X-one' => ' one two', 'X-two' => 'two', 'X-three' => 'three']],
+            ["X-one: one\n two\n \nX-two:two\nX-three:three", false],
+            ["X-one: one\n two\nX-two\nX-three:three", false],
+            ["X-@one: one\n two\nX-two:two\nX-three:three", false],
+        ];
+    }
 }

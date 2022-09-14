@@ -332,7 +332,7 @@ ORDER BY id ASC
      *
      * @param  \stdClass $value
      */
-    public function execute($value) {
+    public function execute($value = null) {
         // Check the config for the counterfield.
         $config = $this->enginestep->stepdef->config;
         $counterfield = $config->counterfield ?? null;
