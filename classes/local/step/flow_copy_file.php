@@ -117,7 +117,7 @@ class flow_copy_file extends flow_step {
         if (!copy($from, $to)) {
             throw new \moodle_exception('flow_copy_file:copy_failed', 'tool_dataflows', (object) [
                 'from' => $from,
-                'to' => $to
+                'to' => $to,
             ]);
         }
     }
@@ -142,5 +142,4 @@ class flow_copy_file extends flow_step {
 
         return empty($errors) ? true : $errors;
     }
-
 }

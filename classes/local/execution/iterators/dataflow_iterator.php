@@ -30,22 +30,22 @@ use tool_dataflows\local\execution\flow_engine_step;
  */
 class dataflow_iterator implements iterator {
 
-    /** @var steptype $steptype */
+    /** @var steptype */
     protected $steptype;
 
-    /** @var bool $finished */
+    /** @var bool */
     protected $finished = false;
 
-    /** @var mixed $input */
+    /** @var mixed */
     protected $input;
 
-    /** @var flow_engine_step $step */
+    /** @var flow_engine_step */
     protected $step;
 
-    /** @var mixed $value */
+    /** @var mixed */
     protected $value = null;
 
-    /** @var int $iterationcount */
+    /** @var int */
     protected $iterationcount = 0;
 
     /**

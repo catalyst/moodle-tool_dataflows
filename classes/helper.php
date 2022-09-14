@@ -51,7 +51,7 @@ class helper {
         'wwwroot',
     ];
 
-    /** @var null|bool Is this Windows?  */
+    /** @var null|bool Is this Windows? */
     protected static $iswindows = null;
 
     /**
@@ -260,5 +260,4 @@ class helper {
         }
         return true;
     }
-
 }

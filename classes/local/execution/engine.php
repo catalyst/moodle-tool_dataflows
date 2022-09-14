@@ -82,10 +82,10 @@ class engine {
     const STATUS_TERMINATORS = [
         self::STATUS_ABORTED,
         self::STATUS_FINALISED,
-        self::STATUS_CANCELLED
+        self::STATUS_CANCELLED,
     ];
 
-    /** @var  array The queue of steps to be given a run. */
+    /** @var array The queue of steps to be given a run. */
     public $queue;
 
     /** @var dataflow The dataflow defined by the user. */
@@ -121,7 +121,7 @@ class engine {
     /** @var \core\lock\lock|false Lock for the dataflow. Sometimes, only one dataflow of each def should be running at a time. */
     protected $lock = false;
 
-    /** @var \core\lock\lock_factory Factory to produce locks.  */
+    /** @var \core\lock\lock_factory Factory to produce locks. */
     protected static $lockfactory = null;
 
     /** @var bool Has this engine been blocked by a lock. */
