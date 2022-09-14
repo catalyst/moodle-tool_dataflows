@@ -537,10 +537,8 @@ class dataflow extends persistent {
         $nodes = [];
         $contentonly = true;
         $steparray = [];
-        $outputlabels = [];
         foreach ($steps as $step) {
             $steparray[$step->id] = $step;
-            $outputlabels[$step->id] = $step->steptype->get_output_labels();
             $nodes[] = $step->get_dotscript($contentonly);
         }
         $nodes = implode(';' . PHP_EOL, $nodes);
@@ -583,7 +581,7 @@ class dataflow extends persistent {
                 'stepid' => $destid,
             ]);
             if (isset($dependency->position)) {
-                $outputlabel = $outputlabels[$srcid][$dependency->position];
+                $outputlabel = $srcstep->steptype->get_output_label($dependency->position);
 
                 $connectionstyles = [
                     'label' => $outputlabel,
