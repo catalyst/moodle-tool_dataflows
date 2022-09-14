@@ -65,7 +65,8 @@ class flow_copy_file extends flow_step {
     /**
      * Executes the step and copies what is in $from, to the $to path
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param mixed $input
+     * @return mixed Returns the input unchanged.
      */
     public function execute($input) {
         global $CFG;
