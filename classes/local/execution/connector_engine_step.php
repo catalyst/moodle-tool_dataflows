@@ -53,7 +53,7 @@ class connector_engine_step extends engine_step {
                     }
                 } catch (\Throwable $thrown) {
                     $this->exception = $thrown;
-                    $this->set_status(engine::STATUS_ABORTED);
+                    $this->engine->abort($thrown);
                 }
                 break;
             case self::PROCEED_STOP:

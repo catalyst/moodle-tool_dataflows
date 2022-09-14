@@ -50,11 +50,6 @@ interface iterator {
     public function is_ready(): bool;
 
     /**
-     * Terminate the iterator immediately.
-     */
-    public function abort();
-
-    /**
      * Next item in the stream.
      *
      * @param   \stdClass $caller The engine step that called this method, internally used to connect outputs.

@@ -82,18 +82,25 @@ class dataflow_iterator implements iterator {
     }
 
     /**
-     * Terminate the iterator immediately.
+     * Finishes the iterator. Calls finish for engine step.
      */
-    final public function abort() {
-        $this->finished = true;
-        $this->on_abort();
-        $this->step->set_status(engine::STATUS_FINISHED);
+    final public function finish() {
+        $this->stop();
+        $this->step->finish();
     }
 
     /**
-     * Any custom handling for on_abort
+     * Terminate the iterator.
      */
-    public function on_abort() {
+    final public function stop() {
+        $this->finished = true;
+        $this->on_stop();
+    }
+
+    /**
+     * Called when the iterator is stopped, either because of finishing ar due to an abort.
+     */
+    public function on_stop() {
         // Do nothing by default.
     }
 
@@ -157,11 +164,14 @@ class dataflow_iterator implements iterator {
                 $this->input->next();
             }
         }
+        if ($this->step->engine->is_aborted()) {
+            return false;
+        }
         $this->pulled = true;
 
         // Validate if input is valid before grabbing it.
         if (!$this->input->valid()) {
-            $this->abort();
+            $this->finish();
             return false;
         }
 
@@ -177,6 +187,9 @@ class dataflow_iterator implements iterator {
             // Do the actions defined for the particular step.
             $this->on_next();
             $newvalue = $this->steptype->execute($this->value);
+            if ($this->step->engine->is_aborted()) {
+                return false;
+            }
 
             // Handle step outputs - noting that for flow steps, the values may change between each iteration.
             $this->steptype->prepare_vars();
@@ -189,7 +202,7 @@ class dataflow_iterator implements iterator {
             $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
         } catch (\Throwable $e) {
             $this->step->log($e->getMessage());
-            $this->abort();
+            $this->step->engine->abort();
             throw $e;
         }
 

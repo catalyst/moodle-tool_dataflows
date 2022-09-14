@@ -78,6 +78,13 @@ class engine {
         self::STATUS_FINALISED => 'finalised',
     ];
 
+    /** @var int[] Statuses that represent the termination of a run. */
+    const STATUS_TERMINATORS = [
+        self::STATUS_ABORTED,
+        self::STATUS_FINALISED,
+        self::STATUS_CANCELLED
+    ];
+
     /** @var  array The queue of steps to be given a run. */
     public $queue;
 
@@ -249,6 +256,15 @@ class engine {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Returns whether the run has been aborted.
+     *
+     * @return bool
+     */
+    public function is_aborted(): bool {
+        return $this->status == self::STATUS_ABORTED;
     }
 
     /**
@@ -452,6 +468,8 @@ class engine {
     /**
      * Stops execution immediately. Gracefully stops all processors and iterators.
      *
+     * You should always call this function to abort an execution.
+     *
      * @param \Throwable|null $reason
      * @throws \Throwable
      */
@@ -466,6 +484,10 @@ class engine {
         foreach ($this->enginesteps as $enginestep) {
             $enginestep->abort();
         }
+        foreach ($this->flowcaps as $enginestep) {
+            $enginestep->abort();
+        }
+        $this->queue = [];
         $this->set_status(self::STATUS_ABORTED);
         $this->release_lock();
 
@@ -588,8 +610,12 @@ class engine {
      * @param  int $status a status from the engine class
      */
     public function set_status(int $status) {
+        if ($status === $this->status) {
+            return;
+        }
+
         // Engines are single use. Once it has concluded, you can no longer change it's state.
-        if ($this->status == self::STATUS_ABORTED || $this->status == self::STATUS_FINALISED) {
+        if (in_array($this->status, self::STATUS_TERMINATORS)) {
             throw new \moodle_exception('change_state_after_concluded', 'tool_dataflows');
         }
         $this->status = $status;

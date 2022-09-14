@@ -93,6 +93,13 @@ abstract class engine_step {
     }
 
     /**
+     * Finishes the step.
+     */
+    public function finish() {
+        $this->set_status(engine::STATUS_FINISHED);
+    }
+
+    /**
      * Finalises the step.
      */
     public function finalise() {
@@ -101,9 +108,17 @@ abstract class engine_step {
     }
 
     /**
-     * Aborts the step.
+     * Cancels the step.
+     */
+    public function cancel() {
+        $this->set_status(engine::STATUS_CANCELLED);
+    }
+
+    /**
+     * Aborts the step. Do not call this directly. Always call engine::abort() to abort a dataflow.
      */
     public function abort() {
+        $this->set_status(engine::STATUS_ABORTED);
     }
 
     /**
@@ -245,13 +260,18 @@ abstract class engine_step {
      * Updates the status of this engine's step
      *
      * This also records some metadata in the relevant objects e.g. the step's state.
+     * Do not call this to set status to ABORTED directly. Call engine::abort().
      *
      * @param  int $status a status from the engine class
      */
-    public function set_status(int $status) {
+    protected function set_status(int $status) {
         if ($status === $this->status) {
             return;
         }
+        if (in_array($this->status, engine::STATUS_TERMINATORS)) {
+            throw new \moodle_exception('change_state_after_concluded', 'tool_dataflows');
+        }
+
         $this->status = $status;
 
         // Record the timestamp of the state change against the step persistent,
@@ -289,7 +309,6 @@ abstract class engine_step {
                 }
                 break;
             case engine::STATUS_ABORTED:
-                $this->engine->abort($this->exception);
                 break;
         }
     }
