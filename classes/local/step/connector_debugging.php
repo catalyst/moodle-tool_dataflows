@@ -32,7 +32,8 @@ class connector_debugging extends connector_step {
      *
      * This will logs the input via debugging and passes the input value as-is to the output.
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param  mixed|null $input
+     * @return mixed
      */
     public function execute($input = null) {
         // TODO: Reach in and output the result of an expression via a debugging call.

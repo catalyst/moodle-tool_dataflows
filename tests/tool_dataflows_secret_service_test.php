@@ -52,6 +52,8 @@ class tiny_connector_s3 extends connector_s3 {
 
     /**
      * Returns the name of this step.
+     *
+     * @return string
      */
     public function get_name(): string {
         return 'stepname';
@@ -77,7 +79,8 @@ class tiny_connector_s3 extends connector_s3 {
     /**
      * This will not perform s3 operations and will do effectively nothing.
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param  mixed|null $input
+     * @return mixed
      */
     public function execute($input = null) {
         return true;

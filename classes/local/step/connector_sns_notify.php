@@ -69,7 +69,8 @@ class connector_sns_notify extends connector_step {
      *
      * This will take the input and perform S3 interaction functions.
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param  mixed|null $input
+     * @return mixed
      */
     public function execute($input = null) {
         global $CFG;

@@ -33,7 +33,8 @@ class connector_debug_file_display extends connector_step {
      *
      * This will take the contents of the given stream name, and dump its contents via mtrace.
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param  mixed|null $input
+     * @return mixed
      */
     public function execute($input = null) {
         $config = $this->enginestep->stepdef->config;

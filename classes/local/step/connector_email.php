@@ -59,7 +59,8 @@ class connector_email extends connector_step {
     /**
      * Sends the email.
      *
-     * @return bool Returns true if successful, false otherwise.
+     * @param  mixed|null $input
+     * @return mixed
      */
     public function execute($input = null) {
 
