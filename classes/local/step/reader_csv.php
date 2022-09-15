@@ -62,7 +62,7 @@ class reader_csv extends reader_step {
         $maxlinelength = 1000;
         $config = $this->get_config();
         $strheaders = $config->headers;
-        if (($handle = fopen($config->path, "r")) !== false) {
+        if (($handle = fopen($config->path, 'r')) !== false) {
             try {
                 // Prepare and resolve headers.
                 if (empty($strheaders)) {
