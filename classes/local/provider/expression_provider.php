@@ -63,6 +63,7 @@ class expression_provider implements ExpressionFunctionProviderInterface {
             ExpressionFunction::fromPhp('round', 'round'),
             ExpressionFunction::fromPhp('time', 'time'),
             ExpressionFunction::fromPhp('userdate', 'userdate'),
+            ExpressionFunction::fromPhp('date', 'date'),
             ExpressionFunction::fromPhp('get_object_vars', 'get_object_vars'),
         ];
     }

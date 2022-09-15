@@ -17,7 +17,7 @@
 namespace tool_dataflows\local\step;
 
 /**
- * S3 connector step type
+ * S3 flow step
  *
  * @package    tool_dataflows
  * @author     Peter Burnettt <peterburnett@catalyst-au.net>
@@ -25,8 +25,14 @@ namespace tool_dataflows\local\step;
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class connector_s3 extends connector_step {
+class flow_s3 extends flow_step {
     use s3_trait;
+
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
+
+    /** @var int[] number of output connectors (min, max). */
+    protected $outputconnectors = [0, 1];
 
     /** @var string the prefix identifier for an s3 path, e.g. s3://path/to/file. */
     const S3_PREFIX = 's3://';
