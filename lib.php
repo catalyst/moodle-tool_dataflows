@@ -64,6 +64,7 @@ function tool_dataflows_step_types() {
         new step\flow_logic_join,
         new step\flow_noop,
         new step\flow_web_service,
+        new step\reader_csv,
         new step\reader_json,
         new step\reader_sql,
         new step\trigger_cron,

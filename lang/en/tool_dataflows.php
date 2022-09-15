@@ -123,6 +123,7 @@ $string['step_name_flow_logic_switch'] = 'Switch';
 $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_noop'] = 'No-op';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
+$string['step_name_reader_csv'] = 'CSV reader';
 $string['step_name_reader_json'] = 'JSON reader';
 $string['step_name_reader_sql'] = 'SQL reader';
 $string['step_name_trigger_cron'] = 'Cron';
@@ -305,6 +306,12 @@ $string['reader_sql:variable_not_valid_in_position_replacement_text'] = "Invalid
 $string['reader_sql:counterfield_not_empty'] = 'Counterfield value is non-empty.';
 $string['reader_sql:settings_unknown'] = 'The settings are unknown.';
 $string['reader_sql:finalsql_not_string'] = 'SQL must evaluate to a string.';
+
+// Reader CSV.
+$string['reader_csv:path'] = 'Path to CSV file';
+$string['reader_csv:delimiter'] = 'Delimiter';
+$string['reader_csv:headers'] = 'Headers';
+$string['reader_csv:headers_help'] = 'If populated, then this will act as the header to map field to keys. If left blank, it will be populated automatically using the first read row.';
 
 // Reader JSON.
 $string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON. For example, {$a->expression} will return the users array from the following JSON (If empty it is assumed the starting point of the JSON file is an array):{$a->jsonexample}';
