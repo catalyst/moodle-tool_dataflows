@@ -46,6 +46,7 @@ class dataflow extends persistent {
 
     /** @var bool Set to true when the dataflow is in the process of deleting. */
     private $isdeleting = false;
+
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      *
