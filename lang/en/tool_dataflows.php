@@ -110,29 +110,30 @@ $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 // Step names.
 $string['step_name_connector_abort'] = 'Abort connector';
 $string['step_name_connector_curl'] = 'Curl connector';
+$string['step_name_connector_debug_file_display'] = 'File contents display';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_email'] = 'Email notification';
 $string['step_name_connector_file_exists'] = 'File exists';
-$string['step_name_flow_hash_file'] = 'Hash file';
-$string['step_name_flow_s3'] = 'S3 file copy';
+$string['step_name_connector_hash_file'] = 'Hash file';
 $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
-$string['step_name_flow_copy_file'] = 'Copy File';
 $string['step_name_flow_abort'] = 'Abort';
+$string['step_name_flow_copy_file'] = 'Copy File';
 $string['step_name_flow_email'] = 'Flow email notification';
-$string['step_name_flow_logic_switch'] = 'Switch';
+$string['step_name_flow_hash_file'] = 'Hash file';
 $string['step_name_flow_logic_join'] = 'Join';
+$string['step_name_flow_logic_switch'] = 'Switch';
 $string['step_name_flow_noop'] = 'No-op';
+$string['step_name_flow_s3'] = 'S3 file copy';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
+$string['step_name_flow_web_service'] = 'Flow web service';
 $string['step_name_reader_csv'] = 'CSV reader';
 $string['step_name_reader_json'] = 'JSON reader';
 $string['step_name_reader_sql'] = 'SQL reader';
 $string['step_name_trigger_cron'] = 'Cron';
 $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
-$string['step_name_connector_debug_file_display'] = 'File contents display';
-$string['step_name_flow_web_service'] = 'Flow web service';
 
 // Step (type) groups.
 $string['stepgrouptriggers'] = 'Triggers';
