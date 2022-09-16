@@ -109,6 +109,7 @@ $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 
 // Step names.
 $string['step_name_connector_abort'] = 'Abort connector';
+$string['step_name_connector_hash_file'] = 'Hash file';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_email'] = 'Email notification';
