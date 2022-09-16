@@ -41,6 +41,9 @@ class helper {
     /** Location of the dependency section of the readme. */
     public const README_DEPENDENCY_LINK = 'https://github.com/catalyst/moodle-tool_dataflows#dependencies';
 
+    /** Regular expression for a valid HTTP header name. */
+    public const HTTP_HEADER_REGEX = '/^[A-Za-z0-9!#$%&\'*+-.=^_`|]+$/'; // phpcs:ignore moodle.Strings.ForbiddenStrings.Found
+
     /** CFG and SITE settings to be included as variables. */
     public const CFG_VARS = [
         'fullname',
@@ -259,5 +262,66 @@ class helper {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Takes a string and turns it into an escaped bash string.
+     *
+     * @param string $content
+     * @return string
+     */
+    public static function bash_escape(string $content): string {
+        return "'" . str_replace("'", "'\''", $content) . "'";
+    }
+
+    /**
+     * Extract headers from given content in accordance with RFC2616.
+     *
+     * See https://www.rfc-editor.org/rfc/rfc2616.html#section-4.2
+     *
+     * @param string $content
+     * @return array|bool The array of header => value or false if the headers were invalid.
+     */
+    public static function extract_http_headers(string $content) {
+        $content = trim($content);
+        if ($content === '') {
+            return [];
+        }
+        $lines = explode(PHP_EOL, $content);
+        $headerlines = [];
+        $current = null;
+
+        // Look for multiline headers and contract them into a single line for each.
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                return false; // Cannot have empty lines.
+            }
+            if (ctype_space(ord($line))) {
+                $current .= $line;
+            } else {
+                if (!is_null($current)) {
+                    $headerlines[] = $current;
+                }
+                $current = $line;
+            }
+        }
+        $headerlines[] = $current;
+
+        $headers = [];
+        // Check for validity.
+        foreach ($headerlines as $line) {
+            $pair = explode(':', $line, 2);
+            // There must be a value, even if it is an empty string (No value indicates that the ':' was not present.
+            if (!isset($pair[1])) {
+                return false;
+            }
+            list($header, $value) = $pair;
+            // Name must be of the correct syntax.
+            if (preg_match(self::HTTP_HEADER_REGEX, $header) !== 1) {
+                return false;
+            }
+            $headers[$header] = $value;
+        }
+        return $headers;
     }
 }

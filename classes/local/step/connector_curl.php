@@ -34,7 +34,7 @@ class connector_curl extends connector_step {
     public const HTTP_ERROR = 400;
 
     /** @var int Time after which curl request is aborted */
-    protected $timeout = 60;
+    public const DEFAULT_TIMEOUT = 60;
 
     /**
      * Returns whether or not the step configured, has a side effect.
@@ -120,12 +120,10 @@ class connector_curl extends connector_step {
      * @param \MoodleQuickForm $mform
      */
     public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
-        $jsonexample = [
-            'header-key' => 'header value',
-            'another-key' => '1234',
-        ];
-        $ex['json'] = \html_writer::nonempty_tag('pre', json_encode($jsonexample, JSON_PRETTY_PRINT));
-        $ex['yaml'] = '<pre>header-key: header value<br>another-key: 1234</pre>';
+        $ex = \html_writer::nonempty_tag(
+            'pre',
+            htmlspecialchars(get_string('connector_curl:header_format', 'tool_dataflows') . PHP_EOL)
+        );
 
         $urlarray = [];
         $urlarray[] =& $mform->createElement('select', 'config_method', '', [
@@ -172,10 +170,20 @@ class connector_curl extends connector_step {
     public function validate_config($config) {
         $errors = [];
         if (empty($config->curl)) {
-            $errors['config_curl'] = get_string('config_field_missing', 'tool_dataflows', 'curl', true);
+            $errors['config_curl'] = get_string(
+                'config_field_missing',
+                'tool_dataflows',
+                get_string('connector_curl:curl', 'tool_dataflows'),
+                true
+            );
         }
         if (empty($config->rawpostdata) && ($config->method === 'put' || $config->method === 'post')) {
-            $errors['config_rawpostdata'] = get_string('config_field_missing', 'tool_dataflows', 'rawpostdata', true);
+            $errors['config_rawpostdata'] = get_string(
+                'config_field_missing',
+                'tool_dataflows',
+                get_string('connector_curl:rawpostdata', 'tool_dataflows'),
+                true
+            );
         }
         return empty($errors) ? true : $errors;
     }
@@ -213,24 +221,49 @@ class connector_curl extends connector_step {
 
         $this->enginestep->log($config->curl);
 
-        $dbgcommand = 'curl -X ' .  strtoupper($method) . ' ' . $config->curl;
+        // Construct a bash curl command.
+        // See https://manpages.org/curl.
+        $dbgcommand = 'curl -s -X ' .  strtoupper($method) . ' ' . $config->curl;
 
-        if (!empty($config->timeout)) {
-            $this->timeout = (int) $config->timeout;
-            $dbgcommand .= ' --max-time ' . $config->timeout;
+        // Extract timeout.
+        $timeout = (int) $config->timeout ?: self::DEFAULT_TIMEOUT;
+
+        $dbgcommand .= ' --max-time ' . $timeout;
+        $options = ['CURLOPT_TIMEOUT' => $timeout];
+
+        // Extract headers.
+        $headers = helper::extract_http_headers($config->headers);
+        if ($headers === false) {
+            throw new \moodle_exception(get_string('connector_curl:headers_invalid', 'tool_dataflows'));
         }
 
-        $headers = $config->headers;
+        // Add headers to bash command. Headers with no value are ended with a ';' in accordance with the man page.
         if (!empty($headers)) {
-            $dbgcommand .= ' -H \'' . $headers . '\'';
+            foreach ($headers as $name => $value) {
+                if (trim($value) !== '') {
+                    $header = "$name:$value";
+                } else {
+                    $header = "$name;";
+                }
+                $dbgcommand .= ' -H ' . helper::bash_escape($header);
+            }
         }
-
-        $options = ['CURLOPT_TIMEOUT' => $this->timeout];
 
         // Sets post data.
         if (!empty($config->rawpostdata)) {
             $options['CURLOPT_POSTFIELDS'] = $config->rawpostdata;
-            $dbgcommand .= ' -d \'' . $config->rawpostdata . '\'';
+            $dbgcommand .= ' --data-raw ' . helper::bash_escape($config->rawpostdata);
+        }
+
+        // Download response to file provided destination is set.
+        if (!empty($config->destination)) {
+            if ($config->destination[0] === '/') {
+                $config->destination = ltrim($config->destination, '/');
+            }
+            $config->destination = $this->enginestep->engine->resolve_path($config->destination);
+            $file = fopen($config->destination, 'w');
+            $options['CURLOPT_FILE'] = $file;
+            $dbgcommand .= ' --output ' . helper::bash_escape($config->destination);
         }
 
         // Log the raw curl command.
@@ -252,26 +285,9 @@ class connector_curl extends connector_step {
 
         $curl = new \curl();
 
-        // Provided a header is specified add header to request.
+        // Provided a header is specified, add header to request.
         if (!empty($headers)) {
-            $headers = $config->headers;
-            if (!is_array($headers)) {
-                $headers = json_decode($headers, true);
-            }
-            if (is_null($headers)) {
-                $headers = Yaml::parse($config->headers);
-            }
             $curl->setHeader($headers);
-        }
-
-        // Download response to file provided destination is set.
-        if (!empty($config->destination)) {
-            if ($config->destination[0] === '/') {
-                $config->destination = ltrim($config->destination, '/');
-            }
-            $config->destination = $this->enginestep->engine->resolve_path($config->destination);
-            $file = fopen($config->destination, 'w');
-            $options['CURLOPT_FILE'] = $file;
         }
 
         // Perform call.

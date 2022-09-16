@@ -205,5 +205,34 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022091200, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2022091600) {
+        // Convert all existing curl connector steps to use new headers format.
+        $records = $DB->get_records(
+            'tool_dataflows_steps',
+            ['type' => 'tool_dataflows\local\step\connector_curl'],
+            '',
+            'id, config'
+        );
+        foreach ($records as $record) {
+            $config = \Symfony\Component\Yaml\Yaml::parse($record->config);
+            if (!empty($config['headers'])) {
+                $headers = json_decode($config['headers'], true);
+                if (is_null($headers)) {
+                    $headers = \Symfony\Component\Yaml\Yaml::parse($config['headers']);
+                }
+                $newheaders = [];
+                foreach ($headers as $key => $value) {
+                    $newheaders[] = "$key: $value";
+                }
+                $config['headers'] = implode(PHP_EOL, $newheaders);
+                $record->config = \Symfony\Component\Yaml\Yaml::dump($config);
+                $DB->update_record('tool_dataflows_steps', $record);
+            }
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022091600, 'tool', 'dataflows');
+    }
+
     return true;
 }

@@ -309,6 +309,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
             'curl' => $testgeturl,
             'destination' => '',
             'headers' => '',
+            'timeout' => '0',
             'method' => 'get',
         ]);
 
