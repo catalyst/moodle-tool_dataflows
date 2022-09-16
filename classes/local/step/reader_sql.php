@@ -330,9 +330,10 @@ ORDER BY id ASC
      *
      * Updates the counter value if a counterfield is supplied, but otherwise does nothing special to the data.
      *
-     * @param  \stdClass $value
+     * @param   mixed $input
+     * @return  mixed $input
      */
-    public function execute($value = null) {
+    public function execute($input = null) {
         // Check the config for the counterfield.
         $config = $this->enginestep->stepdef->config;
         $counterfield = $config->counterfield ?? null;
@@ -352,10 +353,10 @@ ORDER BY id ASC
             }
             if (!empty($counterfield)) {
                 // Updates the countervalue based on the current counterfield value.
-                $this->enginestep->set_var('countervalue', $value->{$counterfield});
+                $this->enginestep->set_var('countervalue', $input->{$counterfield});
             }
         }
 
-        return $value;
+        return $input;
     }
 }
