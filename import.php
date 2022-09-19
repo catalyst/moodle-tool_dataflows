@@ -59,15 +59,16 @@ if (($data = $form->get_data())) {
         $yaml = \Symfony\Component\Yaml\Yaml::parse($filecontent);
         $data = (object) ['userid' => $USER->id];
         $dataflow = new dataflow(0, $data);
+
         // Imports the dataflow details provided.
         $dataflow->import($yaml);
-        \core\notification::success(get_string('changessaved'));
-    } catch (Exception $e) {
-        \core\notification::error($e->getMessage());
-    }
 
-    // We are done, so let's redirect somewhere.
-    redirect($overviewurl);
+        // We are done, so let's redirect somewhere.
+        \core\notification::success(get_string('changessaved'));
+        redirect($overviewurl);
+    } catch (Exception $e) {
+        \core\notification::error($e->getMessage() . html_writer::empty_tag('br') . $e->debuginfo);
+    }
 }
 
 // Display the mandatory header and footer.
