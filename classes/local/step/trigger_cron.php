@@ -195,7 +195,7 @@ class trigger_cron extends trigger_step {
         $times = scheduler::get_scheduled_times($this->stepdef->id);
         if (!(bool) $this->stepdef->dataflow->enabled) {
             $nextrun = get_string('trigger_cron:flow_disabled', 'tool_dataflows');
-        } else if ($times->nextruntime > time()) {
+        } else if ($times !== false && $times->nextruntime > time()) {
             $nextrun = userdate($times->nextruntime, get_string('trigger_cron:strftime_datetime', 'tool_dataflows'));
         } else {
             $nextrun = get_string('asap', 'tool_task');
