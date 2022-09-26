@@ -125,6 +125,7 @@ class reader_csv extends reader_step {
             'text',
             'config_delimiter',
             get_string('reader_csv:delimiter', 'tool_dataflows'),
+            ['placeholder' => self::DEFAULT_DELIMETER],
             self::DEFAULT_DELIMETER
         );
     }
