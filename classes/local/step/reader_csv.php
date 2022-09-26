@@ -62,7 +62,9 @@ class reader_csv extends reader_step {
         $maxlinelength = 1000;
         $config = $this->get_config();
         $strheaders = $config->headers;
-        if (($handle = fopen($config->path, 'r')) !== false) {
+        $path = $this->enginestep->engine->resolve_path($config->path);
+
+        if (($handle = fopen($path, 'r')) !== false) {
             try {
                 // Prepare and resolve headers.
                 if (empty($strheaders)) {
@@ -125,6 +127,7 @@ class reader_csv extends reader_step {
             'text',
             'config_delimiter',
             get_string('reader_csv:delimiter', 'tool_dataflows'),
+            ['placeholder' => self::DEFAULT_DELIMETER],
             self::DEFAULT_DELIMETER
         );
     }
