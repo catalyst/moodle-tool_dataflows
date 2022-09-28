@@ -57,6 +57,7 @@ function tool_dataflows_step_types() {
         new step\connector_file_exists,
         new step\connector_hash_file,
         new step\connector_s3,
+        new step\connector_sftp,
         new step\connector_sns_notify,
         new step\connector_wait,
         new step\flow_abort,

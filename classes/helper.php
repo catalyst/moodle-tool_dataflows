@@ -72,14 +72,21 @@ class helper {
     }
 
     /**
-     * Does the path string include a scheme?
+     * Does the path string include a given scheme?
      *
      * @param string $path
+     * @param string|null $scheme The scheme to test for. If null, then any scheme will match.
      * @return bool
      */
-    public static function path_has_scheme(string $path): bool {
+    public static function path_has_scheme(string $path, ?string $scheme = null): bool {
         $splitpath = explode('://', $path, 2);
-        return count($splitpath) === 2;
+        if (count($splitpath) !== 2 ) {
+            return false;
+        }
+        if (is_null($scheme)) {
+            return true;
+        }
+        return strtolower($splitpath[0]) === strtolower($scheme);
     }
 
     /**
