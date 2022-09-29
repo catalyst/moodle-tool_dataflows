@@ -47,6 +47,12 @@ class dataflow extends persistent {
     /** @var bool Set to true when the dataflow is in the process of deleting. */
     private $isdeleting = false;
 
+    /** @var bool If true, then the variables tree will be rebuilt when get_variables() is called.  */
+    private $shouldrebuildvariables = true;
+
+    /** @var array The variables tree constructed by get_variables(). */
+    private $variablestree;
+
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      *
@@ -137,11 +143,23 @@ class dataflow extends persistent {
     }
 
     /**
+     * Sets the rebuild variables flag, so that the variables tree is rebuilt the next time get_variables() is called.
+     */
+    public function rebuild_variables() {
+        $this->shouldrebuildvariables = true;
+    }
+
+    /**
      * Returns the variables available for this object
      *
      * @return     array of variables typically passed to the expression parser
      */
     public function get_variables(): array {
+        if (!$this->shouldrebuildvariables) {
+            // No variables have been set since the last rebuild, so just return the same tree.
+            return $this->variablestree;
+        }
+
         $globalvars = Yaml::parse(get_config('tool_dataflows', 'global_vars'), Yaml::PARSE_OBJECT_FOR_MAP)
                 ?? new \stdClass();
 
@@ -247,6 +265,8 @@ class dataflow extends persistent {
             'dataflow' => $dataflow,
             'steps'    => $steps,
         ];
+        $this->variablestree = $variables;
+        $this->shouldrebuildvariables = false;
         return $variables;
     }
 
@@ -653,6 +673,7 @@ class dataflow extends persistent {
         $step->set_dataflow($this);
         $step->upsert();
         $this->stepscache[$step->id] = $step;
+        $this->rebuild_variables();
         return $this;
     }
 
@@ -664,6 +685,7 @@ class dataflow extends persistent {
      */
     public function remove_step(step $step) {
         $step->delete();
+        $this->rebuild_variables();
         return $this;
     }
 
@@ -674,6 +696,7 @@ class dataflow extends persistent {
         if (!$this->isdeleting) {
             // Not needed if we are going to just delete the dataflow.
             $this->set('confighash', '');
+            $this->rebuild_variables();
             $this->save();
         }
     }
@@ -744,6 +767,7 @@ class dataflow extends persistent {
                 }
             }
             $transaction->allow_commit();
+            $this->rebuild_variables();
         } catch (\Exception $exception) {
             $transaction->rollback($exception);
             throw $exception;
@@ -809,6 +833,7 @@ class dataflow extends persistent {
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
         );
+        $this->rebuild_variables();
     }
 
     /**
