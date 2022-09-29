@@ -108,6 +108,7 @@ $string['endstate'] = 'End state';
 $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 
 // Step names.
+$string['step_name_connector_directory_file_count'] = 'Directory file count';
 $string['step_name_connector_abort'] = 'Abort connector';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debug_file_display'] = 'File contents display';
@@ -436,3 +437,6 @@ $string['dataflow_iterator:null_input'] = 'Trying to construct an iterator witho
 $string['flow_copy_file:from'] = 'From';
 $string['flow_copy_file:to'] = 'To';
 $string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';
+
+// Directory file count.
+$string['connector_directory_file_count:path'] = 'Path to directory';
