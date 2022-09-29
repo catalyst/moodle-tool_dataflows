@@ -295,6 +295,15 @@ class dataflow extends persistent {
     }
 
     /**
+     * Get variables without evaluating expressions.
+     *
+     * @return \stdClass
+     */
+    public function get_raw_vars(): \stdClass {
+        return $this->get_vars(false);
+    }
+
+    /**
      * Returns all the edges with their dependencies
      *
      * @return     array $edges steps and their dependencies (by id)
