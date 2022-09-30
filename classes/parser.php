@@ -165,7 +165,7 @@ class parser {
                 // the wrong spot.
                 try {
                     $parsethis = trim($match['expression']);
-                    error_reporting(E_ALL & ~E_NOTICE);
+                    error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
                     $result = $this->expressionlanguage->evaluate(
                         $parsethis,
                         $variables
