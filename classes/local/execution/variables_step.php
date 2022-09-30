@@ -30,6 +30,9 @@ class variables_step extends variables_base {
     /** @var variables_root The root variables object. */
     private $root;
 
+    /** @var string Name of the node. */
+    private $name;
+
     /**
      * Constructs the object, setting up the structure.
      *
@@ -39,6 +42,7 @@ class variables_step extends variables_base {
     public function __construct(step $stepdef, variables_root $root) {
         parent::__construct();
         $this->root = $root;
+        $this->name = $stepdef->alias;
 
         // Define the structure of the variables.
         $this->sourcetree->name = $stepdef->name;
@@ -59,6 +63,15 @@ class variables_step extends variables_base {
     }
 
     /**
+     * Localise this step.
+     *
+     * @param bool $set
+     */
+    public function localise(bool $set = true) {
+        $this->root->localise($set ? $this->name : null);
+    }
+
+    /**
      * Sets a variable in the tree.
      *
      * @param string $name The name of the variable in dot format, relative to this tree's root (e.g. 'config.destination').
@@ -67,5 +80,15 @@ class variables_step extends variables_base {
     public function set(string $name, $value) {
         parent::set($name, $value);
         $this->root->invalidate();
+    }
+
+    /**
+     * Get a variable's value with expressions resolved.
+     *
+     * @param string $name The name of the variable using dot format, relative to the step root. (e.g. vars.abc).
+     * @return mixed The value, or null if the variable is not defined.
+     */
+    public function get_resolved(string $name) {
+        return $this->root->get_resolved("steps.$this->name.$name");
     }
 }

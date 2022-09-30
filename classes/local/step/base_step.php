@@ -108,42 +108,6 @@ abstract class base_step {
     }
 
     /**
-     * Resolves and sets the step outputs
-     *
-     * This effectively sets the outputs to the values they should be based on
-     * the stored variables and output configuration set. This happens at the
-     * end of each step.
-     */
-    public function prepare_outputs() {
-        throw new \moodle_exception('prepare_outputs');
-        // By default, it should make available all variables exposed by this step.
-        $this->stepdef->set_output($this->variables);
-
-        // Custom user defined output mapping.
-        $config = $this->stepdef->get_raw_config();
-        if (isset($config->outputs)) {
-            $parser = new parser;
-            $enginestep = $this->get_engine_step();
-            if ($enginestep) {
-                $variables = $enginestep->get_variables();
-            } else {
-                $variables = $this->stepdef->variables;
-            }
-            $allvariables = array_merge($variables, $this->variables);
-            $outputs = $parser->evaluate_recursive($config->outputs, $allvariables);
-            $this->stepdef->set_output($outputs);
-
-            $yaml = Yaml::dump(
-                (array) $outputs,
-                helper::YAML_DUMP_INLINE_LEVEL,
-                helper::YAML_DUMP_INDENT_LEVEL,
-                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-            );
-            $this->enginestep->log("Debug: Setting step defined output vars:\n" . trim($yaml));
-        }
-    }
-
-    /**
      * Resolves and sets variables for the 'vars' subtree.
      */
     public function prepare_vars() {
@@ -621,7 +585,7 @@ abstract class base_step {
      * @param   mixed $value
      */
     public function set_variables(string $name, $value) {
-        $this->stepdef->set_rootvariables([$name => $value]);
+        $this->enginestep->get_variables()->set($name, $value);
     }
 
     /**
@@ -659,7 +623,7 @@ abstract class base_step {
      * @return  \stdClass configuration object
      */
     protected function get_config(): \stdClass {
-        return $this->stepdef->config;
+        return $this->enginestep->get_variables()->get_resolved("config");
     }
 
     /**
@@ -693,5 +657,21 @@ abstract class base_step {
      */
     protected function log(string $message) {
         $this->enginestep->log($message);
+    }
+
+    /**
+     * Log the current vars.
+     */
+    public function log_vars() {
+        $vars = $this->enginestep->get_variables()->get_resolved("vars");
+        if (!is_null($vars) && !helper::obj_empty($vars)) {
+            $yaml = Yaml::dump(
+                (array) $vars,
+                helper::YAML_DUMP_INLINE_LEVEL,
+                helper::YAML_DUMP_INDENT_LEVEL,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+            );
+            $this->enginestep->log("Debug: Setting step defined output vars:\n" . trim($yaml));
+        }
     }
 }

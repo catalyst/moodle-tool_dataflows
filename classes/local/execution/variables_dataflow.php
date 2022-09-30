@@ -71,4 +71,14 @@ class variables_dataflow extends variables_base {
         parent::set($name, $value);
         $this->root->invalidate();
     }
+
+    /**
+     * Get a variable's value with expressions resolved.
+     *
+     * @param string $name The name of the variable using dot format, relative to the dataflow root. (e.g. vars.abc).
+     * @return mixed The value, or null if the variable is not defined.
+     */
+    public function get_resolved(string $name) {
+        return $this->root->get_resolved("dataflow.$name");
+    }
 }

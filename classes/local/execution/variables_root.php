@@ -73,6 +73,21 @@ class variables_root extends variables_base {
     }
 
     /**
+     * Directly creates a variable tree for the step. Normally not needed, but is a concession to flowcaps,
+     * which are created during execution.
+     *
+     * @param step $stepdef The step. Must be a flow cap.
+     * @returns variables_step The variables tree for the flow cap.
+     */
+    public function add_step(step $stepdef): variables_step {
+        if ($stepdef->type !== \tool_dataflows\local\step\flow_cap::class) {
+            throw new \moodle_exception('Only flow caps should be added directly to variables.');
+        }
+        $this->sourcetree->steps->{$stepdef->alias} = new variables_step($stepdef, $this);
+        return $this->sourcetree->steps->{$stepdef->alias};
+    }
+
+    /**
      * Gets the dataflow variables object.
      *
      * @return variables_dataflow
@@ -84,11 +99,11 @@ class variables_root extends variables_base {
     /**
      * Get the step variables object.
      *
-     * @param string $alias
+     * @param string $name Name of the node
      * @return variables_step
      */
-    public function get_step_variables(string $alias): variables_step {
-        return $this->sourcetree->steps->{$alias};
+    public function get_step_variables(string $name): variables_step {
+        return $this->sourcetree->steps->{$name};
     }
 
     /**
@@ -98,9 +113,20 @@ class variables_root extends variables_base {
      *
      * @param string|null $alias
      */
-    public function localise(?string $alias = null) {
-        $this->localstep = $alias;
+    public function localise(?string $name = null) {
+        $this->localstep = $name;
         $this->isvalid = false;
+    }
+
+    /**
+     * Evaluate an expression against the resolved variables.
+     *
+     * @param string $expression
+     * @return string
+     */
+    public function evaluate(string $expression): string {
+        $parser = new parser();
+        return $parser->evaluate_or_fail($expression, (array) $this->get_tree());
     }
 
     /**
@@ -210,7 +236,7 @@ class variables_root extends variables_base {
         }
 
         // Apply localising.
-        $tree = $this->localstep ? array_merge((array) $this->tree, (array) $this->tree->steps->{$this->alias}) : (array) $this->tree;
+        $tree = $this->localstep ? array_merge((array) $this->tree, (array) $this->tree->steps->{$this->localstep}) : (array) $this->tree;
 
         $resolved = $parser->evaluate($value, $tree);
         if ($resolved === self::PLACEHOLDER) {

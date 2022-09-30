@@ -62,6 +62,9 @@ abstract class engine_step {
     /** @var \moodle_exception Any exception that was thrown by this step. */
     protected $exception = null;
 
+    /** @var variables_step The variables object for the step. */
+    protected $variables;
+
     /**
      * Constructs the engine step.
      *
@@ -74,6 +77,7 @@ abstract class engine_step {
         $this->stepdef = $stepdef;
         $this->steptype = $steptype;
         $this->id = $stepdef->id;
+        $this->variables = $engine->get_variables()->get_step_variables($stepdef->alias);
         $this->set_status(engine::STATUS_NEW);
     }
 
@@ -274,9 +278,9 @@ abstract class engine_step {
 
         $this->status = $status;
 
-        // Record the timestamp of the state change against the step persistent,
-        // which exposes this info through its variables.
-        $this->stepdef->set_state_timestamp($status, microtime(true));
+        // Record the timestamp of the state change.
+        $statusstring = engine::STATUS_LABELS[$status];
+        $this->variables->set("states.$statusstring", microtime(true));
         $this->log('status: ' . engine::STATUS_LABELS[$status]);
 
         $this->on_change_status();
@@ -314,22 +318,11 @@ abstract class engine_step {
     }
 
     /**
-     * Returns an array with all the variables available, with the context of the step
+     * Returns the variables for this step.
      *
-     * @return  array
+     * @return variables_step
      */
-    public function get_variables(): array {
-        // Config values are directly referenceable, step values go through
-        // step.fieldname, everything else is available through expressions,
-        // such as 'dataflow.id' and 'steps.mystep.name' for example.
-        $variables = $this->engine->get_variables();
-        $step = $variables['steps']->{$this->stepdef->alias};
-
-        // We copy the contents of the step subtree into the root, to enable 'localised' access to the step variables.
-        // E.g. we can use ${{config.setting}} instead of ${{steps.first.config.setting}}.
-        return array_merge(
-            $variables,
-            (array) $step
-        );
+    public function get_variables(): variables_step {
+        return $this->variables;
     }
 }

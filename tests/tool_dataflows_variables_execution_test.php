@@ -14,28 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\local\execution;
+namespace tool_dataflows;
 
+use tool_dataflows\local\execution\array_in_type;
+use tool_dataflows\local\execution\array_out_type;
 use tool_dataflows\local\execution\engine;
-use tool_dataflows\dataflow;
-use tool_dataflows\step;
-use tool_dataflows\test_dataflows;
+use tool_dataflows\local\execution\flow_callback_step;
+use tool_dataflows\local\step\base_step;
 
 defined('MOODLE_INTERNAL') || die();
 
 // This is needed. File will not be automatically included.
-require_once(__DIR__ . '/../../dataflows/test_dataflows.php');
+require_once(__DIR__ . '/dataflows/test_dataflows.php');
 
 /**
- * Unit tests for the execution engine
+ * Tests the variables code within a dataflow execution.
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_dataflows_basic_execution_test extends \advanced_testcase {
-
+class tool_dataflows_variables_execution_test extends \advanced_testcase {
     /**
      * Set up before each test
      */
@@ -44,18 +44,18 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
         $this->resetAfterTest();
     }
 
-    /**
-     * Tests the minimal ability for the execution engine. Reads in array data from a reader,
-     * and passes it on to a writer.
-     *
-     * @covers \tool_dataflows\local\execution\engine::execute
-     * @covers \tool_dataflows\local\execution\engine::execute_step
-     * @covers \tool_dataflows\local\execution\engine::finalise
-     * @covers \tool_dataflows\local\execution\engine::initialise
-     * @throws \moodle_exception
-     */
-    public function test_in_and_out() {
-        [$dataflow, $steps] = test_dataflows::array_in_array_out();
+    public function test_record() {
+        $tester = $this;
+        $callback = function ($inputs, base_step $step) use ($tester) {
+            $tester->assertTrue(true);
+            $tester->assertEquals($inputs, $step->get_engine_step()->get_variables()->get_resolved('record'));
+        };
+
+        [$dataflow, $steps] = test_dataflows::reader_callback_writer(
+            array_in_type::class,
+            array_out_type::class,
+            $callback
+        );
 
         // Define the input.
         $json = '[{"a": 1, "b": 2, "c": 3}, {"a": 4, "b": 5, "c": 6}]';
@@ -75,3 +75,4 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
 }
+

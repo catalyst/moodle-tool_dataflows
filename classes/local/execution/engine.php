@@ -140,6 +140,8 @@ class engine {
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
 
+        $this->variables = new variables_root($dataflow);
+
         $this->set_status(self::STATUS_NEW);
 
         // Refuse to run if dataflow is not enabled.
@@ -318,9 +320,11 @@ class engine {
         foreach ($this->enginesteps as $enginestep) {
             if ($enginestep->is_flow() && $this->count_flow_steps($enginestep->downstreams) == 0) {
                 $step = new \tool_dataflows\step();
-                $steptype = new flow_cap($step, $this);
                 $flowcapnumber++;
                 $step->name = "flowcap-{$flowcapnumber}";
+                $step->type = flow_cap::class;
+                $this->variables->add_step($step);
+                $steptype = new flow_cap($step, $this);
                 $flowcap = $steptype->get_engine_step();
                 $flowcaps[] = $flowcap;
                 $enginestep->downstreams['puller'] = $flowcap;
@@ -546,8 +550,8 @@ class engine {
      *
      * @return  array
      */
-    public function get_variables(): array {
-        return $this->dataflow->variables;
+    public function get_variables(): variables_root {
+        return $this->variables;
     }
 
     /**
@@ -631,9 +635,9 @@ class engine {
             $this->run->snapshot($this->status);
         }
 
-        // Record the timestamp of the state change against the dataflow persistent,
-        // which exposes this info through its variables.
-        $this->dataflow->set_state_timestamp($status, microtime(true));
+        // Record the timestamp of the state change against the dataflow.
+        $statusstring = self::STATUS_LABELS[$status];
+        $this->variables->get_dataflow_variables()->set("states.$statusstring", microtime(true));
 
         if ($status === self::STATUS_INITIALISED) {
             $this->log('status: ' . self::STATUS_LABELS[$status] . ', config: ' . json_encode(['isdryrun' => $this->isdryrun]));
@@ -651,7 +655,7 @@ class engine {
      * @return  array
      */
     public function get_export_data(): array {
-        $encoded = json_encode($this->get_variables(), defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0);
+        $encoded = json_encode($this->variables->get_tree(), defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \moodle_exception(json_last_error_msg());
         }
