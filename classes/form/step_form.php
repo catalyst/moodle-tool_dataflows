@@ -18,6 +18,7 @@ namespace tool_dataflows\form;
 
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
+use tool_dataflows\local\execution\variables_root;
 use tool_dataflows\parser;
 use tool_dataflows\step;
 
@@ -44,6 +45,7 @@ class step_form extends \core\form\persistent {
         $mform = $this->_form;
         $dataflowid = $this->_customdata['dataflowid'];
         $type = $this->_customdata['type'];
+        $stepdef = $this->get_persistent();
 
         // User ID.
         $mform->addElement('hidden', 'userid');
@@ -93,20 +95,24 @@ class step_form extends \core\form\persistent {
 
         $select->setMultiple(true);
 
+        $variables = new variables_root(new dataflow($dataflowid));
+
         // List all the available fields available for configuration, in dot syntax.
-        $variables = $this->get_available_references();
-        $mform->addElement('static', 'fields', get_string('available_fields', 'tool_dataflows'),
-            $this->prepare_available_fields($variables));
+        $mform->addElement(
+            'static',
+            'fields',
+            get_string('available_fields', 'tool_dataflows'),
+            $this->prepare_available_fields($variables)
+        );
 
         // Check and set custom form inputs if required. Defaulting to a
         // textarea config input for those not yet configured.
-        $persistent = $this->get_persistent();
-        if (isset($persistent->steptype) || (isset($type) && class_exists($type))) {
-            $steptype = $persistent->steptype ?? new $type();
+        if (isset($stepdef->steptype) || (isset($type) && class_exists($type))) {
+            $steptype = $stepdef->steptype ?? new $type();
             $steptype->form_setup($mform);
         }
 
-        // Configuration - YAML format.
+        // 'vars' variables definition - YAML format.
         $mform->addElement(
             'textarea',
             'vars',
@@ -257,10 +263,10 @@ class step_form extends \core\form\persistent {
      * @param   array $variables
      * @return  string html of the prepared fields
      */
-    private function prepare_available_fields($variables): string {
+    private function prepare_available_fields(variables_root $variables): string {
         global $OUTPUT;
 
-        $ritit = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($variables));
+        $ritit = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($variables->get_tree()));
         $fields = [];
         foreach ($ritit as $leaf) {
             $keys = [];
@@ -336,46 +342,6 @@ class step_form extends \core\form\persistent {
             }
         }
         return $allfields;
-    }
-
-    /**
-     * Returns a list of possible references available in the dataflow
-     *
-     * The "values" are not as important. They could be real values,
-     * expressions, or placeholder documentation.
-     *
-     * TODO: since this will currently list all references, even if it is in
-     * "future steps" that might not be valid, it would be good to exclude
-     * invalid options at some point.
-     *
-     * @return  array of all variables
-     */
-    private function get_available_references(): array {
-        $dataflow = new dataflow($this->_customdata['dataflowid']);
-        $variables = $dataflow->get_variables();
-
-        // Prepare step outputs.
-        foreach ($dataflow->steps as $alias => $step) {
-            // This will only display documentation for step exposed outputs,
-            // and not any real values since they are not available yet.
-            $outputs = $step->steptype->define_outputs();
-            foreach ($outputs as $field => $def) {
-                $variables['steps']->{$alias}->{$field} = $def;
-            }
-
-            // This is a list of user defined output mappings. This will display their expression / value set.
-            $vars = $step->vars;
-            if (!empty($vars)) {
-                if (!isset($variables['steps']->{$alias}->vars)) {
-                    $variables['steps']->{$alias}->vars = new \stdClass();
-                }
-                foreach ($vars as $field => $def) {
-                    $variables['steps']->{$alias}->vars->{$field} = $def;
-                }
-            }
-        }
-
-        return $variables;
     }
 
     /**

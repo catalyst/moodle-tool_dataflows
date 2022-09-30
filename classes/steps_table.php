@@ -138,18 +138,19 @@ class steps_table extends sql_table {
         $redactedconfig = $step->get_redacted_config(false);
 
         // We want to display the vars definitions as well.
-        $vars = (array) $step->vars;
-        if (!empty($vars)) {
-            $redactedconfig->vars = $step->vars;
+        $vars = $step->get_raw_vars();
+        if (!helper::obj_empty($vars)) {
+            $redactedconfig->vars = $vars;
         }
-        $redactedconfig = (array) $redactedconfig;
-        $output = !empty($redactedconfig) ?
-                Yaml::dump(
-                    $redactedconfig,
-                    helper::YAML_DUMP_INLINE_LEVEL,
-                    helper::YAML_DUMP_INDENT_LEVEL,
-                    Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
-                ) : '';
+        if (helper::obj_empty($redactedconfig)) {
+            return '';
+        }
+        $output = Yaml::dump(
+            $redactedconfig,
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
+        );
         return \html_writer::tag('pre', $output, ['style' => 'max-width: 30em;']);
     }
 
