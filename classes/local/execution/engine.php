@@ -183,6 +183,8 @@ class engine {
 
         // Find the flow blocks.
         $this->create_flow_caps();
+
+        $dataflow->rebuild_variables();
     }
 
     /**

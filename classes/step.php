@@ -1021,6 +1021,7 @@ class step extends persistent {
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
         );
+        $this->get_dataflow()->rebuild_variables();
     }
 
     /**
@@ -1032,6 +1033,7 @@ class step extends persistent {
         throw new \moodle_exception('set_output');
         $this->outputs = $this->outputs ?? new \stdClass;
         $this->outputs = (object) array_merge((array) $this->outputs, (array) $attributes);
+        $this->get_dataflow()->rebuild_variables();
     }
 
     /**
@@ -1042,6 +1044,7 @@ class step extends persistent {
     public function set_rootvariables($variables) {
         $this->rootvariables = $this->rootvariables ?? new \stdClass;
         $this->rootvariables = (object) array_merge((array) $this->rootvariables, (array) $variables);
+        $this->get_dataflow()->rebuild_variables();
     }
 
     /**
@@ -1061,6 +1064,7 @@ class step extends persistent {
     public function set_varsvariables($variables) {
         $this->varsvariables = $this->varsvariables ?? new \stdClass;
         $this->varsvariables = (object) array_merge((array) $this->varsvariables, (array) $variables);
+        $this->get_dataflow()->rebuild_variables();
     }
 
     /**

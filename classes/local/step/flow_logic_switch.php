@@ -180,9 +180,13 @@ class flow_logic_switch extends flow_logic_step {
              * @param \stdClass $caller
              */
             public function next($caller) {
+                $now = microtime(true);
+
                 if ($this->finished) {
                     return false;
                 }
+
+                $this->steptype->set_variables('timeentered', $now);
 
                 // Pull the next record if needed.
                 $value = $this->input->current();
