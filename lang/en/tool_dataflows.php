@@ -247,6 +247,7 @@ $string['here'] = 'here';
 $string['concurrency_disabled'] = 'Concurrency is not possible with this dataflow. Concurrent running flag has been set to false.';
 $string['concurrency_enabled_disabled_desc'] = '<i>Concurrent running is not possible because one or more steps are unable to support concurrency.
  While you can still edit this setting, it\'s value will be ignored. Reasons are:</i>';
+$string['file_missing'] = 'File is missing \'{$a}\'.';
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';
@@ -400,8 +401,15 @@ $string['connector_sftp:host_desc'] = 'The host to connect to';
 $string['connector_sftp:port'] = 'Port';
 $string['connector_sftp:fingerprint'] = 'Fingerprint';
 $string['connector_sftp:fingerprint_desc'] = 'A hash that must match the fingerprint of the host.';
-$string['connector_sftp:copy fail'] = 'Copy failed.';
+$string['connector_sftp:copy_fail'] = 'Copy failed.';
 $string['connector_sftp:missing_remote'] = 'At least one of source/target must be remote.';
+
+$string['connector_sftp:pubkeyfile'] = 'Public key file';
+$string['connector_sftp:privkeyfile'] = 'Private key file';
+$string['connector_sftp:keyfile_desc'] = 'Fill these two fields if you are using public/private key authentication. You need both files to enable this. If these fields are empty, then it will fall back to username/password authentication.';
+$string['connector_sftp:password_desc'] = 'Password for username/password authentication. If key files are specified, then this is used to decrypt the private key. It is mandatory for username/passwrod authentication, optional for key authentication.';
+$string['connector_sftp:missing_config_keyfile'] = 'You must provide both key files if you are using public/private key authentication.';
+$string['connector_sftp:'] = '';
 
 // Checks.
 $string['check:dataflows_completed_successfully'] = 'All recent dataflow runs completed successfully.';
