@@ -41,7 +41,7 @@ trait s3_trait {
      */
     public function has_side_effect(): bool {
         if (isset($this->stepdef)) {
-            $config = $this->stepdef->config;
+            $config = $this->get_resolved_config();
             return !helper::path_is_relative($config->target);
         }
         return true;
@@ -108,7 +108,7 @@ trait s3_trait {
             return $input;
         }
 
-        $config = $this->get_config();
+        $config = $this->get_resolved_config();
         $connectionoptions = [
             'version' => 'latest',
             'region' => $config->region,
@@ -142,7 +142,7 @@ trait s3_trait {
         }
 
         // Do not execute s3 operations during a dry run.
-        if ($this->enginestep->engine->isdryrun) {
+        if ($this->is_dry_run()) {
             $this->enginestep->log("Skipping copy to '{$target}' as this is a dry run.");
             return $input;
         }
@@ -269,7 +269,7 @@ trait s3_trait {
      * @return true|array Will return true or an array of errors.
      */
     public function validate_for_run() {
-        $config = $this->stepdef->config;
+        $config = $this->get_resolved_config();
 
         $errors = [];
 

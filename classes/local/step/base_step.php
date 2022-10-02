@@ -594,7 +594,6 @@ abstract class base_step {
      * @return  \stdClass configuration object
      */
     protected function get_resolved_config(): \stdClass {
-        // TODO Should change name to get_resolved_config()
         return $this->get_variables()->get_resolved("config");
     }
 
@@ -606,7 +605,7 @@ abstract class base_step {
      * @return  \stdClass configuration object
      */
     protected function get_config(): \stdClass {
-        return $this->stepdef->config;
+        return $this->stepdef->get('config');
     }
 
     /**
@@ -615,7 +614,10 @@ abstract class base_step {
      * @return variables_step
      */
     protected function get_variables(): variables_step {
-        return $this->enginestep->get_variables();
+        if (is_null($this->stepdef)) {
+            throw new \moodle_exception('no_variables', 'tool_dataflows');
+        }
+        return $this->stepdef->get_variables();
     }
 
     /**

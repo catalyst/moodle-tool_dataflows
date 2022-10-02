@@ -246,6 +246,7 @@ $string['here'] = 'here';
 $string['concurrency_disabled'] = 'Concurrency is not possible with this dataflow. Concurrent running flag has been set to false.';
 $string['concurrency_enabled_disabled_desc'] = '<i>Concurrent running is not possible because one or more steps are unable to support concurrency.
  While you can still edit this setting, it\'s value will be ignored. Reasons are:</i>';
+$string['no_variables'] = 'Cannot utilise variables without a meaningful context.';
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';

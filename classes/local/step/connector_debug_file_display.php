@@ -37,7 +37,7 @@ class connector_debug_file_display extends connector_step {
      * @return mixed
      */
     public function execute($input = null) {
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_resolved_config();
 
         $streamname = $this->enginestep->engine->resolve_path($config->streamname);
         $content = file_get_contents($streamname);

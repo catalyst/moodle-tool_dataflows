@@ -136,7 +136,6 @@ class engine {
      */
     public function __construct(dataflow $dataflow, bool $isdryrun = false, $automated = true) {
         $this->dataflow = $dataflow;
-        $this->dataflow->set_engine($this);
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
 
@@ -318,6 +317,7 @@ class engine {
         foreach ($this->enginesteps as $enginestep) {
             if ($enginestep->is_flow() && $this->count_flow_steps($enginestep->downstreams) == 0) {
                 $step = new \tool_dataflows\step();
+                $step->set_dataflow($this->dataflow);
                 $flowcapnumber++;
                 $step->name = "flowcap-{$flowcapnumber}";
                 $step->type = flow_cap::class;

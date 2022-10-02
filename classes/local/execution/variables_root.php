@@ -126,7 +126,18 @@ class variables_root extends variables_base {
      */
     public function evaluate(string $expression): string {
         $parser = new parser();
-        return $parser->evaluate_or_fail($expression, (array) $this->get_tree());
+        return $parser->evaluate($expression, (array) $this->get_tree());
+    }
+
+    /**
+     * Evaluate an expression against the resolved variables, utilising a callback for failure..
+     *
+     * @param string $expression
+     * @return string
+     */
+    public function evaluate_or_fail(string $expression, ?callable $callback = null): string {
+        $parser = new parser();
+        return $parser->evaluate_or_fail($expression, (array) $this->get_tree(), $callback);
     }
 
     /**

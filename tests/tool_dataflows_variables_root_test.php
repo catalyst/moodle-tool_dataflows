@@ -60,7 +60,7 @@ class tool_dataflows_variables_root_test extends \advanced_testcase {
         $reader = new step();
         $reader->name = 'wait';
         $reader->type = 'tool_dataflows\local\step\connector_wait';
-        $reader->set_var('timesec', 1);
+        $reader->set_config_by_name('timesec', 1);
         $dataflow->add_step($reader);
 
         $vars = new variables_root($dataflow);

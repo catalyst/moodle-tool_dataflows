@@ -67,12 +67,12 @@ class flow_email extends flow_step {
     public function execute($input = null) {
 
         // Do not execute operations during a dry run.
-        if ($this->enginestep->engine->isdryrun) {
+        if ($this->is_dry_run()) {
             $this->enginestep->log('Do not send email notification as this is a dry run.');
             return true;
         }
 
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_resolved_config();
 
         $parser = new parser();
         $parser->evaluate_recursive($config, ['data' => $input]);

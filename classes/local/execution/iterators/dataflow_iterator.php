@@ -207,8 +207,7 @@ class dataflow_iterator implements iterator {
             $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
         } catch (\Throwable $e) {
             $this->step->log($e->getMessage());
-            $this->step->engine->abort();
-            throw $e;
+            $this->step->engine->abort($e);
         }
 
         return $newvalue;

@@ -95,7 +95,7 @@ class step_form extends \core\form\persistent {
 
         $select->setMultiple(true);
 
-        $variables = new variables_root(new dataflow($dataflowid));
+        $variables = (new dataflow($dataflowid))->get_variables_root();
 
         // List all the available fields available for configuration, in dot syntax.
         $mform->addElement(

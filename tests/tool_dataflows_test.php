@@ -312,15 +312,23 @@ class tool_dataflows_test extends \advanced_testcase {
         // evaluated until previous steps have run.
         $content = file_get_contents(dirname(__FILE__) . '/fixtures/sample-with-expressions.yml');
         $yaml = \Symfony\Component\Yaml\Yaml::parse($content);
+
         $dataflow = new dataflow();
         $dataflow->import($yaml);
-        $vars = $dataflow->vars;
-        $this->assertNotEquals($yaml['config']['expression'],  $vars->expression);
+        $expressionexpected = 'with steps notify and Read a value';
+
+        $variables = $dataflow->get_variables();
+        $vars = $variables->get_resolved('vars');
+
+        $this->assertEquals($yaml['vars']['expression'], $variables->get('vars.expression'));
+        $this->assertNotEquals($yaml['vars']['expression'],  $variables->get_resolved('vars.expression'));
+        $this->assertEquals($expressionexpected,  $variables->get_resolved('vars.expression'));
+        $this->assertEquals($expressionexpected,  $vars->expression);
+        $this->assertEquals($dataflow->id,  $variables->get_resolved('vars.expression_test_id'));
         $this->assertEquals($dataflow->id,  $vars->expression_test_id);
         $this->assertEquals($dataflow->name,  $vars->expression_dataflow_name);
         $this->assertEquals($dataflow->id + 777,  $vars->expression_math); // Adding an fixed number.
         $this->assertEquals('notifyread_value',  $vars->expression_concat); // Using the ~ operator.
-        $this->compatible_assertStringContainsString('steps notify and Read a value',  $vars->expression);
 
         // TODO: Add tests for parsing during a dataflow run (via the dataflow engine).
     }

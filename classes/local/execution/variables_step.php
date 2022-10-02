@@ -45,13 +45,14 @@ class variables_step extends variables_base {
         $this->name = $stepdef->alias;
 
         // Define the structure of the variables.
+        $this->sourcetree->id = $stepdef->id;
         $this->sourcetree->name = $stepdef->name;
         $this->sourcetree->alias = $stepdef->alias;
         $this->sourcetree->description = $stepdef->description;
         $this->sourcetree->depends_on = $stepdef->get_dependencies_cleaned();
         $this->sourcetree->type = $stepdef->type;
-        $this->sourcetree->config = $stepdef->get_raw_config();
-        $this->sourcetree->vars = $stepdef->get_raw_vars();
+        $this->sourcetree->config = $stepdef->get('config');
+        $this->sourcetree->vars = $stepdef->get('vars');
         // Initialise all the possible states.
         $this->sourcetree->states = (object) array_combine(
             // All the labels.

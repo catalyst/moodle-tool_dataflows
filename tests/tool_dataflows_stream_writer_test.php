@@ -118,8 +118,11 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
      * Tests the writer_stream reports side effects correctly.
      *
      * @covers \tool_dataflows\local\step\writer_stream::has_side_effect
+     * @dataProvider has_side_effect_provider
+     * @param string $streamname
+     * @param bool $expected
      */
-    public function test_has_side_effect() {
+    public function test_has_side_effect(string $streamname, bool $expected) {
         $steptype = new writer_stream();
         $this->assertTrue($steptype->has_side_effect());
 
@@ -132,12 +135,22 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
         $step->name = 'somename';
         $step->type = 'tool_dataflows\local\step\writer_stream';
 
-        $step->config = Yaml::dump(['format' => 'json', 'streamname' => 'file:///home/out.txt', 'prettyprint' => true]);
+        $step->config = Yaml::dump(['format' => 'json', 'streamname' => $streamname, 'prettyprint' => true]);
         $dataflow->add_step($step);
         $steptype = $step->steptype;
-        $this->assertTrue($steptype->has_side_effect());
+        $this->assertEquals($expected, $steptype->has_side_effect());
+    }
 
-        $step->config = Yaml::dump(['format' => 'json', 'streamname' => 'rel/out.txt', 'prettyprint' => true]);
-        $this->assertFalse($steptype->has_side_effect());
+    /**
+     * Data provider for test_has_side_effect.
+     *
+     * @return array[]
+     */
+    public function has_side_effect_provider() {
+        return [
+            ['file:///home/out.txt', true],
+            ['rel/out.txt', false],
+            ['/rel/out.txt', true],
+        ];
     }
 }

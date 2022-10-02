@@ -514,7 +514,7 @@ class step extends persistent {
             }
         }
 
-        $vars = $this->get_vars(false);
+        $vars = $this->get_vars();
         if (!helper::obj_empty($vars)) {
             $yaml['vars'] = $vars;
         }

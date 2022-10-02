@@ -71,7 +71,7 @@ class flow_copy_file extends flow_step {
     public function execute($input = null) {
         global $CFG;
 
-        $config = $this->get_config();
+        $config = $this->get_resolved_config();
         $from = $this->enginestep->engine->resolve_path($config->from);
         $to = $this->enginestep->engine->resolve_path($config->to);
 
@@ -128,7 +128,7 @@ class flow_copy_file extends flow_step {
      * @return true|array Will return true or an array of errors.
      */
     public function validate_for_run() {
-        $config = $this->stepdef->config;
+        $config = $this->get_resolved_config();
 
         $errors = [];
 

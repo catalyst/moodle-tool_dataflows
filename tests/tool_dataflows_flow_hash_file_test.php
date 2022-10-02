@@ -102,22 +102,21 @@ class tool_dataflows_flow_hash_file_test extends \advanced_testcase {
      */
     public function test_hashing_a_file_results_in_expected_hashes(string $filepath, string $expectedhash, string $algorithm) {
         [$dataflow, $steps] = $this->create_dataflow();
-        $hashfile = reset($steps);
+        $hashfilestep = reset($steps);
 
         // Needed here to ensure the path is 'allowed'.
         set_config('permitted_dirs', $filepath, 'tool_dataflows');
 
-        $hashfile->config = Yaml::dump(['path' => $filepath, 'algorithm' => $algorithm]);
+        $hashfilestep->config = Yaml::dump(['path' => $filepath, 'algorithm' => $algorithm]);
 
-        $isdryrun = false;
         $this->assertTrue($dataflow->validate_dataflow());
 
         ob_start();
-        $engine = new engine($dataflow, $isdryrun);
+        $engine = new engine($dataflow);
         $engine->execute();
         ob_get_clean();
 
         // Check and ensure hashes match.
-        $this->assertEquals($expectedhash, $dataflow->get_variables()['steps']->hashfile->hash);
+        $this->assertEquals($expectedhash, $hashfilestep->get_variables()->get_resolved('hash'));
     }
 }

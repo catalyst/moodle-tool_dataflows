@@ -58,11 +58,11 @@ class connector_file_exists extends connector_step {
      * @return mixed
      */
     public function execute($input = null) {
-        $config = $this->get_config();
+        $config = $this->get_resolved_config();
 
         $path = $this->enginestep->engine->resolve_path($config->path);
         $exists = file_exists($path);
-        $this->set_variables('exists', $exists);
+        $this->set_variable('exists', $exists);
 
         return true;
     }

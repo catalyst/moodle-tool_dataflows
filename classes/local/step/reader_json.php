@@ -69,7 +69,7 @@ class reader_json extends reader_step {
      * @throws \moodle_exception
      */
     protected function parse_json() {
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_resolved_config();
         $jsonstring = $this->get_json_string($config->pathtojson);
 
         $decodedjson = json_decode($jsonstring);

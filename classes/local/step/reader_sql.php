@@ -112,10 +112,10 @@ class reader_sql extends reader_step {
      */
     protected function construct_query(): string {
         // Get variables.
-        $variables = $this->enginestep->get_variables();
+        $variables = $this->stepdef->get_dataflow()->get_variables_root();
 
         // Get raw SQL (because we need to know when to and when not to use the query fragments).
-        $rawconfig = $this->enginestep->stepdef->get_raw_config();
+        $rawconfig = $this->get_config();
         $rawsql = $rawconfig->sql;
 
         // Parses the query, removing any optional blocks which cannot be resolved by the containing expression.
@@ -139,9 +139,8 @@ class reader_sql extends reader_step {
             foreach ($matches as $match) {
                 // Check expression evaluation using the current config object
                 // first, then failing that, target the dataflow variables.
-                $value = $parser->evaluate_or_fail(
+                $value = $variables->evaluate_or_fail(
                     $match['expressionwrapper'],
-                    $variables,
                     function ($message, $e = null) use ($rawsql, &$errormsg) {
                         // Process the message and clarify it if required.
                         $message = $this->clarify_parser_error($message, $rawsql);
@@ -188,7 +187,7 @@ class reader_sql extends reader_step {
         $hasexpression = true;
         $max = 5;
         while ($hasexpression && $max) {
-            $finalsql = $parser->evaluate_or_fail($finalsql, $variables, function ($message, $e) {
+            $finalsql = $parser->evaluate_or_fail($finalsql, (array) $variables->get_tree(), function ($message, $e) {
                 // Process the message and clarify it if required.
                 $message = $this->clarify_parser_error($message);
 
@@ -335,17 +334,15 @@ ORDER BY id ASC
      */
     public function execute($input = null) {
         // Check the config for the counterfield.
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_resolved_config();
         $counterfield = $config->counterfield ?? null;
 
         if (isset($counterfield)) {
+            $variables = $this->stepdef->get_dataflow()->get_variables_root();
             $parser = new parser();
             [$hasexpression] = $parser->has_expression($counterfield);
             if ($hasexpression) {
-                $resolvedcounterfield = $parser->evaluate(
-                    $counterfield,
-                    $this->enginestep->get_variables()
-                );
+                $resolvedcounterfield = $variables->evaluate($counterfield);
                 $counterfield = null;
                 if ($resolvedcounterfield !== $counterfield) {
                     $counterfield = $resolvedcounterfield;
@@ -353,7 +350,7 @@ ORDER BY id ASC
             }
             if (!empty($counterfield)) {
                 // Updates the countervalue based on the current counterfield value.
-                $this->enginestep->set_var('countervalue', $input->{$counterfield});
+                $this->set_variable('countervalue', $input->{$counterfield});
             }
         }
 

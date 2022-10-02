@@ -226,7 +226,7 @@ class flow_logic_switch extends flow_logic_step {
                     $parser = new parser;
                     $casefailures = 0;
                     foreach ($this->cases as $caseindex => $case) {
-                        $result = (bool) $caller->step->engine->get_variables()->evaluate('${{ ' . $case . ' }}');
+                        $result = (bool) $caller->step->engine->get_variables()->evaluate_or_fail('${{ ' . $case . ' }}');
 
                         // If there was a passing expression, break the loop.
                         if ($result === true) {

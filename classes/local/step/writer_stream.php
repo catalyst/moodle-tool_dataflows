@@ -64,7 +64,7 @@ class writer_stream extends writer_step {
      */
     public function has_side_effect(): bool {
         if (isset($this->stepdef)) {
-            $config = $this->stepdef->config;
+            $config = $this->get_resolved_config();
             if (isset($config->streamname)) {
                 return !helper::path_is_relative($config->streamname);
             }
@@ -115,10 +115,10 @@ class writer_stream extends writer_step {
             throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
         }
 
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_resolved_config();
 
         // We make no output in a dry run.
-        if ($this->enginestep->engine->isdryrun) {
+        if ($this->is_dry_run()) {
             return new dataflow_iterator($this->enginestep, $upstream->iterator);
         }
 
@@ -127,7 +127,7 @@ class writer_stream extends writer_step {
          */
         return new class($this->enginestep, $config, $upstream->iterator) extends dataflow_iterator {
             /** @var resource stream handle. */
-            private $handle;
+            private $handle = false;
             /** @var string name of the stream. */
             private $streamname;
             /** @var object dataformat writer. */
@@ -146,7 +146,7 @@ class writer_stream extends writer_step {
                 $this->handle = fopen($this->streamname, 'a');
                 if ($this->handle === false) {
                     $step->log(error_get_last()['message']);
-                    throw new \moodle_exception(get_string('writer_stream:failed_to_open_stream', 'tool_dataflows', $streamname));
+                    throw new \moodle_exception(get_string('writer_stream:failed_to_open_stream', 'tool_dataflows', $this->streamname));
                 }
 
                 $classname = writer_stream::resolve_encoder($config->format);
@@ -155,7 +155,7 @@ class writer_stream extends writer_step {
 
                 if (fwrite($this->handle, $this->writer->start_output()) === false) {
                     $step->log(error_get_last()['message']);
-                    throw new \moodle_exception(get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $streamname));
+                    throw new \moodle_exception(get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname));
                 }
 
                 parent::__construct($step, $input);
@@ -180,13 +180,16 @@ class writer_stream extends writer_step {
              * Called when the iterator is stopped, either because of finishing ar due to an abort.
              */
             public function on_stop() {
-                if (fwrite($this->handle, $this->writer->close_output()) === false) {
-                    $this->step->log(error_get_last()['message']);
-                    throw new \moodle_exception(
-                        get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname)
-                    );
+                if ($this->handle) {
+                    if (fwrite($this->handle, $this->writer->close_output()) === false) {
+                        $this->step->log(error_get_last()['message']);
+                        throw new \moodle_exception(
+                            get_string('writer_stream:failed_to_write_stream', 'tool_dataflows', $this->streamname)
+                        );
+                    }
+                    fclose($this->handle);
+                    $this->handle = false;
                 }
-                fclose($this->handle);
             }
         };
     }
@@ -220,7 +223,7 @@ class writer_stream extends writer_step {
      * @return true|array Will return true or an array of errors.
      */
     public function validate_for_run() {
-        $config = $this->stepdef->config;
+        $config = $this->get_resolved_config();
 
         $error = helper::path_validate($config->streamname);
         if ($error !== true) {

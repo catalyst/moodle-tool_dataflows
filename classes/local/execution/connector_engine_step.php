@@ -44,9 +44,9 @@ class connector_engine_step extends engine_step {
         switch ($this->proceed_status()) {
             case self::PROCEED_GO:
                 try {
-                    $this->step->get_variables()->localise();
+                    $this->get_variables()->localise();
                     $result = $this->steptype->execute(new \stdClass);
-                    $this->step->get_variables()->localise(false);
+                    $this->get_variables()->localise(false);
                     $this->steptype->log_vars();
                     if ($result !== false) {
                         $this->set_status(engine::STATUS_FINISHED);

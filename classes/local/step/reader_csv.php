@@ -60,7 +60,7 @@ class reader_csv extends reader_step {
      */
     public function csv_contents_generator() {
         $maxlinelength = 1000;
-        $config = $this->get_config();
+        $config = $this->get_resolved_config();
         $strheaders = $config->headers;
         $path = $this->enginestep->engine->resolve_path($config->path);
 

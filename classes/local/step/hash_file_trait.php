@@ -73,11 +73,11 @@ trait hash_file_trait {
      * @return mixed
      */
     public function execute($input = null) {
-        $config = $this->get_config();
+        $config = $this->get_resolved_config();
         $filename = $this->enginestep->engine->resolve_path($config->path);
         $hash = hash_file($config->algorithm, $filename);
         $this->log("The file hash value: {$hash}");
-        $this->set_variables('hash', $hash);
+        $this->set_variable('hash', $hash);
         return $input;
     }
 
@@ -87,7 +87,7 @@ trait hash_file_trait {
      * @return true|array Will return true or an array of errors.
      */
     public function validate_for_run() {
-        $config = $this->stepdef->config;
+        $config = $this->get_resolved_config();
 
         $errors = [];
 

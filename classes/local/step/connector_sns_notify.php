@@ -85,13 +85,13 @@ class connector_sns_notify extends connector_step {
         }
 
         // Do not execute operations during a dry run.
-        if ($this->enginestep->engine->isdryrun) {
+        if ($this->is_dry_run()) {
             $this->enginestep->log('Do not send SNS notification as this is a dry run.');
             return true;
         }
 
         // Create the client.
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_resolved_config();
         $connectionoptions = [
             'version' => 'latest',
             'region' => $config->region,

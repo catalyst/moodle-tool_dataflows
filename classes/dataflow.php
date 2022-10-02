@@ -76,18 +76,6 @@ class dataflow extends persistent {
     }
 
     /**
-     * Links the engine up to this dataflow
-     *
-     * This is typically set when the engine is initialised, such that any
-     * references made thereafter are directly connected to the engine's instance being used.
-     *
-     * @param  engine $engine
-     */
-    public function set_engine(engine $engine) {
-        $this->engine = $engine;
-    }
-
-    /**
      * Return the definition of the properties of this model.
      *
      * @return array
@@ -587,7 +575,7 @@ class dataflow extends persistent {
      * Called after the dataflow is created in the DB.
      */
     protected function after_create() {
-        $this->dataflows[$this->id] = $this;
+        self::$dataflows[$this->id] = $this;
     }
 
     /**

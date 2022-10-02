@@ -44,10 +44,9 @@ class variables_dataflow extends variables_base {
         $this->root = $root;
 
         // Define the structure of the dataflow variables tree.
-        $dataflowvars = $dataflow->get_export_data(false);
-        unset($dataflowvars->steps);
+        $this->sourcetree->id = $dataflow->id;
         $this->sourcetree->name = $dataflow->name;
-        $this->sourcetree->vars = $dataflow->get_raw_vars();
+        $this->sourcetree->vars = $dataflow->get('vars');
         $this->sourcetree->config = new \stdClass();
         $this->sourcetree->config->enabled = $dataflow->enabled;
         $this->sourcetree->config->concurrencyenabled = $dataflow->concurrencyenabled;
