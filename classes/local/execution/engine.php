@@ -140,7 +140,7 @@ class engine {
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
 
-        $this->variables = new variables_root($dataflow);
+        $this->variables = $dataflow->get_variables_root();
 
         $this->set_status(self::STATUS_NEW);
 
@@ -185,8 +185,6 @@ class engine {
 
         // Find the flow blocks.
         $this->create_flow_caps();
-
-        $dataflow->rebuild_variables();
     }
 
     /**

@@ -51,7 +51,7 @@ class process_dataflows extends \core\task\scheduled_task {
         if (isset($firstdataflowrecord)) {
             // Create ad-hoc tasks for all but one dataflow.
             foreach ($dataflowrecords as $dataflowrecord) {
-                $dataflow = new dataflow($dataflowrecord->dataflowid);
+                $dataflow = dataflow::get_dataflow($dataflowrecord->dataflowid);
                 $task = new process_dataflow_ad_hoc();
                 $task->set_custom_data($dataflowrecord);
                 if ($dataflow->is_concurrency_enabled()) {

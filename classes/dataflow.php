@@ -19,6 +19,8 @@ namespace tool_dataflows;
 use core\persistent;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
+use tool_dataflows\local\execution\variables_dataflow;
+use tool_dataflows\local\execution\variables_root;
 use tool_dataflows\local\step\flow_step;
 
 /**
@@ -43,6 +45,26 @@ class dataflow extends persistent {
 
     /** @var bool If true, then the variables tree will be rebuilt when get_variables() is called.  */
     private $shouldrebuildvariables = true;
+
+    /** @var variables_root The variables object */
+    private $variables;
+
+    /** @var dataflow[] Dataflows in memory indexed by ID.  */
+    private static $dataflows = [];
+
+    /**
+     * Get a dataflow, creating it if not yet existing. This ensures that only one copy of a dataflow is in memory
+     * at a time.
+     *
+     * @param $id
+     * @return dataflow
+     */
+    public static function get_dataflow($id): dataflow {
+        if (!isset(self::$dataflows[$id])) {
+            self::$dataflows[$id] = new dataflow($id);
+        }
+        return self::$dataflows[$id];
+    }
 
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
@@ -125,6 +147,27 @@ class dataflow extends persistent {
         }
 
         return $yaml;
+    }
+
+    /**
+     * Get all the variables.
+     *
+     * @return variables_root
+     */
+    public function get_variables_root(): variables_root {
+        if (is_null($this->variables)) {
+            $this->variables = new variables_root($this);
+        }
+        return $this->variables;
+    }
+
+    /**
+     * Gets the variables for the dataflow.
+     *
+     * @return variables_dataflow
+     */
+    public function get_variables(): variables_dataflow {
+        return $this->get_variables_root()->get_dataflow_variables();
     }
 
     /**
@@ -538,6 +581,13 @@ class dataflow extends persistent {
             $this->set('confighash', '');
             $this->save();
         }
+    }
+
+    /**
+     * Called after the dataflow is created in the DB.
+     */
+    protected function after_create() {
+        $this->dataflows[$this->id] = $this;
     }
 
     /**

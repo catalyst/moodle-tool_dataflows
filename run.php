@@ -67,7 +67,7 @@ require_capability('moodle/site:config', context_system::instance());
 $context = context_system::instance();
 
 // Find and set the dataflow, if not found, it will throw an exception.
-$dataflow = new dataflow($dataflowid);
+$dataflow = dataflow::get_dataflow($dataflowid);
 
 // Start output.
 $url = new moodle_url('/admin/tool/dataflows/run.php', ['dataflowid' => $dataflowid]);

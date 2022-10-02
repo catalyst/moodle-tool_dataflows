@@ -36,7 +36,7 @@ class process_dataflow_ad_hoc extends \core\task\adhoc_task {
         $dataflowrecord = $this->get_custom_data();
 
         try {
-            $dataflow = new dataflow($dataflowrecord->dataflowid);
+            $dataflow = dataflow::get_dataflow($dataflowrecord->dataflowid);
             if ($dataflow->enabled) {
                 mtrace("Running dataflow $dataflow->name as ad-hoc task (ID: $dataflowrecord->dataflowid), time due: " .
                     userdate($dataflowrecord->nextruntime));

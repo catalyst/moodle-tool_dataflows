@@ -16,6 +16,7 @@
 
 namespace tool_dataflows;
 
+use tool_dataflows\local\execution\variables_step;
 use tool_dataflows\local\step\base_step;
 use core\persistent;
 use moodle_exception;
@@ -86,6 +87,15 @@ class step extends persistent {
     }
 
     /**
+     * Get the variables for this step.
+     *
+     * @return variables_step
+     */
+    public function get_variables(): variables_step {
+        return $this->get_dataflow()->get_variables_root()->get_step_variables($this->alias);
+    }
+
+    /**
      * Magic getter - which allows the user to get values directly instead of via ->get('name')
      *
      * @param      string $name of the property to get
@@ -131,15 +141,6 @@ class step extends persistent {
     }
 
     /**
-     * Returns vars without resolving expressions.
-     *
-     * @return \stdClass
-     */
-    public function get_raw_vars(): \stdClass {
-        return $this->get_vars();
-    }
-
-    /**
      * Validate the 'vars' field.
      *
      * @param string $vars
@@ -156,7 +157,7 @@ class step extends persistent {
      */
     public function get_dataflow(): dataflow {
         if (!isset($this->dataflow)) {
-            $dataflow = new dataflow($this->dataflowid);
+            $dataflow = dataflow::get_dataflow($this->dataflowid);
             $this->set_dataflow($dataflow);
         }
         return $this->dataflow;
