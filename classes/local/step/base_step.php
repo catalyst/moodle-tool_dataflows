@@ -20,7 +20,7 @@ use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\helper;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
-use tool_dataflows\parser;
+use tool_dataflows\local\execution\variables_step;
 use tool_dataflows\step;
 
 /**
@@ -555,8 +555,8 @@ abstract class base_step {
      * @param   string $name
      * @param   mixed $value
      */
-    public function set_variables(string $name, $value) {
-        $this->enginestep->get_variables()->set($name, $value);
+    public function set_variable(string $name, $value) {
+        $this->get_variables()->set($name, $value);
     }
 
     /**
@@ -593,9 +593,9 @@ abstract class base_step {
      *
      * @return  \stdClass configuration object
      */
-    protected function get_config(): \stdClass {
+    protected function get_resolved_config(): \stdClass {
         // TODO Should change name to get_resolved_config()
-        return $this->enginestep->get_variables()->get_resolved("config");
+        return $this->get_variables()->get_resolved("config");
     }
 
     /**
@@ -605,9 +605,17 @@ abstract class base_step {
      *
      * @return  \stdClass configuration object
      */
-    protected function get_raw_config(): \stdClass {
-        // TODO Shoudl change to get_config.
+    protected function get_config(): \stdClass {
         return $this->stepdef->config;
+    }
+
+    /**
+     * Get the local step variables
+     *
+     * @return variables_step
+     */
+    protected function get_variables(): variables_step {
+        return $this->enginestep->get_variables();
     }
 
     /**
@@ -636,7 +644,7 @@ abstract class base_step {
      * Log the current vars.
      */
     public function log_vars() {
-        $vars = $this->enginestep->get_variables()->get_resolved("vars");
+        $vars = $this->get_variables()->get_resolved("vars");
         if (!is_null($vars) && !helper::obj_empty($vars)) {
             $yaml = Yaml::dump(
                 (array) $vars,

@@ -917,8 +917,7 @@ class step extends persistent {
      * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
      * @param  mixed $value
      */
-    public function set_var($name, $value) {
-        // TODO: rename this to 'set_custom_config'. 'set_var' is too confusing.
+    public function set_config_by_name($name, $value) {
         // Grabs the current raw config.
         $config = $this->get_config(false);
 
