@@ -555,64 +555,6 @@ class engine {
     }
 
     /**
-     * Sets a variable at the dataflow level
-     *
-     * Almost 'anything goes' here. Since the dataflow itself doesn't have any
-     * particular restriction on config. Anything value can be set here and
-     * referenced from other steps.
-     *
-     * TODO: add instance support.
-     *
-     * @param      string $name of the field
-     * @param      mixed $value
-     */
-    public function set_dataflow_var($name, $value) {
-        // Check if this field can be updated or not, e.g. if this was forced in config, it should not be updatable.
-        // TODO: implement.
-
-        $dataflow = $this->dataflow;
-        $previous = $dataflow->vars->{$name} ?? '';
-        $this->log("Setting dataflow '$name' to '$value' (from '{$previous}')");
-        $this->dataflow->set_var($name, $value);
-
-        // Persists the variable to the dataflow config.
-        // NOTE: This is skipped during a dry-run. Variables 'should' still be accessible as per normal.
-        if (!$this->isdryrun) {
-            $this->dataflow->save();
-        }
-    }
-
-    /**
-     * Sets a variable at the global plugin level
-     *
-     * Values here are - similar to the dataflow and step scope - set against a
-     * config field. This however is stored via set_config and there is no
-     * instance only support.
-     *
-     * @param      string $name of the field
-     * @param      mixed $value
-     */
-    public function set_global_var($name, $value) {
-        // Grabs the current config.
-        $vars = get_config('tool_dataflows', 'global_vars');
-        $vars = Yaml::parse($vars, Yaml::PARSE_OBJECT_FOR_MAP) ?: new \stdClass;
-
-        // Updates the field in question.
-        $previous = $vars->{$name} ?? '';
-        $vars->{$name} = $value;
-
-        // Updates the stored config.
-        $yaml = Yaml::dump(
-            (array) $vars,
-            helper::YAML_DUMP_INLINE_LEVEL,
-            helper::YAML_DUMP_INDENT_LEVEL,
-            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-        );
-        $this->log("Setting global '$name' to '$value' (from '{$previous}')");
-        set_config('global_vars', $yaml, 'tool_dataflows');
-    }
-
-    /**
      * Updates the status of this engine
      *
      * This also records some metadata in the relevant objects e.g. the dataflow's state.

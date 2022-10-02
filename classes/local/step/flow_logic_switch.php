@@ -186,7 +186,8 @@ class flow_logic_switch extends flow_logic_step {
                     return false;
                 }
 
-                $this->steptype->set_variables('timeentered', $now);
+                $variables = $this->step->get_variables();
+                $variables->set('timeentered', $now);
 
                 // Pull the next record if needed.
                 $value = $this->input->current();
@@ -211,9 +212,10 @@ class flow_logic_switch extends flow_logic_step {
                         throw new \moodle_exception(get_string('flow_logic_switch:casenotfound', 'tool_dataflows', $casenumber));
                     }
 
-                    // Prepare variables for expression parsing.
-                    $variables = $caller->step->engine->get_variables();
-                    $variables['record'] = $value;
+                    // Prepare variables for local step.
+                    $variables = $caller->step->get_variables();
+                    $variables->set('record', $value);
+                    $variables->localise();
 
                     // By default, this step should go through the list of
                     // expressions, in order, and stop at the first matching case.
@@ -224,7 +226,7 @@ class flow_logic_switch extends flow_logic_step {
                     $parser = new parser;
                     $casefailures = 0;
                     foreach ($this->cases as $caseindex => $case) {
-                        $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', $variables);
+                        $result = (bool) $caller->step->engine->get_variables()->evaluate('${{ ' . $case . ' }}');
 
                         // If there was a passing expression, break the loop.
                         if ($result === true) {
@@ -247,6 +249,7 @@ class flow_logic_switch extends flow_logic_step {
                             break;
                         }
                     }
+                    $variables->localise(false);
 
                     // If the matching failed, do not pass the iterator value downstream.
                     if (!$result) {

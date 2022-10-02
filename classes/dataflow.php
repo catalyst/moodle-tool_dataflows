@@ -35,12 +35,6 @@ class dataflow extends persistent {
     /** The table name. */
     const TABLE = 'tool_dataflows';
 
-    /** @var \stdClass of engine step states and timestamps */
-    private $states;
-
-    /** @var engine dataflow engine this dataflow is part of. Note: not always set. */
-    private $engine;
-
     /** @var steps[] cache of steps connected to this dataflow */
     private $stepscache = [];
 
@@ -50,9 +44,6 @@ class dataflow extends persistent {
     /** @var bool If true, then the variables tree will be rebuilt when get_variables() is called.  */
     private $shouldrebuildvariables = true;
 
-    /** @var array The variables tree constructed by get_variables(). */
-    private $variablestree;
-
     /**
      * When initialising the persistent, ensure some internal fields have been set up.
      *
@@ -60,7 +51,6 @@ class dataflow extends persistent {
      */
     public function __construct(...$args) {
         parent::__construct(...$args);
-        $this->states = new \stdClass;
     }
 
     /**
@@ -73,26 +63,6 @@ class dataflow extends persistent {
      */
     public function set_engine(engine $engine) {
         $this->engine = $engine;
-    }
-
-    /**
-     * Updates the timestamp for a particular state that is stored locally on the instance
-     *
-     * @param  int $state a status constant from the engine class
-     * @param  float $timestamp typically from a microtime(true) call
-     */
-    public function set_state_timestamp(int $state, float $timestamp) {
-        $label = engine::STATUS_LABELS[$state];
-        $this->states->{$label} = $timestamp;
-    }
-
-    /**
-     * Returns the states and their timestamps for this step
-     *
-     * @return  \stdClass
-     */
-    public function get_states() {
-        return $this->states;
     }
 
     /**
@@ -143,155 +113,18 @@ class dataflow extends persistent {
     }
 
     /**
-     * Sets the rebuild variables flag, so that the variables tree is rebuilt the next time get_variables() is called.
-     */
-    public function rebuild_variables() {
-        $this->shouldrebuildvariables = true;
-    }
-
-    /**
-     * Returns the variables available for this object
+     * Return the vars of the dataflow.
      *
-     * @return     array of variables typically passed to the expression parser
-     */
-    public function get_variables(): array {
-        if (!$this->shouldrebuildvariables) {
-            // No variables have been set since the last rebuild, so just return the same tree.
-            return $this->variablestree;
-        }
-
-        $globalvars = Yaml::parse(get_config('tool_dataflows', 'global_vars'), Yaml::PARSE_OBJECT_FOR_MAP)
-                ?? new \stdClass();
-
-        // Prepare the list of variables available from each step.
-        $steps = [];
-        foreach ($this->steps as $key => $step) {
-            $steps[$key] = $step->get_export_data();
-            $steps[$key]['alias'] = $key;
-            $steps[$key]['states'] = $step->states;
-            $steps[$key]['config'] = isset($steps[$key]['config']) ? (object) $steps[$key]['config'] : new \stdClass();
-
-            // Store root variables directly under the step.
-            foreach ($step->rootvariables as $somefield => $somevalue) {
-                $steps[$key][$somefield] = $somevalue;
-            }
-
-            // Store vars variables under '.vars'.
-            $steps[$key]['vars'] = new \stdClass();
-            foreach ($step->varsvariables as $somefield => $somevalue) {
-                $steps[$key]['vars']->{$somefield} = $somevalue;
-            }
-        }
-
-        foreach ($steps as &$step) {
-            $step = (object) $step;
-        }
-        $steps = (object) $steps;
-        $parser = new parser();
-
-        $variables = ['steps' => $steps];
-
-        $placeholder = '__PLACEHOLDER__';
-        $max = 100;
-        $foundexpression = true;
-        while ($foundexpression && $max) {
-            $max--;
-            $foundexpression = false;
-            foreach ($steps as &$step) {
-                foreach ($step->config ?? [] as $key => &$field) {
-                    if (!isset($field)) {
-                        continue;
-                    }
-
-                    $localparse = function (&$field)
-                        use ($parser, $variables, $step, $key, $placeholder, &$foundexpression)
-                    {
-                        [$hasexpression] = $parser->has_expression($field);
-                        if ($hasexpression) {
-                            $foundexpression = true;
-                            $fieldvalue = $field;
-                            $field = $placeholder;
-                            $resolved = $parser->evaluate($fieldvalue, $variables);
-                            if ($resolved === $placeholder) {
-                                $link = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $step->id]);
-                                throw new \moodle_exception(
-                                    'recursiveexpressiondetected',
-                                    'tool_dataflows',
-                                    $link,
-                                    ['field' => $key, 'steptype' => $step->type]
-                                );
-                            }
-                            if (isset($resolved)) {
-                                $field = $resolved;
-                            } else {
-                                $field = $fieldvalue;
-                            }
-                        }
-                    };
-
-                    if (is_object($field)) {
-                        foreach ($field as &$fieldlet) {
-                            if (!is_object($fieldlet) && !is_array($fieldlet)) {
-                                $localparse($fieldlet);
-                            }
-                        }
-                    } else {
-                        $localparse($field);
-                    }
-                }
-            }
-        }
-
-        // Prepare variable data for the dataflow key.
-        $dataflow = (object) $this->get_export_data();
-        unset($dataflow->steps);
-        $dataflow->vars = $this->get_vars(false);
-        $dataflow->states = $this->states;
-        $dataflow->id     = $this->id;
-
-        $url = new \moodle_url('/admin/tool/dataflows/view-run.php', ['id' => $this->engine->run->id ?? 'xxx']);
-        $dataflow->run = (object) [
-            'id'    => $this->engine->run->id ?? null,
-            'name'  => $this->engine->run->name ?? null,
-            'url'   => $url->out(),
-        ];
-
-        // Test reading a value directly.
-        $variables = [
-            'global' => (object) [
-                'vars' => $globalvars,
-                'cfg'  => helper::get_cfg_vars(),
-            ],
-            'dataflow' => $dataflow,
-            'steps'    => $steps,
-        ];
-        $this->variablestree = $variables;
-        $this->shouldrebuildvariables = false;
-        return $variables;
-    }
-
-    /**
-     * Return the vars of the dataflow, parsed such that any
-     * expressions are evaluated at this point in time.
-     *
-     * @param   bool $expressions whether or not to parse expressions when returning the vars
      * @return  \stdClass vars object
      */
-    protected function get_vars($expressions = true): \stdClass {
+    protected function get_vars(): \stdClass {
         $yaml = Yaml::parse($this->raw_get('vars'), Yaml::PARSE_OBJECT_FOR_MAP);
         // If there is no vars, return an empty object.
         if (empty($yaml)) {
             return new \stdClass();
         }
 
-        // If no parsing is required, return the raw YAML object early.
-        if (!$expressions) {
-            return $yaml;
-        }
-
-        // Prepare this as a php object (stdClass), as it makes expressions easier to write.
-        $parser = new parser();
-        return $parser->evaluate_recursive($yaml, $this->variables);
+        return $yaml;
     }
 
     /**
@@ -300,7 +133,7 @@ class dataflow extends persistent {
      * @return \stdClass
      */
     public function get_raw_vars(): \stdClass {
-        return $this->get_vars(false);
+        return $this->get_vars();
     }
 
     /**
@@ -682,7 +515,6 @@ class dataflow extends persistent {
         $step->set_dataflow($this);
         $step->upsert();
         $this->stepscache[$step->id] = $step;
-        $this->rebuild_variables();
         return $this;
     }
 
@@ -694,7 +526,6 @@ class dataflow extends persistent {
      */
     public function remove_step(step $step) {
         $step->delete();
-        $this->rebuild_variables();
         return $this;
     }
 
@@ -705,7 +536,6 @@ class dataflow extends persistent {
         if (!$this->isdeleting) {
             // Not needed if we are going to just delete the dataflow.
             $this->set('confighash', '');
-            $this->rebuild_variables();
             $this->save();
         }
     }
@@ -776,7 +606,6 @@ class dataflow extends persistent {
                 }
             }
             $transaction->allow_commit();
-            $this->rebuild_variables();
         } catch (\Exception $exception) {
             $transaction->rollback($exception);
             throw $exception;
@@ -820,29 +649,6 @@ class dataflow extends persistent {
         }
 
         return $yaml;
-    }
-
-    /**
-     * Updates the value stored in the dataflow's vars
-     *
-     * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
-     * @param  mixed $value
-     */
-    public function set_var($name, $value) {
-        // Grabs the current vars.
-        $vars = $this->vars;
-
-        // Updates the field in question.
-        $vars->{$name} = $value;
-
-        // Updates the stored vars.
-        $this->vars = Yaml::dump(
-            (array) $vars,
-            helper::YAML_DUMP_INLINE_LEVEL,
-            helper::YAML_DUMP_INDENT_LEVEL,
-            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-        );
-        $this->rebuild_variables();
     }
 
     /**

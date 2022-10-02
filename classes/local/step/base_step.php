@@ -39,9 +39,6 @@ abstract class base_step {
     /** @var step The step definition use to create the engine step. */
     protected $stepdef = null;
 
-    /** @var array of variables exposed for use from this step. */
-    protected $variables = [];
-
     /**
      * This is autopopulated by the dataflows manager.
      *
@@ -105,32 +102,6 @@ abstract class base_step {
      */
     public function define_outputs(): array {
         return [];
-    }
-
-    /**
-     * Resolves and sets variables for the 'vars' subtree.
-     */
-    public function prepare_vars() {
-        $vars = $this->stepdef->get_raw_vars();
-        if (!helper::obj_empty($vars)) {
-            $parser = new parser();
-            $enginestep = $this->get_engine_step();
-            if ($enginestep) {
-                $variables = $enginestep->get_variables();
-            } else {
-                $variables = $this->stepdef->variables;
-            }
-            $vars = $parser->evaluate_recursive($vars, $variables);
-            $this->stepdef->set_varsvariables($vars);
-
-            $yaml = Yaml::dump(
-                (array) $vars,
-                helper::YAML_DUMP_INLINE_LEVEL,
-                helper::YAML_DUMP_INDENT_LEVEL,
-                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-            );
-            $this->enginestep->log("Debug: Setting step defined output vars:\n" . trim($yaml));
-        }
     }
 
     /**
@@ -623,6 +594,7 @@ abstract class base_step {
      * @return  \stdClass configuration object
      */
     protected function get_config(): \stdClass {
+        // TODO Should change name to get_resolved_config()
         return $this->enginestep->get_variables()->get_resolved("config");
     }
 
@@ -634,7 +606,8 @@ abstract class base_step {
      * @return  \stdClass configuration object
      */
     protected function get_raw_config(): \stdClass {
-        return $this->stepdef->get_raw_config();
+        // TODO Shoudl change to get_config.
+        return $this->stepdef->config;
     }
 
     /**

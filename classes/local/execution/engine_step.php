@@ -199,68 +199,6 @@ abstract class engine_step {
     }
 
     /**
-     * Sets a variable, at the path provided.
-     *
-     * Currently, this will set it into the step's configuration.
-     *
-     * TODO: later this might only set it into the instance's history record,
-     * such that failed execution can be continued without creating a new 'run'.
-     * For example, set_var always goes to instance vars, set_config always
-     * updates step's config.
-     *
-     * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
-     * @param  mixed $value
-     */
-    public function set_var($name, $value) {
-        // Check if this is an available field to set in the step type.
-        if (!$this->steptype->is_field_valid($name)) {
-            $stepurl = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->stepdef->id]);
-            throw new \moodle_exception('variablefieldnotexpected', 'tool_dataflows', $stepurl, (object) [
-                'field' => $name,
-                'steptype' => $this->steptype->get_id(),
-            ]);
-        }
-
-        // Check if this field can be updated or not, e.g. if this was forced in config, it should not be updatable.
-        // TODO: implement.
-
-        $previous = $this->stepdef->config->{$name};
-        $this->log("Setting step '$name' to '$value' (from '{$previous}')");
-        $this->stepdef->set_var($name, $value);
-
-        // Persists the variable to the dataflow step config.
-        // NOTE: This is skipped during a dry-run. Variables 'should' still be accessible as per normal.
-        if (!$this->engine->isdryrun) {
-            $this->stepdef->save();
-        }
-    }
-
-    /**
-     * Sets a variable at the dataflow level
-     *
-     * This is a proxy to the engine's implementation.
-     * TODO: add instance support.
-     *
-     * @param  string $name of the field
-     * @param  mixed $value
-     */
-    public function set_dataflow_var($name, $value) {
-        $this->engine->set_dataflow_var($name, $value);
-    }
-
-    /**
-     * Sets a variable at the global (plugin) level
-     *
-     * This is a proxy to the engine's implementation.
-     *
-     * @param  string $name of the field
-     * @param  mixed $value
-     */
-    public function set_global_var($name, $value) {
-        $this->engine->set_global_var($name, $value);
-    }
-
-    /**
      * Updates the status of this engine's step
      *
      * This also records some metadata in the relevant objects e.g. the step's state.
