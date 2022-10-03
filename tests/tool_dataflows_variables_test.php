@@ -231,8 +231,8 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Check expected after state.
         $variables = $engine->get_variables();
         $this->assertEquals($dataflowvalue, $variables['dataflow']->vars->dataflowvar);
-        $this->assertTrue($variables['dataflow']->config->enabled);
-        $this->assertFalse($variables['dataflow']->config->concurrencyenabled);
+        $this->assertTrue((bool) $variables['dataflow']->config->enabled);
+        $this->assertFalse((bool) $variables['dataflow']->config->concurrencyenabled);
         $this->assertEquals($globalvalue, $variables['global']->vars->globalvar);
         $this->assertEquals(5, $variables['steps']->reader->config->countervalue);
 
