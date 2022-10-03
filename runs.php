@@ -47,9 +47,26 @@ require_capability('tool/dataflows:managedataflows', $context);
 
 // Configure any table specifics.
 $table = new runs_table('dataflow_runs_table');
-$sqlfields = 'run.id,
-              usr.*,
-              run.*';
+$sqlfields = 'run.id,'
+            // Cast the name (e.g. '2' or '3.1') as a float so it can be sorted.
+            . $DB->sql_cast_char2float('run.name', $text = false) . ' as name,'
+            // Fetch user name fields (for display purposes).
+            . get_all_user_name_fields(
+                $returnsql = true,
+                $tableprefix = 'usr',
+                $prefix = null,
+                $fieldprefix = null,
+                $order = false
+            ) . ',
+              run.dataflowid,
+              run.userid,
+              run.status,
+              run.timestarted,
+              run.timepaused,
+              run.timefinished,
+              run.startstate,
+              run.currentstate,
+              run.endstate';
 $sqlfrom = '{tool_dataflows_runs} run
   LEFT JOIN {user} usr
          ON usr.id = run.userid';
