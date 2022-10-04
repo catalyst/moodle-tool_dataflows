@@ -17,10 +17,8 @@
 namespace tool_dataflows\task;
 
 use tool_dataflows\dataflow;
-use tool_dataflows\manager;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\scheduler;
-use tool_dataflows\local\step\trigger_cron;
 
 /**
  * Process queued dataflows.
@@ -42,6 +40,24 @@ class process_dataflows extends \core\task\scheduled_task {
     }
 
     /**
+     * Create ad-hoc tasks for the given dataflow record
+     *
+     * @param object $dataflowrecord
+     */
+    private function create_adhoc_task($dataflowrecord) {
+        $dataflow = new dataflow($dataflowrecord->dataflowid);
+        $task = new process_dataflow_ad_hoc();
+        $task->set_custom_data($dataflowrecord);
+
+        // For concurrent tasks, queue them up as an independant adhoc task.
+        if ($dataflow->is_concurrency_enabled()) {
+            \core\task\manager::queue_adhoc_task($task);
+            return;
+        }
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
+    }
+
+    /**
      * Run the dataflows.
      */
     public function execute() {
@@ -49,16 +65,9 @@ class process_dataflows extends \core\task\scheduled_task {
 
         $firstdataflowrecord = array_shift($dataflowrecords);
         if (isset($firstdataflowrecord)) {
-            // Create ad-hoc tasks for all but one dataflow.
+            // Create ad-hoc tasks for all but the first dataflow shifted earlier.
             foreach ($dataflowrecords as $dataflowrecord) {
-                $dataflow = new dataflow($dataflowrecord->dataflowid);
-                $task = new process_dataflow_ad_hoc();
-                $task->set_custom_data($dataflowrecord);
-                if ($dataflow->is_concurrency_enabled()) {
-                    \core\task\manager::queue_adhoc_task($task);
-                } else {
-                    \core\task\manager::reschedule_or_queue_adhoc_task($task);
-                }
+                $this->create_adhoc_task($dataflowrecord);
             }
 
             // Run a single dataflow immediately.
@@ -72,7 +81,7 @@ class process_dataflows extends \core\task\scheduled_task {
                     $metadata = $engine->is_blocked();
                     if ($metadata) {
                         mtrace("Dataflow $dataflow->name locked (ID: $dataflowrecord->dataflowid). Lock data, time: " .
-                                userdate($metadata->timestamp) . ", process ID: $metadata->processid.");
+                            userdate($metadata->timestamp) . ", process ID: $metadata->processid.");
                     }
                 }
             } catch (\Throwable $thrown) {

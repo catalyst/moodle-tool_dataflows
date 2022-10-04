@@ -18,6 +18,7 @@ namespace tool_dataflows\local\step;
 
 use tool_dataflows\step;
 use tool_dataflows\local\scheduler;
+use tool_dataflows\task\process_dataflows;
 
 /**
  * CRON trigger class
@@ -204,26 +205,39 @@ class trigger_cron extends trigger_step {
     }
 
     /**
-     * Hook function that gets called when a step has been saved.
+     * Get the next scheduled time
+     *
+     * @param  object $config step config
+     * @return int time for the next run
      */
-    public function on_save() {
-        $config = $this->stepdef->config;
-        $config->classname = 'tool_dataflows\task\process_dataflows';
+    public function get_next_scheduled_time(object $config) {
+        $config->classname = process_dataflows::class;
         $times = scheduler::get_scheduled_times($this->stepdef->id);
         if ($times === false) {
             $config->lastruntime = 0;
             $config->nextruntime = 0;
         } else {
-            $config = (object) array_merge((array) $config, (array) $times);
+            $config = (object) array_merge(
+                (array) $config,
+                (array) $times
+            );
         }
 
         $task = \core\task\manager::scheduled_task_from_record($config);
         $newtime = $task->get_next_scheduled_time();
 
+        return $newtime;
+    }
+
+    /**
+     * Hook function that gets called when a step has been saved.
+     */
+    public function on_save() {
+        $config = $this->get_config();
         scheduler::set_scheduled_times(
             $this->stepdef->dataflowid,
             $this->stepdef->id,
-            $newtime
+            $this->get_next_scheduled_time($config)
         );
     }
 
@@ -262,23 +276,11 @@ class trigger_cron extends trigger_step {
      */
     protected function reschedule() {
         if (!$this->enginestep->engine->isdryrun) {
-            $dataflowid = $this->stepdef->dataflowid;
-
-            $config = $this->stepdef->config;
-            $config->classname = 'tool_dataflows\task\process_dataflows';
-            $times = scheduler::get_scheduled_times($this->stepdef->id);
-            if ($times === false) {
-                $config->lastruntime = 0;
-                $config->nextruntime = 0;
-            } else {
-                $config = (object) array_merge((array) $config, (array) $times);
-            }
-
-            $task = \core\task\manager::scheduled_task_from_record($config);
-            $newtime = $task->get_next_scheduled_time();
+            $config = $this->get_config();
+            $newtime = $this->get_next_scheduled_time($config);
 
             scheduler::set_scheduled_times(
-                $dataflowid,
+                $this->stepdef->dataflowid,
                 $this->stepdef->id,
                 $newtime,
                 $config->nextruntime
