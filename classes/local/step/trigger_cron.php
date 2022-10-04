@@ -272,6 +272,16 @@ class trigger_cron extends trigger_step {
     }
 
     /**
+     * Hook function that gets called when an engine step has been aborted.
+     */
+    public function on_abort() {
+        if (!$this->stepdef->dataflow->is_concurrency_enabled()) {
+            // Reschedule on aborts.
+            $this->reschedule();
+        }
+    }
+
+    /**
      * Reschedules the dataflow.
      */
     protected function reschedule() {

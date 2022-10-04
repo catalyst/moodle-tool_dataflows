@@ -119,6 +119,7 @@ abstract class engine_step {
      */
     public function abort() {
         $this->set_status(engine::STATUS_ABORTED);
+        $this->steptype->on_abort();
     }
 
     /**
