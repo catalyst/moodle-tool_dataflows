@@ -46,7 +46,7 @@ class dataflow_runs extends check {
      * @return \action_link|null
      */
     public function get_action_link(): ?\action_link {
-        $url = new \moodle_url('/admin/dataflows/index.php');
+        $url = new \moodle_url('/admin/tool/dataflows/index.php');
         return new \action_link($url, get_string('pluginname', 'tool_dataflows'));
     }
 
