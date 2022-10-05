@@ -39,7 +39,7 @@ class scheduler {
     public static function get_scheduled_times(int $stepid) {
         global $DB;
 
-        return $DB->get_record( self::TABLE, ['stepid' => $stepid], 'lastruntime, nextruntime');
+        return $DB->get_record(self::TABLE, ['stepid' => $stepid], 'lastruntime, nextruntime');
     }
 
     /**

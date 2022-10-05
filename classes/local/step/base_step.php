@@ -605,6 +605,12 @@ abstract class base_step {
     }
 
     /**
+     * Hook function that gets called when a step has been aborted.
+     */
+    public function on_abort() {
+    }
+
+    /**
      * Hook function that gets called when an engine step has been finalised.
      */
     public function on_finalise() {
