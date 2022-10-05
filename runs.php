@@ -48,8 +48,8 @@ require_capability('tool/dataflows:managedataflows', $context);
 // Configure any table specifics.
 $table = new runs_table('dataflow_runs_table');
 $sqlfields = 'run.id,'
-            // Cast the name (e.g. '2' or '3.1') as a float so it can be sorted.
-            . $DB->sql_cast_char2float('run.name', $text = false) . ' as name,'
+            // Cast the name as a real number so it can be correctly sorted.
+            . $DB->sql_cast_char2real('run.name') . ' as name,'
             // Fetch user name fields (for display purposes).
             . get_all_user_name_fields(
                 $returnsql = true,
