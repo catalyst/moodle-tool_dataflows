@@ -393,23 +393,21 @@ $string['connector_sftp:target'] = 'Target';
 $string['connector_sftp:target_desc'] = 'Path to the target file. This can be a local file or remote path e.g.';
 $string['connector_sftp:path_example'] = '    sftp://path/to/file # Any remote file url;';
 $string['connector_sftp:bad_host'] = 'Unable to connect to host.';
-$string['connector_sftp:bad_fingerprint'] = 'Host fingerprint mismatch.';
+$string['connector_sftp:bad_hostpubkey'] = 'Host public key mismatch.';
 $string['connector_sftp:bad_auth'] = 'Authorisation failed.';
 $string['connector_sftp:bad_sftp'] = 'Unable to start SFTP session.';
 $string['connector_sftp:no_ssh2'] = 'SSH2 extension not installed';
 $string['connector_sftp:host_desc'] = 'The host to connect to';
 $string['connector_sftp:port'] = 'Port';
-$string['connector_sftp:fingerprint'] = 'Fingerprint';
-$string['connector_sftp:fingerprint_desc'] = 'A hash that must match the fingerprint of the host.';
-$string['connector_sftp:copy_fail'] = 'Copy failed.';
+$string['connector_sftp:hostpubkey'] = 'Host public key';
+$string['connector_sftp:hostpubkey_desc'] = 'Public key that must match the one returned by the host. If empty, it will be set on the first connection.';
+$string['connector_sftp:copy_fail'] = 'Copy failed: \'{$a}\'.';
 $string['connector_sftp:missing_remote'] = 'At least one of source/target must be remote.';
-
 $string['connector_sftp:pubkeyfile'] = 'Public key file';
 $string['connector_sftp:privkeyfile'] = 'Private key file';
-$string['connector_sftp:keyfile_desc'] = 'Fill these two fields if you are using public/private key authentication. You need both files to enable this. If these fields are empty, then it will fall back to username/password authentication.';
-$string['connector_sftp:password_desc'] = 'Password for username/password authentication. If key files are specified, then this is used to decrypt the private key. It is mandatory for username/passwrod authentication, optional for key authentication.';
-$string['connector_sftp:missing_config_keyfile'] = 'You must provide both key files if you are using public/private key authentication.';
-$string['connector_sftp:'] = '';
+$string['connector_sftp:keyfile_desc'] = 'Fill this field if you are using public/private key authentication. If empty, then authentication will fall back to username/password.';
+$string['connector_sftp:password_desc'] = 'Password for username/password authentication. If a key file is specified, then this is used to decrypt the key. It is mandatory for username/passwrod authentication, optional for key authentication.';
+$string['connector_sftp:file_not_found'] = 'File not found: \'{$a}\'.';
 
 // Checks.
 $string['check:dataflows_completed_successfully'] = 'All recent dataflow runs completed successfully.';

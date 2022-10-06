@@ -16,16 +16,14 @@
 
 namespace tool_dataflows\local\step;
 
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Net\SFTP;
 use tool_dataflows\helper;
 
 /**
  * SFTP connector step type.
  *
- * Requires the SSH2 PECL extension to be installed.
- *
- * Also requires the OpenSSL and libssh2 libraries to be installed.
- *
- * See https://www.php.net/manual/en/book.ssh2.php
+ * Uses phpseclib. See https://phpseclib.com
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -33,11 +31,8 @@ use tool_dataflows\helper;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class connector_sftp extends connector_step {
-
     /** Shorthand sftp scheme for use in config. */
     const SFTP_PREFIX = 'sftp';
-    /** The actual scheme used to access the server. */
-    const SSH_SFTP_SCHEME = 'ssh2.sftp://';
 
     /**
      * Returns whether or not the step configured, has a side effect.
@@ -62,10 +57,9 @@ class connector_sftp extends connector_step {
         return [
             'host' => ['type' => PARAM_TEXT, 'required' => true],
             'port' => ['type' => PARAM_INT, 'required' => true, 'default' => 22],
-            'fingerprint' => ['type' => PARAM_TEXT],
+            'hostpubkey' => ['type' => PARAM_TEXT],
             'username' => ['type' => PARAM_TEXT, 'required' => true],
             'password' => ['type' => PARAM_TEXT, 'secret' => true],
-            'pubkeyfile' => ['type' => PARAM_TEXT],
             'privkeyfile' => ['type' => PARAM_TEXT],
             'source' => ['type' => PARAM_TEXT, 'required' => true],
             'target' => ['type' => PARAM_TEXT, 'required' => true],
@@ -82,16 +76,15 @@ class connector_sftp extends connector_step {
         $mform->addElement('static', 'config_host_desc', '',  get_string('connector_sftp:host_desc', 'tool_dataflows'));
         $mform->addElement('text', 'config_port', get_string('connector_sftp:port', 'tool_dataflows'));
         $mform->setDefault('config_port', 22);
-        $mform->addElement('text', 'config_fingerprint', get_string('connector_sftp:fingerprint', 'tool_dataflows'));
-        $mform->addElement('static', 'config_fingerprint_desc', '',
-                get_string('connector_sftp:fingerprint_desc', 'tool_dataflows'));
+        $mform->addElement('text', 'config_hostpubkey', get_string('connector_sftp:hostpubkey', 'tool_dataflows'));
+        $mform->addElement('static', 'config_hostpubkey_desc', '',
+                get_string('connector_sftp:hostpubkey_desc', 'tool_dataflows'));
 
         $mform->addElement('text', 'config_username', get_string('username'));
         $mform->addElement('passwordunmask', 'config_password', get_string('password'));
         $mform->addElement('static', 'config_password_desc', '',
             get_string('connector_sftp:password_desc', 'tool_dataflows'));
 
-        $mform->addElement('text', 'config_pubkeyfile', get_string('connector_sftp:pubkeyfile', 'tool_dataflows'));
         $mform->addElement('text', 'config_privkeyfile', get_string('connector_sftp:privkeyfile', 'tool_dataflows'));
         $mform->addElement('static', 'config_keyfile_desc', '',
             get_string('connector_sftp:keyfile_desc', 'tool_dataflows'));
@@ -132,26 +125,10 @@ class connector_sftp extends connector_step {
             );
         }
 
-        $nopubfile = empty($config->pubkeyfile);
         $noprivfile = empty($config->privkeyfile);
-        // Can either both be empty, or both be defined, but cannot have one and not the other.
-        if ($noprivfile xor $nopubfile) {
-            // Match the error message to the field that is missing.
-            if ($noprivfile) {
-                $errorfield = 'config_privkeyfile';
-            } else {
-                $errorfield = 'config_pubkeyfile';
-            }
-            $errors[$errorfield] = get_string(
-                'connector_sftp:missing_config_keyfile',
-                'tool_dataflows',
-                null,
-                true
-            );
-        }
 
-        // If no key files are given, then a password is required.
-        if ($nopubfile && $noprivfile && empty($config->password)) {
+        // If no key file is given, then a password is required.
+        if ($noprivfile && empty($config->password)) {
             $errors['config_password'] = get_string(
                 'config_field_missing',
                 'tool_dataflows',
@@ -202,9 +179,6 @@ class connector_sftp extends connector_step {
         $config = $this->stepdef->config;
 
         $errors = [];
-        if (!extension_loaded('ssh2')) {
-            $errors['not_installed'] = get_string('connector_sftp:no_ssh2', 'tool_dataflows');
-        }
 
         $error = helper::path_validate($config->source);
         if ($error !== true) {
@@ -214,11 +188,6 @@ class connector_sftp extends connector_step {
         $error = helper::path_validate($config->target);
         if ($error !== true) {
             $errors['config_target'] = $error;
-        }
-
-        $error = helper::path_validate($config->pubkeyfile);
-        if ($error !== true) {
-            $errors['config_pubkeyfile'] = $error;
         }
 
         $error = helper::path_validate($config->privkeyfile);
@@ -241,66 +210,69 @@ class connector_sftp extends connector_step {
         $config = $this->stepdef->config;
 
         $this->log("Connecting to $config->host:$config->port");
-        if (($connection = @ssh2_connect($config->host, $config->port)) === false) {
+
+        $sftp = new SFTP($config->host, $config->port);
+        $hostpubkey = $sftp->getServerPublicHostKey();
+        if ($hostpubkey === false) {
             throw new \moodle_exception('connector_sftp:bad_host', 'tool_dataflows');
         }
 
+        // At this point we need to disconnect once we are finished.
         try {
-            if ($config->fingerprint && @ssh2_fingerprint($connection) !== $config->fingerprint) {
-                throw new \moodle_exception('connector_sftp:bad_fingerprint', 'tool_dataflows');
+            if (!empty($config->hostpubkey) && $config->hostpubkey !== $hostpubkey) {
+                throw new \moodle_exception('connector_sftp:bad_hostpubkey', 'tool_dataflows');
+            } else {
+                $this->enginestep->set_var('hostpubkey', $hostpubkey);
             }
 
-            if ($config->pubkeyfile) {
+            if (!empty($config->privkeyfile)) {
                 // Use key authorisation.
-
-                $pubkeyfile = $this->enginestep->engine->resolve_path($config->pubkeyfile);
-                if (!file_exists($pubkeyfile)) {
-                    throw new \moodle_exception(
-                        'file_missing',
-                        'tool_dataflows',
-                        $pubkeyfile
-                    );
-                }
-                $privkeyfile = $this->enginestep->engine->resolve_path($config->privkeyfile);
-                if (!file_exists($privkeyfile)) {
-                    throw new \moodle_exception(
-                        'file_missing',
-                        'tool_dataflows',
-                        $privkeyfile
-                    );
-                }
-
-                $this->log("Pubkey: $pubkeyfile");
-                $this->log("Privkey: $privkeyfile");
-                if (ssh2_auth_pubkey_file($connection, $config->username,
-                        $pubkeyfile, $privkeyfile, $config->password) === false) {
-                    $lasterror = error_get_last();
-                    $this->log(json_encode($lasterror));
-                    throw new \moodle_exception('connector_sftp:bad_auth', 'tool_dataflows');
-                }
+                $key = PublicKeyLoader::load(file_get_contents($config->privkeyfile), $config->password ?: false);
             } else {
                 // Use password authorisation.
-                if (@ssh2_auth_password($connection, $config->username, $config->password) === false) {
-                    throw new \moodle_exception('connector_sftp:bad_auth', 'tool_dataflows');
+                $key = $config->password;
+            }
+            if (!$sftp->login($config->username, $key)) {
+                throw new \moodle_exception('connector_sftp:bad_auth', 'tool_dataflows');
+            }
+
+            // Skip if it is a dry run.
+            if ($this->is_dry_run() && $this->has_side_effect()) {
+                return true;
+            }
+
+            $sftp->enableDatePreservation();
+
+            // By using an intermediate temporary file, the code is simpler.
+            $tmppath = $this->enginestep->engine->tempnam();
+
+            $frompath = $this->resolve_path($config->source);
+            if (helper::path_has_scheme($config->source, self::SFTP_PREFIX)) {
+                $this->log("Downloading from '$config->source' to '$tmppath'");
+                if (!$sftp->get($frompath, $tmppath)) {
+                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
+                }
+            } else {
+                $this->log("Reading from '$frompath' to '$tmppath'");
+                if (!@copy($frompath, $tmppath)) {
+                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', error_get_last()['message']);
                 }
             }
 
-            if (($sftp = @ssh2_sftp($connection)) === false) {
-                throw new \moodle_exception('connector_sftp:bad_sftp', 'tool_dataflows');
-            }
-
-            if (!$this->is_dry_run() || !$this->has_side_effect()) {
-                $sftphost = self::SSH_SFTP_SCHEME . intval($sftp) . '/';
-                $source = $this->resolve_path($config->source, $sftphost);
-                $target = $this->resolve_path($config->target, $sftphost);
-
-                $this->log("Copying '$source' to '$target'");
-                if (@copy($source, $target) === false) {
-                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows');
+            $topath = $this->resolve_path($config->target);
+            if (helper::path_has_scheme($config->target, self::SFTP_PREFIX)) {
+                $this->log("Uploading from '$tmppath' to '$config->target'");
+                if (!$sftp->put($topath, $tmppath, SFTP::SOURCE_LOCAL_FILE)) {
+                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
+                }
+            } else {
+                $this->log("Writing from '$tmppath' to '$topath'");
+                if (!@copy($tmppath, $topath)) {
+                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', error_get_last()['message']);
                 }
             }
         } finally {
-            ssh2_disconnect($connection);
+            $sftp->disconnect();
         }
 
         return true;
@@ -310,12 +282,11 @@ class connector_sftp extends connector_step {
      * Resolve a path for SFTP. Either a remote SFTP file name or a local path to be resolved normally.
      *
      * @param string $pathname
-     * @param string $sftphost
      * @return string
      */
-    public function resolve_path(string $pathname, string $sftphost): string {
+    public function resolve_path(string $pathname): string {
         if (helper::path_has_scheme($pathname, self::SFTP_PREFIX)) {
-            return str_replace(self::SFTP_PREFIX . '://', $sftphost, $pathname);
+            return substr($pathname, strlen(self::SFTP_PREFIX) + strlen('://'));
         }
         return $this->enginestep->engine->resolve_path($pathname);
     }
