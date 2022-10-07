@@ -187,7 +187,7 @@ class dataflow extends persistent {
             $step = (object) $step;
         }
         $steps = (object) $steps;
-        $parser = new parser();
+        $parser = parser::get_parser();
 
         $variables = ['steps' => $steps];
 
@@ -290,7 +290,7 @@ class dataflow extends persistent {
         }
 
         // Prepare this as a php object (stdClass), as it makes expressions easier to write.
-        $parser = new parser();
+        $parser = parser::get_parser();
         return $parser->evaluate_recursive($yaml, $this->variables);
     }
 

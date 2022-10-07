@@ -132,7 +132,7 @@ class reader_sql extends reader_step {
             PREG_SET_ORDER);
 
         // Remove all optional fragments from the raw sql, unless the expressed values are available.
-        $parser = new parser();
+        $parser = parser::get_parser();
         $finalsql = $rawsql;
         try {
             $errormsg = '';
@@ -339,7 +339,7 @@ ORDER BY id ASC
         $counterfield = $config->counterfield ?? null;
 
         if (isset($counterfield)) {
-            $parser = new parser();
+            $parser = parser::get_parser();
             [$hasexpression] = $parser->has_expression($counterfield);
             if ($hasexpression) {
                 $resolvedcounterfield = $parser->evaluate(

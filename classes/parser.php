@@ -33,12 +33,30 @@ use tool_dataflows\local\provider\expression_provider;
  */
 class parser {
 
+    /** @var parser Signelton instance. */
+    private static $instance = null;
+
+    /** @var ExpressionLanguage Language parser/evaluator. */
+    private $expressionlanguage;
+
+    /**
+     * Gets the parser instance.
+     *
+     * @return parser
+     */
+    public static function get_parser(): parser {
+        if (is_null(self::$instance)) {
+            self::$instance = new parser();
+        }
+        return self::$instance;
+    }
+
     /**
      * Constructor for the parser
      *
      * Sets an expression language object and registers any supported methods.
      */
-    public function __construct() {
+    private function __construct() {
         global $CFG;
         if (function_exists('apcu_enabled') && apcu_enabled()) {
             $cache = new ApcuAdapter();

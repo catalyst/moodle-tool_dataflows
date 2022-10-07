@@ -122,7 +122,7 @@ abstract class base_step {
         // Custom user defined output mapping.
         $config = $this->stepdef->get_raw_config();
         if (isset($config->outputs)) {
-            $parser = new parser;
+            $parser = parser::get_parser();
             $enginestep = $this->get_engine_step();
             if ($enginestep) {
                 $variables = $enginestep->get_variables();
@@ -149,7 +149,7 @@ abstract class base_step {
     public function prepare_vars() {
         $vars = $this->stepdef->get_raw_vars();
         if (!helper::obj_empty($vars)) {
-            $parser = new parser();
+            $parser = parser::get_parser();
             $enginestep = $this->get_engine_step();
             if ($enginestep) {
                 $variables = $enginestep->get_variables();
