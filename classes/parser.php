@@ -19,6 +19,10 @@ namespace tool_dataflows;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use Symfony\Component\ExpressionLanguage\Lexer;
+use Symfony\Component\ExpressionLanguage\Node;
+use Symfony\Component\ExpressionLanguage\Token;
+use Symfony\Component\ExpressionLanguage\TokenStream;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\provider\expression_provider;
@@ -51,6 +55,9 @@ class parser {
         return self::$instance;
     }
 
+    /** @var Lexer A local copy of the lexer to use in variable name discovery. */
+    private $lexer = null;
+
     /**
      * Constructor for the parser
      *
@@ -66,6 +73,97 @@ class parser {
         $expressionlanguage = new ExpressionLanguage($cache, [new expression_provider()]);
 
         $this->expressionlanguage = $expressionlanguage;
+    }
+
+    /**
+     * Gets the lexer.
+     *
+     * @return Lexer
+     */
+    private function get_lexer(): Lexer {
+        if (is_null($this->lexer)) {
+            $this->lexer = new Lexer();
+        }
+        return $this->lexer;
+    }
+
+    /**
+     * Find all the variables referenced within this string.
+     * We assume that the expressions are all valid.
+     *
+     * @param string $string
+     * @return array
+     */
+    public function find_variable_names(string $string): array {
+        [$hasexpression, $matches] = $this->has_expression($string);
+        if (!$hasexpression) {
+            return [];
+        }
+
+        $vars = [];
+        foreach ($matches as $match) {
+            $vars = array_merge($vars, $this->get_names_from_tokens($match['expression']));
+        }
+        return $vars;
+    }
+
+    /**
+     * Get all variables names referenced in a single expression.
+     *
+     * @param string $expression
+     * @return array
+     */
+    private function get_names_from_tokens(string $expression): array {
+        $stream = $this->get_lexer()->tokenize($expression);
+
+        // We use $prevdot to avoid extracting 'dangling' variables E.g. 'c' would not be extracted from 'a[b].c'.
+        // These values would not be retrieved from the variable store.
+        $prevdot = false;
+
+        $names = [];
+        while (!$stream->isEOF()) {
+            $token = $stream->current;
+            if (!$prevdot && $token->test(Token::NAME_TYPE)) {
+                $name = $this->get_name_from_tokens($stream);
+                if ($name !== false) {
+                    // TODO: get_name_from_tokens() can return names with a dangling dot.
+                    // Linting should prevent this from happening.
+                    $names[] = rtrim($name, '.');
+                }
+            } else {
+                $prevdot = ($stream->current->value === '.');
+                $stream->next();
+            }
+        }
+        return array_unique($names);
+    }
+
+    /**
+     * Extracts a single variable name from the token stream. It Does not extract function names.
+     *
+     * @param TokenStream $stream
+     * @return string|false
+     */
+    private function get_name_from_tokens(TokenStream $stream) {
+        // A name is a sequence of name tokens separated by dots. We don't want functions.
+        // We make the assumption here that we will not be storing functions inside variables.
+        $name = '';
+        while ($stream->current->test(Token::NAME_TYPE)) {
+            $name .= $stream->current->value;
+            $stream->next();
+            if ($stream->current->value !== '.') {
+                break;
+            }
+
+            $name .= '.';
+            $stream->next();
+        }
+
+        if ($stream->current->value === '(') {
+            // False alarm. We don't want function names.
+            return false;
+        }
+        return $name;
     }
 
     /**
