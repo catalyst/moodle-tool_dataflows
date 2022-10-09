@@ -97,7 +97,7 @@ class flow_engine_step extends engine_step {
 
             // Evaluate the config again with the record context, unless the
             // step type doesn't want to (e.g. SQL reader does it own handling).
-            $parser = new parser;
+            $parser = parser::get_parser();
             $parser->evaluate_recursive($config, $variables);
         }
 

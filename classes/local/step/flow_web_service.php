@@ -198,7 +198,7 @@ EOF;
         }
 
         // Updates parameters passed to WS.
-        $parser = new parser();
+        $parser = parser::get_parser();
         // Check for any data in input to replace.
         $replacement = $parser->evaluate_recursive($params, ['data' => $input]);
         // Ensure structures are arrays for webservice.

@@ -199,7 +199,7 @@ class step extends persistent {
             }
 
             if (isset($vars)) {
-                $parser = new parser();
+                $parser = parser::get_parser();
                 $vars = $parser->evaluate_recursive($vars, $variables);
             }
         }
@@ -322,7 +322,7 @@ class step extends persistent {
 
             // Prepare this as a php object (stdClass), as it makes expressions easier to write.
             if (isset($yaml)) {
-                $parser = new parser();
+                $parser = parser::get_parser();
                 $yaml = $parser->evaluate_recursive($yaml, $variables);
             }
 

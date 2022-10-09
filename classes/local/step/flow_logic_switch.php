@@ -221,7 +221,7 @@ class flow_logic_switch extends flow_logic_step {
                     // the position of the step that is 'pulling' on this one for
                     // efficiency.
                     // See issue #347 for more details.
-                    $parser = new parser;
+                    $parser = parser::get_parser();
                     $casefailures = 0;
                     foreach ($this->cases as $caseindex => $case) {
                         $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', $variables);

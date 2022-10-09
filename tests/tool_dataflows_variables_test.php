@@ -87,7 +87,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $variables = $engine->get_variables();
         ob_get_clean();
 
-        $parser = new parser;
+        $parser = parser::get_parser();
         $expressedvalue = $parser->evaluate('${{steps.reader.config.sql}}', $variables);
         $this->assertEquals('select 23', $expressedvalue);
         $expressedvalue = $parser->evaluate('${{steps.reader.config.something}}', $variables);
@@ -370,7 +370,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
      * @dataProvider  parser_functions_data_provider
      */
     public function test_parser_functions(string $expression, array $variables, $expected) {
-        $parser = new parser;
+        $parser = parser::get_parser();
         $result = $parser->evaluate('${{'.$expression.'}}', $variables);
         $this->assertEquals($expected, $result);
     }
