@@ -17,6 +17,8 @@
 namespace tool_dataflows\local\execution;
 
 use tool_dataflows\local\step\base_step;
+use tool_dataflows\local\variables\var_root;
+use tool_dataflows\local\variables\var_step;
 use tool_dataflows\step;
 
 /**
@@ -75,6 +77,24 @@ abstract class engine_step {
         $this->steptype = $steptype;
         $this->id = $stepdef->id;
         $this->set_status(engine::STATUS_NEW);
+    }
+
+    /**
+     * Gets the root node of the variables tree.
+     *
+     * @return var_root
+     */
+    public function get_variables_root(): var_root {
+        return $this->engine->get_variables_root();
+    }
+
+    /**
+     * Gets the variable node for this step.
+     *
+     * @return var_step
+     */
+    public function get_variables(): var_step {
+        return $this->get_variables_root()->get_step_variables($this->stepdef->alias);
     }
 
     /**
@@ -213,9 +233,9 @@ abstract class engine_step {
 
         $this->status = $status;
 
-        // Record the timestamp of the state change against the step persistent,
-        // which exposes this info through its variables.
-        $this->stepdef->set_state_timestamp($status, microtime(true));
+        // Record the timestamp of the state change.
+        $statusstring = engine::STATUS_LABELS[$status];
+        $this->get_variables()->set("states.$statusstring", microtime(true));
         $this->log('status: ' . engine::STATUS_LABELS[$status]);
 
         $this->on_change_status();

@@ -19,6 +19,13 @@ namespace tool_dataflows\local\variables;
 /**
  * Object node for a variables tree.
  *
+ * Known weaknesses
+ *
+ * 1. Top level objects must be defined first.
+ * 2. Nodes are created when referenced. Not when set.
+ * 3. Localised node need to be created before any of its decendants are referenced.
+ * 4. No way to easily inject derived classes like var_step.
+ *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT

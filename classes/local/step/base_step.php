@@ -20,6 +20,8 @@ use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\helper;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
+use tool_dataflows\local\variables\var_root;
+use tool_dataflows\local\variables\var_step;
 use tool_dataflows\parser;
 use tool_dataflows\step;
 
@@ -522,6 +524,27 @@ abstract class base_step {
     }
 
     /**
+     * Gets the root node of the variables tree.
+     *
+     * @return var_root
+     */
+    public function get_variables_root(): var_root {
+        if (is_null($this->stepdef)) {
+            throw new \moodle_exception('Cannot get variables without a step definition.');
+        }
+        return $this->stepdef->get_variables_root();
+    }
+
+    /**
+     * Gets the variable node for this step.
+     *
+     * @return var_step
+     */
+    public function get_variables(): var_step {
+        return $this->get_variables_root()->get_step_variables($this->stepdef->alias);
+    }
+
+    /**
      * Hook function that gets called when a step has been saved.
      */
     public function on_save() {
@@ -598,5 +621,18 @@ abstract class base_step {
      */
     protected function log(string $message) {
         $this->enginestep->log($message);
+    }
+
+    public function log_vars() {
+        $vars = $this->get_variables()->get('vars');
+
+        $yaml = Yaml::dump(
+            (array) $vars,
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+        );
+        $this->log("Debug: current vars ($vars->fullname):\n" . trim($yaml));
+
     }
 }

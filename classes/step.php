@@ -22,6 +22,8 @@ use moodle_exception;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\service\secret_service;
+use tool_dataflows\local\variables\var_root;
+use tool_dataflows\local\variables\var_step;
 
 /**
  * Dataflow Step persistent class
@@ -103,6 +105,24 @@ class step extends persistent {
             return $this->$methodname($value);
         }
         return $this->set($name, $value);
+    }
+
+    /**
+     * Gets the root node of the variables tree.
+     *
+     * @return var_root
+     */
+    public function get_variables_root(): var_root {
+        return $this->get_dataflow()->get_variables_root();
+    }
+
+    /**
+     * Gets the variable node for this step.
+     *
+     * @return var_step
+     */
+    public function get_variables(): var_step {
+        return $this->get_variables_root()->get_step_variables($this->alias);
     }
 
     /**
@@ -350,6 +370,32 @@ class step extends persistent {
     }
 
     /**
+     * Returns a list of dependencies as a list of strings. Returns only a string if there is only 1 value.
+     * TODO: change this name to get_dependencies and the above to get_dependencies_raw.
+     *
+     * @return array|string
+     */
+    public function get_dependencies_filled() {
+        $dependencies = $this->dependencies();
+        if (empty($dependencies)) {
+            return [];
+        }
+
+        // Since this field can be a single string or an array of aliases, it should be checked beforehand.
+        $aliases = array_map(function ($dependency) {
+            if (isset($dependency->position)) {
+                return $dependency->alias . self::DEPENDS_ON_POSITION_SPLITTER . $dependency->position;
+            }
+            return $dependency->alias;
+        }, $dependencies);
+
+        // Simplify into a single value if there is only a single entry.
+        $aliases = isset($aliases[1]) ? $aliases : reset($aliases);
+
+        return $aliases;
+    }
+
+    /**
      * Returns a list of other steps that depend on this step before they can run.
      *
      * @param bool $reload
@@ -488,26 +534,15 @@ class step extends persistent {
         }
 
         // Conditionally export the configuration if it has content.
-        $config = (array) $this->get_redacted_config(false);
+        $config = (array) $this->config; // TODO, this needs to be redacted.
         if (!empty($config)) {
             $yaml['config'] = $config;
         }
 
         // Conditionally export the dependencies (depends_on) if set.
-        $dependencies = $this->dependencies();
-        if (!empty($dependencies)) {
-            // Since this field can be a single string or an array of aliases, it should be checked beforehand.
-            $aliases = array_map(function ($dependency) {
-                if (isset($dependency->position)) {
-                    return $dependency->alias . self::DEPENDS_ON_POSITION_SPLITTER . $dependency->position;
-                }
-                return $dependency->alias;
-            }, $dependencies);
-
-            // Simplify into a single value if there is only a single entry.
-            $aliases = isset($aliases[1]) ? $aliases : reset($aliases);
-
-            $yaml['depends_on'] = $aliases;
+        $deps = $this->get_dependencies_filled();
+        if (!empty($deps)) {
+            $yaml['depends_on'] = $deps;
         }
 
         // Resort the order of exported fields for consistency.

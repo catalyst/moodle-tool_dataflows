@@ -19,6 +19,8 @@ namespace tool_dataflows;
 use core\persistent;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\step\flow_step;
+use tool_dataflows\local\variables\var_dataflow;
+use tool_dataflows\local\variables\var_root;
 
 /**
  * Dataflows persistent class
@@ -40,6 +42,8 @@ class dataflow extends persistent {
     /** @var bool Set to true when the dataflow is in the process of deleting. */
     private $isdeleting = false;
 
+    /** @var var_root The variables tree.  */
+    private $varroot = null;
     /**
      * Return the definition of the properties of this model.
      *
@@ -101,6 +105,34 @@ class dataflow extends persistent {
         }
 
         return $yaml;
+    }
+
+    /**
+     * Gets the root node of the variables tree.
+     *
+     * @return var_root
+     */
+    public function get_variables_root(): var_root {
+        if (is_null($this->varroot)) {
+            $this->varroot = new var_root($this);
+        }
+        return $this->varroot;
+    }
+
+    /**
+     * Gets the dataflow node of the variable tree.
+     *
+     * @return var_dataflow
+     */
+    public function get_variables(): var_dataflow {
+        return $this->get_variables_root()->get_dataflow_variables();
+    }
+
+    /**
+     * Removes the variables.
+     */
+    public function clear_variables() {
+        $this->varroot = null;
     }
 
     /**

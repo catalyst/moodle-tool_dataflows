@@ -22,6 +22,8 @@ use tool_dataflows\exportable;
 use tool_dataflows\helper;
 use tool_dataflows\local\service\step_service;
 use tool_dataflows\local\step\flow_cap;
+use tool_dataflows\local\variables\var_dataflow;
+use tool_dataflows\local\variables\var_root;
 use tool_dataflows\run;
 
 /**
@@ -139,6 +141,10 @@ class engine {
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
 
+        // Force the dataflow to create a fresh set of variables.
+        $dataflow->clear_variables();
+        $dataflow->get_variables_root();
+
         $this->set_status(self::STATUS_NEW);
 
         // Refuse to run if dataflow is not enabled.
@@ -190,6 +196,24 @@ class engine {
      */
     public function __destruct() {
         $this->release_lock();
+    }
+
+    /**
+     * Gets the root node of the variables tree.
+     *
+     * @return var_root
+     */
+    public function get_variables_root(): var_root {
+        return $this->dataflow->get_variables_root();
+    }
+
+    /**
+     * Gets the dataflow node of the variable tree.
+     *
+     * @return var_dataflow
+     */
+    public function get_variables(): var_dataflow {
+        return $this->get_variables_root()->get_dataflow_variables();
     }
 
     /**
@@ -315,9 +339,12 @@ class engine {
         foreach ($this->enginesteps as $enginestep) {
             if ($enginestep->is_flow() && $this->count_flow_steps($enginestep->downstreams) == 0) {
                 $step = new \tool_dataflows\step();
-                $steptype = new flow_cap($step, $this);
                 $flowcapnumber++;
                 $step->name = "flowcap-{$flowcapnumber}";
+                $step->set('type', flow_cap::class);
+                $step->set_dataflow($this->dataflow);
+                $this->get_variables_root()->add_step($step);
+                $steptype = new flow_cap($step, $this);
                 $flowcap = $steptype->get_engine_step();
                 $flowcaps[] = $flowcap;
                 $enginestep->downstreams['puller'] = $flowcap;
@@ -461,6 +488,11 @@ class engine {
                 $this->run->finalise($this->status, $this->export());
             }
 
+            // Save the dataflow vars if not a dry run.
+            if (!$this->isdryrun) {
+                $this->get_variables()->persist();
+            }
+
             $this->set_status(self::STATUS_FINALISED);
             $this->release_lock();
         } catch (\Throwable $thrown) {
@@ -557,9 +589,9 @@ class engine {
             $this->run->snapshot($this->status);
         }
 
-        // Record the timestamp of the state change against the dataflow persistent,
-        // which exposes this info through its variables.
-        $this->dataflow->set_state_timestamp($status, microtime(true));
+        // Record the timestamp of the state change.
+        $statusstring = self::STATUS_LABELS[$status];
+        $this->get_variables()->set("states.$statusstring", microtime(true));
 
         if ($status === self::STATUS_INITIALISED) {
             $this->log('status: ' . self::STATUS_LABELS[$status] . ', config: ' . json_encode(['isdryrun' => $this->isdryrun]));
@@ -577,7 +609,7 @@ class engine {
      * @return  array
      */
     public function get_export_data(): array {
-        $encoded = json_encode($this->get_variables(), defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0);
+        $encoded = json_encode($this->get_variables_root()->get(), defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \moodle_exception(json_last_error_msg());
         }
