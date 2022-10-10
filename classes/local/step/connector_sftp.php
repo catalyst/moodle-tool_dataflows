@@ -31,8 +31,12 @@ use tool_dataflows\helper;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class connector_sftp extends connector_step {
+
     /** Shorthand sftp scheme for use in config. */
     const SFTP_PREFIX = 'sftp';
+
+    /** Default port to connect to. */
+    const DEFAULT_PORT = 22;
 
     /**
      * Returns whether or not the step configured, has a side effect.
@@ -56,7 +60,7 @@ class connector_sftp extends connector_step {
     public static function form_define_fields(): array {
         return [
             'host' => ['type' => PARAM_TEXT, 'required' => true],
-            'port' => ['type' => PARAM_INT, 'required' => true, 'default' => 22],
+            'port' => ['type' => PARAM_INT, 'required' => true, 'default' => self::DEFAULT_PORT],
             'hostpubkey' => ['type' => PARAM_TEXT],
             'username' => ['type' => PARAM_TEXT, 'required' => true],
             'password' => ['type' => PARAM_TEXT, 'secret' => true],
@@ -75,7 +79,7 @@ class connector_sftp extends connector_step {
         $mform->addElement('text', 'config_host', get_string('connector_sftp:host', 'tool_dataflows'));
         $mform->addElement('static', 'config_host_desc', '',  get_string('connector_sftp:host_desc', 'tool_dataflows'));
         $mform->addElement('text', 'config_port', get_string('connector_sftp:port', 'tool_dataflows'));
-        $mform->setDefault('config_port', 22);
+        $mform->setDefault('config_port', self::DEFAULT_PORT);
         $mform->addElement('text', 'config_hostpubkey', get_string('connector_sftp:hostpubkey', 'tool_dataflows'));
         $mform->addElement('static', 'config_hostpubkey_desc', '',
                 get_string('connector_sftp:hostpubkey_desc', 'tool_dataflows'));
@@ -176,7 +180,7 @@ class connector_sftp extends connector_step {
      * @return true|array Will return true or an array of errors.
      */
     public function validate_for_run() {
-        $config = $this->stepdef->config;
+        $config = $this->get_config();
 
         $errors = [];
 
@@ -190,9 +194,11 @@ class connector_sftp extends connector_step {
             $errors['config_target'] = $error;
         }
 
-        $error = helper::path_validate($config->privkeyfile);
-        if ($error !== true) {
-            $errors['config_privkeyfile'] = $error;
+        if (!empty($config->privkeyfile)) {
+            $error = helper::path_validate($config->privkeyfile);
+            if ($error !== true) {
+                $errors['config_privkeyfile'] = $error;
+            }
         }
 
         return $errors ?: true;
@@ -207,7 +213,7 @@ class connector_sftp extends connector_step {
      * @return mixed
      */
     public function execute($input = null) {
-        $config = $this->stepdef->config;
+        $config = $this->get_config();
 
         $this->log("Connecting to $config->host:$config->port");
 
@@ -221,13 +227,15 @@ class connector_sftp extends connector_step {
         try {
             if (!empty($config->hostpubkey) && $config->hostpubkey !== $hostpubkey) {
                 throw new \moodle_exception('connector_sftp:bad_hostpubkey', 'tool_dataflows');
-            } else {
+            }
+            if (empty($config->hostpubkey)) {
                 $this->enginestep->set_var('hostpubkey', $hostpubkey);
             }
 
             if (!empty($config->privkeyfile)) {
                 // Use key authorisation.
-                $key = PublicKeyLoader::load(file_get_contents($config->privkeyfile), $config->password ?: false);
+                $key = PublicKeyLoader::load(file_get_contents($this->resolve_path($config->privkeyfile)),
+                        $config->password ?: false);
             } else {
                 // Use password authorisation.
                 $key = $config->password;
@@ -243,33 +251,38 @@ class connector_sftp extends connector_step {
 
             $sftp->enableDatePreservation();
 
-            // By using an intermediate temporary file, the code is simpler.
-            $tmppath = $this->enginestep->engine->tempnam();
+            $sourceisremote = helper::path_is_scheme($config->source, self::SFTP_PREFIX);
+            $targetisremote = helper::path_is_scheme($config->target, self::SFTP_PREFIX);
+            $sourcepath = $this->resolve_path($config->source);
+            $targetpath = $this->resolve_path($config->target);
 
-            $frompath = $this->resolve_path($config->source);
-            if (helper::path_has_scheme($config->source, self::SFTP_PREFIX)) {
+            // Copying from remote to remote, but have to download it first.
+            if ($sourceisremote && $targetisremote) {
+                $tmppath = $this->enginestep->engine->create_temporary_file();
                 $this->log("Downloading from '$config->source' to '$tmppath'");
-                if (!$sftp->get($frompath, $tmppath)) {
+                if (!$sftp->get($sourcepath, $tmppath)) {
                     throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
                 }
-            } else {
-                $this->log("Reading from '$frompath' to '$tmppath'");
-                if (!@copy($frompath, $tmppath)) {
-                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', error_get_last()['message']);
+                $this->log("Uploading from '$tmppath' to '$config->target'");
+                if (!$sftp->put($targetpath, $tmppath, SFTP::SOURCE_LOCAL_FILE)) {
+                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
                 }
+                return true;
             }
 
-            $topath = $this->resolve_path($config->target);
-            if (helper::path_has_scheme($config->target, self::SFTP_PREFIX)) {
-                $this->log("Uploading from '$tmppath' to '$config->target'");
-                if (!$sftp->put($topath, $tmppath, SFTP::SOURCE_LOCAL_FILE)) {
+            // Download from remote.
+            if ($sourceisremote) {
+                $this->log("Downloading from '$config->source' to '$config->target'");
+                if (!$sftp->get($sourcepath, $targetpath)) {
                     throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
                 }
-            } else {
-                $this->log("Writing from '$tmppath' to '$topath'");
-                if (!@copy($tmppath, $topath)) {
-                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', error_get_last()['message']);
-                }
+                return true;
+            }
+
+            // Upload to remote.
+            $this->log("Uploading from '$config->source' to '$config->target'");
+            if (!$sftp->put($targetpath, $sourcepath, SFTP::SOURCE_LOCAL_FILE)) {
+                throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
             }
         } finally {
             $sftp->disconnect();
@@ -285,7 +298,7 @@ class connector_sftp extends connector_step {
      * @return string
      */
     public function resolve_path(string $pathname): string {
-        if (helper::path_has_scheme($pathname, self::SFTP_PREFIX)) {
+        if (helper::path_is_scheme($pathname, self::SFTP_PREFIX)) {
             return substr($pathname, strlen(self::SFTP_PREFIX) + strlen('://'));
         }
         return $this->enginestep->engine->resolve_path($pathname);

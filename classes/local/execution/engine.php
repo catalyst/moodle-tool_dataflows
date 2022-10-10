@@ -703,7 +703,7 @@ class engine {
      * @param string $prefix
      * @return false|string
      */
-    public function tempnam($prefix = '____') {
+    public function create_temporary_file($prefix = '____') {
         return tempnam($this->scratchdir, $prefix);
     }
 }

@@ -391,7 +391,7 @@ $string['connector_sftp:source'] = 'Source';
 $string['connector_sftp:source_desc'] = 'Path to the source file. This can be a local file or remote path e.g.';
 $string['connector_sftp:target'] = 'Target';
 $string['connector_sftp:target_desc'] = 'Path to the target file. This can be a local file or remote path e.g.';
-$string['connector_sftp:path_example'] = '    sftp://path/to/file # Any remote file url;';
+$string['connector_sftp:path_example'] = '    sftp://file/path  # Any remote file url;';
 $string['connector_sftp:bad_host'] = 'Unable to connect to host.';
 $string['connector_sftp:bad_hostpubkey'] = 'Host public key mismatch.';
 $string['connector_sftp:bad_auth'] = 'Authorisation failed.';
@@ -406,7 +406,7 @@ $string['connector_sftp:missing_remote'] = 'At least one of source/target must b
 $string['connector_sftp:pubkeyfile'] = 'Public key file';
 $string['connector_sftp:privkeyfile'] = 'Private key file';
 $string['connector_sftp:keyfile_desc'] = 'Fill this field if you are using public/private key authentication. If empty, then authentication will fall back to username/password.';
-$string['connector_sftp:password_desc'] = 'Password for username/password authentication. If a key file is specified, then this is used to decrypt the key. It is mandatory for username/passwrod authentication, optional for key authentication.';
+$string['connector_sftp:password_desc'] = 'Password for username/password authentication. If a key file is specified, then this is used to decrypt the key. It is mandatory for username/password authentication, optional for key authentication.';
 $string['connector_sftp:file_not_found'] = 'File not found: \'{$a}\'.';
 
 // Checks.
