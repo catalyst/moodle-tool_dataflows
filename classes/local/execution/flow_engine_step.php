@@ -75,37 +75,4 @@ class flow_engine_step extends engine_step {
         }
         return $this->status;
     }
-
-    /**
-     * Returns an array with all the variables available, with the context of the step
-     *
-     * @return  array
-     */
-    public function get_variables(): array {
-        // Config values are directly referenceable, step values go through
-        // step.fieldname, everything else is available through expressions,
-        // such as 'dataflow.id' and 'steps.mystep.name' for example.
-        $variables = $this->engine->get_variables();
-        $step = $variables['steps']->{$this->stepdef->alias};
-
-        // Pull out the config.
-        $config = $step->config ?? new \stdClass;
-
-        // Set the record as an available variable.
-        if ($this->iterator) {
-            $variables['record'] = $this->iterator->current();
-
-            // Evaluate the config again with the record context, unless the
-            // step type doesn't want to (e.g. SQL reader does it own handling).
-            $parser = parser::get_parser();
-            $parser->evaluate_recursive($config, $variables);
-        }
-
-        // We copy the contents of the step subtree into the root, to enable 'localised' access to the step variables.
-        // E.g. we can use ${{config.setting}} instead of ${{steps.first.config.setting}}.
-        return array_merge(
-            $variables,
-            (array) $step
-        );
-    }
 }
