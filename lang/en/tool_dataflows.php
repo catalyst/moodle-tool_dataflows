@@ -117,6 +117,7 @@ $string['step_name_connector_email'] = 'Email notification';
 $string['step_name_connector_file_exists'] = 'File exists';
 $string['step_name_connector_hash_file'] = 'Hash file';
 $string['step_name_connector_s3'] = 'S3 file copy';
+$string['step_name_connector_sftp'] = 'SFTP file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
 $string['step_name_flow_abort'] = 'Abort';
@@ -246,6 +247,7 @@ $string['here'] = 'here';
 $string['concurrency_disabled'] = 'Concurrency is not possible with this dataflow. Concurrent running flag has been set to false.';
 $string['concurrency_enabled_disabled_desc'] = '<i>Concurrent running is not possible because one or more steps are unable to support concurrency.
  While you can still edit this setting, it\'s value will be ignored. Reasons are:</i>';
+$string['file_missing'] = 'File is missing \'{$a}\'.';
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';
@@ -382,6 +384,30 @@ $string['connector_curl:field_headers_help'] = 'Headers should be in valid HTTP 
 $string['connector_curl:output_response_result'] = 'Returns a string that contains the response to the request as text, or null if the request was unsuccessful or has not yet been sent.';
 $string['connector_curl:header_format'] = '<header>:<value>';
 $string['connector_curl:headers_invalid'] = 'Curl connector headers are invalid.';
+
+// Connector sftp.
+$string['connector_sftp:host'] = 'Host';
+$string['connector_sftp:source'] = 'Source';
+$string['connector_sftp:source_desc'] = 'Path to the source file. This can be a local file or remote path e.g.';
+$string['connector_sftp:target'] = 'Target';
+$string['connector_sftp:target_desc'] = 'Path to the target file. This can be a local file or remote path e.g.';
+$string['connector_sftp:path_example'] = '    sftp://file/path  # Any remote file url;';
+$string['connector_sftp:bad_host'] = 'Unable to connect to host.';
+$string['connector_sftp:bad_hostpubkey'] = 'Host public key mismatch.';
+$string['connector_sftp:bad_auth'] = 'Authorisation failed.';
+$string['connector_sftp:bad_sftp'] = 'Unable to start SFTP session.';
+$string['connector_sftp:no_ssh2'] = 'SSH2 extension not installed';
+$string['connector_sftp:host_desc'] = 'The host to connect to';
+$string['connector_sftp:port'] = 'Port';
+$string['connector_sftp:hostpubkey'] = 'Host public key';
+$string['connector_sftp:hostpubkey_desc'] = 'Public key that must match the one returned by the host. If empty, it will be set on the first connection.';
+$string['connector_sftp:copy_fail'] = 'Copy failed: \'{$a}\'.';
+$string['connector_sftp:missing_remote'] = 'At least one of source/target must be remote.';
+$string['connector_sftp:pubkeyfile'] = 'Public key file';
+$string['connector_sftp:privkeyfile'] = 'Private key file';
+$string['connector_sftp:keyfile_desc'] = 'Fill this field if you are using public/private key authentication. If empty, then authentication will fall back to username/password.';
+$string['connector_sftp:password_desc'] = 'Password for username/password authentication. If a key file is specified, then this is used to decrypt the key. It is mandatory for username/password authentication, optional for key authentication.';
+$string['connector_sftp:file_not_found'] = 'File not found: \'{$a}\'.';
 
 // Checks.
 $string['check:dataflows_completed_successfully'] = 'All recent dataflow runs completed successfully.';

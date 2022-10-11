@@ -696,4 +696,14 @@ class engine {
 
         return $fullpath;
     }
+
+    /**
+     * Creates a filename for a temporary file in the scratch directory.
+     *
+     * @param string $prefix
+     * @return false|string
+     */
+    public function create_temporary_file($prefix = '____') {
+        return tempnam($this->scratchdir, $prefix);
+    }
 }

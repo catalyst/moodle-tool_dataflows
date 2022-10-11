@@ -83,6 +83,18 @@ class helper {
     }
 
     /**
+     * Does the path string include a given scheme?
+     *
+     * @param string $path
+     * @param string $scheme The scheme to test for.
+     * @return bool
+     */
+    public static function path_is_scheme(string $path, string $scheme): bool {
+        $scheme .= '://';
+        return strpos($path, $scheme) === 0;
+    }
+
+    /**
      * Is the path a relative one?
      * Note: Windows paths are not yet supported.
      *

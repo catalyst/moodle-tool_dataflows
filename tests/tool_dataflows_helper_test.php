@@ -35,6 +35,37 @@ class tool_dataflows_helper_test extends \advanced_testcase {
     }
 
     /**
+     * Tests path_is_scheme().
+     *
+     * @dataProvider is_scheme_provider
+     * @covers \tool_dataflows\helper::path_is_scheme
+     * @param string $scheme
+     * @param string $path
+     * @param bool $expected
+     */
+    public function test_is_scheme(string $scheme, string $path, bool $expected) {
+        $this->assertEquals($expected, helper::path_is_scheme($path, $scheme));
+    }
+
+    /**
+     * Provider for test_is_scheme().
+     *
+     * @return array[]
+     */
+    public function is_scheme_provider(): array {
+        return [
+            ['file', 'one/path', false],
+            ['file', '/one/path', false],
+            ['sftp', 'sftp://one/path', true],
+            ['sftp', 'file://one/path', false],
+            ['file', 'file://one/path', true],
+            ['file', 'sftp://one/path', false],
+            ['sftp', 'sftp/files/download.txt', false],
+            ['sftp', 'stuff/sftp://one/path', false],
+        ];
+    }
+
+    /**
      * Tests the get_permitted_dirs() function.
      *
      * @dataProvider dir_provider
