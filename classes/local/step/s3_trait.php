@@ -108,7 +108,7 @@ trait s3_trait {
             return $input;
         }
 
-        $config = $this->get_config();
+        $config = $this->get_variables()->get('config');
         $connectionoptions = [
             'version' => 'latest',
             'region' => $config->region,

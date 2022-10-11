@@ -314,8 +314,8 @@ class tool_dataflows_test extends \advanced_testcase {
         $yaml = \Symfony\Component\Yaml\Yaml::parse($content);
         $dataflow = new dataflow();
         $dataflow->import($yaml);
-        $vars = $dataflow->vars;
-        $this->assertNotEquals($yaml['config']['expression'],  $vars->expression);
+        $vars = $dataflow->get_variables()->get('vars');
+        $this->assertNotEquals($yaml['vars']['expression'],  $vars->expression);
         $this->assertEquals($dataflow->id,  $vars->expression_test_id);
         $this->assertEquals($dataflow->name,  $vars->expression_dataflow_name);
         $this->assertEquals($dataflow->id + 777,  $vars->expression_math); // Adding an fixed number.

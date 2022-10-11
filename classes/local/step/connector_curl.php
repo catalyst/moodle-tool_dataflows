@@ -48,7 +48,7 @@ class connector_curl extends connector_step {
      */
     public function has_side_effect(): bool {
         if (isset($this->stepdef)) {
-            $config = $this->stepdef->config;
+            $config = $this->get_variables()->get('config');
 
             // Destination is outside of scratch directory.
             if (!(empty($config->destination) || helper::path_is_relative($config->destination))) {
@@ -194,7 +194,7 @@ class connector_curl extends connector_step {
      * @return true|array Will return true or an array of errors.
      */
     public function validate_for_run() {
-        $config = $this->stepdef->config;
+        $config = $this->get_variables()->get('config');
 
         if (!empty($config->destination)) {
             $error = helper::path_validate($config->destination);
@@ -216,7 +216,8 @@ class connector_curl extends connector_step {
      */
     public function execute($input = null) {
         // Get variables.
-        $config = $this->get_config();
+        $variables = $this->get_variables();
+        $config = $variables->get('config');
         $method = $config->method;
 
         $this->enginestep->log($config->curl);
@@ -268,7 +269,7 @@ class connector_curl extends connector_step {
 
         // Log the raw curl command.
         $this->enginestep->log($dbgcommand);
-        $this->set_variables('dbgcommand', $dbgcommand);
+        $variables->set('dbgcommand', $dbgcommand);
 
         // We do not need to go any further if curl is not going to be called.
         if ($this->enginestep->engine->isdryrun && $this->has_side_effect()) {
@@ -312,7 +313,7 @@ class connector_curl extends connector_step {
 
         // TODO: It would be good to define and list any fixed but exposed
         // fields which the user can use and map to on the edit page.
-        $this->set_variables('response', (object) [
+        $variables->set('response', (object) [
             'result' => $result,
             'info' => (object) $info,
             'destination' => $destination,

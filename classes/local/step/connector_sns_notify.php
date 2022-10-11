@@ -91,7 +91,7 @@ class connector_sns_notify extends connector_step {
         }
 
         // Create the client.
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_variables()->get('config');
         $connectionoptions = [
             'version' => 'latest',
             'region' => $config->region,

@@ -16,11 +16,15 @@
 
 namespace tool_dataflows;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\test_engine;
+use tool_dataflows\local\execution\direct_in_type;
+use tool_dataflows\local\step\flow_abort;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/local/execution/test_engine.php');
+require_once(__DIR__ . '/local/execution/direct_in_type.php');
 
 /**
  * Tests aborting the dataflow.
@@ -46,7 +50,17 @@ class tool_dataflows_abort_test extends \advanced_testcase {
      * @covers \tool_dataflows\local\step\flow_abort
      */
     public function test_abort_call() {
-        list($dataflow, $steps) = $this->dataflow_provider();
+        list($dataflow, $steps) = test_dataflows::sequence([
+            'reader' => direct_in_type::class,
+            'abort' => flow_abort::class,
+        ]);
+
+        $steps['reader']->config = Yaml::dump([
+            'source' => [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                ['a' => 4, 'b' => 5, 'c' => 6],
+            ]
+        ]);
 
         // Create the engine.
         ob_start();
@@ -66,35 +80,5 @@ class tool_dataflows_abort_test extends \advanced_testcase {
         foreach ($engine->flowcaps as $step) {
             $this->assertEquals(test_engine::STATUS_ABORTED, $step->status);
         }
-    }
-
-    /**
-     * Create a dataflow for testing.
-     *
-     * @return array
-     */
-    public function dataflow_provider(): array {
-        $dataflow = new dataflow();
-        $dataflow->name = 'two-step';
-        $dataflow->enabled = true;
-        $dataflow->save();
-
-        $steps = [];
-        $reader = new step();
-        $reader->name = 'reader';
-        $reader->type = 'tool_dataflows\local\step\reader_sql';
-        $reader->config = '{sql: SELECT 1}';
-        $dataflow->add_step($reader);
-        $steps[$reader->id] = $reader;
-
-        $abort = new step();
-        $abort->name = 'abort';
-        $abort->type = 'tool_dataflows\local\step\flow_abort';
-
-        $abort->depends_on([$reader]);
-        $dataflow->add_step($abort);
-        $steps[$abort->id] = $abort;
-
-        return [$dataflow, $steps];
     }
 }

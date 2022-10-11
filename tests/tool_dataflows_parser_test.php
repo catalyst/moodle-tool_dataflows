@@ -36,7 +36,7 @@ class tool_dataflows_parser_test extends \advanced_testcase {
      * @param array $expected
      */
     public function test_find_variable_names(string $expression, array $expected) {
-        $parser = new parser();
+        $parser = parser::get_parser();
         $varnames = $parser->find_variable_names($expression);
         $this->assertEquals($expected, $varnames);
     }
@@ -69,7 +69,7 @@ class tool_dataflows_parser_test extends \advanced_testcase {
      * @dataProvider  parser_functions_data_provider
      */
     public function test_parser_functions(string $expression, array $variables, $expected) {
-        $parser = new parser();
+        $parser = parser::get_parser();
         $result = $parser->evaluate('${{' . $expression . '}}', $variables);
         $this->assertEquals($expected, $result);
     }

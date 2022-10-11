@@ -228,6 +228,23 @@ class step extends persistent {
     }
 
     /**
+     * Updates the value stored in the step's config
+     *
+     * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
+     * @param  mixed $value
+     */
+    public function set_config_by_name($name, $value) {
+        $config = $this->get_config();
+        $config->{$name} = $value;
+        $this->config = Yaml::dump(
+            (array) $config,
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+        );
+    }
+
+    /**
      * Sets the step's name
      *
      * Also sets the alias based on the new name, if the property is unset.

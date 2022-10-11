@@ -73,11 +73,12 @@ trait hash_file_trait {
      * @return mixed
      */
     public function execute($input = null) {
-        $config = $this->get_config();
+        $variables = $this->get_variables();
+        $config = $variables->get('config');
         $filename = $this->enginestep->engine->resolve_path($config->path);
         $hash = hash_file($config->algorithm, $filename);
         $this->log("The file hash value: {$hash}");
-        $this->set_variables('hash', $hash);
+        $variables->set('hash', $hash);
         return $input;
     }
 
@@ -111,5 +112,14 @@ trait hash_file_trait {
             $errors['config_algorithm'] = get_string('flow_hash_file:algorithm_does_not_exist', 'tool_dataflows', true);
         }
         return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * A list of outputs and their description if applicable.
+     *
+     * @return  array of outputs
+     */
+    public function define_outputs(): array {
+        return ['hash' => null];
     }
 }

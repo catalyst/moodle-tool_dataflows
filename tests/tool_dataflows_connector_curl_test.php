@@ -81,7 +81,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $vars = $engine->get_variables()['steps']->connector->vars;
+        $vars = $engine->get_variables_root()->get('steps.connector.vars');
         // Result can be anything but for readability decoded to see vars.
         $result = $vars->result;
         $this->assertEquals('3d188fbf-d0b7-4d4e-ae4d-4b5548df824e', $result->uuid);
@@ -114,7 +114,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $vars = $engine->get_variables()['steps']->connector->vars;
+        $vars = $engine->get_variables_root()->get('steps.connector.vars');
 
         $this->assertEmpty($vars->result);
         $this->assertEquals(200, $vars->httpcode);
@@ -143,7 +143,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $variables = $engine->get_variables()['steps']->connector;
+        $variables = $engine->get_variables_root()->get('steps.connector');
         $vars = $variables->vars;
 
         // PUT has no response body so it shouldn't be checked.
@@ -174,7 +174,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $variables = $engine->get_variables()['steps']->connector;
+        $variables = $engine->get_variables_root()->get('steps.connector');
         $expected = "curl -s -X POST {$testurl} --max-time 60 -H 'X-One:one' -H 'X-Two;' -H 'X-Three:th'\\''ree' --data-raw '{
                 \"name\": \"morpheus\",
                 \"job\": \"leader\"
@@ -201,13 +201,13 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         $engine = new engine($dataflow, false, false);
         $engine->execute();
         ob_get_clean();
-        $vars = $engine->get_variables()['steps']->connector->vars;
+        $vars = $engine->get_variables_root()->get('steps.connector.vars');
         $destination = $vars->destination;
         $httpcode = $vars->httpcode;
         $this->assertFileExists($destination);
         unlink($destination);
 
-        $variables = $engine->get_variables();
+        $variables = (array) $engine->get_variables_root()->get();
         $expressionlanguage = new ExpressionLanguage();
         // Checks that it can properly be referenced for future steps.
         $expressedvalue = $expressionlanguage->evaluate('steps.connector.config.curl', $variables);
@@ -277,6 +277,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         set_config('permitted_dirs', '', 'tool_dataflows');
         $this->assertTrue($steptype->validate_for_run());
 
+        $dataflow->clear_variables();
         $config['destination'] = $absolutepath;
         $step->config = Yaml::dump($config);
         $this->assertEquals(['config_destination' => $errormsg], $steptype->validate_for_run());

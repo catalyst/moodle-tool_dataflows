@@ -178,7 +178,8 @@ EOF;
         $currentoutput = $OUTPUT;
         $outertransaction = $DB->is_transaction_started();
 
-        $config = $this->get_config();
+        $variables = $this->get_variables();
+        $config = $variables->get('config');
         $isdryrun = $this->is_dry_run();
         $userid = $DB->get_field('user', 'id', ['username' => $config->user]);
         $user = core_user::get_user($userid);
@@ -236,7 +237,7 @@ EOF;
             }
             // Success - store any desired value for subsequent steps.
             // Output will then evaluate result.
-            $this->set_variables('result', $response['data']);
+            $variables->set('result', $response['data']);
         }
         return $input;
     }

@@ -39,8 +39,7 @@ class var_root extends var_object_visible {
         parent::__construct($dataflow->name);
 
         // Define the top level trees, in order.
-        $this->children['cfg'] = new var_object('cfg', $this);
-        $this->children['vars'] = new var_object('vars', $this);
+        $this->children['global'] = new var_object('global', $this);
         $this->children['dataflow'] = null; // Placeholder to ensure correct ordering.
         $steps = $this->find(['steps'], true, true);
 
@@ -51,11 +50,11 @@ class var_root extends var_object_visible {
         }
 
         // Fill out the trees and initialise.
-        $this->set('cfg', helper::get_cfg_vars());
+        $this->set('global.cfg', helper::get_cfg_vars());
 
         $vars = Yaml::parse(get_config('tool_dataflows', 'global_vars'), Yaml::PARSE_OBJECT_FOR_MAP)
             ?? new \stdClass();
-        $this->set('vars', $vars);
+        $this->set('global.vars', $vars);
 
         $this->children['dataflow']->init();
         foreach ($steps->children as $child) {

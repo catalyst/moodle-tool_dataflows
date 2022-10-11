@@ -84,7 +84,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Init the engine.
         ob_start();
         $engine = new engine($dataflow);
-        $variables = $engine->get_variables();
+        $variables = (array) $engine->get_variables_root()->get();
         ob_get_clean();
 
         $parser = parser::get_parser();
@@ -209,9 +209,11 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         // Init the engine.
         ob_start();
         $engine = new engine($dataflow);
+        ob_get_clean();
 
         // Check before state.
-        $variables = $engine->get_variables();
+        $variables = (array) $engine->get_variables_root()->get();
+
         $this->assertEquals(new \stdClass, $variables['global']->vars);
         $this->assertEquals(new \stdClass, $variables['dataflow']->vars);
         $reader->read();
@@ -224,12 +226,13 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         execution\reader_sql_variable_setter::$globalvar = $globalvalue;
 
         // Execute.
+        ob_start();
         $engine->execute();
         ob_get_clean();
         $this->assertDebuggingCalledCount(5);
 
         // Check expected after state.
-        $variables = $engine->get_variables();
+        $variables = (array) $engine->get_variables_root()->get();
         $this->assertEquals($dataflowvalue, $variables['dataflow']->vars->dataflowvar);
         $this->assertTrue((bool) $variables['dataflow']->config->enabled);
         $this->assertFalse((bool) $variables['dataflow']->config->concurrencyenabled);
@@ -326,7 +329,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
 
         // Test an expression targetting the new custom mapping (which is how you might reference it from another step).
         $expressionlanguage = new ExpressionLanguage();
-        $variables = $engine->get_variables();
+        $variables = (array) $engine->get_variables_root()->get();
         // Test the shorthand version also.
         $result = $expressionlanguage->evaluate("steps.{$stepdef->name}.vars.customOutputKey", $variables);
         $this->assertEquals('H5P.Accordion', $result);
@@ -355,57 +358,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $vars = $dataflow->variables;
-        $this->assertEquals([1, 2, 3], $vars['steps']->deb->vars->out);
-    }
-
-    /**
-     * Test the functions available through the parser
-     *
-     * @param  string $expression
-     * @param  array $variables
-     * @param  mixed $expected
-     *
-     * @covers        \tool_dataflows\parser
-     * @dataProvider  parser_functions_data_provider
-     */
-    public function test_parser_functions(string $expression, array $variables, $expected) {
-        $parser = parser::get_parser();
-        $result = $parser->evaluate('${{'.$expression.'}}', $variables);
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
-     * Ensure these expressions return the expected values (happy path)
-     *
-     * @return array of data
-     */
-    public function parser_functions_data_provider() {
-        $example = [
-            'a' => [
-                'b' => null,
-                'c' => null,
-                'd' => (object) ['e' => 'f'],
-            ],
-        ];
-        return [
-            // Counts.
-            ['count(a)', ['a' => [3, 2, 1]], 3],
-            ['count(a["b"])', ['a' => ['b' => [1, 2]]], 2],
-
-            // Issets.
-            ['isset(a)', ['a' => [3, 2, 1]], true],
-            ['isset(a[0])', ['a' => [3, 2, 1]], true],
-            ['isset(a[4]["id"])', ['a' => [3, 2, 1, 2, ['id' => 1]]], true],
-            ['isset(a[4]["somefield"])', ['a' => [3, 2, 1, 2, ['id' => 1]]], false],
-            ['isset(a["d"].e)', $example, true],
-            ['isset(a["e"])', $example, false], // Note: a["e"].id won't be resolved.
-            ['isset(a["d"].f)', $example, false], // Works because "d" object exists.
-            ['isset(a["something"])', ['a' => [3, 2, 1]], false], // Note: b["anything"] won't even be resolved.
-
-            // From JSON.
-            ['fromJSON(a)', ['a' => json_encode([3, 2, 1])], [3, 2, 1]],
-            ['fromJSON(a)', ['a' => json_encode($example)], json_decode(json_encode($example))],
-        ];
+        $vars = $dataflow->get_variables_root()->get();
+        $this->assertEquals([1, 2, 3], $vars->steps->deb->vars->out);
     }
 }

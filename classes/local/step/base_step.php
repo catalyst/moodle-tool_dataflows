@@ -632,7 +632,7 @@ abstract class base_step {
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
         );
-        $this->log("Debug: current vars ($vars->fullname):\n" . trim($yaml));
+        $this->log("Debug: current vars:\n" . trim($yaml));
 
     }
 }

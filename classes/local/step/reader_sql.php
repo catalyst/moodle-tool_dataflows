@@ -60,7 +60,7 @@ class reader_sql extends reader_step {
      */
     public function is_concurrency_supported() {
         if (isset($this->stepdef)) {
-            $config = $this->stepdef->config;
+            $config = $this->get_variables()->get('config');
             return empty($config->counterfield) ? true : get_string('reader_sql:counterfield_not_empty', 'tool_dataflows');
         }
 
@@ -112,11 +112,10 @@ class reader_sql extends reader_step {
      */
     protected function construct_query(): string {
         // Get variables.
-        $variables = $this->enginestep->get_variables();
+        $variables = $this->get_variables();
 
         // Get raw SQL (because we need to know when to and when not to use the query fragments).
-        $rawconfig = $this->enginestep->stepdef->get_raw_config();
-        $rawsql = $rawconfig->sql;
+        $rawsql = $this->stepdef->config->sql;
 
         // Parses the query, removing any optional blocks which cannot be resolved by the containing expression.
         preg_match_all(
@@ -139,9 +138,8 @@ class reader_sql extends reader_step {
             foreach ($matches as $match) {
                 // Check expression evaluation using the current config object
                 // first, then failing that, target the dataflow variables.
-                $value = $parser->evaluate_or_fail(
+                $value = $variables->evaluate(
                     $match['expressionwrapper'],
-                    $variables,
                     function ($message, $e = null) use ($rawsql, &$errormsg) {
                         // Process the message and clarify it if required.
                         $message = $this->clarify_parser_error($message, $rawsql);
@@ -188,7 +186,7 @@ class reader_sql extends reader_step {
         $hasexpression = true;
         $max = 5;
         while ($hasexpression && $max) {
-            $finalsql = $parser->evaluate_or_fail($finalsql, $variables, function ($message, $e) {
+            $finalsql = $variables->evaluate($finalsql, function ($message, $e) {
                 // Process the message and clarify it if required.
                 $message = $this->clarify_parser_error($message);
 
@@ -331,29 +329,18 @@ ORDER BY id ASC
      * Updates the counter value if a counterfield is supplied, but otherwise does nothing special to the data.
      *
      * @param   mixed $input
-     * @return  mixed $input
+     * @return  mixed
      */
     public function execute($input = null) {
         // Check the config for the counterfield.
-        $config = $this->enginestep->stepdef->config;
-        $counterfield = $config->counterfield ?? null;
-
-        if (isset($counterfield)) {
-            $parser = parser::get_parser();
-            [$hasexpression] = $parser->has_expression($counterfield);
-            if ($hasexpression) {
-                $resolvedcounterfield = $parser->evaluate(
-                    $counterfield,
-                    $this->enginestep->get_variables()
-                );
-                $counterfield = null;
-                if ($resolvedcounterfield !== $counterfield) {
-                    $counterfield = $resolvedcounterfield;
-                }
-            }
-            if (!empty($counterfield)) {
-                // Updates the countervalue based on the current counterfield value.
-                $this->enginestep->set_var('countervalue', $input->{$counterfield});
+        $variables = $this->get_variables();
+        $config = $variables->get('config');
+        if (!empty($config->counterfield)) {
+            $counterfield = $config->counterfield;
+            $variables->set('config.countervalue', $input->{$counterfield});
+            $this->stepdef->set_config_by_name('countervalue', $input->{$counterfield});
+            if (!$this->is_dry_run()) {
+                $this->stepdef->save();
             }
         }
 

@@ -137,7 +137,7 @@ class var_value extends var_node {
     /**
      * Evaluates the expressions in this value. Any referenced value that is dirty will also be evaluated.
      */
-    private function evaluate() {
+    public function evaluate(?callable $errorhandler = null) {
         $refs = [];
         foreach ($this->references as $name => $obj) {
             $resolved = $obj->get_resolved(false);
@@ -146,7 +146,11 @@ class var_value extends var_node {
             }
         }
         $tree = $this->make_reference_tree($refs);
-        $this->resolved = parser::get_parser()->evaluate($this->raw, (array) $tree);
+        if (is_null($errorhandler)) {
+            $this->resolved = parser::get_parser()->evaluate($this->raw, (array) $tree);
+        } else {
+            $this->resolved = parser::get_parser()->evaluate_or_fail($this->raw, (array) $tree, $errorhandler);
+        }
         $this->dirty = false;
     }
 

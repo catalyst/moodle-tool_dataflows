@@ -62,7 +62,7 @@ class var_object extends var_node {
                 $this->children[$name] = new var_object($name, $this, $this->root, $this->localroot);
             }
         }
-        return $this->children[$name]->find($levels, $fill);
+        return $this->children[$name]->find($levels, $fill, $isobj);
     }
 
     /**

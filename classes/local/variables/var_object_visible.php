@@ -104,9 +104,10 @@ class var_object_visible extends var_object {
      * @param string $expression
      * @return mixed
      */
-    public function evaluate(string $expression) {
+    public function evaluate(string $expression, ?callable $errorhandler = null) {
         $varvalue = new var_value('', $this);
         $varvalue->set($expression);
+        $varvalue->evaluate($errorhandler);
         $result = $varvalue->get_resolved();
         $varvalue->set(null); // Clear out dependencies that were created.
         return $result;

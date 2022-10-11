@@ -186,7 +186,8 @@ class flow_logic_switch extends flow_logic_step {
                     return false;
                 }
 
-                $this->steptype->set_variables('timeentered', $now);
+                $stepvars = $this->steptype->get_variables();
+                $stepvars->set('timeentered', $now);
 
                 // Pull the next record if needed.
                 $value = $this->input->current();
@@ -212,8 +213,7 @@ class flow_logic_switch extends flow_logic_step {
                     }
 
                     // Prepare variables for expression parsing.
-                    $variables = $caller->step->engine->get_variables();
-                    $variables['record'] = $value;
+                    $stepvars->set('record', $value);
 
                     // By default, this step should go through the list of
                     // expressions, in order, and stop at the first matching case.
@@ -224,8 +224,7 @@ class flow_logic_switch extends flow_logic_step {
                     $parser = parser::get_parser();
                     $casefailures = 0;
                     foreach ($this->cases as $caseindex => $case) {
-                        $result = (bool) $parser->evaluate_or_fail('${{ ' . $case . ' }}', $variables);
-
+                        $result = (bool) $stepvars->evaluate('${{ ' . $case . ' }}');
                         // If there was a passing expression, break the loop.
                         if ($result === true) {
                             // We know it passed, but did it pass on the correct step output connection?

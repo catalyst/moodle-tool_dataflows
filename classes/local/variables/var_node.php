@@ -50,15 +50,20 @@ abstract class var_node {
         $this->parent = $parent;
 
         if (is_null($root)) {
-            $root = $parent;
-            if (is_null($root)) {
+            if (is_null($parent)) {
                 $root = $this;
+            } else {
+                $root = $parent->root;
             }
         }
         $this->root = $root;
 
         if (is_null($localroot)) {
-            $localroot = $root;
+            if (is_null($parent)) {
+                $localroot = $this;
+            } else {
+                $localroot = $parent->localroot;
+            }
         }
         $this->localroot = $localroot;
     }

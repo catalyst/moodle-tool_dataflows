@@ -137,6 +137,7 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
         $steptype = $step->steptype;
         $this->assertTrue($steptype->has_side_effect());
 
+        $dataflow->clear_variables();
         $step->config = Yaml::dump(['format' => 'json', 'streamname' => 'rel/out.txt', 'prettyprint' => true]);
         $this->assertFalse($steptype->has_side_effect());
     }

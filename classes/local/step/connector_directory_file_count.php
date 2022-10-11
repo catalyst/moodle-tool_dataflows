@@ -58,12 +58,13 @@ class connector_directory_file_count extends connector_step {
      * @return mixed
      */
     public function execute($input = null) {
-        $config = $this->get_config();
+        $variables = $this->get_variables();
+        $config = $variables->get('config');
 
         $path = $this->enginestep->engine->resolve_path($config->path);
         $count = $this->run($path);
         $this->log("Found {$count} files");
-        $this->set_variables('result', $count);
+        $variables->set('result', $count);
 
         return $input;
     }

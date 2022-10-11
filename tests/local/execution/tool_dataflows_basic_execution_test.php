@@ -16,16 +16,16 @@
 
 namespace tool_dataflows\local\execution;
 
+use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\dataflow;
 use tool_dataflows\step;
+use tool_dataflows\test_dataflows;
 
 defined('MOODLE_INTERNAL') || die();
 
 // This is needed. File will not be automatically included.
-require_once(__DIR__ . '/array_in_type.php');
-// This is needed. File will not be automatically included.
-require_once(__DIR__ . '/array_out_type.php');
+require_once(__DIR__ . '/../../test_dataflows.php');
 
 /**
  * Unit tests for the execution engine
@@ -57,22 +57,10 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
      */
     public function test_in_and_out() {
         // Create the dataflow.
-        $dataflow = new dataflow();
-        $dataflow->name = 'two-step';
-        $dataflow->enabled = true;
-        $dataflow->save();
-
-        $reader = new step();
-        $reader->name = 'reader';
-        $reader->type = 'tool_dataflows\local\execution\array_in_type';
-        $dataflow->add_step($reader);
-
-        $writer = new step();
-        $writer->name = 'writer';
-        $writer->type = 'tool_dataflows\local\execution\array_out_type';
-
-        $writer->depends_on([$reader]);
-        $dataflow->add_step($writer);
+        [$dataflow, $steps] = test_dataflows::sequence([
+            'reader' => array_in_type::class,
+            'writer' => array_out_type::class,
+        ]);
 
         // Define the input.
         $json = '[{"a": 1, "b": 2, "c": 3}, {"a": 4, "b": 5, "c": 6}]';
@@ -87,6 +75,32 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
         ob_get_clean();
 
         $this->assertEquals(json_encode(array_in_type::$source), json_encode(array_out_type::$dest));
+        $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
+    }
+
+    public function test_direct_and_out() {
+        // Create the dataflow.
+        [$dataflow, $steps] = test_dataflows::sequence([
+            'reader' => direct_in_type::class,
+            'writer' => array_out_type::class,
+        ]);
+
+        // Define the input.
+        $source = [
+            ['a' => 9, 'b' => 8, 'c' => 7],
+            ['a' => 6, 'b' => 5, 'c' => 4],
+        ];
+
+        $steps['reader']->config = Yaml::dump(['source' => $source]);
+        array_out_type::$dest = [];
+
+        // Execute.
+        ob_start();
+        $engine = new engine($dataflow);
+        $engine->execute();
+        ob_get_clean();
+
+        $this->assertEquals(json_encode($source), json_encode(array_out_type::$dest));
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
 }
