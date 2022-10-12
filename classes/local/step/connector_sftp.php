@@ -338,14 +338,8 @@ class connector_sftp extends connector_step {
      */
     private function copy_remote_to_remote(SFTP $sftp, string $sourcepath, string $targetpath) {
         $tmppath = $this->enginestep->engine->create_temporary_file();
-        $this->log("Downloading from '$sourcepath' to '$tmppath'");
-        if (!$sftp->get($sourcepath, $tmppath)) {
-            throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-        }
-        $this->log("Uploading from '$tmppath' to '$targetpath'");
-        if (!$sftp->put($targetpath, $tmppath, SFTP::SOURCE_LOCAL_FILE)) {
-            throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-        }
+        $this->download($sftp, $sourcepath, $tmppath);
+        $this->upload($sftp, $tmppath, $targetpath);
     }
 
     /**
