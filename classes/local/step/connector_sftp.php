@@ -258,37 +258,70 @@ class connector_sftp extends connector_step {
 
             // Copying from remote to remote, but have to download it first.
             if ($sourceisremote && $targetisremote) {
-                $tmppath = $this->enginestep->engine->create_temporary_file();
-                $this->log("Downloading from '$config->source' to '$tmppath'");
-                if (!$sftp->get($sourcepath, $tmppath)) {
-                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-                }
-                $this->log("Uploading from '$tmppath' to '$config->target'");
-                if (!$sftp->put($targetpath, $tmppath, SFTP::SOURCE_LOCAL_FILE)) {
-                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-                }
+                $this->copy_remote_to_remote($sftp, $sourcepath, $targetpath);
                 return true;
             }
 
             // Download from remote.
             if ($sourceisremote) {
-                $this->log("Downloading from '$config->source' to '$config->target'");
-                if (!$sftp->get($sourcepath, $targetpath)) {
-                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-                }
+                $this->download($sftp, $sourcepath, $targetpath);
                 return true;
             }
 
             // Upload to remote.
-            $this->log("Uploading from '$config->source' to '$config->target'");
-            if (!$sftp->put($targetpath, $sourcepath, SFTP::SOURCE_LOCAL_FILE)) {
-                throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-            }
+            $this->upload($sftp, $sourcepath, $targetpath);
         } finally {
             $sftp->disconnect();
         }
 
         return true;
+    }
+
+    /**
+     * Uploads a local file to a remote path
+     *
+     * @param   SFTP $sftp
+     * @param   string $sourcepath
+     * @param   string $targetpath
+     */
+    private function upload(SFTP $sftp, string $sourcepath, string $targetpath) {
+        $this->log("Uploading from '$sourcepath' to '$targetpath'");
+        if (!$sftp->put($targetpath, $sourcepath, SFTP::SOURCE_LOCAL_FILE)) {
+            throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
+        }
+    }
+
+    /**
+     * Downloads a remote file to a local path
+     *
+     * @param   SFTP $sftp
+     * @param   string $sourcepath
+     * @param   string $targetpath
+     */
+    private function download(SFTP $sftp, string $sourcepath, string $targetpath) {
+        $this->log("Downloading from '$sourcepath' to '$targetpath'");
+        if (!$sftp->get($sourcepath, $targetpath)) {
+            throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
+        }
+    }
+
+    /**
+     * Copies a file from one remote source to another location in the same remote source.
+     *
+     * @param   SFTP $sftp
+     * @param   string $sourcepath
+     * @param   string $targetpath
+     */
+    private function copy_remote_to_remote(SFTP $sftp, string $sourcepath, string $targetpath) {
+        $tmppath = $this->enginestep->engine->create_temporary_file();
+        $this->log("Downloading from '$sourcepath' to '$tmppath'");
+        if (!$sftp->get($sourcepath, $tmppath)) {
+            throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
+        }
+        $this->log("Uploading from '$tmppath' to '$targetpath'");
+        if (!$sftp->put($targetpath, $tmppath, SFTP::SOURCE_LOCAL_FILE)) {
+            throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
+        }
     }
 
     /**
