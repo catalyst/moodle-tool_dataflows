@@ -47,7 +47,7 @@ class logging_context {
         } else if ($object instanceof engine) {
             $this->engine = $object;
         } else {
-            throw new \moodle_exception('Unknown context object');
+            throw new \moodle_exception('unknown_logging_context', 'tool_dataflows');
         }
     }
 

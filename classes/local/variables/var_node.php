@@ -24,7 +24,6 @@ namespace tool_dataflows\local\variables;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 abstract class var_node {
     /** @var string The local name of the node. */
     protected $name;
@@ -38,17 +37,23 @@ abstract class var_node {
     protected $localroot;
 
     /**
-     * Construct a variable object.
+     * Construct a variable node.
      *
      * @param string $name
      * @param var_object|null $parent
-     * @param var_object|null $root
-     * @param var_object|null $localroot
+     * @param var_object|null $root Will fallback to the parent's root, or fallback to this.
+     * @param var_object|null $localroot Will fallback to the parent's localroot, or fallback to this.
      */
-    protected function __construct(string $name, ?var_object $parent = null, ?var_object $root = null, ?var_object $localroot = null) {
+    protected function __construct(
+        string $name,
+        ?var_object $parent = null,
+        ?var_object $root = null,
+        ?var_object $localroot = null
+    ) {
         $this->name = $name;
         $this->parent = $parent;
 
+        // Root will fallback to the parent's root, or fallback to this.
         if (is_null($root)) {
             if (is_null($parent)) {
                 $root = $this;
@@ -58,6 +63,7 @@ abstract class var_node {
         }
         $this->root = $root;
 
+        // Localroot will fallback to the parent's localroot, or fallback to this.
         if (is_null($localroot)) {
             if (is_null($parent)) {
                 $localroot = $this;
@@ -76,16 +82,21 @@ abstract class var_node {
      * @throws \moodle_exception
      */
     private function get_qualified_name(var_object $root) {
-        $name = [];
+        $levels = [];
         $node = $this;
         while ($node !== $root) {
-            $name[] = $node->name;
+            $levels[] = $node->name;
             $node = $node->parent;
         }
         if (is_null($node)) {
-            throw new \moodle_exception('root is not in ancestry.');
+            throw new \moodle_exception(
+                'variables:root_not_in_ancestry',
+                'tool_dataflows',
+                '',
+                ['root' => $root->fullname, 'node' => $this->fullname]
+            );
         }
-        return implode('.', array_reverse($name));
+        return var_object_visible::levels_to_name($levels);
     }
 
     /**
@@ -121,16 +132,26 @@ abstract class var_node {
      */
     public function __get(string $p) {
         switch ($p) {
+
+            // Name fo this node.
             case 'name':
                 return $this->name;
+
+            // The fully qualified name, in dot format, relative to the root.
             case 'fullname':
-                // The fully qualified name, in dot format, relative to the root.
                 return $this->get_qualified_name($this->root);
+
+            // The qualified name relative to the local root.
             case 'localname':
-                // The qualified name relative to the local root.
                 return $this->get_qualified_name($this->localroot);
+
             default:
-                throw new \moodle_exception("Property $p not supported");
+                throw new \moodle_exception(
+                    'property_not_supported',
+                    'tool_dataflows',
+                    '',
+                    ['property' => $p, 'classname' => self::class]
+                );
         }
     }
 }

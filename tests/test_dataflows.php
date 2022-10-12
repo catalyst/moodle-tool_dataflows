@@ -16,6 +16,8 @@
 
 namespace tool_dataflows;
 
+use tool_dataflows\local\execution\array_in_type;
+use tool_dataflows\local\execution\array_out_type;
 use tool_dataflows\local\execution\flow_callback_step;
 use tool_dataflows\local\execution\test_step;
 
@@ -25,11 +27,12 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/local/execution/array_in_type.php');
 require_once(__DIR__ . '/local/execution/array_out_type.php');
 require_once(__DIR__ . '/local/execution/flow_callback_step.php');
+require_once(__DIR__ . '/local/execution/test_step.php');
 
 /**
  * Stock dataflows to be used in testing.
  *
- * @package   <insert>
+ * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -38,27 +41,10 @@ class test_dataflows {
     /**
      * Create a two step reader-writer using the static array in and array out test steps.
      *
-     * @returns array [<dataflow>, <steps]
+     * @return array [<dataflow>, <steps>]
      */
     public static function array_in_array_out(): array {
-        $dataflow = new dataflow();
-        $dataflow->name = 'array-in-array-out';
-        $dataflow->enabled = true;
-        $dataflow->save();
-
-        $reader = new step();
-        $reader->name = 'reader';
-        $reader->type = 'tool_dataflows\local\execution\array_in_type';
-        $dataflow->add_step($reader);
-
-        $writer = new step();
-        $writer->name = 'writer';
-        $writer->type = 'tool_dataflows\local\execution\array_out_type';
-
-        $writer->depends_on([$reader]);
-        $dataflow->add_step($writer);
-        
-        return [$dataflow, ['reader' => $reader, 'writer' => $writer]];
+        return self::sequence(['reader' => array_in_type::class, 'writer' => array_out_type::class]);
     }
 
     /**
@@ -66,33 +52,19 @@ class test_dataflows {
      *
      * @param string $readertype
      * @param string $writertype
-     * @return array [<dataflow>, <steps]
+     * @param callable $fn
+     * @return array [<dataflow>, <steps>]
      */
     public static function reader_callback_writer(string $readertype, string $writertype, callable $fn): array {
-        $dataflow = new dataflow();
-        $dataflow->name = 'reader-callback-writer';
-        $dataflow->enabled = true;
-        $dataflow->save();
+        [$dataflow, $steps] = self::sequence([
+            'reader' => $readertype,
+            'callback' => flow_callback_step::class,
+            'writer' => $writertype,
+        ]);
 
-        $reader = new step();
-        $reader->name = 'reader';
-        $reader->type = $readertype;
-        $dataflow->add_step($reader);
+        $steps['callback']->dodgyvars['callback'] = $fn;
 
-        $callback = new test_step();
-        $callback->name = 'callback';
-        $callback->type = flow_callback_step::class;
-        $callback->dodgyvars['callback'] = $fn;
-        $callback->depends_on([$reader]);
-        $dataflow->add_step($callback);
-
-        $writer = new step();
-        $writer->name = 'writer';
-        $writer->type = $writertype;
-        $writer->depends_on([$callback]);
-        $dataflow->add_step($writer);
-
-        return [$dataflow, ['reader' => $reader, 'callback' => $callback, 'writer' => $writer]];
+        return [$dataflow, $steps];
     }
 
     /**
@@ -123,5 +95,3 @@ class test_dataflows {
         return [$dataflow, $steps];
     }
 }
-
-

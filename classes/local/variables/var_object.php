@@ -19,19 +19,11 @@ namespace tool_dataflows\local\variables;
 /**
  * Object node for a variables tree.
  *
- * Known weaknesses
- *
- * 1. Top level objects must be defined first.
- * 2. Nodes are created when referenced. Not when set.
- * 3. Localised node need to be created before any of its decendants are referenced.
- * 4. No way to easily inject derived classes like var_step.
- *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class var_object extends var_node {
     /** @var array[var_obj] The node's children.  */
     protected $children = [];
@@ -55,7 +47,7 @@ class var_object extends var_node {
             }
             if (empty($levels)) {
                 // We are at the end leaf, so create a var_value and return it.
-                $classname = $isobj ? var_object::class : var_value::class;
+                $classname = $isobj ? self::class : var_value::class;
                 $this->children[$name] = new $classname($name, $this, $this->root, $this->localroot);
                 return $this->children[$name];
             } else {
@@ -98,7 +90,7 @@ class var_object extends var_node {
      *
      * @param object $parent
      */
-    protected function fill_tree(object $parent) {
+    protected function fill_tree($parent) {
         foreach ($parent as $name => $value) {
             if (is_object($value)) {
                 $node = $this->find([$name], true, true);

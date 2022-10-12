@@ -63,7 +63,12 @@ class var_value extends var_node {
      */
     protected function find(array $levels, bool $fill = false, bool $isobj = false): ?var_node {
         if (!empty($levels)) {
-            throw new \moodle_exception('Trying to reference a leaf as a branch.');
+            throw new \moodle_exception(
+                'variables:reference_lead_as_branch',
+                'tool_dataflows',
+                '',
+                var_object_visible::levels_to_name($levels)
+            );
         }
         return $this;
     }
@@ -71,7 +76,7 @@ class var_value extends var_node {
     /**
      * Sets the raw value. References will be updated, and dependents will be made dirty.
      *
-     * @param $value
+     * @param mixed $value
      */
     public function set($value) {
         $this->raw = $value;
@@ -85,6 +90,7 @@ class var_value extends var_node {
         $this->make_dirty();
 
         // If the value is not a string, then it is guaranteed to not have expressions, and so we can resolve it now.
+        // TODO: Could also call parser::has_expression().
         if (!is_string($value)) {
             $this->resolved = $value;
             $this->dirty = false;
@@ -93,20 +99,23 @@ class var_value extends var_node {
 
         $varnames = parser::get_parser()->find_variable_names($value);
 
-        foreach ($varnames as $v) {
-            $levels = explode('.', $v);
-            if (!is_null($node = $this->root->find([$levels[0]]))) {
-                // Variable name is absolute.
-                array_shift($levels);
-                $var = $node->find($levels, true);
+        foreach ($varnames as $name) {
+            $levels = var_object_visible::name_to_levels($name);
+
+            // If the first identifier can be found in the top level, then the name is considered an absolute reference.
+            if (!is_null($this->root->find([$levels[0]]))) {
+                // Use absolute root.
+                $root = $this->root;
             } else if (!is_null($this->localroot)) {
-                // Variable name is relative.
-                $var = $this->localroot->find($levels, true);
+                // Use local root.
+                $root = $this->localroot;
             } else {
-                throw new \moodle_exception('Non resolvable variable ref ' . $v);
+                throw new \moodle_exception('variables:cannot_resolve_ref', 'tool_dataflows', '', $name);
             }
-            $this->references[$v] = $var;
-            $var->add_dependent($this);
+
+            $node = $root->find($levels, true);
+            $this->references[$name] = $node;
+            $node->add_dependent($this);
         }
     }
 
@@ -136,16 +145,11 @@ class var_value extends var_node {
 
     /**
      * Evaluates the expressions in this value. Any referenced value that is dirty will also be evaluated.
+     *
+     * @param callable|null $errorhandler A function to if the parsing fails. If null, then errors will be ignored.
      */
     public function evaluate(?callable $errorhandler = null) {
-        $refs = [];
-        foreach ($this->references as $name => $obj) {
-            $resolved = $obj->get_resolved(false);
-            if (!is_null($resolved)) {
-                $refs[$name] = $resolved;
-            }
-        }
-        $tree = $this->make_reference_tree($refs);
+        $tree = $this->make_reference_tree();
         if (is_null($errorhandler)) {
             $this->resolved = parser::get_parser()->evaluate($this->raw, (array) $tree);
         } else {
@@ -172,7 +176,6 @@ class var_value extends var_node {
     /**
      * Adds a dependant to the list.
      *
-     * @param string $name
      * @param var_value $var
      */
     protected function add_dependent(var_value $var) {
@@ -182,15 +185,23 @@ class var_value extends var_node {
     }
 
     /**
-     * Makes a reference tree of values to be given to the parser.
+     * Makes a tree of values using this node's references, for use with the Symfony parser.
      *
-     * @param array $refs
      * @return \stdClass
      */
-    private function make_reference_tree(array $refs): \stdClass {
+    private function make_reference_tree(): \stdClass {
         $tree = new \stdClass();
-        foreach ($refs as $name => $value) {
-            $levels = explode('.', $name);
+        foreach ($this->references as $name => $obj) {
+            $value = $obj->get_resolved(false);
+
+            // Do not add the value if it is not set. This shoudl result in the expression remaining unresolved in the evalutaion.
+            if (is_null($value)) {
+                continue;
+            }
+
+            $levels = var_object_visible::name_to_levels($name);
+
+            // Fill out the tree, creating a object for each level of the name (except the last).
             $node = $tree;
             $name = array_shift($levels);
             while (count($levels) !== 0) {
@@ -202,6 +213,7 @@ class var_value extends var_node {
             }
             $node->$name = $value;
         }
+
         return $tree;
     }
 }

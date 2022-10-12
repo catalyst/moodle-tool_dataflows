@@ -530,7 +530,7 @@ abstract class base_step {
      */
     public function get_variables_root(): var_root {
         if (is_null($this->stepdef)) {
-            throw new \moodle_exception('Cannot get variables without a step definition.');
+            throw new \moodle_exception('variables:no_step_definition', 'tool_dataflows');
         }
         return $this->stepdef->get_variables_root();
     }
@@ -623,6 +623,9 @@ abstract class base_step {
         $this->enginestep->log($message);
     }
 
+    /**
+     * Log the current state of 'vars'.
+     */
     public function log_vars() {
         $vars = $this->get_variables()->get('vars');
 

@@ -82,6 +82,11 @@ class var_root extends var_object_visible {
         return $this->children['steps']->children[$alias];
     }
 
+    /**
+     * Add a step explicitly to the root. A concession to flow caps.
+     *
+     * @param step $step
+     */
     public function add_step(step $step) {
         $steps = $this->children['steps'];
         $steps->children[$step->alias] = new var_step($step, $steps, $this);

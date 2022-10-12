@@ -22,6 +22,14 @@ use tool_dataflows\local\execution\iterators\dataflow_iterator;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\step\reader_step;
 
+/**
+ * Test reader step type that is supplied it's input directly via config.
+ *
+ * @package   tool_dataflows
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2022, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class direct_in_type extends reader_step {
 
     /** @var int[] number of input flows (min, max), zero for readers. */
@@ -41,10 +49,9 @@ class direct_in_type extends reader_step {
      * Step callback handler
      *
      * @param   mixed $input
-     * @return  mixed $input
+     * @return  mixed
      */
     public function execute($input = null) {
         return $input;
     }
 }
-

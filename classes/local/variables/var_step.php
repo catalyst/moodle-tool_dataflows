@@ -28,13 +28,24 @@ use tool_dataflows\step;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class var_step extends var_object_visible {
+    /** @var step The step definition. */
     protected $stepdef;
 
+    /**
+     * Constructs the object.
+     *
+     * @param step $stepdef
+     * @param var_object $parent
+     * @param var_root $root
+     */
     public function __construct(step $stepdef, var_object $parent, var_root $root) {
         parent::__construct($stepdef->alias, $parent, $root);
         $this->stepdef = $stepdef;
     }
 
+    /**
+     * Initialise the var tree.
+     */
     public function init() {
         // Define the structure and initialise.
         $this->set('id', $this->stepdef->id);
@@ -46,7 +57,7 @@ class var_step extends var_object_visible {
 
         $this->set('config', $this->stepdef->get_redacted_config());
 
-        $this->set('vars',$this->stepdef->get('vars'));
+        $this->set('vars', $this->stepdef->get('vars'));
         foreach (engine::STATUS_LABELS as $state) {
             $this->set("states.$state", null);
         }

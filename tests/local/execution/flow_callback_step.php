@@ -21,8 +21,6 @@ use tool_dataflows\local\execution\iterators\dataflow_iterator;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\step\flow_step;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * A step that calls a callback for each execution.
  *
@@ -32,20 +30,19 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class flow_callback_step extends flow_step {
+
+    /** @var callable The callback. */
     public static $callback;
 
+    /**
+     * Execute the step.
+     *
+     * @param null $inputs
+     * @return mixed|null
+     */
     public function execute($inputs = null) {
         $callback = $this->stepdef->dodgyvars['callback'];
         call_user_func($callback, $inputs, $this);
         return $inputs;
     }
 }
-
-/**
- * A special test step class that allows storing variables directly.
- */
-class test_step extends \tool_dataflows\step {
-    /** @var mixed Some very dodgy variables used in testing. */
-    public $dodgyvars;
-}
-

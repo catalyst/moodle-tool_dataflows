@@ -16,6 +16,7 @@
 
 namespace tool_dataflows;
 
+use tool_dataflows\local\variables\var_node;
 use tool_dataflows\local\variables\var_object_visible;
 
 /**
@@ -30,20 +31,20 @@ class var_object_for_testing extends var_object_visible {
     /**
      * Create it.
      *
-     * @param $name
+     * @param string $name
      */
-    public function __construct($name) {
+    public function __construct(string $name) {
         parent::__construct($name, null, $this);
     }
 
     /**
      * Creates a visible node for this name.
      *
-     * @param $name
+     * @param string $name
      * @return var_object_visible
      */
-    public function create_local_node($name) {
-        $levels = explode('.', $name);
+    public function create_local_node(string $name) {
+        $levels = var_object_visible::name_to_levels($name);
         $localname = array_pop($levels);
         $node = $this->find($levels, true);
         $obj = new var_object_visible($localname, $node, $this);
@@ -51,7 +52,13 @@ class var_object_for_testing extends var_object_visible {
         return $obj;
     }
 
-    public function tfind($name) {
-        return $this->find(explode('.', $name));
+    /**
+     * Wrapper for find().
+     *
+     * @param string $name
+     * @return var_node|null
+     */
+    public function tfind(string $name): ?var_node {
+        return $this->find(var_object_visible::name_to_levels($name));
     }
 }

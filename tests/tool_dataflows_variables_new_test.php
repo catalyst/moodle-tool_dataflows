@@ -23,9 +23,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/local/execution/var_object_for_testing.php');
 
 /**
- * <insertdescription>
+ * Tests for the new variables module.
  *
- * @package   <insert>
+ * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -63,6 +63,11 @@ class tool_dataflows_variables_new_test extends \advanced_testcase {
         $this->assertEquals('{"c":"four"}', json_encode($vars->get('a.b')));
     }
 
+    /**
+     * Tests filling out of objects
+     *
+     * @covers \tool_dataflows\local\variables\var_object::fill_tree
+     */
     public function test_object_filling() {
         $vars = new var_object_for_testing('one');
         $vars->set('a.b.c', 'two');
@@ -149,7 +154,7 @@ class tool_dataflows_variables_new_test extends \advanced_testcase {
     }
 
     /**
-     * Test expressions that reference expressions that themselves referenece other values.
+     * Test expressions that reference expressions that themselves reference other values.
      *
      * @covers \tool_dataflows\local\variables\var_object
      * @covers \tool_dataflows\local\variables\var_object_visible

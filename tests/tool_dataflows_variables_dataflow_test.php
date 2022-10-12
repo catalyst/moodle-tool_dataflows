@@ -86,6 +86,13 @@ class tool_dataflows_variables_dataflow_test extends \advanced_testcase {
         $this->assertEquals('advanced', $vars->get('steps.wait.vars.dunno'));
     }
 
+    /**
+     * Tests variable handling through a dataflow execution.
+     *
+     * @covers \tool_dataflows\local\variables\var_root
+     * @covers \tool_dataflows\local\variables\var_dataflow
+     * @covers \tool_dataflows\local\variables\var_step
+     */
     public function test_execution() {
         $dataflow = new dataflow();
         $dataflow->name = 'basic';
@@ -134,12 +141,14 @@ class tool_dataflows_variables_dataflow_test extends \advanced_testcase {
         $vars = $dataflow->get_variables_root();
         $this->assertEquals(1, $vars->get('steps.dbg.vars.waittime'));
 
-        // vars.c should be set every iteration. We test for the final iteration.
+        // Variable vars.c should be set every iteration. We test for the final iteration.
         $this->assertEquals(6, $vars->get('steps.writer.vars.c'));
     }
 
     /**
      * Test that the dataflows vars persist after an execution.
+     *
+     * @covers \tool_dataflows\local\variables\var_dataflow::persist
      */
     public function test_persistence() {
         [$dataflow, $steps] = test_dataflows::array_in_array_out();

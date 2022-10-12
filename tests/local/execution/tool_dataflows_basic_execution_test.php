@@ -78,6 +78,11 @@ class tool_dataflows_basic_execution_test extends \advanced_testcase {
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
     }
 
+    /**
+     * Tests using direct_in step type.
+     *
+     * @covers \tool_dataflows\local\execution\direct_in_type
+     */
     public function test_direct_and_out() {
         // Create the dataflow.
         [$dataflow, $steps] = test_dataflows::sequence([

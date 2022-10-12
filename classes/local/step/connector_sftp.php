@@ -181,7 +181,7 @@ class connector_sftp extends connector_step {
      * @return true|array Will return true or an array of errors.
      */
     public function validate_for_run() {
-        $config = $this->get_config();
+        $config = $this->get_variables()->get('config');
 
         $errors = [];
 
@@ -214,7 +214,8 @@ class connector_sftp extends connector_step {
      * @return mixed
      */
     public function execute($input = null) {
-        $config = $this->get_config();
+        $stepvars = $this->get_variables();
+        $config = $stepvars->get('config');
 
         $this->log("Connecting to {$config->host}:{$config->port}");
 
@@ -223,7 +224,7 @@ class connector_sftp extends connector_step {
             $sftp = new SFTP($config->host, $config->port);
             $this->check_public_host_key($sftp, $config->hostpubkey);
 
-            $key = $this->load_key($config);
+            $key = $this->load_key();
             if (!$sftp->login($config->username, $key)) {
                 throw new \moodle_exception('connector_sftp:bad_auth', 'tool_dataflows');
             }
@@ -264,10 +265,12 @@ class connector_sftp extends connector_step {
     /**
      * Checks and loads the appropriate key, based on config
      *
-     * @param  \stdClass $config
      * @return AsymmetricKey|string
      */
-    private function load_key(\stdClass $config) {
+    private function load_key() {
+        // Because variables use redacted values by default, we evaluate the secret explicitly.
+        $password = $this->get_variables()->evaluate($this->stepdef->config->password);
+
         // Use key authorisation if privkeyfile is set.
         if (!empty($config->privkeyfile)) {
             $privkeycontents = file_get_contents($this->resolve_path($config->privkeyfile));
@@ -276,7 +279,7 @@ class connector_sftp extends connector_step {
         }
 
         // Fallback to password authorisation.
-        return $config->password;
+        return $password;
     }
 
     /**
@@ -297,7 +300,9 @@ class connector_sftp extends connector_step {
         }
 
         if (empty($hostpubkey)) {
-            $this->enginestep->set_var('hostpubkey', $serverpublichostkey);
+            $this->get_variables()->set('hostpubkey', $serverpublichostkey);
+            $this->stepdef->set_config_by_name('hostpubkey', $serverpublichostkey);
+            $this->stepdef->save();
         }
     }
 

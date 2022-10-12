@@ -18,11 +18,11 @@ namespace tool_dataflows\local\variables;
 
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
+use tool_dataflows\helper;
 use tool_dataflows\local\execution\engine;
 
 /**
  * Variables subtree for a dataflow.
- * Defines the tree structure
  *
  * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -30,13 +30,24 @@ use tool_dataflows\local\execution\engine;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class var_dataflow extends var_object_visible {
+
+    /** @var dataflow The dataflow persistent object. */
     protected $dataflow;
 
+    /**
+     * Construct the object.
+     *
+     * @param dataflow $dataflow
+     * @param var_root $root
+     */
     public function __construct(dataflow $dataflow, var_root $root) {
         parent::__construct('dataflow', $root, $root);
         $this->dataflow = $dataflow;
     }
 
+    /**
+     * Initialises the tree structure.
+     */
     public function init() {
         // Define the tree structure and initialise.
         $this->set('id', $this->dataflow->id);
@@ -56,7 +67,16 @@ class var_dataflow extends var_object_visible {
      * Persist the vars values into the dataflow definition.
      */
     public function persist() {
-        $this->dataflow->set('vars', Yaml::dump((array) $this->get('vars')));
-        $this->dataflow->save();
+        $vars = (array) $this->get('vars');
+        if (!empty($vars)) {
+            $yaml = Yaml::dump(
+                $vars,
+                helper::YAML_DUMP_INLINE_LEVEL,
+                helper::YAML_DUMP_INDENT_LEVEL,
+                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
+            );
+            $this->dataflow->set('vars', $yaml);
+            $this->dataflow->save();
+        }
     }
 }

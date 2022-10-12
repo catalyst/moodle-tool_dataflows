@@ -248,6 +248,9 @@ $string['concurrency_disabled'] = 'Concurrency is not possible with this dataflo
 $string['concurrency_enabled_disabled_desc'] = '<i>Concurrent running is not possible because one or more steps are unable to support concurrency.
  While you can still edit this setting, it\'s value will be ignored. Reasons are:</i>';
 $string['file_missing'] = 'File is missing \'{$a}\'.';
+$string['property_not_supported'] = 'Property \'{$a->property}\' not supported in \'{$a->classname}\'';
+$string['unknown_logging_context'] = 'Unknown logging context';
+
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';
@@ -466,3 +469,11 @@ $string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';
 
 // Directory file count.
 $string['connector_directory_file_count:path'] = 'Path to directory';
+
+// Variables.
+$string['variables:assign_object_to_value'] = 'Attempting to assign an object to a value node for \'{$a}\'.';
+$string['variables:assign_value_to_object'] = 'Attempting to assign a value to an object node for \'{$a}\'.';
+$string['variables:reference_lead_as_branch'] = 'Attempting to reference a leaf as a branch for \'{$a}\'.';
+$string['variables:cannot_resolve_ref'] = 'Cannot resolve reference \'{$a}\'.';
+$string['variables:root_not_in_ancestry'] = 'Root \'{$a->root}\' is not in the ancestry of \'{$a->node}\'.';
+$string['variables:no_step_definition'] = 'Cannot get variables without a step definition.';

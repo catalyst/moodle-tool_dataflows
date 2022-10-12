@@ -18,9 +18,9 @@ namespace tool_dataflows;
 
 
 /**
- * <insertdescription>
+ * Tests the parser.
  *
- * @package   <insert>
+ * @package   tool_dataflows
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
