@@ -135,7 +135,7 @@ class steps_table extends sql_table {
      */
     public function col_config(\stdClass $record): string {
         $step = new step($record->id);
-        $redactedconfig = $step->get_redacted_config(false);
+        $redactedconfig = $step->get_redacted_config();
 
         // We want to display the vars definitions as well.
         $vars = (array) $step->vars;

@@ -108,15 +108,18 @@ trait s3_trait {
             return $input;
         }
 
-        $config = $this->get_variables()->get('config');
+        $stepvars = $this->get_variables();
+        $config = $stepvars->get('config');
         $connectionoptions = [
             'version' => 'latest',
             'region' => $config->region,
         ];
         if ($config->key !== '') {
+            // Because variables use redacted values by default, we evaluate the secret explicitly.
+            $secret = $stepvars->evaluate($this->stepdef->config->secret);
             $connectionoptions['credentials'] = [
                 'key' => $config->key,
-                'secret' => $config->secret,
+                'secret' => $secret,
             ];
         }
 

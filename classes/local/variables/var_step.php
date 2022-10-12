@@ -44,7 +44,7 @@ class var_step extends var_object_visible {
         $this->set('depends_on', $this->stepdef->get_dependencies_filled());
         $this->set('type', $this->stepdef->alias);
 
-        $this->set('config', $this->stepdef->get('config'));
+        $this->set('config', $this->stepdef->get_redacted_config());
 
         $this->set('vars',$this->stepdef->get('vars'));
         foreach (engine::STATUS_LABELS as $state) {

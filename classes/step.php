@@ -228,6 +228,23 @@ class step extends persistent {
     }
 
     /**
+     * Get the configuration values, but with secrets redacted.
+     *
+     * @return  \stdClass
+     */
+    public function get_redacted_config(): \stdClass {
+        $config = $this->get('config');
+
+        // Ensure the secret service gets involved to redact any information required.
+        $steptype = $this->get_steptype();
+        if (isset($steptype)) {
+            $secretservice = new secret_service();
+            $config = $secretservice->redact_fields($config, $steptype->get_secret_fields());
+        }
+        return $config;
+    }
+
+    /**
      * Updates the value stored in the step's config
      *
      * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
@@ -545,13 +562,13 @@ class step extends persistent {
             }
         }
 
-        $vars = $this->get_vars(false);
+        $vars = $this->get_vars();
         if (!helper::obj_empty($vars)) {
             $yaml['vars'] = $vars;
         }
 
         // Conditionally export the configuration if it has content.
-        $config = (array) $this->config; // TODO, this needs to be redacted.
+        $config = (array) $this->get_redacted_config();
         if (!empty($config)) {
             $yaml['config'] = $config;
         }
