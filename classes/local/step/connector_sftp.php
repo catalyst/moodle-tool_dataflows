@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\local\step;
 
+use phpseclib3\Crypt\Common\AsymmetricKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Net\SFTP;
 use tool_dataflows\helper;
@@ -215,31 +216,14 @@ class connector_sftp extends connector_step {
     public function execute($input = null) {
         $config = $this->get_config();
 
-        $this->log("Connecting to $config->host:$config->port");
-
-        $sftp = new SFTP($config->host, $config->port);
-        $hostpubkey = $sftp->getServerPublicHostKey();
-        if ($hostpubkey === false) {
-            throw new \moodle_exception('connector_sftp:bad_host', 'tool_dataflows');
-        }
+        $this->log("Connecting to {$config->host}:{$config->port}");
 
         // At this point we need to disconnect once we are finished.
         try {
-            if (!empty($config->hostpubkey) && $config->hostpubkey !== $hostpubkey) {
-                throw new \moodle_exception('connector_sftp:bad_hostpubkey', 'tool_dataflows');
-            }
-            if (empty($config->hostpubkey)) {
-                $this->enginestep->set_var('hostpubkey', $hostpubkey);
-            }
+            $sftp = new SFTP($config->host, $config->port);
+            $this->check_public_host_key($sftp, $config->hostpubkey);
 
-            if (!empty($config->privkeyfile)) {
-                // Use key authorisation.
-                $key = PublicKeyLoader::load(file_get_contents($this->resolve_path($config->privkeyfile)),
-                        $config->password ?: false);
-            } else {
-                // Use password authorisation.
-                $key = $config->password;
-            }
+            $key = $this->load_key($config);
             if (!$sftp->login($config->username, $key)) {
                 throw new \moodle_exception('connector_sftp:bad_auth', 'tool_dataflows');
             }
@@ -258,37 +242,104 @@ class connector_sftp extends connector_step {
 
             // Copying from remote to remote, but have to download it first.
             if ($sourceisremote && $targetisremote) {
-                $tmppath = $this->enginestep->engine->create_temporary_file();
-                $this->log("Downloading from '$config->source' to '$tmppath'");
-                if (!$sftp->get($sourcepath, $tmppath)) {
-                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-                }
-                $this->log("Uploading from '$tmppath' to '$config->target'");
-                if (!$sftp->put($targetpath, $tmppath, SFTP::SOURCE_LOCAL_FILE)) {
-                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-                }
+                $this->copy_remote_to_remote($sftp, $sourcepath, $targetpath);
                 return true;
             }
 
             // Download from remote.
             if ($sourceisremote) {
-                $this->log("Downloading from '$config->source' to '$config->target'");
-                if (!$sftp->get($sourcepath, $targetpath)) {
-                    throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-                }
+                $this->download($sftp, $sourcepath, $targetpath);
                 return true;
             }
 
             // Upload to remote.
-            $this->log("Uploading from '$config->source' to '$config->target'");
-            if (!$sftp->put($targetpath, $sourcepath, SFTP::SOURCE_LOCAL_FILE)) {
-                throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
-            }
+            $this->upload($sftp, $sourcepath, $targetpath);
         } finally {
             $sftp->disconnect();
         }
 
         return true;
+    }
+
+    /**
+     * Checks and loads the appropriate key, based on config
+     *
+     * @param  \stdClass $config
+     * @return AsymmetricKey|string
+     */
+    private function load_key(\stdClass $config) {
+        // Use key authorisation if privkeyfile is set.
+        if (!empty($config->privkeyfile)) {
+            $privkeycontents = file_get_contents($this->resolve_path($config->privkeyfile));
+            $privkeypassphrase = $config->password ?: false;
+            return PublicKeyLoader::load($privkeycontents, $privkeypassphrase);
+        }
+
+        // Fallback to password authorisation.
+        return $config->password;
+    }
+
+    /**
+     * Checks and verifies the public host key, setting it by default if empty
+     *
+     * @param SFTP $sftp
+     * @param string $hostpubkey
+     */
+    private function check_public_host_key(SFTP $sftp, string $hostpubkey) {
+        $serverpublichostkey = $sftp->getServerPublicHostKey();
+        if ($serverpublichostkey === false) {
+            throw new \moodle_exception('connector_sftp:bad_host', 'tool_dataflows');
+        }
+
+        // Compare and ensure stored and remote public host keys match.
+        if (!empty($hostpubkey) && $hostpubkey !== $serverpublichostkey) {
+            throw new \moodle_exception('connector_sftp:bad_hostpubkey', 'tool_dataflows');
+        }
+
+        if (empty($hostpubkey)) {
+            $this->enginestep->set_var('hostpubkey', $serverpublichostkey);
+        }
+    }
+
+    /**
+     * Uploads a local file to a remote path
+     *
+     * @param SFTP $sftp
+     * @param string $sourcepath
+     * @param string $targetpath
+     */
+    private function upload(SFTP $sftp, string $sourcepath, string $targetpath) {
+        $this->log("Uploading from '$sourcepath' to '$targetpath'");
+        if (!$sftp->put($targetpath, $sourcepath, SFTP::SOURCE_LOCAL_FILE)) {
+            throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
+        }
+    }
+
+    /**
+     * Downloads a remote file to a local path
+     *
+     * @param SFTP $sftp
+     * @param string $sourcepath
+     * @param string $targetpath
+     */
+    private function download(SFTP $sftp, string $sourcepath, string $targetpath) {
+        $this->log("Downloading from '$sourcepath' to '$targetpath'");
+        if (!$sftp->get($sourcepath, $targetpath)) {
+            throw new \moodle_exception('connector_sftp:copy_fail', 'tool_dataflows', '', $sftp->getLastSFTPError());
+        }
+    }
+
+    /**
+     * Copies a file from one remote source to another location in the same remote source.
+     *
+     * @param SFTP $sftp
+     * @param string $sourcepath
+     * @param string $targetpath
+     */
+    private function copy_remote_to_remote(SFTP $sftp, string $sourcepath, string $targetpath) {
+        $tmppath = $this->enginestep->engine->create_temporary_file();
+        $this->download($sftp, $sourcepath, $tmppath);
+        $this->upload($sftp, $tmppath, $targetpath);
     }
 
     /**
