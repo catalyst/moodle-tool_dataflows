@@ -144,30 +144,4 @@ class tool_dataflows_variables_dataflow_test extends \advanced_testcase {
         // Variable vars.c should be set every iteration. We test for the final iteration.
         $this->assertEquals(6, $vars->get('steps.writer.vars.c'));
     }
-
-    /**
-     * Test that the dataflows vars persist after an execution.
-     *
-     * @covers \tool_dataflows\local\variables\var_dataflow::persist
-     */
-    public function test_persistence() {
-        [$dataflow, $steps] = test_dataflows::array_in_array_out();
-
-        // Define the input.
-        $json = '[{"a": 1, "b": 2, "c": 3}, {"a": 4, "b": 5, "c": 6}]';
-
-        array_in_type::$source = json_decode($json);
-        array_out_type::$dest = [];
-        $dataflow->set('vars', Yaml::dump(['a' => '${{steps.writer.record.c}}']));
-
-        ob_start();
-        $engine = new engine($dataflow);
-        $engine->execute();
-        ob_end_clean();
-
-        // Refresh the dataflow from the database.
-        $dataflow->read();
-        $vars = $dataflow->vars;
-        $this->assertEquals(6, $vars->a);
-    }
 }

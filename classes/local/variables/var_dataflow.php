@@ -62,21 +62,4 @@ class var_dataflow extends var_object_visible {
             $this->set("states.$state", null);
         }
     }
-
-    /**
-     * Persist the vars values into the dataflow definition.
-     */
-    public function persist() {
-        $vars = (array) $this->get('vars');
-        if (!empty($vars)) {
-            $yaml = Yaml::dump(
-                $vars,
-                helper::YAML_DUMP_INLINE_LEVEL,
-                helper::YAML_DUMP_INDENT_LEVEL,
-                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK | YAML::DUMP_OBJECT_AS_MAP
-            );
-            $this->dataflow->set('vars', $yaml);
-            $this->dataflow->save();
-        }
-    }
 }

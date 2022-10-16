@@ -243,7 +243,7 @@ class tool_dataflows_variables_test extends \advanced_testcase {
         $reader->read();
         $this->assertEquals(5, $reader->config->countervalue);
         $dataflow->read();
-        $this->assertEquals($dataflowvalue, $dataflow->vars->dataflowvar);
+        // TODO persistence of dataflow and global vars has been temporarily removed.
 
         // Throw in some expression tests as well.
         $expressionlanguage = new ExpressionLanguage();

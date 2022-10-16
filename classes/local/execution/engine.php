@@ -488,10 +488,7 @@ class engine {
                 $this->run->finalise($this->status, $this->export());
             }
 
-            // Save the dataflow vars if not a dry run.
-            if (!$this->isdryrun) {
-                $this->get_variables()->persist();
-            }
+            // TODO: Persistance of dataflow and global vars has been temporarily removed.
 
             $this->set_status(self::STATUS_FINALISED);
             $this->release_lock();
