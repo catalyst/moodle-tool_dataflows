@@ -233,7 +233,7 @@ class trigger_cron extends trigger_step {
      * Hook function that gets called when a step has been saved.
      */
     public function on_save() {
-        $config = $this->get_config();
+        $config = $this->get_variables()->get('config');
         scheduler::set_scheduled_times(
             $this->stepdef->dataflowid,
             $this->stepdef->id,
@@ -286,7 +286,7 @@ class trigger_cron extends trigger_step {
      */
     protected function reschedule() {
         if (!$this->enginestep->engine->isdryrun) {
-            $config = $this->get_config();
+            $config = $this->get_variables()->get('config');
             $newtime = $this->get_next_scheduled_time($config);
 
             scheduler::set_scheduled_times(

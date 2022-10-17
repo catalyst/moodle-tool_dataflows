@@ -59,9 +59,9 @@ class reader_sql_variable_setter extends reader_sql {
     public function execute($input = null) {
         parent::execute($input);
         // Updates a dataflow scoped variable.
-        $this->enginestep->set_dataflow_var('dataflowvar', self::$dataflowvar);
+        $this->enginestep->engine->get_variables()->set('vars.dataflowvar', self::$dataflowvar);
         // Updates a global (plugin scoped) variable.
-        $this->enginestep->set_global_var('globalvar', self::$globalvar);
+        $this->enginestep->get_variables_root()->set('global.vars.globalvar', self::$globalvar);
         return $input;
     }
 }

@@ -22,6 +22,8 @@ use tool_dataflows\exportable;
 use tool_dataflows\helper;
 use tool_dataflows\local\service\step_service;
 use tool_dataflows\local\step\flow_cap;
+use tool_dataflows\local\variables\var_dataflow;
+use tool_dataflows\local\variables\var_root;
 use tool_dataflows\run;
 
 /**
@@ -136,9 +138,12 @@ class engine {
      */
     public function __construct(dataflow $dataflow, bool $isdryrun = false, $automated = true) {
         $this->dataflow = $dataflow;
-        $this->dataflow->set_engine($this);
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
+
+        // Force the dataflow to create a fresh set of variables.
+        $dataflow->clear_variables();
+        $dataflow->get_variables_root();
 
         $this->set_status(self::STATUS_NEW);
 
@@ -183,8 +188,6 @@ class engine {
 
         // Find the flow blocks.
         $this->create_flow_caps();
-
-        $dataflow->rebuild_variables();
     }
 
     /**
@@ -193,6 +196,24 @@ class engine {
      */
     public function __destruct() {
         $this->release_lock();
+    }
+
+    /**
+     * Gets the root node of the variables tree.
+     *
+     * @return var_root
+     */
+    public function get_variables_root(): var_root {
+        return $this->dataflow->get_variables_root();
+    }
+
+    /**
+     * Gets the dataflow node of the variable tree.
+     *
+     * @return var_dataflow
+     */
+    public function get_variables(): var_dataflow {
+        return $this->get_variables_root()->get_dataflow_variables();
     }
 
     /**
@@ -318,9 +339,12 @@ class engine {
         foreach ($this->enginesteps as $enginestep) {
             if ($enginestep->is_flow() && $this->count_flow_steps($enginestep->downstreams) == 0) {
                 $step = new \tool_dataflows\step();
-                $steptype = new flow_cap($step, $this);
                 $flowcapnumber++;
                 $step->name = "flowcap-{$flowcapnumber}";
+                $step->set('type', flow_cap::class);
+                $step->set_dataflow($this->dataflow);
+                $this->get_variables_root()->add_step($step);
+                $steptype = new flow_cap($step, $this);
                 $flowcap = $steptype->get_engine_step();
                 $flowcaps[] = $flowcap;
                 $enginestep->downstreams['puller'] = $flowcap;
@@ -464,6 +488,8 @@ class engine {
                 $this->run->finalise($this->status, $this->export());
             }
 
+            // TODO: Persistance of dataflow and global vars has been temporarily removed.
+
             $this->set_status(self::STATUS_FINALISED);
             $this->release_lock();
         } catch (\Throwable $thrown) {
@@ -538,77 +564,6 @@ class engine {
     }
 
     /**
-     * Returns an array with all the variables available through the dataflow engine.
-     *
-     * Note: ideally, you could check a value set in another step via this
-     * function, and returning the dataflow->variables might not always be the
-     * correct choice, thus the need for this function should things be updated.
-     *
-     * @return  array
-     */
-    public function get_variables(): array {
-        return $this->dataflow->variables;
-    }
-
-    /**
-     * Sets a variable at the dataflow level
-     *
-     * Almost 'anything goes' here. Since the dataflow itself doesn't have any
-     * particular restriction on config. Anything value can be set here and
-     * referenced from other steps.
-     *
-     * TODO: add instance support.
-     *
-     * @param      string $name of the field
-     * @param      mixed $value
-     */
-    public function set_dataflow_var($name, $value) {
-        // Check if this field can be updated or not, e.g. if this was forced in config, it should not be updatable.
-        // TODO: implement.
-
-        $dataflow = $this->dataflow;
-        $previous = $dataflow->vars->{$name} ?? '';
-        $this->log("Setting dataflow '$name' to '$value' (from '{$previous}')");
-        $this->dataflow->set_var($name, $value);
-
-        // Persists the variable to the dataflow config.
-        // NOTE: This is skipped during a dry-run. Variables 'should' still be accessible as per normal.
-        if (!$this->isdryrun) {
-            $this->dataflow->save();
-        }
-    }
-
-    /**
-     * Sets a variable at the global plugin level
-     *
-     * Values here are - similar to the dataflow and step scope - set against a
-     * config field. This however is stored via set_config and there is no
-     * instance only support.
-     *
-     * @param      string $name of the field
-     * @param      mixed $value
-     */
-    public function set_global_var($name, $value) {
-        // Grabs the current config.
-        $vars = get_config('tool_dataflows', 'global_vars');
-        $vars = Yaml::parse($vars, Yaml::PARSE_OBJECT_FOR_MAP) ?: new \stdClass;
-
-        // Updates the field in question.
-        $previous = $vars->{$name} ?? '';
-        $vars->{$name} = $value;
-
-        // Updates the stored config.
-        $yaml = Yaml::dump(
-            (array) $vars,
-            helper::YAML_DUMP_INLINE_LEVEL,
-            helper::YAML_DUMP_INDENT_LEVEL,
-            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-        );
-        $this->log("Setting global '$name' to '$value' (from '{$previous}')");
-        set_config('global_vars', $yaml, 'tool_dataflows');
-    }
-
-    /**
      * Updates the status of this engine
      *
      * This also records some metadata in the relevant objects e.g. the dataflow's state.
@@ -631,9 +586,9 @@ class engine {
             $this->run->snapshot($this->status);
         }
 
-        // Record the timestamp of the state change against the dataflow persistent,
-        // which exposes this info through its variables.
-        $this->dataflow->set_state_timestamp($status, microtime(true));
+        // Record the timestamp of the state change.
+        $statusstring = self::STATUS_LABELS[$status];
+        $this->get_variables()->set("states.$statusstring", microtime(true));
 
         if ($status === self::STATUS_INITIALISED) {
             $this->log('status: ' . self::STATUS_LABELS[$status] . ', config: ' . json_encode(['isdryrun' => $this->isdryrun]));
@@ -651,7 +606,10 @@ class engine {
      * @return  array
      */
     public function get_export_data(): array {
-        $encoded = json_encode($this->get_variables(), defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0);
+        $encoded = json_encode(
+            $this->get_variables_root()->get(),
+            defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0
+        );
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \moodle_exception(json_last_error_msg());
         }

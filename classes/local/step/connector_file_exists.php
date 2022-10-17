@@ -58,12 +58,23 @@ class connector_file_exists extends connector_step {
      * @return mixed
      */
     public function execute($input = null) {
-        $config = $this->get_config();
+
+        $variables = $this->get_variables();
+        $config = $variables->get('config');
 
         $path = $this->enginestep->engine->resolve_path($config->path);
         $exists = file_exists($path);
-        $this->set_variables('exists', $exists);
+        $variables->set('exists', $exists);
 
         return true;
+    }
+
+    /**
+     * A list of outputs and their description if applicable.
+     *
+     * @return  array of outputs
+     */
+    public function define_outputs(): array {
+        return ['exists' => null];
     }
 }

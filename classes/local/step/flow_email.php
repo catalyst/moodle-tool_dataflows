@@ -72,7 +72,7 @@ class flow_email extends flow_step {
             return true;
         }
 
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_variables()->get('config');
 
         $parser = parser::get_parser();
         $parser->evaluate_recursive($config, ['data' => $input]);

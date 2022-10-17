@@ -18,6 +18,7 @@ namespace tool_dataflows\local\execution\iterators;
 
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\flow_engine_step;
+use tool_dataflows\local\step\base_step;
 
 /**
  * A mapping iterator that takes a PHP iterator as a source.
@@ -30,7 +31,7 @@ use tool_dataflows\local\execution\flow_engine_step;
  */
 class dataflow_iterator implements iterator {
 
-    /** @var steptype */
+    /** @var base_step */
     protected $steptype;
 
     /** @var bool */
@@ -150,7 +151,8 @@ class dataflow_iterator implements iterator {
         // into. This should be set as early as possible to encapsulate the time
         // it takes.
         $now = microtime(true);
-        $this->steptype->set_variables('timeentered', $now);
+        $stepvars = $this->steptype->get_variables();
+        $stepvars->set('timeentered', $now);
 
         if ($this->finished) {
             return false;
@@ -184,6 +186,7 @@ class dataflow_iterator implements iterator {
         }
 
         try {
+            $stepvars->set('record', $this->value);
             // Do the actions defined for the particular step.
             $this->on_next();
             $newvalue = $this->steptype->execute($this->value);
@@ -191,13 +194,13 @@ class dataflow_iterator implements iterator {
                 return false;
             }
 
-            // Handle step outputs - noting that for flow steps, the values may change between each iteration.
-            $this->steptype->prepare_vars();
+            // Log vars for this iteration.
+            $this->steptype->log_vars();
 
             ++$this->iterationcount;
 
             // Expose the number of times this step has been iterated over.
-            $this->steptype->set_variables('iterations', $this->iterationcount);
+            $stepvars->set('iterations', $this->iterationcount);
 
             $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
         } catch (\Throwable $e) {

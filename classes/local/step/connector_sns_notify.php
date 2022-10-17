@@ -91,15 +91,18 @@ class connector_sns_notify extends connector_step {
         }
 
         // Create the client.
-        $config = $this->enginestep->stepdef->config;
+        $stepvars = $this->get_variables();
+        $config = $stepvars->get('config');
         $connectionoptions = [
             'version' => 'latest',
             'region' => $config->region,
         ];
         if ($config->key !== '') {
+            // Because variables use redacted values, we evaluate the secret explicitly.
+            $secret = $stepvars->evaluate($this->stepdef->config->secret);
             $connectionoptions['credentials'] = [
                 'key' => $config->key,
-                'secret' => $config->secret,
+                'secret' => $secret,
             ];
         }
 

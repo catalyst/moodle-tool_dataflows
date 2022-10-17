@@ -55,6 +55,7 @@ class tool_dataflows_concurrency_test extends \advanced_testcase {
         $this->assertTrue($dataflow->is_concurrency_supported());
         $this->assertTrue($dataflow->is_concurrency_enabled());
 
+        $dataflow->clear_variables();
         $reader->config = Yaml::dump(['sql' => "SELECT 1", 'counterfield' => 'id']);
         $this->assertNotTrue($dataflow->is_concurrency_supported());
         $this->assertFalse($dataflow->is_concurrency_enabled());

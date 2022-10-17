@@ -18,6 +18,13 @@ namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
+use tool_dataflows\local\execution\direct_in_type;
+use tool_dataflows\local\step\connector_debug_file_display;
+use tool_dataflows\local\step\writer_stream;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/test_dataflows.php');
 
 /**
  * Test for connector_debug_file_display step.
@@ -67,8 +74,8 @@ class tool_dataflows_connector_debug_file_display_test extends \advanced_testcas
         $steps = [];
         $reader = new step();
         $reader->name = 'reader';
-        $reader->type = 'tool_dataflows\local\step\reader_sql';
-        $reader->config = Yaml::dump(['sql' => "SELECT '1' as claris, '2' as daris, '3' as malice"]);
+        $reader->type = direct_in_type::class;
+        $reader->config = Yaml::dump(['source' => [['claris' => 1, 'daris' => 2, 'malice' => 3]]]);
         $dataflow->add_step($reader);
         $steps[$reader->id] = $reader;
 

@@ -80,7 +80,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         ob_get_clean();
 
         $output = file_get_contents($this->outputpath);
-        $this->assertEquals(7, $engine->get_variables()['steps']->reader->vars->testapple);
+        $this->assertEquals(7, $engine->get_variables_root()->get('steps.reader.vars.testapple'));
 
         // Expected output.
         array_shift($data);
@@ -126,7 +126,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         ob_get_clean();
 
         $output = file_get_contents($this->outputpath);
-        $this->assertEquals(8, $engine->get_variables()['steps']->reader->vars->testsecond);
+        $this->assertEquals(8, $engine->get_variables_root()->get('steps.reader.vars.testsecond'));
 
         // Expected output.
         $content = '';

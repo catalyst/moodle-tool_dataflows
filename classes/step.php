@@ -22,6 +22,8 @@ use moodle_exception;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\service\secret_service;
+use tool_dataflows\local\variables\var_root;
+use tool_dataflows\local\variables\var_step;
 
 /**
  * Dataflow Step persistent class
@@ -54,64 +56,6 @@ class step extends persistent {
 
     /** @var array array for lazy loading step dependants */
     private $dependents = null;
-
-    /** @var \stdClass of engine step states and timestamps */
-    private $states;
-
-    /** @var \stdClass keep track of any outputs, exposed by the user for each step */
-    private $outputs;
-
-    /** @var \stdClass Variables to set which will go in the step's root subtree. */
-    private $rootvariables;
-
-    /** @var \stdClass Variables to set which will go in the step's vars subtree. */
-    private $varsvariables;
-
-    /**
-     * When initialising the persistent, ensure some internal fields have been set up.
-     *
-     * @param mixed ...$args
-     */
-    public function __construct(...$args) {
-        parent::__construct(...$args);
-
-        // Ensure all states can be referenced, defaulting them to null.
-        $this->states = (object) array_combine(
-            // All the labels.
-            engine::STATUS_LABELS,
-            // Filled with null.
-            array_fill(0, count(engine::STATUS_LABELS), null)
-        );
-    }
-
-    /**
-     * Returns the states and their timestamps for this step
-     *
-     * @return  \stdClass
-     */
-    public function get_states(): \stdClass {
-        return $this->states;
-    }
-
-    /**
-     * Returns the step's outputs
-     *
-     * @return  \stdClass
-     */
-    public function get_outputs(): \stdClass {
-        return $this->outputs ?? new \stdClass;
-    }
-
-    /**
-     * Updates the timestamp for a particular state that is stored locally on the instance
-     *
-     * @param  int $state a status constant from the engine class
-     * @param  float $timestamp typically from a microtime(true) call
-     */
-    public function set_state_timestamp(int $state, float $timestamp) {
-        $label = engine::STATUS_LABELS[$state];
-        $this->states->{$label} = $timestamp;
-    }
 
     /**
      * Return the definition of the properties of this model.
@@ -164,56 +108,36 @@ class step extends persistent {
     }
 
     /**
-     * Returns the variables available for this step
+     * Gets the root node of the variables tree.
      *
-     * @return  array of variables
+     * @return var_root
      */
-    public function get_variables(): array {
-        $dataflow = $this->get_dataflow();
-        return $dataflow->variables;
+    public function get_variables_root(): var_root {
+        return $this->get_dataflow()->get_variables_root();
+    }
+
+    /**
+     * Gets the variable node for this step.
+     *
+     * @return var_step
+     */
+    public function get_variables(): var_step {
+        return $this->get_variables_root()->get_step_variables($this->alias);
     }
 
     /**
      * Returns the variables stored under the step's 'vars' subtree.
-     * @param bool $expressions
+     *
      * @return \stdClass
-     * @throws \coding_exception
      */
-    protected function get_vars(bool $expressions = true): \stdClass {
+    protected function get_vars(): \stdClass {
         $vars = Yaml::parse($this->raw_get('vars'), Yaml::PARSE_OBJECT_FOR_MAP);
 
         if (empty($vars)) {
             return new \stdClass();
         }
 
-        // Normally expressions are parsed when evaluating the statement, for use in a dataflow run.
-        if ($expressions) {
-            $steptype = $this->get_steptype();
-
-            // Get variables, based on whether the engine is running or is idle.
-            $enginestep = $steptype->get_engine_step();
-            if ($enginestep) {
-                $variables = $enginestep->get_variables();
-            } else {
-                $variables = $this->variables;
-            }
-
-            if (isset($vars)) {
-                $parser = parser::get_parser();
-                $vars = $parser->evaluate_recursive($vars, $variables);
-            }
-        }
-
         return $vars;
-    }
-
-    /**
-     * Returns vars without resolving expressions.
-     *
-     * @return \stdClass
-     */
-    public function get_raw_vars(): \stdClass {
-        return $this->get_vars(false);
     }
 
     /**
@@ -287,11 +211,9 @@ class step extends persistent {
      * Return the configuration of the dataflow, parsed such that any
      * expressions are evaluated at this point in time.
      *
-     * @param   bool $expressions whether or not to parse expressions when returning the config
-     * @param   bool $redacted Will redact secret values if true
      * @return  \stdClass configuration object
      */
-    protected function get_config($expressions = true, bool $redacted = false): \stdClass {
+    protected function get_config(): \stdClass {
         $rawconfig = $this->raw_get('config');
         $yaml = $rawconfig;
         if (gettype($rawconfig) === 'string') {
@@ -302,44 +224,41 @@ class step extends persistent {
             return new \stdClass();
         }
 
-        $steptype = $this->get_steptype();
-
-        // Ensure the secret service gets involved to redact any information required.
-        if ($redacted && isset($steptype)) {
-            $secretservice = new secret_service;
-            $yaml = $secretservice->redact_fields($yaml, $steptype->get_secret_fields());
-        }
-
-        // Normally expressions are parsed when evaluating the statement, for use in a dataflow run.
-        if ($expressions) {
-            // Get variables, based on whether the engine is running or is idle.
-            $enginestep = $steptype->get_engine_step();
-            if ($enginestep) {
-                $variables = $enginestep->get_variables();
-            } else {
-                $variables = $this->variables;
-            }
-
-            // Prepare this as a php object (stdClass), as it makes expressions easier to write.
-            if (isset($yaml)) {
-                $parser = parser::get_parser();
-                $yaml = $parser->evaluate_recursive($yaml, $variables);
-            }
-
-            // Sets it to the parsed results.
-            $variables['steps']->{$this->alias}->config = $yaml;
-        }
-
         return $yaml;
     }
 
     /**
-     * Return the raw config without parsing of expressions
+     * Get the configuration values, but with secrets redacted.
      *
      * @return  \stdClass
      */
-    public function get_raw_config(): \stdClass {
-        return $this->get_config(false);
+    public function get_redacted_config(): \stdClass {
+        $config = $this->get('config');
+
+        // Ensure the secret service gets involved to redact any information required.
+        $steptype = $this->get_steptype();
+        if (isset($steptype)) {
+            $secretservice = new secret_service();
+            $config = $secretservice->redact_fields($config, $steptype->get_secret_fields());
+        }
+        return $config;
+    }
+
+    /**
+     * Updates the value stored in the step's config
+     *
+     * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
+     * @param  mixed $value
+     */
+    public function set_config_by_name($name, $value) {
+        $config = $this->get_config();
+        $config->{$name} = $value;
+        $this->config = Yaml::dump(
+            (array) $config,
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+        );
     }
 
     /**
@@ -485,6 +404,32 @@ class step extends persistent {
     }
 
     /**
+     * Returns a list of dependencies as a list of strings. Returns only a string if there is only 1 value.
+     * TODO: change this name to get_dependencies and the above to get_dependencies_raw.
+     *
+     * @return array|string
+     */
+    public function get_dependencies_filled() {
+        $dependencies = $this->dependencies();
+        if (empty($dependencies)) {
+            return [];
+        }
+
+        // Since this field can be a single string or an array of aliases, it should be checked beforehand.
+        $aliases = array_map(function ($dependency) {
+            if (isset($dependency->position)) {
+                return $dependency->alias . self::DEPENDS_ON_POSITION_SPLITTER . $dependency->position;
+            }
+            return $dependency->alias;
+        }, $dependencies);
+
+        // Simplify into a single value if there is only a single entry.
+        $aliases = isset($aliases[1]) ? $aliases : reset($aliases);
+
+        return $aliases;
+    }
+
+    /**
      * Returns a list of other steps that depend on this step before they can run.
      *
      * @param bool $reload
@@ -617,32 +562,21 @@ class step extends persistent {
             }
         }
 
-        $vars = $this->get_vars(false);
+        $vars = $this->get_vars();
         if (!helper::obj_empty($vars)) {
             $yaml['vars'] = $vars;
         }
 
         // Conditionally export the configuration if it has content.
-        $config = (array) $this->get_redacted_config(false);
+        $config = (array) $this->get_redacted_config();
         if (!empty($config)) {
             $yaml['config'] = $config;
         }
 
         // Conditionally export the dependencies (depends_on) if set.
-        $dependencies = $this->dependencies();
-        if (!empty($dependencies)) {
-            // Since this field can be a single string or an array of aliases, it should be checked beforehand.
-            $aliases = array_map(function ($dependency) {
-                if (isset($dependency->position)) {
-                    return $dependency->alias . self::DEPENDS_ON_POSITION_SPLITTER . $dependency->position;
-                }
-                return $dependency->alias;
-            }, $dependencies);
-
-            // Simplify into a single value if there is only a single entry.
-            $aliases = isset($aliases[1]) ? $aliases : reset($aliases);
-
-            $yaml['depends_on'] = $aliases;
+        $deps = $this->get_dependencies_filled();
+        if (!empty($deps)) {
+            $yaml['depends_on'] = $deps;
         }
 
         // Resort the order of exported fields for consistency.
@@ -999,92 +933,5 @@ class step extends persistent {
                       }";
 
         return $dotscript;
-    }
-
-    /**
-     * Updates the value stored in the step's config
-     *
-     * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
-     * @param  mixed $value
-     */
-    public function set_var($name, $value) {
-        // Grabs the current raw config.
-        $config = $this->get_config(false);
-
-        // Updates the field in question.
-        $config->{$name} = $value;
-
-        // Updates the stored config.
-        $this->config = Yaml::dump(
-            (array) $config,
-            helper::YAML_DUMP_INLINE_LEVEL,
-            helper::YAML_DUMP_INDENT_LEVEL,
-            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-        );
-        $this->get_dataflow()->rebuild_variables();
-    }
-
-    /**
-     * Fills in output fields provided given an array of outputs
-     *
-     * @param  mixed $attributes array of output fields to set. This is merged with any existing values.
-     */
-    public function set_output($attributes) {
-        throw new \moodle_exception('set_output');
-        $this->outputs = $this->outputs ?? new \stdClass;
-        $this->outputs = (object) array_merge((array) $this->outputs, (array) $attributes);
-        $this->get_dataflow()->rebuild_variables();
-    }
-
-    /**
-     * Set variables to set under in the step root.
-     *
-     * @param mixed $variables
-     */
-    public function set_rootvariables($variables) {
-        $this->rootvariables = $this->rootvariables ?? new \stdClass;
-        $this->rootvariables = (object) array_merge((array) $this->rootvariables, (array) $variables);
-        $this->get_dataflow()->rebuild_variables();
-    }
-
-    /**
-     * Returns the step's variables for the root.
-     *
-     * @return  \stdClass
-     */
-    public function get_rootvariables(): \stdClass {
-        return $this->rootvariables ?? new \stdClass;
-    }
-
-    /**
-     * Set variables to set under the 'vars' subtree.
-     *
-     * @param mixed $variables
-     */
-    public function set_varsvariables($variables) {
-        $this->varsvariables = $this->varsvariables ?? new \stdClass;
-        $this->varsvariables = (object) array_merge((array) $this->varsvariables, (array) $variables);
-        $this->get_dataflow()->rebuild_variables();
-    }
-
-    /**
-     * Returns the step's variable for the 'vars' subtree.
-     *
-     * @return  \stdClass
-     */
-    public function get_varsvariables(): \stdClass {
-        return $this->varsvariables ?? new \stdClass;
-    }
-
-    /**
-     * Get the configuration and values but with secrets redacted
-     *
-     * @param   ?bool $expressions whether expressions are parsed or not
-     * @return  \stdClass $redactedconfig
-     */
-    public function get_redacted_config($expressions = true): \stdClass {
-        $redacted = true;
-        $redactedconfig = $this->get_config($expressions, $redacted);
-        return $redactedconfig;
     }
 }

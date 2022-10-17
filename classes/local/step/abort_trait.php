@@ -39,7 +39,9 @@ trait abort_trait {
      * @return mixed
      */
     public function execute($input = null) {
-        $config = $this->get_config();
+        $config = $this->get_variables()->get('config');
+
+        $config->condition = $config->condition ?? '';
 
         // If a condition was set, it should not abort if the result is false. be evaluated and abort if 'true'.
         if ($config->condition === false) {
@@ -48,7 +50,7 @@ trait abort_trait {
 
         // If the condition was set, print out the results of the expression so it's obvious what it had evaluated to.
         if ($config->condition !== '') {
-            $rawconfig = $this->get_raw_config();
+            $rawconfig = $this->stepdef->get('config');
             $strresult = var_export($config->condition, true);
             $this->log("Aborting dataflow due to the expression returning '{$strresult}': {$rawconfig->condition}");
         }

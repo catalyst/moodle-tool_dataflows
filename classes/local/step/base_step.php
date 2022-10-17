@@ -20,6 +20,8 @@ use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\helper;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
+use tool_dataflows\local\variables\var_root;
+use tool_dataflows\local\variables\var_step;
 use tool_dataflows\parser;
 use tool_dataflows\step;
 
@@ -38,9 +40,6 @@ abstract class base_step {
 
     /** @var step The step definition use to create the engine step. */
     protected $stepdef = null;
-
-    /** @var array of variables exposed for use from this step. */
-    protected $variables = [];
 
     /**
      * This is autopopulated by the dataflows manager.
@@ -105,68 +104,6 @@ abstract class base_step {
      */
     public function define_outputs(): array {
         return [];
-    }
-
-    /**
-     * Resolves and sets the step outputs
-     *
-     * This effectively sets the outputs to the values they should be based on
-     * the stored variables and output configuration set. This happens at the
-     * end of each step.
-     */
-    public function prepare_outputs() {
-        throw new \moodle_exception('prepare_outputs');
-        // By default, it should make available all variables exposed by this step.
-        $this->stepdef->set_output($this->variables);
-
-        // Custom user defined output mapping.
-        $config = $this->stepdef->get_raw_config();
-        if (isset($config->outputs)) {
-            $parser = parser::get_parser();
-            $enginestep = $this->get_engine_step();
-            if ($enginestep) {
-                $variables = $enginestep->get_variables();
-            } else {
-                $variables = $this->stepdef->variables;
-            }
-            $allvariables = array_merge($variables, $this->variables);
-            $outputs = $parser->evaluate_recursive($config->outputs, $allvariables);
-            $this->stepdef->set_output($outputs);
-
-            $yaml = Yaml::dump(
-                (array) $outputs,
-                helper::YAML_DUMP_INLINE_LEVEL,
-                helper::YAML_DUMP_INDENT_LEVEL,
-                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-            );
-            $this->enginestep->log("Debug: Setting step defined output vars:\n" . trim($yaml));
-        }
-    }
-
-    /**
-     * Resolves and sets variables for the 'vars' subtree.
-     */
-    public function prepare_vars() {
-        $vars = $this->stepdef->get_raw_vars();
-        if (!helper::obj_empty($vars)) {
-            $parser = parser::get_parser();
-            $enginestep = $this->get_engine_step();
-            if ($enginestep) {
-                $variables = $enginestep->get_variables();
-            } else {
-                $variables = $this->stepdef->variables;
-            }
-            $vars = $parser->evaluate_recursive($vars, $variables);
-            $this->stepdef->set_varsvariables($vars);
-
-            $yaml = Yaml::dump(
-                (array) $vars,
-                helper::YAML_DUMP_INLINE_LEVEL,
-                helper::YAML_DUMP_INDENT_LEVEL,
-                Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-            );
-            $this->enginestep->log("Debug: Setting step defined output vars:\n" . trim($yaml));
-        }
     }
 
     /**
@@ -587,6 +524,27 @@ abstract class base_step {
     }
 
     /**
+     * Gets the root node of the variables tree.
+     *
+     * @return var_root
+     */
+    public function get_variables_root(): var_root {
+        if (is_null($this->stepdef)) {
+            throw new \moodle_exception('variables:no_step_definition', 'tool_dataflows');
+        }
+        return $this->stepdef->get_variables_root();
+    }
+
+    /**
+     * Gets the variable node for this step.
+     *
+     * @return var_step
+     */
+    public function get_variables(): var_step {
+        return $this->get_variables_root()->get_step_variables($this->stepdef->alias);
+    }
+
+    /**
      * Hook function that gets called when a step has been saved.
      */
     public function on_save() {
@@ -617,20 +575,6 @@ abstract class base_step {
     }
 
     /**
-     * Set variables available from this step
-     *
-     * Any variable you want "exposed" from this step (e.g. the response from a
-     * cURL or web service call), should be set here. This will part of the
-     * source of truth for user-defined output values (step.outputs.some-user-mapping)
-     *
-     * @param   string $name
-     * @param   mixed $value
-     */
-    public function set_variables(string $name, $value) {
-        $this->stepdef->set_rootvariables([$name => $value]);
-    }
-
-    /**
      * Returns a list of labels available for a given step
      *
      * By default, this would be the position / order of each connected output
@@ -658,28 +602,6 @@ abstract class base_step {
     }
 
     /**
-     * Get the step's (definition) current config.
-     *
-     * Helper method to reduce the complexity when authoring step types.
-     *
-     * @return  \stdClass configuration object
-     */
-    protected function get_config(): \stdClass {
-        return $this->stepdef->config;
-    }
-
-    /**
-     * Get the step's (definition) raw config
-     *
-     * Helper method to reduce the complexity when authoring step types.
-     *
-     * @return  \stdClass configuration object
-     */
-    protected function get_raw_config(): \stdClass {
-        return $this->stepdef->get_raw_config();
-    }
-
-    /**
      * Returns whether the engine's run is dry
      *
      * Helper method to reduce the complexity when authoring step types.
@@ -699,5 +621,21 @@ abstract class base_step {
      */
     protected function log(string $message) {
         $this->enginestep->log($message);
+    }
+
+    /**
+     * Log the current state of 'vars'.
+     */
+    public function log_vars() {
+        $vars = $this->get_variables()->get('vars');
+
+        $yaml = Yaml::dump(
+            (array) $vars,
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+        );
+        $this->log("Debug: current vars:\n" . trim($yaml));
+
     }
 }

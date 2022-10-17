@@ -17,6 +17,8 @@
 namespace tool_dataflows\local\execution;
 
 use tool_dataflows\local\step\base_step;
+use tool_dataflows\local\variables\var_root;
+use tool_dataflows\local\variables\var_step;
 use tool_dataflows\step;
 
 /**
@@ -75,6 +77,24 @@ abstract class engine_step {
         $this->steptype = $steptype;
         $this->id = $stepdef->id;
         $this->set_status(engine::STATUS_NEW);
+    }
+
+    /**
+     * Gets the root node of the variables tree.
+     *
+     * @return var_root
+     */
+    public function get_variables_root(): var_root {
+        return $this->engine->get_variables_root();
+    }
+
+    /**
+     * Gets the variable node for this step.
+     *
+     * @return var_step
+     */
+    public function get_variables(): var_step {
+        return $this->get_variables_root()->get_step_variables($this->stepdef->alias);
     }
 
     /**
@@ -196,68 +216,6 @@ abstract class engine_step {
     }
 
     /**
-     * Sets a variable, at the path provided.
-     *
-     * Currently, this will set it into the step's configuration.
-     *
-     * TODO: later this might only set it into the instance's history record,
-     * such that failed execution can be continued without creating a new 'run'.
-     * For example, set_var always goes to instance vars, set_config always
-     * updates step's config.
-     *
-     * @param  string $name or path to name of field e.g. 'some.nested.fieldname'
-     * @param  mixed $value
-     */
-    public function set_var($name, $value) {
-        // Check if this is an available field to set in the step type.
-        if (!$this->steptype->is_field_valid($name)) {
-            $stepurl = new \moodle_url('/admin/tool/dataflows/step.php', ['id' => $this->stepdef->id]);
-            throw new \moodle_exception('variablefieldnotexpected', 'tool_dataflows', $stepurl, (object) [
-                'field' => $name,
-                'steptype' => $this->steptype->get_id(),
-            ]);
-        }
-
-        // Check if this field can be updated or not, e.g. if this was forced in config, it should not be updatable.
-        // TODO: implement.
-
-        $previous = $this->stepdef->config->{$name};
-        $this->log("Setting step '$name' to '$value' (from '{$previous}')");
-        $this->stepdef->set_var($name, $value);
-
-        // Persists the variable to the dataflow step config.
-        // NOTE: This is skipped during a dry-run. Variables 'should' still be accessible as per normal.
-        if (!$this->engine->isdryrun) {
-            $this->stepdef->save();
-        }
-    }
-
-    /**
-     * Sets a variable at the dataflow level
-     *
-     * This is a proxy to the engine's implementation.
-     * TODO: add instance support.
-     *
-     * @param  string $name of the field
-     * @param  mixed $value
-     */
-    public function set_dataflow_var($name, $value) {
-        $this->engine->set_dataflow_var($name, $value);
-    }
-
-    /**
-     * Sets a variable at the global (plugin) level
-     *
-     * This is a proxy to the engine's implementation.
-     *
-     * @param  string $name of the field
-     * @param  mixed $value
-     */
-    public function set_global_var($name, $value) {
-        $this->engine->set_global_var($name, $value);
-    }
-
-    /**
      * Updates the status of this engine's step
      *
      * This also records some metadata in the relevant objects e.g. the step's state.
@@ -275,9 +233,9 @@ abstract class engine_step {
 
         $this->status = $status;
 
-        // Record the timestamp of the state change against the step persistent,
-        // which exposes this info through its variables.
-        $this->stepdef->set_state_timestamp($status, microtime(true));
+        // Record the timestamp of the state change.
+        $statusstring = engine::STATUS_LABELS[$status];
+        $this->get_variables()->set("states.$statusstring", microtime(true));
         $this->log('status: ' . engine::STATUS_LABELS[$status]);
 
         $this->on_change_status();
@@ -312,25 +270,5 @@ abstract class engine_step {
             case engine::STATUS_ABORTED:
                 break;
         }
-    }
-
-    /**
-     * Returns an array with all the variables available, with the context of the step
-     *
-     * @return  array
-     */
-    public function get_variables(): array {
-        // Config values are directly referenceable, step values go through
-        // step.fieldname, everything else is available through expressions,
-        // such as 'dataflow.id' and 'steps.mystep.name' for example.
-        $variables = $this->engine->get_variables();
-        $step = $variables['steps']->{$this->stepdef->alias};
-
-        // We copy the contents of the step subtree into the root, to enable 'localised' access to the step variables.
-        // E.g. we can use ${{config.setting}} instead of ${{steps.first.config.setting}}.
-        return array_merge(
-            $variables,
-            (array) $step
-        );
     }
 }

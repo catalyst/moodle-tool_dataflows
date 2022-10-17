@@ -70,7 +70,7 @@ class connector_email extends connector_step {
             return true;
         }
 
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_variables()->get('config');
 
         $toemail = $config->to;
 

@@ -64,7 +64,7 @@ class writer_stream extends writer_step {
      */
     public function has_side_effect(): bool {
         if (isset($this->stepdef)) {
-            $config = $this->stepdef->config;
+            $config = $this->get_variables()->get('config');
             if (isset($config->streamname)) {
                 return !helper::path_is_relative($config->streamname);
             }
@@ -115,7 +115,7 @@ class writer_stream extends writer_step {
             throw new \moodle_exception(get_string('non_reader_steps_must_have_flow_upstreams', 'tool_dataflows'));
         }
 
-        $config = $this->enginestep->stepdef->config;
+        $config = $this->get_variables()->get('config');
 
         // We make no output in a dry run.
         if ($this->enginestep->engine->isdryrun) {
@@ -220,7 +220,7 @@ class writer_stream extends writer_step {
      * @return true|array Will return true or an array of errors.
      */
     public function validate_for_run() {
-        $config = $this->stepdef->config;
+        $config = $this->get_variables()->get('config');
 
         $error = helper::path_validate($config->streamname);
         if ($error !== true) {

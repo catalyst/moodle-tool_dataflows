@@ -118,6 +118,6 @@ class tool_dataflows_flow_hash_file_test extends \advanced_testcase {
         ob_get_clean();
 
         // Check and ensure hashes match.
-        $this->assertEquals($expectedhash, $dataflow->get_variables()['steps']->hashfile->hash);
+        $this->assertEquals($expectedhash, $dataflow->get_variables_root()->get('steps.hashfile.hash'));
     }
 }
