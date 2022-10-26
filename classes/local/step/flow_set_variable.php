@@ -14,22 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\local\step;
+
 /**
- * Version
+ * Hash file flow step
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class flow_set_variable extends flow_step {
+    use set_variable_trait;
 
-defined('MOODLE_INTERNAL') || die();
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
 
-$plugin->version = 2022102600;
-$plugin->release = 2022102600;
-$plugin->requires = 2017051500;    // Our lowest supported Moodle (3.3.0).
-$plugin->supported = [35, 401];    // Available as of Moodle 3.9.0 or later.
-// TODO $plugin->incompatible = ;  // Available as of Moodle 3.9.0 or later.
-$plugin->component = 'tool_dataflows';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->dependencies = [];
+    /** @var int[] number of output connectors (min, max). */
+    protected $outputconnectors = [0, 1];
+}

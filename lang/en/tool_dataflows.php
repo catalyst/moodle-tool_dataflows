@@ -124,6 +124,7 @@ $string['step_name_flow_abort'] = 'Abort';
 $string['step_name_flow_copy_file'] = 'Copy File';
 $string['step_name_flow_email'] = 'Flow email notification';
 $string['step_name_flow_hash_file'] = 'Hash file';
+$string['step_name_flow_set_variable'] = 'Set variable';
 $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_logic_switch'] = 'Switch';
 $string['step_name_flow_noop'] = 'No-op';
@@ -477,3 +478,10 @@ $string['variables:reference_lead_as_branch'] = 'Attempting to reference a leaf 
 $string['variables:cannot_resolve_ref'] = 'Cannot resolve reference \'{$a}\'.';
 $string['variables:root_not_in_ancestry'] = 'Root \'{$a->root}\' is not in the ancestry of \'{$a->node}\'.';
 $string['variables:no_step_definition'] = 'Cannot get variables without a step definition.';
+
+// Set variable step.
+$string['set_variable:field'] = 'Field';
+$string['set_variable:field_help'] = 'Defines the path to the field you would like to set the value. For example: <code>dataflows.vars.counter</code>.';
+$string['set_variable:value'] = 'Value';
+$string['set_variable:value_help'] = 'The value could be a number, text, or an expression. For example: <code>${{ record.id }}</code>.';
+

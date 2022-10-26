@@ -559,20 +559,29 @@ class dataflow extends persistent {
     }
 
     /**
+     * Set the dataflow vars
+     *
+     * @param array|null $vars
+     */
+    public function set_dataflow_vars($vars) {
+        $this->vars = isset($vars) ? Yaml::dump(
+            (array) $vars,
+            helper::YAML_DUMP_INLINE_LEVEL,
+            helper::YAML_DUMP_INDENT_LEVEL,
+            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
+        ) : '';
+    }
+
+    /**
      * Imports a dataflow through a php array parsed from a yaml file
      *
-     * @param      array $yaml full dataflow configuration as a php array
+     * @param array $yaml full dataflow configuration as a php array
      */
     public function import(array $yaml) {
         global $DB;
 
         $this->name = $yaml['name'] ?? '';
-        $this->vars = isset($yaml['vars']) ? Yaml::dump(
-            $yaml['vars'],
-            helper::YAML_DUMP_INLINE_LEVEL,
-            helper::YAML_DUMP_INDENT_LEVEL,
-            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-        ) : '';
+        $this->set_dataflow_vars($yaml['vars'] ?? null);
         if (isset($yaml['config'])) {
             foreach ($yaml['config'] as $key => $field) {
                 $this->$key = $field;
