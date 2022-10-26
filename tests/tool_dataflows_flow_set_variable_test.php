@@ -71,18 +71,18 @@ class tool_dataflows_flow_set_variable_test extends \advanced_testcase {
         $dataflow->set_dataflow_vars(['something' => 0]);
         $dataflow->save();
 
-        // For each iteration, set the "something" vars to the value held in the "createdAt" key of the record.
+        // For each iteration, set the "something" vars to the value held in the "b" key of the record.
         $steps['set_variable']->config = Yaml::dump([
             'field' => 'dataflow.vars.something',
             'value' => '${{ record.b }}',
         ]);
 
-        // Abort the flow if the previous run has already processed these "createdAt" values.
+        // Abort the flow if the previous run has already processed these "b" values.
         // This is calculated with the assumption B values are unique, and will always be in ascending order.
         $steps['abort']->config = Yaml::dump(['condition' => '${{ record.b < dataflow.vars.something }}']);
 
         // Define the input for the first run.
-        $json = '[{"a": 1, "createdAt": 2, "c": 3}, {"a": 1, "createdAt": 3, "c": 3}, {"a": 4, "createdAt": 5, "c": 6}]';
+        $json = '[{"a": 1, "b": 2, "c": 3}, {"a": 1, "b": 3, "c": 3}, {"a": 4, "b": 5, "c": 6}]';
         array_in_type::$source = json_decode($json);
 
         // Execute.
@@ -95,7 +95,7 @@ class tool_dataflows_flow_set_variable_test extends \advanced_testcase {
         $this->assertEquals(json_encode(json_decode($json)), json_encode(array_out_type::$dest));
         $this->assertEquals(engine::STATUS_FINALISED, $engine->status);
 
-        // Variable set step, check to ensure the last "createdAt" value has been recorded.
+        // Variable set step, check to ensure the last "b" value has been recorded.
         $vars = $engine->get_variables_root();
         $this->assertEquals(5, $vars->get('dataflow.vars.something'));
 
@@ -113,7 +113,7 @@ class tool_dataflows_flow_set_variable_test extends \advanced_testcase {
         $this->assertEquals(json_encode([]), json_encode(array_out_type::$dest));
 
         // Tweak the input, allowing for further processing. Check the new vars.
-        $json = '[{"a": 1, "createdAt": 7, "c": 3}, {"a": 1, "createdAt": 9, "c": 3}, {"a": 4, "createdAt": 500, "c": 6}]';
+        $json = '[{"a": 1, "b": 7, "c": 3}, {"a": 1, "b": 9, "c": 3}, {"a": 4, "b": 500, "c": 6}]';
         array_in_type::$source = json_decode($json);
 
         // Run again (expect it to finish).

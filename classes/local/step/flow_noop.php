@@ -26,6 +26,12 @@ namespace tool_dataflows\local\step;
  */
 class flow_noop extends flow_step {
 
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
+
+    /** @var int[] number of output connectors (min, max) */
+    protected $outputconnectors = [0, 1];
+
     /**
      * Executes the step
      *
