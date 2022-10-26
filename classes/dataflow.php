@@ -42,8 +42,9 @@ class dataflow extends persistent {
     /** @var bool Set to true when the dataflow is in the process of deleting. */
     private $isdeleting = false;
 
-    /** @var var_root The variables tree.  */
+    /** @var var_root The variables tree. */
     private $varroot = null;
+
     /**
      * Return the definition of the properties of this model.
      *
@@ -90,7 +91,6 @@ class dataflow extends persistent {
     public function __set($name, $value) {
         return $this->set($name, $value);
     }
-
 
     /**
      * Return the vars of the dataflow.

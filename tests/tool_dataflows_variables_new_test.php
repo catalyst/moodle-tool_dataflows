@@ -16,7 +16,7 @@
 
 namespace tool_dataflows;
 
-use \tool_dataflows\local\variables\var_value;
+use tool_dataflows\local\variables\var_value;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -31,6 +31,7 @@ require_once(__DIR__ . '/local/execution/var_object_for_testing.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_variables_new_test extends \advanced_testcase {
+
     /**
      * Test for empty (unset) values.
      *
@@ -82,13 +83,14 @@ class tool_dataflows_variables_new_test extends \advanced_testcase {
             'a' => [
                 'b' => ['c' => 'two', 'a' => 3],
                 'a' => 1,
-                'c' => ['a' => 8, 'b' => 9, 'c' => 10]
-            ]
+                'c' => ['a' => 8, 'b' => 9, 'c' => 10],
+            ],
         ]);
 
         $vars->set('a', $obj);
         $this->assertEquals($expected, json_encode($vars->get()));
     }
+
     /**
      * Test use of expressions.
      *

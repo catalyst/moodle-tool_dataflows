@@ -207,10 +207,10 @@ class trigger_cron extends trigger_step {
     /**
      * Get the next scheduled time
      *
-     * @param  object $config step config
+     * @param  \stdClass $config step config
      * @return int time for the next run
      */
-    public function get_next_scheduled_time(object $config) {
+    public function get_next_scheduled_time(\stdClass $config) {
         $config->classname = process_dataflows::class;
         $times = scheduler::get_scheduled_times($this->stepdef->id);
         if ($times === false) {
