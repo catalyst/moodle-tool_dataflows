@@ -37,7 +37,7 @@ class var_value extends var_node {
     /** @var array[var_value] All variables immediately dependent on this. */
     private $dependents = [];
 
-    /** @var mixed the original value with expressions unresolved. If null, then is 'unset'.  */
+    /** @var mixed the original value with expressions unresolved. If null, then is 'unset'. */
     private $raw = null;
     /** @var mixed The resolved value. */
     private $resolved;
@@ -167,7 +167,7 @@ class var_value extends var_node {
         $this->dependents = array_udiff(
             $this->dependents,
             [$var],
-            function($a, $b) {
+            function ($a, $b) {
                 return $a === $b;
             }
         );

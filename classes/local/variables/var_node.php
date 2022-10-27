@@ -27,7 +27,7 @@ namespace tool_dataflows\local\variables;
 abstract class var_node {
     /** @var string The local name of the node. */
     protected $name;
-    /** @var var_object|null  The parent node. */
+    /** @var var_object|null The parent node. */
     protected $parent;
 
     /** @var var_object The root of the variable tree. */
@@ -132,7 +132,6 @@ abstract class var_node {
      */
     public function __get(string $p) {
         switch ($p) {
-
             // Name fo this node.
             case 'name':
                 return $this->name;

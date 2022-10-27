@@ -30,6 +30,7 @@ use tool_dataflows\step;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class var_root extends var_object_visible {
+
     /**
      * Creates the variable tree.
      *

@@ -28,6 +28,7 @@ use tool_dataflows\local\variables\var_object_visible;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class var_object_for_testing extends var_object_visible {
+
     /**
      * Create it.
      *

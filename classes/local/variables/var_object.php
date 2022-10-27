@@ -25,7 +25,7 @@ namespace tool_dataflows\local\variables;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class var_object extends var_node {
-    /** @var array[var_obj] The node's children.  */
+    /** @var array[var_obj] The node's children. */
     protected $children = [];
 
     /**

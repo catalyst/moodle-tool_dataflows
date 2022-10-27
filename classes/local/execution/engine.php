@@ -608,7 +608,7 @@ class engine {
     public function get_export_data(): array {
         $encoded = json_encode(
             $this->get_variables_root()->get(),
-            defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0
+            defined('JSON_INVALID_UTF8_SUBSTITUTE') ? JSON_INVALID_UTF8_SUBSTITUTE : 0 // phpcs:ignore
         );
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \moodle_exception(json_last_error_msg());

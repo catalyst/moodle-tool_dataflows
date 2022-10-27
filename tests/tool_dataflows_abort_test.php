@@ -59,7 +59,7 @@ class tool_dataflows_abort_test extends \advanced_testcase {
             'source' => [
                 ['a' => 1, 'b' => 2, 'c' => 3],
                 ['a' => 4, 'b' => 5, 'c' => 6],
-            ]
+            ],
         ]);
 
         // Create the engine.
