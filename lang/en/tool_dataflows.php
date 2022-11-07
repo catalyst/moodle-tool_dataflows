@@ -379,6 +379,7 @@ $string['connector_curl:curl'] = 'URL';
 $string['connector_curl:destination'] = 'File / Response destination';
 $string['connector_curl:destination_help'] = 'If set, then the response body will be saved to this path. If blank, then the response body will be available in the step variable: ...response.result';
 $string['connector_curl:headers'] = 'HTTP request headers';
+$string['connector_curl:headersnotvalid'] = 'Supplied HTTP headers are not valid';
 $string['connector_curl:rawpostdata'] = 'Raw post data';
 $string['connector_curl:sideeffects'] = 'Does this request have side effects?';
 $string['connector_curl:sideeffects_help'] = 'Most read requests done via http GET do not have side effects ie they change state on the remote server, and generally any POST or PUT does have side effects. Curl calls with side effects are not actually executed in dry run mode.';
