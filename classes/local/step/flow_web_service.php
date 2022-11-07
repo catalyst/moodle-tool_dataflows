@@ -99,12 +99,18 @@ EOF;
         $webservicemanager = new \webservice();
         $functions = $webservicemanager->get_not_associated_external_functions($data['id']);
 
-        // List of tjhe web services functions.
+        // List of the web services functions.
         $options = [];
         foreach ($functions as $functionid => $functionname) {
-            $function = external_api::external_function_info($functionname);
-            if (empty($function->deprecated)) {
-                $options[$function->name] = $function->name . ': ' . $function->description;
+            try {
+                $function = external_api::external_function_info($functionname);
+                if (empty($function->deprecated)) {
+                    $options[$function->name] = $function->name . ': ' . $function->description;
+                }
+            } catch (\Throwable $e) {
+                // A plugin probably has a bad webservice definition.
+                debugging($e, DEBUG_DEVELOPER);
+                continue;
             }
         }
         $mform->addElement('searchableselector', 'config_webservice', get_string('webservice', 'webservice'), $options, ['']);
