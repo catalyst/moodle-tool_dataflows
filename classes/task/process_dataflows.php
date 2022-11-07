@@ -74,11 +74,15 @@ class process_dataflows extends \core\task\scheduled_task {
                 $engine->execute();
                 $metadata = $engine->is_blocked();
                 if ($metadata) {
-                    mtrace("Dataflow $dataflow->name locked (ID: $dataflow->id). Lock data, time: " .
-                        userdate($metadata->timestamp) . ", process ID: $metadata->processid.");
-                }
+                    $str = "Dataflow $dataflow->name locked (ID: $dataflow->id). Lock data, time: ".
+                            userdate($metadata->timestamp) . ", process ID: $metadata->processid.";
 
-                // TODO add nextruntime for scheduled flows.
+                    if (isset($dataflow->nextruntime)) {
+                        $str .= "(Next run time: $dataflow->nextruntime)";
+                    }
+
+                    mtrace($str);
+                }
             }
         } catch (\Throwable $thrown) {
             mtrace("Dataflow run failed for ID: $dataflow->id, " . $thrown->getMessage());
