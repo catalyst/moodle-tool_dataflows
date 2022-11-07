@@ -17,7 +17,6 @@
 namespace tool_dataflows\task;
 
 use tool_dataflows\dataflow;
-use tool_dataflows\local\execution\engine;
 
 /**
  * Ad hoc task for running a dataflow.
@@ -34,22 +33,26 @@ class process_dataflow_ad_hoc extends \core\task\adhoc_task {
      */
     public function execute() {
         $dataflowrecord = $this->get_custom_data();
+        \tool_dataflows\task\process_dataflows::execute_dataflow($dataflowrecord->dataflowid);
+    }
 
-        try {
-            $dataflow = new dataflow($dataflowrecord->dataflowid);
-            if ($dataflow->enabled) {
-                mtrace("Running dataflow $dataflow->name as ad-hoc task (ID: $dataflowrecord->dataflowid), time due: " .
-                    userdate($dataflowrecord->nextruntime));
-                $engine = new engine($dataflow, false);
-                $engine->execute();
-                $metadata = $engine->is_blocked();
-                if ($metadata) {
-                    mtrace("Dataflow $dataflow->name locked (ID: $dataflowrecord->dataflowid). Lock data, time: " .
-                            userdate($metadata->timestamp) . ", process ID: $metadata->processid.");
-                }
-            }
-        } catch (\Throwable $thrown) {
-            mtrace("Dataflow run failed for ID: $dataflowrecord->dataflowid, " . $thrown->getMessage());
+    /**
+     * Create an ad-hoc task for the given dataflow record
+     * and schedules for it to be run.
+     *
+     * @param object $dataflowrecord
+     * @return void
+     */
+    public static function execute_from_record($dataflowrecord): void {
+        $dataflow = new dataflow($dataflowrecord->dataflowid);
+        $task = new process_dataflow_ad_hoc();
+        $task->set_custom_data($dataflowrecord);
+
+        // For concurrent tasks, queue them up as an independant adhoc task.
+        if ($dataflow->is_concurrency_enabled()) {
+            \core\task\manager::queue_adhoc_task($task);
+            return;
         }
+        \core\task\manager::reschedule_or_queue_adhoc_task($task);
     }
 }
