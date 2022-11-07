@@ -234,5 +234,28 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022091600, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2022111800) {
+
+        // Define table tool_dataflows_events to be created.
+        $table = new xmldb_table('tool_dataflows_events');
+
+        // Adding fields to table tool_dataflows_events.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('dataflowid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('stepid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('eventdata', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table tool_dataflows_events.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for tool_dataflows_events.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2022111800, 'tool', 'dataflows');
+    }
+
     return true;
 }

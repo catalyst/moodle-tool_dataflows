@@ -45,7 +45,10 @@ class process_dataflows extends \core\task\scheduled_task {
      * Run the dataflows.
      */
     public function execute() {
-        $dataflowrecords = scheduler::get_due_dataflows();
+        $scheduledrecords = scheduler::get_due_dataflows();
+        $eventrecords = event_processor::get_flows_awaiting_run();
+
+        $dataflowrecords = array_merge($scheduledrecords, $eventrecords);
 
         $firstdataflowrecord = array_shift($dataflowrecords);
         if (isset($firstdataflowrecord)) {
@@ -63,9 +66,8 @@ class process_dataflows extends \core\task\scheduled_task {
      * Executes the given dataflow.
      *
      * @param int $dataflowid
-     * @return void
      */
-    public static function execute_dataflow(int $dataflowid): void {
+    public static function execute_dataflow(int $dataflowid) {
         try {
             $dataflow = new dataflow($dataflowid);
             if ($dataflow->enabled) {

@@ -71,6 +71,17 @@
         <KEY NAME="dataflow" TYPE="unique" FIELDS="dataflowid, stepid"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="tool_dataflows_events" COMMENT="Captured Moodle events to be read by dataflows">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="dataflowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="stepid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="eventdata" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="JSON encoded event data"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
     <TABLE NAME="tool_dataflows_runs" COMMENT="Stores the dataflow runs, point in time configuration, state and other fields used for reporting">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
