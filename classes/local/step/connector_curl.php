@@ -334,10 +334,10 @@ class connector_curl extends connector_step {
      *
      * Prepares headers to proper format for setHeader method.
      *
-     * @param  \curl $curl RESTful cURL object
-     * @return array $headers headers to sanitize
+     * @param \curl $curl RESTful cURL object
+     * @param array $headers headers to sanitize
      */
-    protected function set_headers($curl, $headers) {
+    protected function set_headers(\curl $curl, array $headers) {
         foreach ($headers as $key => $value) {
             $curlheaders[] = "$key: $value";
         }
