@@ -203,6 +203,13 @@ class connector_curl extends connector_step {
             }
         }
 
+        if (!empty($config->headers)) {
+            $headers = helper::extract_http_headers($config->headers);
+            if (!is_array($headers)) {
+                return ['config_headers' => get_string('connector_curl:headersnotvalid', 'tool_dataflows')];
+            }
+        }
+
         return true;
     }
 
@@ -288,7 +295,7 @@ class connector_curl extends connector_step {
 
         // Provided a header is specified, add header to request.
         if (!empty($headers)) {
-            $curl->setHeader($headers);
+            $this->set_headers($curl, $headers);
         }
 
         // Perform call.
@@ -320,5 +327,20 @@ class connector_curl extends connector_step {
         ]);
 
         return true;
+    }
+
+    /**
+     * Sets header to curl instance
+     *
+     * Prepares headers to proper format for setHeader method.
+     *
+     * @param \curl $curl RESTful cURL object
+     * @param array $headers headers to sanitize
+     */
+    protected function set_headers(\curl $curl, array $headers) {
+        foreach ($headers as $key => $value) {
+            $curlheaders[] = "$key: $value";
+        }
+        $curl->setHeader($curlheaders);
     }
 }
