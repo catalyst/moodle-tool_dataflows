@@ -19,6 +19,10 @@ namespace tool_dataflows\local\step;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\helper;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/filelib.php');
+
 /**
  * CURL connector step type
  *
