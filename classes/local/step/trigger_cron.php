@@ -293,7 +293,7 @@ class trigger_cron extends trigger_step {
                 $this->stepdef->dataflowid,
                 $this->stepdef->id,
                 $newtime,
-                $config->nextruntime
+                $config->nextruntime ?? null
             );
         }
     }
