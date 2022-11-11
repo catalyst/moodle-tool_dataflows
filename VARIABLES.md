@@ -38,10 +38,10 @@ public function execute($input = null) {
 ```
 We then create a dataflow and configure the step called `course_viewed` with the following `Variables` config:
 
-![image](./pix/expose_variables.png)
+![image](https://user-images.githubusercontent.com/17095477/201774207-c478076f-c43c-4781-ad52-2d20ced6a356.png)
 
 Then in a later step, we can access it either from the `{{steps.course_viewed.event.courseid}}` or `{{steps.course_viewed.vars.courseid}}`
 
-![image](./pix/variable_tree.png)
+![image](https://user-images.githubusercontent.com/17095477/201774176-5c347567-2362-4397-aebe-00924ea0b6dc.png)
 
 This is because when we specify `courseid: ${{ event.courseid }}`, the dataflows engine then assumes that a variable `event` is exposed with the property `courseid` from that step, because we have told it so in the `course_viewed` step definition.

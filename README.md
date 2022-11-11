@@ -2,14 +2,22 @@
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/catalyst/moodle-tool_dataflows/ci/MOODLE_35_STABLE)
 
-* [What is this?](#what-is-this)
-* [Branches](#branches)
-* [Alternatives](#alternatives)
-* [Installation](#installation)
-* [Configuration](#configuration)
-* [Guides](#guides)
-* [Support](#support)
-* [Warm thanks](#warm-thanks)
+- [moodle-tool_dataflows](#moodle-tool_dataflows)
+  - [What is this?](#what-is-this)
+  - [Branches](#branches)
+  - [Alternatives](#alternatives)
+    - [tool_etl](#tool_etl)
+    - [tool_trigger](#tool_trigger)
+    - [local_webhooks](#local_webhooks)
+  - [Installation](#installation)
+    - [Dependencies](#dependencies)
+  - [Configuration](#configuration)
+    - [Best practices for workflows](#best-practices-for-workflows)
+  - [Guides](#guides)
+  - [Support](#support)
+  - [Warm thanks](#warm-thanks)
+    - [University College London](#university-college-london)
+    - [NSW Department of Education](#nsw-department-of-education)
 
 ## What is this?
 
@@ -88,11 +96,16 @@ sponsor a new feature then please contact
 
 ## Warm thanks
 
-Thanks to various orgnisations for support in developing this plugin:
+Thanks to various organisations for support in developing this plugin:
 
 ### University College London
 ![image](https://user-images.githubusercontent.com/187449/180128782-474fcdab-62c5-4848-ab6b-92ff4ece5d6f.png)
 
+### NSW Department of Education
+For sponsoring the development of the event trigger functionality.
+
+
+![NSW DET](https://user-images.githubusercontent.com/17095477/201774199-aa1d2ce9-eccf-4aca-ab69-2fef75971ae1.png)
 
 This plugin was developed by [Catalyst IT Australia](https://www.catalyst-au.net/).
 
