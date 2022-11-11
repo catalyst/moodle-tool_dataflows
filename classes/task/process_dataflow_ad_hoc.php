@@ -53,6 +53,13 @@ class process_dataflow_ad_hoc extends \core\task\adhoc_task {
             \core\task\manager::queue_adhoc_task($task);
             return;
         }
-        \core\task\manager::reschedule_or_queue_adhoc_task($task);
+
+        // Only available 3.7 onwards.
+        if (function_exists('\core\task\manager::reschedule_or_queue_adhoc_task')) {
+            \core\task\manager::reschedule_or_queue_adhoc_task($task);
+            return;
+        }
+
+        \core\task\manager::queue_adhoc_task($task);
     }
 }
