@@ -67,7 +67,7 @@ class event_processor {
         $data = (object) [
             'dataflowid' => $dataflowid,
             'stepid' => $stepid,
-            'eventdata' => $eventdata
+            'eventdata' => $eventdata,
         ];
 
         // Only insert new events.
@@ -129,7 +129,7 @@ class event_processor {
                 $executionpolicy = self::EXECUTE_ADHOCQUEUED;
             }
 
-            switch($executionpolicy) {
+            switch ($executionpolicy) {
                 case self::EXECUTE_IMMEDIATELY:
                     // Record the triggered event to save the event data.
                     self::add_triggered_event($dataflow->id, $step->id, json_encode($eventdata));
@@ -146,7 +146,7 @@ class event_processor {
 
                     // Create adhoc task to execute.
                     $record = (object) [
-                        'dataflowid' => $dataflow->id
+                        'dataflowid' => $dataflow->id,
                     ];
                     \tool_dataflows\task\process_dataflow_ad_hoc::execute_from_record($record);
 

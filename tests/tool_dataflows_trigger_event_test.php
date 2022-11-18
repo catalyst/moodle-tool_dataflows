@@ -49,13 +49,13 @@ class tool_dataflows_trigger_event_test extends \advanced_testcase {
         // Test a valid configuration.
         $config = (object) [
             'eventname' => '\core\event\course_viewed',
-            'executionpolicy' => event_processor::EXECUTE_IMMEDIATELY
+            'executionpolicy' => event_processor::EXECUTE_IMMEDIATELY,
         ];
         $this->assertTrue($reader->validate_config($config));
 
         // Test missing event name.
         $config = (object) [
-            'executionpolicy' => event_processor::EXECUTE_IMMEDIATELY
+            'executionpolicy' => event_processor::EXECUTE_IMMEDIATELY,
         ];
         $result = $reader->validate_config($config);
         $this->assertTrue(is_array($result));
@@ -68,9 +68,7 @@ class tool_dataflows_trigger_event_test extends \advanced_testcase {
         ), $result['config_eventname']);
 
         // Test missing execution policy.
-        $config = (object) [
-            'eventname' => '\core\event\course_viewed',
-        ];
+        $config = (object) ['eventname' => '\core\event\course_viewed'];
         $result = $reader->validate_config($config);
         $this->assertTrue(is_array($result));
         $this->assertArrayHasKey('config_executionpolicy', $result);
@@ -84,7 +82,7 @@ class tool_dataflows_trigger_event_test extends \advanced_testcase {
         // Test invalid execution policy.
         $config = (object) [
             'eventname' => '\core\event\course_viewed',
-            'executionpolicy' => 'foobar'
+            'executionpolicy' => 'foobar',
         ];
         $result = $reader->validate_config($config);
         $this->assertTrue(is_array($result));

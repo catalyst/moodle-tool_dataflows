@@ -34,6 +34,7 @@ require_once(dirname(__FILE__) . '/../lib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_event_processor_test extends \advanced_testcase {
+
     /**
      * Set up before each test
      */
@@ -316,7 +317,7 @@ class tool_dataflows_event_processor_test extends \advanced_testcase {
         $readerstep = $dataflow->get_steps()->reader;
         $readerstep->config = Yaml::dump([
             'eventname' => '\core\event\course_viewed',
-            'executionpolicy' => event_processor::EXECUTE_ADHOCQUEUED
+            'executionpolicy' => event_processor::EXECUTE_ADHOCQUEUED,
         ]);
         $readerstep->upsert();
 
@@ -329,7 +330,7 @@ class tool_dataflows_event_processor_test extends \advanced_testcase {
         $readerstep = $dataflow->get_steps()->reader;
         $readerstep->config = Yaml::dump([
             'eventname' => '\core\event\profile_viewed',
-            'executionpolicy' => event_processor::EXECUTE_ADHOCQUEUED
+            'executionpolicy' => event_processor::EXECUTE_ADHOCQUEUED,
         ]);
         $readerstep->upsert();
 
@@ -375,7 +376,7 @@ class tool_dataflows_event_processor_test extends \advanced_testcase {
      */
     private function trigger_event(): \core\event\course_viewed {
         $event = \core\event\course_viewed::create([
-            'context' => \context_course::instance($this->course->id)
+            'context' => \context_course::instance($this->course->id),
         ]);
         $event->trigger();
         return $event;
@@ -404,7 +405,7 @@ class tool_dataflows_event_processor_test extends \advanced_testcase {
         $reader->type = 'tool_dataflows\local\step\trigger_event';
         $reader->config = Yaml::dump([
             'eventname' => '\core\event\course_viewed',
-            'executionpolicy' => $policy
+            'executionpolicy' => $policy,
         ]);
 
         $dataflow->add_step($reader);

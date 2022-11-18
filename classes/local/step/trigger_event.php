@@ -119,7 +119,7 @@ class trigger_event extends trigger_step {
     public static function form_define_fields(): array {
         return [
             'eventname' => ['type' => PARAM_TEXT],
-            'executionpolicy' => ['type' => PARAM_TEXT]
+            'executionpolicy' => ['type' => PARAM_TEXT],
         ];
     }
 
@@ -158,7 +158,7 @@ class trigger_event extends trigger_step {
 
         $eventpickersettings = [
             'noselectionstring' => get_string('choosedots'),
-            'allowmultiple' => false
+            'allowmultiple' => false,
         ];
 
         $mform->addElement(
@@ -174,7 +174,7 @@ class trigger_event extends trigger_step {
         $executionoptions = [
             event_processor::EXECUTE_IMMEDIATELY => get_string('trigger_event:policy:immediate', 'tool_dataflows'),
             event_processor::EXECUTE_ADHOC => get_string('trigger_event:policy:adhoc', 'tool_dataflows'),
-            event_processor::EXECUTE_ADHOCQUEUED => get_string('trigger_event:policy:adhocqueued', 'tool_dataflows')
+            event_processor::EXECUTE_ADHOCQUEUED => get_string('trigger_event:policy:adhocqueued', 'tool_dataflows'),
         ];
 
         $mform->addElement('select', 'config_executionpolicy',
@@ -203,7 +203,7 @@ class trigger_event extends trigger_step {
         $neweventname = $this->stepdef->get_redacted_config()->eventname;
 
         // Find any events recorded that are not the same as the new event config.
-        $differentevents = array_filter($eventarray, function($recordedevent) use ($neweventname) {
+        $differentevents = array_filter($eventarray, function ($recordedevent) use ($neweventname) {
             $data = json_decode($recordedevent->eventdata);
             $recordedeventname = $data->eventname;
             return $recordedeventname !== $neweventname;
