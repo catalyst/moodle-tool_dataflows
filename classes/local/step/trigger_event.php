@@ -39,13 +39,8 @@ class trigger_event extends trigger_step {
      * @return mixed
      */
     public function execute($input = null) {
-        if (!$this->enginestep->engine->isdryrun) {
-            event_processor::consume_event($input->id);
-        }
-
         $variables = $this->get_variables();
         $variables->set('event', $input->eventdata);
-
         return true;
     }
 
@@ -64,8 +59,28 @@ class trigger_event extends trigger_step {
      * @return iterator Array iterator containing the events queued for this dataflow.
      */
     public function get_iterator(): iterator {
+        // First get a lock to ensure no other parallel running task is reading the queue.
         $dataflowid = $this->stepdef->get('dataflowid');
-        $eventarray = event_processor::get_events_for_dataflow($dataflowid);
+        $queuelock = event_processor::get_queue_lock($dataflowid);
+
+        try {
+            $eventarray = event_processor::get_events_for_dataflow($dataflowid);
+
+            // If not a dry run, we consume the events while holding the lock.
+            // This ensures no other parallel running task also read these events
+            // before they are removed from the queue.
+            if (!$this->enginestep->engine->isdryrun) {
+                foreach ($eventarray as $event) {
+                    event_processor::consume_event($event->id);
+                }
+            }
+
+            $queuelock->release();
+        } catch (\Throwable $e) {
+            // Release the queue lock and re-throw the exception.
+            $queuelock->release();
+            throw $e;
+        }
 
         // Re-parse the stringified JSON event data for each.
         $eventarray = array_map(function ($e) {

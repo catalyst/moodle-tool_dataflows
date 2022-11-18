@@ -191,4 +191,24 @@ class event_processor {
 
         return $stepslistening;
     }
+
+    /**
+     * Gets a lock for the event queue.
+     * This is used to ensure parallel running tasks don't access the queue at the same time.
+     *
+     * @param int $dataflowid
+     * @return \core\lock\lock
+     */
+    public static function get_queue_lock(int $dataflowid) {
+        $timeout = 30;
+        $locktype = 'tool_dataflows_event_queue';
+        $resource = 'dataflow' . $dataflowid;
+        $lockfactory = \core\lock\lock_config::get_lock_factory($locktype);
+        if (!$lock = $lockfactory->get_lock($resource, $timeout)) {
+            // We did not get access to the resource in time, give up.
+            throw new \moodle_exception('locktimeout');
+        }
+
+        return $lock;
+    }
 }
