@@ -38,4 +38,14 @@ abstract class reader_step extends flow_step {
     public function get_group(): string {
         return 'readers';
     }
+
+    /**
+     * Reader steps have a producing iterator.
+     * This enables the dataflow engine to pull the first record from the iterator.
+     *
+     * @return bool
+     */
+    public function has_producing_iterator(): bool {
+        return true;
+    }
 }

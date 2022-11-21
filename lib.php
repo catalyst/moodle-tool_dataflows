@@ -76,6 +76,7 @@ function tool_dataflows_step_types() {
         new step\trigger_cron,
         new step\writer_debugging,
         new step\writer_stream,
+        new step\trigger_event,
     ];
 }
 

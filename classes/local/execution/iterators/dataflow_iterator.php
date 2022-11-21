@@ -136,8 +136,7 @@ class dataflow_iterator implements iterator {
      * @return  bool
      */
     public function should_pull_next(): bool {
-        return !empty($this->pulled)
-            || $this->steptype->get_group() !== 'readers';
+        return !empty($this->pulled) || !$this->steptype->has_producing_iterator();
     }
 
     /**
@@ -158,7 +157,7 @@ class dataflow_iterator implements iterator {
             return false;
         }
 
-        // Do not call this for the initial pull (of data) for a reader.
+        // Do not call this for the initial pull (of data) for a step that has a producing iterator (e.g. readers).
         if ($this->should_pull_next()) {
             if ($this->input instanceof dataflow_iterator) {
                 $this->input->next($this);

@@ -137,6 +137,7 @@ $string['step_name_reader_sql'] = 'SQL reader';
 $string['step_name_trigger_cron'] = 'Cron';
 $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
+$string['step_name_trigger_event'] = 'Moodle event';
 
 // Step (type) groups.
 $string['stepgrouptriggers'] = 'Triggers';
@@ -486,3 +487,12 @@ $string['set_variable:field_help'] = 'Defines the path to the field you would li
 $string['set_variable:value'] = 'Value';
 $string['set_variable:value_help'] = 'The value could be a number, text, or an expression. For example: <code>${{ record.id }}</code>.';
 
+// Event trigger.
+$string['trigger_event:policy:immediate'] = 'Run immediately';
+$string['trigger_event:policy:adhoc'] = 'Run ASAP in individual tasks in parallel';
+$string['trigger_event:policy:adhocqueued'] = 'Run ASAP in batch tasks in series';
+$string['trigger_event:form:eventname'] = 'Trigger event';
+$string['trigger_event:form:executionpolicy'] = 'Execution policy';
+$string['trigger_event:variable:event'] = 'Data included in the Moodle event';
+$string['trigger_event:form:eventname_help'] = 'Select the event to listen to. Note if the event is changed after a step is created, previously captured events queued for processing will be purged.';
+$string['trigger_event:form:executionpolicy_help'] = 'If the dataflow does not support concurrent running, serial processing will be used instead of parallel processing';

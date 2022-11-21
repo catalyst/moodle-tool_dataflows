@@ -19,6 +19,8 @@ namespace tool_dataflows\task;
 use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\scheduler;
+use tool_dataflows\local\event_processor;
+use tool_dataflows\task\process_dataflow_ad_hoc;
 
 /**
  * Process queued dataflows.
@@ -40,53 +42,52 @@ class process_dataflows extends \core\task\scheduled_task {
     }
 
     /**
-     * Create ad-hoc tasks for the given dataflow record
-     *
-     * @param object $dataflowrecord
-     */
-    private function create_adhoc_task($dataflowrecord) {
-        $dataflow = new dataflow($dataflowrecord->dataflowid);
-        $task = new process_dataflow_ad_hoc();
-        $task->set_custom_data($dataflowrecord);
-
-        // For concurrent tasks, queue them up as an independant adhoc task.
-        if ($dataflow->is_concurrency_enabled()) {
-            \core\task\manager::queue_adhoc_task($task);
-            return;
-        }
-        \core\task\manager::reschedule_or_queue_adhoc_task($task);
-    }
-
-    /**
      * Run the dataflows.
      */
     public function execute() {
-        $dataflowrecords = scheduler::get_due_dataflows();
+        $scheduledrecords = scheduler::get_due_dataflows();
+        $eventrecords = event_processor::get_flows_awaiting_run();
+
+        $dataflowrecords = array_merge($scheduledrecords, $eventrecords);
 
         $firstdataflowrecord = array_shift($dataflowrecords);
         if (isset($firstdataflowrecord)) {
             // Create ad-hoc tasks for all but the first dataflow shifted earlier.
             foreach ($dataflowrecords as $dataflowrecord) {
-                $this->create_adhoc_task($dataflowrecord);
+                process_dataflow_ad_hoc::execute_from_record($dataflowrecord);
             }
 
             // Run a single dataflow immediately.
-            try {
-                $dataflow = new dataflow($firstdataflowrecord->dataflowid);
-                if ($dataflow->enabled) {
-                    mtrace("Running dataflow $dataflow->name (ID: $firstdataflowrecord->dataflowid), time due: " .
-                        userdate($firstdataflowrecord->nextruntime));
-                    $engine = new engine($dataflow, false);
-                    $engine->execute();
-                    $metadata = $engine->is_blocked();
-                    if ($metadata) {
-                        mtrace("Dataflow $dataflow->name locked (ID: $dataflowrecord->dataflowid). Lock data, time: " .
-                            userdate($metadata->timestamp) . ", process ID: $metadata->processid.");
+            self::execute_dataflow($firstdataflowrecord->dataflowid);
+        }
+    }
+
+    /**
+     * Executes the given dataflow.
+     *
+     * @param int $dataflowid
+     */
+    public static function execute_dataflow(int $dataflowid) {
+        try {
+            $dataflow = new dataflow($dataflowid);
+            if ($dataflow->enabled) {
+                mtrace("Running dataflow $dataflow->name (ID: $dataflow->id)");
+                $engine = new engine($dataflow, false);
+                $engine->execute();
+                $metadata = $engine->is_blocked();
+                if ($metadata) {
+                    $str = "Dataflow $dataflow->name locked (ID: $dataflow->id). Lock data, time: ".
+                            userdate($metadata->timestamp) . ", process ID: $metadata->processid.";
+
+                    if (isset($dataflow->nextruntime)) {
+                        $str .= "(Next run time: $dataflow->nextruntime)";
                     }
+
+                    mtrace($str);
                 }
-            } catch (\Throwable $thrown) {
-                mtrace("Dataflow run failed for ID: $firstdataflowrecord->dataflowid, " . $thrown->getMessage());
             }
+        } catch (\Throwable $thrown) {
+            mtrace("Dataflow run failed for ID: $dataflow->id, " . $thrown->getMessage());
         }
     }
 }

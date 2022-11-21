@@ -638,4 +638,15 @@ abstract class base_step {
         $this->log("Debug: current vars:\n" . trim($yaml));
 
     }
+
+    /**
+     * Does the iterator in this step produce values?
+     * If it does, this must be true otherwise not all the iterator values will be executed.
+     * Generally, this is only true for reader steps, but exceptions do exist.
+     *
+     * @return bool
+     */
+    public function has_producing_iterator(): bool {
+        return false;
+    }
 }

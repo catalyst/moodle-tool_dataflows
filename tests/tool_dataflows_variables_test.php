@@ -294,8 +294,6 @@ class tool_dataflows_variables_test extends \advanced_testcase {
      *
      * @covers  \tool_dataflows\parser
      * @covers  \tool_dataflows\parser::evaluate_recursive
-     * @covers  \tool_dataflows\local\step\base_step::prepare_outputs
-     * @covers  \tool_dataflows\local\step\base_step::set_variables
      */
     public function test_output_variables() {
         // Create curl step.

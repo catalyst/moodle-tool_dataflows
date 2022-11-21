@@ -23,7 +23,7 @@ Several convenience methods have been added to make this process a bit easier. Y
 - `$this->get_config()` which returns the configuration of the step, as an **object**, with all the expressions already evaluated.
 - `$this->is_dry_run()` which returns whether the dataflow was executed under dry run mode.
 - `$this->log()` which allows you to log a message during execution which if run directly would print the message to the user.
-- `$this->set_variables()` which is useful when your step gets some new data which you want to make available in other steps.
+- Variables can be exposed when your step gets some new data which you want to make available in other steps. - See [variables](./VARIABLES.md) 
 
 For the general gist of how things are structured, please look at the existing examples:
 - [connector_wait step](./classes/local/step/connector_wait.php)
