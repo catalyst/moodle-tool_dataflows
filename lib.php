@@ -77,6 +77,7 @@ function tool_dataflows_step_types() {
         new step\writer_debugging,
         new step\writer_stream,
         new step\trigger_event,
+        new step\flow_sql,
     ];
 }
 
