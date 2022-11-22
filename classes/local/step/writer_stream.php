@@ -180,6 +180,11 @@ class writer_stream extends writer_step {
              * Called when the iterator is stopped, either because of finishing ar due to an abort.
              */
             public function on_stop() {
+                // If the stream is already closed, ignore.
+                if (!is_resource($this->handle)) {
+                    return;
+                }
+
                 if (fwrite($this->handle, $this->writer->close_output()) === false) {
                     $this->step->log(error_get_last()['message']);
                     throw new \moodle_exception(
