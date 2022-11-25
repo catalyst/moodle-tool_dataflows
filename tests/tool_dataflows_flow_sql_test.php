@@ -92,7 +92,7 @@ class tool_dataflows_flow_sql_test extends \advanced_testcase {
      * @param int $rows number of rows to generate.
      */
     private function create_iterator_data(int $rows) {
-        $data = array_map(function($rownum) {
+        $data = array_map(function ($rownum) {
             return (object) ['id' => $rownum];
         }, range(1, $rows));
 
@@ -151,12 +151,12 @@ class tool_dataflows_flow_sql_test extends \advanced_testcase {
         $this->create_iterator_data($iteratorcount);
 
         $this->dataflow->vars = Yaml::dump([
-            'courseid' => $course->id
+            'courseid' => $course->id,
         ]);
         $this->dataflow->save();
 
         $this->flow->config = Yaml::dump([
-            'sql' => 'SELECT * FROM {course} WHERE id = ${{dataflow.vars.courseid}}'
+            'sql' => 'SELECT * FROM {course} WHERE id = ${{dataflow.vars.courseid}}',
         ]);
         $this->flow->save();
 
@@ -187,7 +187,7 @@ class tool_dataflows_flow_sql_test extends \advanced_testcase {
         // Execute a query where the sql is not well formed.
         // This should return null and a count of 0.
         $this->flow->config = Yaml::dump([
-            'sql' => 'SELECT *'
+            'sql' => 'SELECT *',
         ]);
         $this->flow->save();
 
@@ -214,7 +214,7 @@ class tool_dataflows_flow_sql_test extends \advanced_testcase {
         // Execute a query where no records are returned.
         // This should return null and a count of 0.
         $this->flow->config = Yaml::dump([
-            'sql' => 'SELECT * FROM {course} WHERE id = -1'
+            'sql' => 'SELECT * FROM {course} WHERE id = -1',
         ]);
         $this->flow->save();
 

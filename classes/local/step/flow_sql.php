@@ -34,7 +34,7 @@ class flow_sql extends flow_step {
      */
     public static function form_define_fields(): array {
         return [
-            'sql' => ['type' => PARAM_TEXT, 'required' => true]
+            'sql' => ['type' => PARAM_TEXT, 'required' => true],
         ];
     }
 
