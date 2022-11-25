@@ -138,6 +138,7 @@ $string['step_name_trigger_cron'] = 'Cron';
 $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
 $string['step_name_trigger_event'] = 'Moodle event';
+$string['step_name_flow_sql'] = 'SQL';
 
 // Step (type) groups.
 $string['stepgrouptriggers'] = 'Triggers';
@@ -496,3 +497,7 @@ $string['trigger_event:form:executionpolicy'] = 'Execution policy';
 $string['trigger_event:variable:event'] = 'Data included in the Moodle event';
 $string['trigger_event:form:eventname_help'] = 'Select the event to listen to. Note if the event is changed after a step is created, previously captured events queued for processing will be purged.';
 $string['trigger_event:form:executionpolicy_help'] = 'If the dataflow does not support concurrent running, serial processing will be used instead of parallel processing';
+
+// SQL flow step.
+$string['flow_sql:sql'] = 'SQL';
+$string['flow_sql:sql_help'] = 'You may use expressions with the SQL such as variables from other steps.';
