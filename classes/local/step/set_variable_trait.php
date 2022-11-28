@@ -62,7 +62,7 @@ trait set_variable_trait {
         $levels = var_object_visible::name_to_levels($field);
         if (
             count($levels) > 2
-            && $levels[0] === 'dataflow'
+            && $levels[0] === 'dataflows'
             && $levels[1] === 'vars'
         ) {
             $this->persist_dataflow_vars($levels, $value);
