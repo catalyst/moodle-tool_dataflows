@@ -179,7 +179,7 @@ class var_value extends var_node {
      * @param var_value $var
      */
     protected function add_dependent(var_value $var) {
-        if (!in_array($var, $this->dependents)) {
+        if (!in_array($var, $this->dependents, true)) {
             $this->dependents[] = $var;
         }
     }
