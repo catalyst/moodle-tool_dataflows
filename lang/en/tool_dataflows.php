@@ -484,7 +484,7 @@ $string['variables:no_step_definition'] = 'Cannot get variables without a step d
 
 // Set variable step.
 $string['set_variable:field'] = 'Field';
-$string['set_variable:field_help'] = 'Defines the path to the field you would like to set the value. For example: <code>dataflows.vars.counter</code>.';
+$string['set_variable:field_help'] = 'Defines the path to the field you would like to set the value. For example: <code>dataflow.vars.counter</code>.';
 $string['set_variable:value'] = 'Value';
 $string['set_variable:value_help'] = 'The value could be a number, text, or an expression. For example: <code>${{ record.id }}</code>.';
 
