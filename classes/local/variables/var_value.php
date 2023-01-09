@@ -164,13 +164,10 @@ class var_value extends var_node {
      * @param var_value $var
      */
     protected function clear_dependent(var_value $var) {
-        $this->dependents = array_udiff(
-            $this->dependents,
-            [$var],
-            function ($a, $b) {
-                return $a === $b;
-            }
-        );
+        $idx = array_search($var, $this->dependents, true);
+        if ($idx !== false) {
+            unset($this->dependents[$idx]);
+        }
     }
 
     /**
