@@ -577,7 +577,17 @@ class engine {
 
         // Engines are single use. Once it has concluded, you can no longer change it's state.
         if (in_array($this->status, self::STATUS_TERMINATORS)) {
-            throw new \moodle_exception('change_state_after_concluded', 'tool_dataflows');
+            if ($status === self::STATUS_ABORTED) {
+                // Don't crash if aborting, but make a note of it.
+                $this->log('Aborted within concluded state (' . self::STATUS_LABELS[$this->status] . ')');
+            } else {
+                throw new \moodle_exception(
+                    'change_state_after_concluded',
+                    'tool_dataflows',
+                    '',
+                    ['from' => self::STATUS_LABELS[$this->status], 'to' => self::STATUS_LABELS[$status]]
+                );
+            }
         }
         $this->status = $status;
 

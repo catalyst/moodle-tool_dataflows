@@ -71,6 +71,7 @@ class tool_dataflows_web_service_flow_test extends \advanced_testcase {
             'curl' => $this->get_mock_url('/h5puuid.json'),
             'destination' => 'test.html',
             'headers' => '',
+            'timeout' => '0',
             'method' => 'get',
         ]);
         $curlstep->name = 'connector';
