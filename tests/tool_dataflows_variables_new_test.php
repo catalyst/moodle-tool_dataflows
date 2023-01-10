@@ -153,6 +153,16 @@ class tool_dataflows_variables_new_test extends \advanced_testcase {
         $this->assertEquals('double six and four', $vars->get('a.b'));
         $vars->set('a.z', 'five');
         $this->assertEquals('double six and five', $vars->get('a.b'));
+        $vars->set('a.b', 'double ${{a.x}}');
+        $this->assertEquals('double six', $vars->get('a.b'));
+        $vars->set('a.x', 'one');
+        $this->assertEquals('double one', $vars->get('a.b'));
+        $vars->set('a.z', 'two');
+        $this->assertEquals('double one', $vars->get('a.b'));
+        $vars->set('a.b', 'double ${{a.x}} and ${{a.z}}');
+        $this->assertEquals('double one and two', $vars->get('a.b'));
+        $vars->set('a.z', 'three');
+        $this->assertEquals('double one and three', $vars->get('a.b'));
     }
 
     /**
