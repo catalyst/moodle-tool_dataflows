@@ -235,7 +235,15 @@ class tool_dataflows_engine_test extends \advanced_testcase {
             $engine = new engine($dataflow);
             $engine->set_status(engine::STATUS_FINALISED);
             $this->expectException(\moodle_exception::class);
-            $this->expectExceptionMessage(get_string('change_state_after_concluded', 'tool_dataflows'));
+            $this->expectExceptionMessage(
+                get_string(
+                    'change_state_after_concluded',
+                    'tool_dataflows',
+                    [
+                        'to' => engine::STATUS_LABELS[engine::STATUS_INITIALISED],
+                        'from' => engine::STATUS_LABELS[engine::STATUS_FINALISED]
+                    ]
+                ));
             $engine->set_status(engine::STATUS_INITIALISED);
         } finally {
             ob_get_clean();

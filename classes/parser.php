@@ -281,12 +281,16 @@ class parser {
                 // the wrong spot.
                 try {
                     $parsethis = trim($match['expression']);
-                    error_reporting(E_ALL & ~E_NOTICE);
+                    $previoussetting = error_reporting(E_ALL & ~E_NOTICE);
+                    if (PHP_MAJOR_VERSION >= 8) {
+                        // As of 8.0, Undefined array key is a warning.
+                        $previoussetting = error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
+                    }
                     $result = $this->expressionlanguage->evaluate(
                         $parsethis,
                         $variables
                     );
-                    error_reporting();
+                    error_reporting($previoussetting);
                     if ($result === null) {
                         if ($failcallback) {
                             $failcallback('Could not evaluate the expression ${{ ' . $parsethis . ' }}');

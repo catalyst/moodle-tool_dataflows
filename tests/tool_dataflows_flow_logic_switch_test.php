@@ -234,7 +234,7 @@ class tool_dataflows_flow_logic_switch_test extends \advanced_testcase {
 
         // Set the SQL query via a YAML config string.
         $sql->config = Yaml::dump([
-            'sql' => 'SELECT 1',
+            'sql' => 'SELECT 1 as value',
             'counterfield' => 'value',
             'countervalue' => '',
         ]);

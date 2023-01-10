@@ -228,7 +228,17 @@ abstract class engine_step {
             return;
         }
         if (in_array($this->status, engine::STATUS_TERMINATORS)) {
-            throw new \moodle_exception('change_state_after_concluded', 'tool_dataflows');
+            if ($status === engine::STATUS_ABORTED) {
+                // Don't crash if aborting, but make a note of it.
+                $this->log('Aborted within concluded state (' . engine::STATUS_LABELS[$this->status] . ')');
+            } else {
+                throw new \moodle_exception(
+                    'change_step_state_after_concluded',
+                    'tool_dataflows',
+                    '',
+                    ['from' => engine::STATUS_LABELS[$this->status], 'to' => engine::STATUS_LABELS[$status]]
+                );
+            }
         }
 
         $this->status = $status;
