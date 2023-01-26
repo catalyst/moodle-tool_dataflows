@@ -304,7 +304,7 @@ class connector_curl extends connector_step {
 
         // Perform call.
         $this->enginestep->log('Performing curl call.');
-        $result = $curl->$method($config->curl, [], $options);
+        $result = $curl->$method($config->curl, $options['CURLOPT_POSTFIELDS'] ?? [], $options);
 
         if (!empty($file)) {
             fclose($file);
