@@ -116,7 +116,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
         ob_get_clean();
         $vars = $engine->get_variables_root()->get('steps.connector.vars');
 
-        $this->assertEmpty($vars->result);
+        $this->assertEquals('OK', $vars->result);
         $this->assertEquals(200, $vars->httpcode);
         $this->assertObjectHasAttribute('connecttime', $vars);
         $this->assertObjectHasAttribute('totaltime', $vars);

@@ -137,7 +137,7 @@ class trigger_event extends trigger_step {
             foreach ($eventlist[$plugin] as $event => $eventname) {
                 // Filter out events which cannot be triggered for some reason.
                 if (!$event::is_deprecated()) {
-                    $plugineventlist[$event] = "${pluginname}: ${eventname}";
+                    $plugineventlist[$event] = "{$pluginname}: {$eventname}";
                 }
             }
         }
