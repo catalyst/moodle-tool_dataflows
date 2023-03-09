@@ -34,6 +34,9 @@ class var_dataflow extends var_object_visible {
     /** @var dataflow The dataflow persistent object. */
     protected $dataflow;
 
+    /** @var timelaststarted Last time this dataflow has been started. */
+    protected $timelaststarted;
+
     /**
      * Construct the object.
      *
@@ -43,6 +46,7 @@ class var_dataflow extends var_object_visible {
     public function __construct(dataflow $dataflow, var_root $root) {
         parent::__construct('dataflow', $root, $root);
         $this->dataflow = $dataflow;
+        $this->get_timelaststarted();
     }
 
     /**
@@ -55,11 +59,27 @@ class var_dataflow extends var_object_visible {
 
         $this->set('config.enabled', $this->dataflow->enabled);
         $this->set('config.concurrencyenabled', $this->dataflow->concurrencyenabled);
-
+        $this->set('config.timelaststarted', $this->timelaststarted);
         $this->set('vars', $this->dataflow->get('vars'));
 
         foreach (engine::STATUS_LABELS as $state) {
             $this->set("states.$state", null);
+        }
+    }
+
+    /**
+     * Gets last time this dataflow started.
+     */
+    public function get_timelaststarted() {
+        global $DB;
+        $sql = 'SELECT timestarted
+                  FROM {tool_dataflows_runs}
+                 WHERE dataflowid = :dataflowid
+                 ORDER BY timestarted DESC
+                 LIMIT 1';
+        $record = $DB->get_record_sql($sql, ['dataflowid' => $this->dataflow->get('id')]);
+        if (isset($record->timestarted)) {
+            $this->timelaststarted = (int) $record->timestarted;
         }
     }
 }
