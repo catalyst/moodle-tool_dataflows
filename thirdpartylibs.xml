@@ -77,4 +77,12 @@
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
+  <library>
+    <location>vendor/composer</location>
+    <location>vendor/autoload.php</location>
+    <name>Dependency Manager</name>
+    <version></version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
 </libraries>
