@@ -15,9 +15,65 @@
     <licenseversion></licenseversion>
   </library>
   <library>
-    <location>vendor</location>
-    <name>3rd party sub-dependencies</name>
-    <version></version>
+    <location>vendor/phpseclib/phpseclib</location>
+    <name>PHP Secure Communications Library</name>
+    <version>3.0</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/paragonie/constant_time_encoding</location>
+    <name>Constant-time Implementations of RFC 4648 Encoding</name>
+    <version>2.6.3</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/paragonie/random_compat</location>
+    <name>PHP 5.x polyfill for random_bytes() and random_int() from PHP 7</name>
+    <version>9.99.100</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/psr/cache</location>
+    <name>Common interface for caching libraries</name>
+    <version>1.0.1</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/psr/log</location>
+    <name>Common interface for logging libraries</name>
+    <version>1.1.4</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/psr/simple-cache</location>
+    <name>Common interfaces for simple caching</name>
+    <version>1.0.1</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/cache</location>
+    <name>Provides extended PSR-6, PSR-16 (and tags) implementations</name>
+    <version>3.4.47</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/polyfill-apcu</location>
+    <name>Symfony polyfill backporting apcu_* functions to lower PHP versions</name>
+    <version>1.26.0</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/polyfill-ctype</location>
+    <name>Symfony polyfill for ctype functions</name>
+    <version>1.26.0</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
