@@ -470,6 +470,7 @@ $string['dataflow_iterator:null_input'] = 'Trying to construct an iterator witho
 // Copy File.
 $string['flow_copy_file:from'] = 'From';
 $string['flow_copy_file:to'] = 'To';
+$string['flow_copy_file:append'] = 'Append to file if it already exists.';
 $string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';
 
 // Directory file count.
