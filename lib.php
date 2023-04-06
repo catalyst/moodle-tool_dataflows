@@ -61,6 +61,7 @@ function tool_dataflows_step_types() {
         new step\connector_sns_notify,
         new step\connector_wait,
         new step\flow_abort,
+        new step\flow_append_file,
         new step\flow_copy_file,
         new step\flow_email,
         new step\flow_hash_file,

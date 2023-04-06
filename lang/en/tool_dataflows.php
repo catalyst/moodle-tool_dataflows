@@ -121,6 +121,7 @@ $string['step_name_connector_sftp'] = 'SFTP file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
 $string['step_name_flow_abort'] = 'Abort';
+$string['step_name_flow_append_file'] = 'Append';
 $string['step_name_flow_copy_file'] = 'Copy File';
 $string['step_name_flow_email'] = 'Flow email notification';
 $string['step_name_flow_hash_file'] = 'Hash file';
@@ -466,6 +467,9 @@ $string['cachedef_dot'] = 'This cache stores internal fragments of dot binaries'
 
 // Dataflow iterator.
 $string['dataflow_iterator:null_input'] = 'Trying to construct an iterator without an upstream iterator for step {$a}';
+
+// Append file.
+$string['trait_append_file:cannot_read_file'] = 'Cannot read file {$a}';
 
 // Copy File.
 $string['flow_copy_file:from'] = 'From';
