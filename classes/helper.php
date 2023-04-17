@@ -102,6 +102,8 @@ class helper {
      * @return bool
      */
     public static function path_is_relative(string $path): bool {
+        $path = self::replace_dataroot_in_path($path);
+
         if (self::path_has_scheme($path)) {
             return false;
         }
@@ -134,6 +136,8 @@ class helper {
      * @return \lang_string|true True if the path is valid. A lang_string otherwise.
      */
     public static function path_validate(string $path) {
+        $path = self::replace_dataroot_in_path($path);
+
         if (self::path_is_relative($path)) {
             return true;
         }
