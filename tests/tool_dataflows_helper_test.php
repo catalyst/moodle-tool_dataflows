@@ -35,6 +35,35 @@ class tool_dataflows_helper_test extends \advanced_testcase {
     }
 
     /**
+     * Tests path_is_relative().
+     *
+     * @dataProvider is_relative_provider
+     * @covers \tool_dataflows\helper::path_is_relative
+     * @param string $path
+     * @param bool $expected
+     */
+    public function test_is_relative(string $path, bool $expected) {
+        $this->assertEquals($expected, helper::path_is_relative($path));
+    }
+
+    /**
+     * Provider for test_is_relative().
+     *
+     * @return array[]
+     */
+    public function is_relative_provider(): array {
+        global $CFG;
+        return [
+            ['one/path', true],
+            ['/one/path', false],
+            ['file://one/path', false],
+            ['sftp://one/path', false],
+            ['sftp/files/download.txt', true],
+            ['[dataroot]/stuff/one/path', false],
+        ];
+    }
+
+    /**
      * Tests path_is_scheme().
      *
      * @dataProvider is_scheme_provider
@@ -104,6 +133,38 @@ class tool_dataflows_helper_test extends \advanced_testcase {
                 '/var/[dataroot]/tmp',
                 ['/var/[dataroot]/tmp'],
             ],
+        ];
+    }
+
+    /**
+     * Tests the path_validate() function.
+     *
+     * @dataProvider path_validate_provider
+     * @covers \tool_dataflows\helper::path_validate
+     * @param string $path
+     * @param bool $expected
+     */
+    public function test_path_validate(string $path, bool $expected) {
+        global $CFG;
+        $permittedpaths = '/home/me/tmp ' . PHP_EOL . '  ' . PHP_EOL . $CFG->dataroot . '/tmp ';
+        set_config('permitted_dirs', $permittedpaths, 'tool_dataflows');
+        $result = helper::path_validate($path) === true;
+        $this->assertEquals($result, $expected);
+    }
+
+    /**
+     * Provider for test_path_validate().
+     *
+     * @return array[]
+     */
+    public function path_validate_provider(): array {
+        return [
+            ['one/path', true],
+            ['/one/path', false],
+            ['/home/me/tmp/file', true],
+            ['sftp://one/path', true],
+            ['[dataroot]/tmp/one/path', true],
+            ['[dataroot]', false],
         ];
     }
 
