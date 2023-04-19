@@ -115,8 +115,10 @@ $string['step_name_connector_debug_file_display'] = 'File contents display';
 $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_email'] = 'Email notification';
 $string['step_name_connector_file_exists'] = 'File exists';
+$string['step_name_connector_file_put_content'] = 'File put content';
 $string['step_name_connector_hash_file'] = 'Hash file';
 $string['step_name_connector_s3'] = 'S3 file copy';
+$string['step_name_connector_set_variable'] = 'Set variable';
 $string['step_name_connector_sftp'] = 'SFTP file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
@@ -124,6 +126,7 @@ $string['step_name_flow_abort'] = 'Abort';
 $string['step_name_flow_append_file'] = 'Append';
 $string['step_name_flow_copy_file'] = 'Copy File';
 $string['step_name_flow_email'] = 'Flow email notification';
+$string['step_name_flow_file_put_content'] = 'File put content';
 $string['step_name_flow_hash_file'] = 'Hash file';
 $string['step_name_flow_set_variable'] = 'Set variable';
 $string['step_name_flow_logic_join'] = 'Join';
@@ -185,6 +188,8 @@ $string['output_connector_link_limit'] = '{$a} output connector link';
 $string['output_connector_link_limit_plural'] = '{$a} output connector links';
 $string['output_connector_link_limit_range'] = 'between {$a->min} and {$a->max} output connector links';
 $string['no_output_allowed'] = 'No outputs allowed';
+$string['out_path'] = 'Output path';
+$string['out_path_help'] = 'Path to the file to be written to. e.g.';
 $string['path_help'] = 'Path to the file to be read or written to. e.g.';
 $string['path_help_examples'] = "
     out.csv           # A path relative to the flows temp working dir;
@@ -486,6 +491,10 @@ $string['variables:reference_lead_as_branch'] = 'Attempting to reference a leaf 
 $string['variables:cannot_resolve_ref'] = 'Cannot resolve reference \'{$a}\'.';
 $string['variables:root_not_in_ancestry'] = 'Root \'{$a->root}\' is not in the ancestry of \'{$a->node}\'.';
 $string['variables:no_step_definition'] = 'Cannot get variables without a step definition.';
+
+// File put content.
+$string['file_put_content:content'] = 'Content';
+$string['file_put_content:content_help'] = 'Content to be saved to file. Can include expressions.';
 
 // Set variable step.
 $string['set_variable:field'] = 'Field';

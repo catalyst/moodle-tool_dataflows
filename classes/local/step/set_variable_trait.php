@@ -14,8 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\local\step;
+
+use tool_dataflows\local\variables\var_root;
+use tool_dataflows\local\variables\var_object_visible;
+
 /**
- * Abort Step ..Trait
+ * Set variable trait
+ *
+ * Writes content to a variable and persists it.
  *
  * This trait allows both flow/connector implementations to share core
  * functionality. This should be moved to the "main" step type in an ideal
@@ -27,12 +34,6 @@
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace tool_dataflows\local\step;
-
-use tool_dataflows\local\variables\var_root;
-use tool_dataflows\local\variables\var_object_visible;
-
 trait set_variable_trait {
 
     /**
@@ -120,7 +121,7 @@ trait set_variable_trait {
         $mform->addElement('text', 'config_field', get_string('set_variable:field', 'tool_dataflows'));
         $mform->addElement('static', 'config_field_help', '', get_string('set_variable:field_help', 'tool_dataflows'));
 
-        $mform->addElement('text', 'config_value', get_string('set_variable:value', 'tool_dataflows'));
+        $mform->addElement('textarea', 'config_value', get_string('set_variable:value', 'tool_dataflows'));
         $mform->addElement('static', 'config_field_help', '', get_string('set_variable:value_help', 'tool_dataflows'));
     }
 }
