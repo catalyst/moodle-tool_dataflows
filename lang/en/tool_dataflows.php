@@ -117,6 +117,7 @@ $string['step_name_connector_email'] = 'Email notification';
 $string['step_name_connector_file_exists'] = 'File exists';
 $string['step_name_connector_file_put_content'] = 'File put content';
 $string['step_name_connector_hash_file'] = 'Hash file';
+$string['step_name_connector_noop'] = 'No-op';
 $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_set_variable'] = 'Set variable';
 $string['step_name_connector_sftp'] = 'SFTP file copy';
