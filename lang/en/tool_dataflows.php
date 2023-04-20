@@ -48,6 +48,10 @@ $string['global_vars_desc'] = "Global variables that can be accessed via express
     Example.
     abc:
       def: 12  # Accessed as \${{global.vars.abc.def}}";
+$string['gpg_exec_path'] = 'Path to GPG executable';
+$string['gpg_exec_path_desc'] = 'Path to GPG executable';
+$string['gpg_key_dir'] = 'Path to keyring directory';
+$string['gpg_key_dir_desc'] = 'Path to keyring directory';
 
 // Manage flows / Overview.
 $string['overview'] = 'Overview';
@@ -116,6 +120,7 @@ $string['step_name_connector_debugging'] = 'Debugging connector';
 $string['step_name_connector_email'] = 'Email notification';
 $string['step_name_connector_file_exists'] = 'File exists';
 $string['step_name_connector_file_put_content'] = 'File put content';
+$string['step_name_connector_gpg'] = 'GPG';
 $string['step_name_connector_hash_file'] = 'Hash file';
 $string['step_name_connector_noop'] = 'No-op';
 $string['step_name_connector_s3'] = 'S3 file copy';
@@ -128,6 +133,7 @@ $string['step_name_flow_append_file'] = 'Append';
 $string['step_name_flow_copy_file'] = 'Copy File';
 $string['step_name_flow_email'] = 'Flow email notification';
 $string['step_name_flow_file_put_content'] = 'File put content';
+$string['step_name_flow_gpg'] = 'GPG';
 $string['step_name_flow_hash_file'] = 'Hash file';
 $string['step_name_flow_set_variable'] = 'Set variable';
 $string['step_name_flow_logic_join'] = 'Join';
@@ -399,6 +405,12 @@ $string['connector_curl:field_headers_help'] = 'Headers should be in valid HTTP 
 $string['connector_curl:output_response_result'] = 'Returns a string that contains the response to the request as text, or null if the request was unsuccessful or has not yet been sent.';
 $string['connector_curl:header_format'] = '<header>:<value>';
 $string['connector_curl:headers_invalid'] = 'Curl connector headers are invalid.';
+
+// GPG.
+$string['gpg:userid'] = 'Key owner (user ID)';
+$string['gpg:encrypt'] = 'Encrypt';
+$string['gpg:decrypt'] = 'Decrypt';
+$string['gpg:output_success'] = 'Whether the operation was successful.';
 
 // Connector sftp.
 $string['connector_sftp:host'] = 'Host';
