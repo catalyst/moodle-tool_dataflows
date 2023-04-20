@@ -450,14 +450,21 @@ abstract class base_step {
     }
 
     /**
-     * Generates an engine step for this type.
-     *
-     * This should be sufficient for most cases. Override this function if needed.
+     * Gets the engine step for this type.
      *
      * @return engine_step
      */
     final public function get_engine_step(): ?engine_step {
         return $this->enginestep;
+    }
+
+    /**
+     * Gets the engine.
+     *
+     * @return engine_step
+     */
+    final public function get_engine(): ?engine {
+        return isset($this->enginestep) ? $this->enginestep->engine : null;
     }
 
     /**
