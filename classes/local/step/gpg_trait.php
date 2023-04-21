@@ -49,7 +49,8 @@ trait gpg_trait {
     public static function form_define_fields(): array {
         return [
             'command' => ['type' => PARAM_TEXT, 'required' => true],
-            'userid' => ['type' => PARAM_TEXT, 'required' => true],
+            'passphrase' => ['type' => PARAM_TEXT, 'secret' => true],
+            'userid' => ['type' => PARAM_TEXT],
             'from'   => ['type' => PARAM_TEXT, 'required' => true],
             'to'     => ['type' => PARAM_TEXT, 'required' => true],
         ];
@@ -67,7 +68,8 @@ trait gpg_trait {
         ]);
         // Key user ID.
         $mform->addElement('text', 'config_userid', get_string('gpg:userid', 'tool_dataflows'));
-        $mform->addRule('config_userid', get_string('required'), 'required', null, 'client');
+
+        $mform->addElement('passwordunmask', 'config_passphrase', get_string('gpg:passphrase', 'tool_dataflows'));
 
         // From / Source path.
         $mform->addElement('text', 'config_from', get_string('flow_copy_file:from', 'tool_dataflows'));
@@ -90,21 +92,15 @@ trait gpg_trait {
         $config->from = $this->enginestep->engine->resolve_path($config->from);
         $config->to = $this->enginestep->engine->resolve_path($config->to);
 
-        if ($config->command === 'encrypt') {
-            $executable = $this->get_encrypt_command($config);
-        } else if ($config->command === 'decrypt') {
-            $executable = $this->get_decrypt_command($config);
-        }
+        $executable = $this->get_executable($config);
 
         // We do not need to go any further if it is a dry run.
         if ($this->is_dry_run() && $this->has_side_effect()) {
-            $this->enginestep->log("Would execute '$executable'");
             return true;
         }
 
         $output = [];
         $result = null;
-        $this->enginestep->log("Executing '$executable'");
         exec($executable, $output, $result);
         $this->enginestep->log($result === 0 ? 'Success' : 'Fail');
 
@@ -114,29 +110,50 @@ trait gpg_trait {
     }
 
     /**
-     * Returns the command to be used for an encrypt run.
+     * Returns the executable to be used.
      *
      * @param string $config The step configuration.
-     * @return string The executable to run.
+     * @return string
      */
-    public function get_encrypt_command($config): string {
-        $path = get_config('tool_dataflows', 'gpg_exec_path');
-        $keydir = get_config('tool_dataflows', 'gpg_key_dir');
-        $executable = "$path --homedir $keydir -r $config->userid -o $config->to --encrypt $config->from";
-        return $executable;
-    }
+    public function get_executable($config): string {
+        $options = [];
+        $homedir = get_config('tool_dataflows', 'gpg_key_dir');
+        if ($homedir) {
+            $options[] = '--homedir ' . $homedir;
+        }
 
-    /**
-     * Returns the command to be used for a decrypt run.
-     *
-     * @param string $config The step configuration.
-     * @return string The executable to run.
-     */
-    public function get_decrypt_command($config): string {
+        // The passphrase needs to be piped into the stdin of the gpg command.
+        $pipedpassphrase = '';
+        // Because variables use redacted values by default, we evaluate the passphrase explicitly.
+        $passphrase = $this->get_variables()->evaluate($this->stepdef->config->passphrase);
+        if ($passphrase) {
+            $options[] = '--pinentry-mode loopback --passphrase-fd 0';
+            $pipedpassphrase = 'echo ' . escapeshellarg($passphrase) . ' | ';
+        }
+
+        if ($config->userid) {
+            if ($config->command === 'encrypt') {
+                $options[] = '-r ' . $config->userid;
+            } else {
+                $options[] = '-u ' . $config->userid;
+            }
+        }
+
+        $options[] = '-o ' . $config->to;
+
+        if ($config->command === 'encrypt') {
+            $options[] = '--encrypt ' . $config->from;
+        } else {
+            $options[] = '--decrypt ' . $config->from;
+        }
+
         $path = get_config('tool_dataflows', 'gpg_exec_path');
-        $keydir = get_config('tool_dataflows', 'gpg_key_dir');
-        $executable = "$path --homedir $keydir -u $config->userid -o $config->to --decrypt $config->from";
-        return $executable;
+        $gpgcommand = $path . ' ' . implode(' ', $options);
+
+        // Developer note: The passphrase must NOT be included in the log.
+        $this->enginestep->log("Command: '$gpgcommand'");
+
+        return $pipedpassphrase . $gpgcommand;
     }
 
     /**

@@ -413,6 +413,7 @@ $string['gpg:userid'] = 'Key owner (user ID)';
 $string['gpg:encrypt'] = 'Encrypt';
 $string['gpg:decrypt'] = 'Decrypt';
 $string['gpg:output_success'] = 'Whether the operation was successful.';
+$string['gpg:passphrase'] = 'Passphrase';
 
 // Connector sftp.
 $string['connector_sftp:host'] = 'Host';
