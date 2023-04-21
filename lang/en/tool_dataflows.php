@@ -113,6 +113,7 @@ $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 
 // Step names.
 $string['step_name_connector_directory_file_count'] = 'Directory file count';
+$string['step_name_connector_directory_file_list'] = 'Directory file list';
 $string['step_name_connector_abort'] = 'Abort connector';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debug_file_display'] = 'File contents display';
@@ -143,6 +144,7 @@ $string['step_name_flow_s3'] = 'S3 file copy';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
 $string['step_name_flow_web_service'] = 'Flow web service';
 $string['step_name_reader_csv'] = 'CSV reader';
+$string['step_name_reader_directory_file_list'] = 'Directory file list reader';
 $string['step_name_reader_json'] = 'JSON reader';
 $string['step_name_reader_sql'] = 'SQL reader';
 $string['step_name_trigger_cron'] = 'Cron';
@@ -496,6 +498,20 @@ $string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';
 
 // Directory file count.
 $string['connector_directory_file_count:path'] = 'Path to directory';
+
+// Directory file list.
+$string['directory_file_list:pattern'] = 'File pattern';
+$string['directory_file_list:sort'] = 'Sort';
+$string['directory_file_list:size'] = 'Largest to smallest';
+$string['directory_file_list:size_reverse'] = 'Smallest to larget';
+$string['directory_file_list:time'] = 'Latest to earliest';
+$string['directory_file_list:time_reverse'] = 'Earliest to latest';
+$string['directory_file_list:subdirectories'] = 'Include sub-directories?';
+$string['directory_file_list:offset'] = 'Offset';
+$string['directory_file_list:limit'] = 'Limit';
+$string['directory_file_list:filenames'] = 'List of filenames.';
+$string['directory_file_list:alpha'] = 'Alphabetical (A->Z)';
+$string['directory_file_list:alpha_reverse'] = 'Reverse alphabetical (Z->A)';
 
 // Variables.
 $string['variables:assign_object_to_value'] = 'Attempting to assign an object to a value node for \'{$a}\'.';
