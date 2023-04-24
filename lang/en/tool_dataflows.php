@@ -458,6 +458,10 @@ $string['flow_logic_switch:cases_help'] = 'Each line represents a case, and each
 $string['flow_logic_switch:casenotfound'] = 'The output position of #{$a} did not match any existing case';
 $string['flow_logic_switch:nomatchingcases'] = 'No matching cases, skipping record';
 
+// Flow transformer filter.
+$string['flow_transformer_filter:filter'] = 'Filter expression';
+$string['flow_transformer_filter:filter_help'] = "This expression needs to evaluate to a boolean. Whenever the expression evaluaes to false, the current value for the flow will not be passed on to later steps in the flow. There is no need for '\${{' and '}}'.";
+
 // Wait connector.
 $string['connector_wait:timesec'] = 'Time in seconds';
 $string['connector_wait:not_integer'] = 'Wait time value must evaluate to a positive integer (had "{$a}").';
