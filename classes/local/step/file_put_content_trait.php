@@ -117,5 +117,7 @@ trait file_put_content_trait {
 
         $this->log("Saving to $path");
         file_put_contents($path, $config->content);
+
+        return $input;
     }
 }

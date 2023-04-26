@@ -75,7 +75,6 @@ class tool_dataflows_abort_test extends \advanced_testcase {
         foreach ($engine->enginesteps as $step) {
             $this->assertEquals(test_engine::STATUS_ABORTED, $step->status);
             $this->assertTrue($step->iterator->is_finished());
-            $this->assertFalse($step->iterator->next($step));
         }
         foreach ($engine->flowcaps as $step) {
             $this->assertEquals(test_engine::STATUS_ABORTED, $step->status);

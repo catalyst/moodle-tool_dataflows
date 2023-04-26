@@ -50,10 +50,23 @@ interface iterator {
     public function is_ready(): bool;
 
     /**
+     * Return the current element
+     *
+     * @return mixed can return any type
+     */
+    public function current();
+
+    /**
+     * Checks if current position is valid
+     *
+     * @return bool
+     */
+    public function valid(): bool;
+
+    /**
      * Next item in the stream.
      *
      * @param   \stdClass $caller The engine step that called this method, internally used to connect outputs.
-     * @return  \stdClass|bool A JSON compatible \stdClass, or false if nothing returned.
      */
     public function next($caller);
 }
