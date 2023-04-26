@@ -460,7 +460,7 @@ $string['flow_logic_switch:nomatchingcases'] = 'No matching cases, skipping reco
 
 // Flow transformer filter.
 $string['flow_transformer_filter:filter'] = 'Filter expression';
-$string['flow_transformer_filter:filter_help'] = "This expression needs to evaluate to a boolean. Whenever the expression evaluaes to false, the current value for the flow will not be passed on to later steps in the flow. There is no need for '\${{' and '}}'.";
+$string['flow_transformer_filter:filter_help'] = "This expression must evaluate to a boolean. When the expression evaluates to false, the current value for the flow will not be passed on to later steps in the flow. There is no need for '\${{' and '}}'.";
 
 // Wait connector.
 $string['connector_wait:timesec'] = 'Time in seconds';
