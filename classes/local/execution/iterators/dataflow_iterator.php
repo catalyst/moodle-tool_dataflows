@@ -187,6 +187,7 @@ class dataflow_iterator implements iterator {
 
         return true;
     }
+
     /**
      * Next item in the stream.
      *

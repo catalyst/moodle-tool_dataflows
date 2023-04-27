@@ -27,15 +27,34 @@ use tool_dataflows\local\execution\engine;
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
+class tool_dataflows_flow_transformer_alter_test extends \advanced_testcase {
+
+
     /** Test data. */
-    const TEST_DATA = [
-        [ 'a' => '1', 'b' => 'a_1_b' ],
-        [ 'a' => '5', 'b' => 'a_9_b' ],
-        [ 'a' => 'x', 'b' => 'a_3_b' ],
-        [ 'a' => '0', 'b' => 'a_2_b' ],
-        [ 'a' => '0', 'b' => 'a_1_b' ],
-        [ 'a' => '0', 'b' => 'a_6_b' ],
+    const TEST_DATA1 = [
+        [ 'a' => '1', 'b' => '1' ],
+        [ 'a' => '5', 'b' => '9' ],
+        [ 'a' => '8', 'b' => '3' ],
+        [ 'a' => '0', 'b' => '2' ],
+        [ 'a' => '0', 'b' => '1' ],
+        [ 'a' => '0', 'b' => '6' ],
+    ];
+
+    /** Expression config */
+    const EXPRESSIONS1 = [
+        'a' => 'o',
+        'c' => '${{record.a}} ${{record.b}}',
+        'd' => '${{record.a + record.b}}',
+    ];
+
+    /** To be expected. */
+    const EXPECTED1 = [
+        [ 'a' => 'o', 'b' => '1', 'c' => '1 1', 'd' => 2 ],
+        [ 'a' => 'o', 'b' => '9', 'c' => '5 9', 'd' => 14 ],
+        [ 'a' => 'o', 'b' => '3', 'c' => '8 3', 'd' => 11 ],
+        [ 'a' => 'o', 'b' => '2', 'c' => '0 2', 'd' => 2 ],
+        [ 'a' => 'o', 'b' => '1', 'c' => '0 1', 'd' => 1 ],
+        [ 'a' => 'o', 'b' => '6', 'c' => '0 6', 'd' => 6 ],
     ];
 
     /** Input file name. */
@@ -64,18 +83,19 @@ class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
     }
 
     /**
-     * Tests appending to many files, declared 1:1.
+     * Tests the alteration step.
      *
-     * @dataProvider filter_provider
-     * @covers \tool_dataflows\local\step\flow_transformer_filter
-     * @param string $expr
+     * @dataProvider alter_provider
+     * @covers \tool_dataflows\local\step\flow_transformer_alter
+     * @param array $data
+     * @param array $exprs
      * @param array $expected
      */
-    public function test_filter(string $expr, array $expected) {
+    public function test_alter(array $data, array $exprs, array $expected) {
 
         // Perform the test.
         set_config('permitted_dirs', $this->basedir, 'tool_dataflows');
-        $dataflow = $this->make_dataflow($expr);
+        $dataflow = $this->make_dataflow($data, $exprs);
 
         ob_start();
         $engine = new engine($dataflow);
@@ -83,40 +103,28 @@ class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
         ob_get_clean();
 
         $result = json_decode(file_get_contents($this->basedir . self::OUTPUT_FILE_NAME), true);
-
         $this->assertEquals($expected, $result);
     }
 
     /**
-     * Provider function for test_filter().
+     * Provider for test_alter()
      *
      * @return array[]
      */
-    public function filter_provider() {
+    public function alter_provider(): array {
         return [
-            [ 'record.a == 1', [
-                [ 'a' => '1', 'b' => 'a_1_b' ],
-            ]],
-            [ "record.a == '0'", [
-                [ 'a' => '0', 'b' => 'a_2_b' ],
-                [ 'a' => '0', 'b' => 'a_1_b' ],
-                [ 'a' => '0', 'b' => 'a_6_b' ],
-            ]],
-            [ "record.b >= 'a_3_b'", [
-                [ 'a' => '5', 'b' => 'a_9_b' ],
-                [ 'a' => 'x', 'b' => 'a_3_b' ],
-                [ 'a' => '0', 'b' => 'a_6_b' ],
-            ]],
+            [ self::TEST_DATA1, self::EXPRESSIONS1, self::EXPECTED1 ],
         ];
     }
 
     /**
      * Creates a dataflow to test.
      *
-     * @param string $expr Expression to add to filter step.
+     * @param array $data
+     * @param array $exprs
      * @return dataflow
      */
-    private function make_dataflow(string $expr): dataflow {
+    private function make_dataflow(array $data, array $exprs): dataflow {
         $namespace = '\\tool_dataflows\\local\\step\\';
 
         $dataflow = new dataflow();
@@ -129,7 +137,7 @@ class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
         $setup->type = $namespace . 'connector_file_put_content';
         $setup->config = Yaml::dump([
             'path' => $this->basedir . self::INPUT_FILE_NAME,
-            'content' => json_encode(self::TEST_DATA),
+            'content' => json_encode($data),
         ]);
         $dataflow->add_step($setup);
 
@@ -145,19 +153,19 @@ class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
         ]);
         $dataflow->add_step($reader);
 
-        $filter = new step();
-        $filter->name = 'filter';
-        $filter->type = $namespace . 'flow_transformer_filter';
-        $filter->depends_on([$reader]);
-        $filter->config = Yaml::dump([
-            'filter' => $expr
+        $alter = new step();
+        $alter->name = 'filter';
+        $alter->type = $namespace . 'flow_transformer_alter';
+        $alter->depends_on([$reader]);
+        $alter->config = Yaml::dump([
+            'expressions' => $exprs
         ]);
-        $dataflow->add_step($filter);
+        $dataflow->add_step($alter);
 
         $writer = new step();
         $writer->name = 'writer';
         $writer->type = $namespace . 'writer_stream';
-        $writer->depends_on([$filter]);
+        $writer->depends_on([$alter]);
         $writer->config = Yaml::dump([
             'streamname' => $this->basedir . self::OUTPUT_FILE_NAME,
             'format' => 'json',
