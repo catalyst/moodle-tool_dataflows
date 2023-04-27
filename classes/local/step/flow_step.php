@@ -53,7 +53,7 @@ abstract class flow_step extends base_step {
      * something else.
      *
      * @param mixed|null $input
-     * @return mixed
+     * @return mixed The altered value to be passed to the next step(s) in the flow, or false to skip the rest of this iteration.
      */
     public function execute($input = null) {
         // Default is to do nothing.

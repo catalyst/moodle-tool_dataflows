@@ -41,7 +41,7 @@ class trigger_event extends trigger_step {
     public function execute($input = null) {
         $variables = $this->get_variables();
         $variables->set('event', $input->eventdata);
-        return true;
+        return $input;
     }
 
     /**

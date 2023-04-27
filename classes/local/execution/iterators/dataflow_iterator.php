@@ -62,6 +62,7 @@ class dataflow_iterator implements iterator {
         $this->step = $step;
         $this->input = $input;
         $this->steptype = $step->steptype;
+        $this->stepvars = $this->steptype->get_variables();
     }
 
     /**
@@ -106,12 +107,12 @@ class dataflow_iterator implements iterator {
     }
 
     /**
-     * Return the current element
+     * Return the current element. If the current element is an object, it will be cloned.
      *
      * @return mixed can return any type
      */
     public function current() {
-        return $this->value;
+        return is_object($this->value) ? clone $this->value : $this->value;
     }
 
     /**
@@ -140,18 +141,16 @@ class dataflow_iterator implements iterator {
     }
 
     /**
-     * Next item in the stream.
+     * Common function to perform startup boilerplate.
      *
-     * @param   \stdClass $caller The engine step that called this method, internally used to connect outputs.
-     * @return  \stdClass|bool A JSON compatible \stdClass, or false if nothing returned.
+     * @return bool If false, do not execute iteration.
      */
-    public function next($caller) {
+    protected function prepare_iteration(): bool {
         // Record the timestamp of when the step type handling has been entered
         // into. This should be set as early as possible to encapsulate the time
         // it takes.
         $now = microtime(true);
-        $stepvars = $this->steptype->get_variables();
-        $stepvars->set('timeentered', $now);
+        $this->stepvars->set('timeentered', $now);
 
         if ($this->finished) {
             return false;
@@ -184,13 +183,34 @@ class dataflow_iterator implements iterator {
             return false;
         }
 
+        $this->stepvars->set('record', $this->value);
+
+        return true;
+    }
+    /**
+     * Next item in the stream.
+     *
+     * @param   \stdClass $caller The engine step that called this method, internally used to connect outputs.
+     */
+    public function next($caller) {
+        if (!$this->prepare_iteration()) {
+            return;
+        }
+
         try {
-            $stepvars->set('record', $this->value);
             // Do the actions defined for the particular step.
             $this->on_next();
-            $newvalue = $this->steptype->execute($this->value);
+            $newvalue = $this->steptype->execute($this->current());
             if ($this->step->engine->is_aborted()) {
-                return false;
+                $this->value = false;
+                return;
+            }
+
+            // This is to cover if a programmer 'forgets' to have execute() return a value.
+            if (!is_null($newvalue)) {
+                $this->value = $newvalue;
+            } else {
+                $this->step->log('Step execution failed to return a value. Ignoring.');
             }
 
             // Log vars for this iteration.
@@ -199,7 +219,7 @@ class dataflow_iterator implements iterator {
             ++$this->iterationcount;
 
             // Expose the number of times this step has been iterated over.
-            $stepvars->set('iterations', $this->iterationcount);
+            $this->stepvars->set('iterations', $this->iterationcount);
 
             $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
         } catch (\Throwable $e) {
@@ -207,7 +227,5 @@ class dataflow_iterator implements iterator {
             $this->step->engine->abort();
             throw $e;
         }
-
-        return $newvalue;
     }
 }

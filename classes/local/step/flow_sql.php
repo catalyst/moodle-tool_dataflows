@@ -88,6 +88,8 @@ class flow_sql extends flow_step {
         $invalidnum = ($records === false || count($records) !== 1);
         $data = $invalidnum ? null : array_pop($records);
         $variables->set('data', $data);
+
+        return $input;
     }
 
     /**
