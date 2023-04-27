@@ -141,6 +141,7 @@ $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_logic_switch'] = 'Switch';
 $string['step_name_flow_noop'] = 'No-op';
 $string['step_name_flow_s3'] = 'S3 file copy';
+$string['step_name_flow_transformer_alter'] = 'Alteration transformer';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
 $string['step_name_flow_web_service'] = 'Flow web service';
 $string['step_name_reader_csv'] = 'CSV reader';
@@ -457,6 +458,10 @@ $string['flow_logic_switch:cases'] = 'Cases';
 $string['flow_logic_switch:cases_help'] = 'Each line represents a case, and each case has a label for display, and an expression separated by a colon "<code>:</code>", used to determine whether the linked step will consume the data that flows or not. If no label is present, it will instead use the line number for that connection. You can use <code>default: 1</code> as the last entry to ensure it always matches on at least one step - should all other expressions fail. Otherwise, if all expressions fail to match, the record will not flow through and would be skipped.';
 $string['flow_logic_switch:casenotfound'] = 'The output position of #{$a} did not match any existing case';
 $string['flow_logic_switch:nomatchingcases'] = 'No matching cases, skipping record';
+
+// Flow transformer alteration.
+$string['flow_transformer_alter:expressions'] = 'Transform expressions';
+$string['flow_transformer_alter:expressions_help'] = 'Each line represents a transformation. The expression will be evaluated and the result assigned to the field identified by the label. The expressions will always use the original input values.';
 
 // Flow transformer filter.
 $string['flow_transformer_filter:filter'] = 'Filter expression';
