@@ -51,6 +51,7 @@ trait append_file_trait {
         return [
             'from' => ['type' => PARAM_TEXT, 'required' => true],
             'to'   => ['type' => PARAM_TEXT, 'required' => true],
+            'chopfirstline' => ['type' => PARAM_BOOL],
         ];
     }
 
@@ -68,6 +69,8 @@ trait append_file_trait {
         $mform->addElement('text', 'config_from', get_string('flow_copy_file:from', 'tool_dataflows'));
         // To / Target path.
         $mform->addElement('text', 'config_to', get_string('flow_copy_file:to', 'tool_dataflows'));
+        // Strip first line?
+        $mform->addElement('checkbox', 'config_chopfirstline', get_string('flow_append_file:chopfirstline', 'tool_dataflows'));
     }
 
     /**
@@ -104,14 +107,44 @@ trait append_file_trait {
 
         $this->log("Appending $from to $to");
 
-        $handle = fopen($from, 'r');
-        if (file_put_contents($to, $handle,  FILE_APPEND) === false) {
-            throw new \moodle_exception('flow_copy_file:copy_failed', 'tool_dataflows', (object) [
-                'from' => $from,
-                'to' => $to,
-            ]);
-        }
+        $this->run($from, $to);
         return $input;
+    }
+
+    /**
+     * Do the append.
+     *
+     * @param string $from
+     * @param string $to
+     * @throws \moodle_exception
+     */
+    protected function run(string $from, string $to) {
+        $variables = $this->get_variables();
+        $config = $variables->get('config');
+
+        // If not chopping lines, then we can simply copy.
+        if (empty($config->chopfirstline) || !file_exists($to) || !filesize($to) === 0) {
+            $handle = fopen($from, 'r');
+            if (file_put_contents($to, $handle,  FILE_APPEND) === false) {
+                throw new \moodle_exception('flow_copy_file:copy_failed', 'tool_dataflows', (object) [
+                    'from' => $from,
+                    'to' => $to,
+                ]);
+            }
+            return;
+        }
+
+        // We need to strip out the first line.
+        $contents = file_get_contents($from);
+        $contents = preg_split('/\R/', $contents, 2);
+        if (isset($contents[1])) {
+            if (file_put_contents($to, $contents[1],  FILE_APPEND) === false) {
+                throw new \moodle_exception('flow_copy_file:copy_failed', 'tool_dataflows', (object) [
+                    'from' => $from,
+                    'to' => $to,
+                ]);
+            }
+        }
     }
 
     /**

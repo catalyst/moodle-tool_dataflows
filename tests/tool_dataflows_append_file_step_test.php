@@ -47,6 +47,9 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
         'c.txt' => null,
     ];
 
+    /** Expected for test_strip_first_line. */
+    const EXPECTED_FOR_STRIP = "blah! vlahxyz";
+
     /** Out file name. */
     const OUT_FILE_NAME = 'out.txt';
 
@@ -181,12 +184,37 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
     }
 
     /**
+     * Tests stripping the first line.
+     *
+     * @covers \tool_dataflows\local\step\flow_append_file
+     */
+    public function test_strip_first_line() {
+        // Remove the destination file.
+        if (file_exists($this->basedir . self::OUT_FILE_NAME)) {
+            unlink($this->basedir . self::OUT_FILE_NAME);
+        }
+
+        // Perform the test.
+        set_config('permitted_dirs', $this->basedir, 'tool_dataflows');
+        $dataflow = $this->make_dataflow($this->basedir . self::OUT_FILE_NAME, true);
+
+        ob_start();
+        $engine = new engine($dataflow);
+        $engine->execute();
+        ob_get_clean();
+
+        $actualdata = file_get_contents($this->basedir . self::OUT_FILE_NAME);
+        $this->assertEquals(self::EXPECTED_FOR_STRIP, $actualdata);
+    }
+
+    /**
      * Creates a dataflow to test.
      *
      * @param string $to Destination file parameter.
+     * @param bool $stripfirstline
      * @return dataflow
      */
-    private function make_dataflow(string $to) {
+    private function make_dataflow(string $to, bool $stripfirstline = false) {
         $namespace = '\\tool_dataflows\\local\\step\\';
 
         $dataflow = new dataflow();
@@ -211,6 +239,7 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
         $step->config = Yaml::dump([
             'from' => $this->basedir . '${{record.fn}}',
             'to' => $to,
+            'chopfirstline' => $stripfirstline,
         ]);
         $dataflow->add_step($step);
 
