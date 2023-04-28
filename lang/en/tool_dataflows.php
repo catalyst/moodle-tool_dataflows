@@ -501,6 +501,8 @@ $string['dataflow_iterator:null_input'] = 'Trying to construct an iterator witho
 // Append file.
 $string['trait_append_file:cannot_read_file'] = 'Cannot read file {$a}';
 
+$string['flow_append_file:chopfirstline'] = 'Remove first line before appending to a non-empty file?';
+
 // Copy File.
 $string['flow_copy_file:from'] = 'From';
 $string['flow_copy_file:to'] = 'To';
