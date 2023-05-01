@@ -50,6 +50,7 @@ function tool_dataflows_step_types() {
     return [
         new step\connector_abort,
         new step\connector_curl,
+        new step\connector_copy_file,
         new step\connector_debug_file_display,
         new step\connector_debugging,
         new step\connector_directory_file_count,
