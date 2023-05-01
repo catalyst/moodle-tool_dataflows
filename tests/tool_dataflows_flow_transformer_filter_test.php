@@ -64,6 +64,14 @@ class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
     }
 
     /**
+     * Cleanup after each test.
+     */
+    protected function tearDown(): void {
+        $this->basedir = null;
+    }
+
+
+    /**
      * Tests appending to many files, declared 1:1.
      *
      * @dataProvider filter_provider
