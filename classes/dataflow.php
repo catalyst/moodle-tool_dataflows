@@ -53,6 +53,7 @@ class dataflow extends persistent {
     protected static function define_properties(): array {
         return [
             'name' => ['type' => PARAM_TEXT],
+            'description' => ['type' => PARAM_TEXT, 'default' => ''],
             'enabled' => ['type' => PARAM_BOOL, 'default' => false],
             'concurrencyenabled' => ['type' => PARAM_BOOL, 'default' => false],
             'vars' => ['type' => PARAM_TEXT, 'default' => ''],
@@ -581,6 +582,7 @@ class dataflow extends persistent {
         global $DB;
 
         $this->name = $yaml['name'] ?? '';
+        $this->description = $yaml['description'] ?? '';
         $this->set_dataflow_vars($yaml['vars'] ?? null);
         if (isset($yaml['config'])) {
             foreach ($yaml['config'] as $key => $field) {
@@ -628,7 +630,7 @@ class dataflow extends persistent {
     public function get_export_data() {
         // Exportable fields for dataflows.
         $yaml = [];
-        $dataflowfields = ['name'];
+        $dataflowfields = ['name', 'description'];
         foreach ($dataflowfields as $field) {
             // Only set the field if it does not match the default value (e.g. if one exists).
             // Note the fallback should not match any dataflow field value.

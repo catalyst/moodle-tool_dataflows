@@ -56,16 +56,22 @@ class tool_dataflows_test extends \advanced_testcase {
      */
     public function test_creating_empty_dataflow(): void {
         $name = 'test dataflow';
+        $desc = 'some description';
         $persistent = new \tool_dataflows\dataflow();
         $persistent
             ->set('name', $name)
+            ->set('description', $desc)
             ->create();
 
         $this->assertEquals($name, $persistent->get('name'));
         $this->assertEquals($name, $persistent->name);
+        $this->assertEquals($desc, $persistent->get('description'));
+        $this->assertEquals($desc, $persistent->description);
         $persistent->read();
         $this->assertEquals($name, $persistent->get('name'));
         $this->assertEquals($name, $persistent->name);
+        $this->assertEquals($desc, $persistent->get('description'));
+        $this->assertEquals($desc, $persistent->description);
         $this->assertTrue($persistent->is_valid());
 
         // Get the id to confirm the record is stored and will load as expected.
@@ -73,6 +79,7 @@ class tool_dataflows_test extends \advanced_testcase {
 
         $anotherflow = new \tool_dataflows\dataflow($id);
         $this->assertEquals($name, $anotherflow->name);
+        $this->assertEquals($desc, $anotherflow->description);
     }
 
     /**
