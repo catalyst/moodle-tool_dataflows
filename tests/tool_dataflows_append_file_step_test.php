@@ -19,10 +19,6 @@ namespace tool_dataflows;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once('backup/cc/cc_lib/gral_lib/pathutils.php');
-
 /**
  * Unit test for append file step.
  *
@@ -79,6 +75,13 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
         }
 
         $this->basedir = $basedir;
+    }
+
+    /**
+     * Cleanup after each test.
+     */
+    protected function tearDown(): void {
+        $this->basedir = null;
     }
 
     /**
@@ -145,6 +148,9 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
      * @covers \tool_dataflows\local\step\flow_append_file
      */
     public function test_append_dir() {
+        global $CFG;
+        require_once($CFG->dirroot . '/backup/cc/cc_lib/gral_lib/pathutils.php');
+
         // Set up a directory (with files) that will be appended to.
         $dir = $this->basedir . 'somedir';
         if (file_exists($dir)) {

@@ -83,6 +83,13 @@ class tool_dataflows_flow_transformer_alter_test extends \advanced_testcase {
     }
 
     /**
+     * Cleanup after each test.
+     */
+    protected function tearDown(): void {
+        $this->basedir = null;
+    }
+
+    /**
      * Tests the alteration step.
      *
      * @dataProvider alter_provider
