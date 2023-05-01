@@ -257,5 +257,20 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2022111800, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2023050100) {
+
+        // Define table tool_dataflows_events to be created.
+        $table = new xmldb_table('tool_dataflows');
+
+        // Add description field to dataflow table.
+        $field = new xmldb_field('description', XMLDB_TYPE_TEXT, null, null, null, null, null, 'name');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2023050100, 'tool', 'dataflows');
+    }
+
     return true;
 }
