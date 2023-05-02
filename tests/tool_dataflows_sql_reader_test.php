@@ -247,8 +247,8 @@ class tool_dataflows_sql_reader_test extends \advanced_testcase {
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);
 
-        $this->expectException('\moodle_exception');
-        $this->expectExceptionMessage(get_string('reader_sql:finalsql_not_string', 'tool_dataflows'));
+        // Array is not valid for String value field.
+        $this->expectException('TypeError');
 
         // Execute.
         ob_start();
