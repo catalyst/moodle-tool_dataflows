@@ -327,7 +327,7 @@ $string['writer_stream:prettyprint_help'] = 'Format the output to be human reada
 
 // Reader SQL.
 $string['reader_sql:sql'] = 'SQL';
-$string['reader_sql:sql_help'] = 'You may use expressions with the SQL. An example of this is setting a counter which tracks the id (via the counter field) of a given record. This in turn allows you to optionally add a constraint for when the expression evaluates to a value that can be used. For example, given counterfield equals "id", the query might be expressed as follows: {$a}This will fetch the first 10 records, and will set the countervalue to the 10th id of the record returned. The next time this step runs, it will include the extra query fragment (denoted by the surrounding square brackets <code>[[</code> and <code>]]</code>) and will query the next 10 records starting after the last one that was processed in the first run, and so on.';
+$string['reader_sql:sql_help'] = 'You may use expressions with the SQL. An example of this is setting a counter which tracks the id (via the counter field) of a given record. This in turn allows you to optionally add a constraint for when the expression evaluates to a value that can be used. For example, given counterfield equals "id", the query might be expressed as follows: {$a}This will fetch the first 10 records, and will set the countervalue to the 10th id of the record returned. The next time this step runs, it will include the extra query fragment (denoted by the surrounding square brackets <code>[[</code> and <code>]]</code>) and will query the next 10 records starting after the last one that was processed in the first run, and so on.  Note: do not quote expressions in your SQL. Expressions are parsed as prepared statement parameters, and so are already understood by the DB engine to be literals.';
 $string['reader_sql:counterfield'] = 'Counter field';
 $string['reader_sql:counterfield_help'] = 'Field in which the counter value is derived from. For example, the user <code>id</code> field in user related query';
 $string['reader_sql:countervalue'] = 'Counter Value';
@@ -556,4 +556,4 @@ $string['trigger_event:form:executionpolicy_help'] = 'If the dataflow does not s
 
 // SQL flow step.
 $string['flow_sql:sql'] = 'SQL';
-$string['flow_sql:sql_help'] = 'You may use expressions with the SQL such as variables from other steps.';
+$string['flow_sql:sql_help'] = 'You may use expressions with the SQL such as variables from other steps.  Note: do not quote expressions in your SQL. Expressions are parsed as prepared statement parameters, and so are already understood by the DB engine to be literals.';
