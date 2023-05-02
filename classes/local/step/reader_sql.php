@@ -76,19 +76,20 @@ class reader_sql extends reader_step {
      * @throws \moodle_exception
      */
     public function get_iterator(): iterator {
-        $query = $this->construct_query();
+        [$query, $params] = $this->construct_query();
 
-        return new class($this->enginestep, $query) extends dataflow_iterator {
+        return new class($this->enginestep, $query, $params) extends dataflow_iterator {
 
             /**
              * Create an instance of this class.
              *
              * @param  flow_engine_step $step
              * @param  string $query
+             * @param  array $params
              */
-            public function __construct(flow_engine_step $step, string $query) {
+            public function __construct(flow_engine_step $step, string $query, array $params) {
                 global $DB;
-                $input = $DB->get_recordset_sql($query);
+                $input = $DB->get_recordset_sql($query, $params);
                 parent::__construct($step, $input);
             }
 
@@ -108,10 +109,10 @@ class reader_sql extends reader_step {
      * expression linking to a variable / field that does NOT contain another
      * expression as this is not currently supported.
      *
-     * @return string
+     * @return array of SQL and parameters.
      * @throws \moodle_exception
      */
-    protected function construct_query(): string {
+    protected function construct_query(): array {
         // Get variables.
         $variables = $this->get_variables();
 
@@ -183,9 +184,7 @@ class reader_sql extends reader_step {
         }
 
         // Evalulate any remaining expressions as per normal.
-        $finalsql = $this->evaluate_expressions($finalsql);
-
-        return $finalsql;
+        return $this->evaluate_expressions($finalsql);
     }
 
     /**

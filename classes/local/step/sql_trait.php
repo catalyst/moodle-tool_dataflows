@@ -36,34 +36,52 @@ trait sql_trait {
      * NOTE: The expression statement itself MUST be on a single line (currently).
      *
      * @param string $sql input sql query string
-     * @return string sql string with expressions evaluated.
+     * @return array array of evaluated SQL with placeholders, variable values.
      * @throws \moodle_exception when the SQL does not get evaluated correctly.
      */
     private function evaluate_expressions(string $sql) {
         $variables = $this->get_variables();
         $parser = parser::get_parser();
 
-        $hasexpression = true;
-        $max = 5;
-        while ($hasexpression && $max) {
-            $sql = $variables->evaluate($sql, function ($message, $e) {
-                // Process the message and clarify it if required.
-                $message = $this->clarify_parser_error($message);
+        // Before we try to replace the variables in the parser, we want to move all variables to a seperate string.
+        // We should substitute this with ? in the sql for a prepared statement.
+        $capturegroups = [];
+        $pattern = '/\${{.*}}/mU';
+        preg_match_all($pattern, $sql, $capturegroups, PREG_PATTERN_ORDER);
 
-                // Log the message.
-                $this->enginestep->log($message);
+        // Preg_match_all split capture groups into array indexes.
+        // There is only a single capture group in the regex, so extract it out from the 0th index.
+        $expressions = $capturegroups[0];
 
-                // Throw the original exception (i.e. for the real stack trace).
-                throw $e;
-            });
-            if (!is_string($sql)) {
+        // Now that we have the matches, proceed to replace.
+        $sql = preg_replace($pattern, '?', $sql);
+
+        // Now we can map all the variables to their real values.
+        $vars = array_map(function($el) use ($variables, $parser) {
+            $hasexpression = true;
+            $max = 5;
+            while ($hasexpression && $max) {
+                $el = $variables->evaluate($el, function ($message, $e) {
+                    // Process the message and clarify it if required.
+                    $message = $this->clarify_parser_error($message);
+
+                    // Log the message.
+                    $this->enginestep->log($message);
+
+                    // Throw the original exception (i.e. for the real stack trace).
+                    throw $e;
+                });
+
+                [$hasexpression] = $parser->has_expression($el);
+                $max--;
+            }
+            if (!is_string($el)) {
                 throw new \moodle_exception('reader_sql:finalsql_not_string', 'tool_dataflows');
             }
-            [$hasexpression] = $parser->has_expression($sql);
-            $max--;
-        }
+            return $el;
+        }, $expressions);
 
-        return $sql;
+        return [$sql, $vars];
     }
 
     /**

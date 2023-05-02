@@ -73,13 +73,13 @@ class flow_sql extends flow_step {
 
         // Construct the query.
         $variables = $this->get_variables();
-        $config = $variables->get('config');
-        $sql = $this->evaluate_expressions($config->sql);
+        $config = $variables->get_raw('config');
+        [$sql, $params] = $this->evaluate_expressions($config->sql);
 
         // Execute the query using get_records instead of get_record.
         // This is so we can expose the number of records returned which
         // can then be used by the dataflow in for e.g. a switch statement.
-        $records = $DB->get_records_sql($sql);
+        $records = $DB->get_records_sql($sql, $params);
 
         $variables->set('count', count($records));
 
