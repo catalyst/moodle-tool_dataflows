@@ -506,11 +506,12 @@ class engine {
      * @throws \Throwable
      */
     public function abort(?\Throwable $reason = null) {
+        $message = '';
         if (isset($reason)) {
-            $message = $reason->getMessage();
-            $message .= PHP_EOL . $reason->debuginfo;
-        } else {
-            $message = '';
+            $message .= $reason->getMessage();
+            if (isset($reason->debuginfo)) {
+                $message .= PHP_EOL . $reason->debuginfo;
+            }
         }
         $this->log('Aborted: ' . $message);
         $this->exception = $reason;
