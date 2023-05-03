@@ -82,14 +82,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         $output = file_get_contents($this->outputpath);
         $this->assertEquals(7, $engine->get_variables_root()->get('steps.reader.vars.testapple'));
 
-        // Expected output.
-        array_shift($data);
-        $content = '';
-        foreach ($data as $row) {
-            $content .= implode(',', $row);
-            $content .= PHP_EOL;
-        }
-        $this->assertEquals(trim($output), trim($content));
+        $this->assertEquals($content, $output);
     }
 
     /**
@@ -97,12 +90,13 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
      */
     public function test_csv_with_custom_headers_configured() {
         [$dataflow, $steps] = $this->create_dataflow();
+        $headers = ['first', 'second', 'third'];
 
         $reader = $steps[$dataflow->steps->reader->id];
         $reader->vars = Yaml::dump(['testsecond' => '${{ record.second }}']);
         $reader->config = Yaml::dump([
             'path' => $this->inputpath,
-            'headers' => 'first,second,third',
+            'headers' => implode(',', $headers),
             'delimiter' => ',',
         ]);
 
@@ -128,13 +122,9 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         $output = file_get_contents($this->outputpath);
         $this->assertEquals(8, $engine->get_variables_root()->get('steps.reader.vars.testsecond'));
 
-        // Expected output.
-        $content = '';
-        foreach ($data as $row) {
-            $content .= implode(',', $row);
-            $content .= PHP_EOL;
-        }
-        $this->assertEquals(trim($output), trim($content));
+        // Expected output; Add a header line.
+        $expected = implode(',', $headers) . PHP_EOL . $content;
+        $this->assertEquals($expected, $output);
     }
 
     /**
