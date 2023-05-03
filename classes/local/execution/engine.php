@@ -508,6 +508,7 @@ class engine {
     public function abort(?\Throwable $reason = null) {
         if (isset($reason)) {
             $message = $reason->getMessage();
+            $message .= PHP_EOL . $reason->debuginfo;
         } else {
             $message = '';
         }
