@@ -324,6 +324,7 @@ $string['writer_stream:format'] = 'Format';
 $string['writer_stream:format_help'] = 'The output format of the contents written.';
 $string['writer_stream:prettyprint'] = 'Pretty print';
 $string['writer_stream:prettyprint_help'] = 'Format the output to be human readable.';
+$string['writer_csv:fail_to_encode'] = 'Failed to encode CSV.';
 
 // Reader SQL.
 $string['reader_sql:sql'] = 'SQL';

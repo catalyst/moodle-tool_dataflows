@@ -27,13 +27,8 @@ use tool_dataflows\local\formats\encoder_base;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class csv extends encoder_base {
-    /** @var int escape with slashes. */
-    const ESC_SLASHES = 1;
-    /** @var int escape with double quotes. */
-    const ESC_DOUBLEQUOTES = 2;
-
-    /** @var int options for encoding. */
-    public $options = self::ESC_DOUBLEQUOTES;
+    /** @var string Field separator. */
+    public $delimiter = ',';
 
     /**
      * Encode a single record
@@ -42,57 +37,38 @@ class csv extends encoder_base {
      * @param int $rownum
      */
     public function encode_record($record, int $rownum): string {
-        $line = [];
-        foreach ($record as $field) {
-            if (!is_scalar($field)) { // TODO: Just ignoring complex values for now.
-                $line[] = '';
-            } else if ($field === 'ID') { // Special case for SYLK problem.
-                $line[] = '"ID"';
-            } else if ($this->options | self::ESC_DOUBLEQUOTES) {
-                $line[] = $this->escape_field_doublequotes($field);
-            } else if ($this->options | self::ESC_SLASHES) {
-                $line[] = $this->escape_field_slashes($field);
-            } else {
-                 $line[] = $field;
-            }
+        $fields = (array) $record;
+        $output = '';
+        // Output headers if writing the first line.
+        if (!$this->sheetdatadded) {
+            $output .= self::str_putcsv(array_keys($fields), $this->delimiter);
         }
-
-        $output = implode(',', $line);
-        if ($this->sheetdatadded) {
-            $output = PHP_EOL . $output;
-        }
+        $output .= self::str_putcsv($fields, $this->delimiter);
 
         $this->sheetdatadded = true;
         return $output;
     }
 
     /**
-     * Escapes special characters using double quotes.
+     * Wrapper for fputcsv to encode an array into a CSV string.
      *
-     * @param string $value
+     * @param array $fields
+     * @param string $delimiter
+     * @param string $enclosure
      * @return string
+     * @throws \moodle_exception
      */
-    protected function escape_field_doublequotes(string $value): string {
-        if ((mb_strpos($value, '"') !== false) || (mb_strpos($value, ',') !== false) ||
-            (mb_strpos($value, "\n") !== false) || (mb_strpos($value, "\r") !== false)) {
-            return '"' . str_replace('"', '""', $value) . '"';
-        } else {
-            return $value;
-        }
-    }
-
-    /**
-     * Escapes special characters using slashes.
-     *
-     * @param string $value
-     * @return string
-     */
-    protected function escape_field_slashes(string $value): string {
-        if ((mb_strpos($value, '"') !== false) || (mb_strpos($value, ',') !== false) ||
-            (mb_strpos($value, "\n") !== false) || (mb_strpos($value, "\r") !== false)) {
-            return '"' . str_replace('"', '\\"', str_replace('\\', '\\\\', $value)) . '"';
-        } else {
-            return $value;
+    public static function str_putcsv(array $fields, string $delimiter = ',', string $enclosure = '"'): string {
+        $fp = fopen('php://memory', 'r+b');
+        try {
+            if (fputcsv($fp, $fields, $delimiter, $enclosure) === false) {
+                throw new \moodle_exception(get_string('writer_csv:fail_to_encode', 'tool_dataflows'));
+            }
+            rewind($fp);
+            $data = stream_get_contents($fp);
+            return $data;
+        } finally {
+            fclose($fp);
         }
     }
 }
