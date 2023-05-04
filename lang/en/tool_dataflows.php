@@ -86,7 +86,11 @@ $string['remove_dataflow_confirm'] = 'Are you sure you want to remove the datafl
 $string['remove_dataflow_successful'] = 'Removed dataflow \'{$a}\' successfully.';
 $string['concurrency_enabled'] = 'Enable concurrent running';
 $string['field_vars'] = 'Variables';
-$string['field_vars_help'] = 'Dataflow variables that can be accessed via expressions within all dataflow steps as {$a->reference}. Values are defined in YAML format, with nested values being converted into a dot separated sequence. Example:{$a->example}';
+$string['field_vars_help'] = 'Dataflow variables that can be accessed via expressions within all dataflow steps as {$a->reference}.
+ Values are defined in YAML format (&lt;var&gt;: &lt;value&gt;), with nested values being converted into a dot separated sequence.
+  Example:{$a->example} Note: If you use \'[dataroot]\', make sure to quote the value or it will be interpreted as an array.';
+$string['error:vars_not_object'] = 'Vars must form a YAML object (Define each var as &lt;var&gt;: &lt;value&gt;)';
+$string['error:invalid_yaml'] = 'Invalid YAML (Try quoting your value(s)): {$a}';
 
 // Dataflow import form.
 $string['dataflow_file'] = 'Dataflow file';
