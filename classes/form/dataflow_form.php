@@ -16,8 +16,8 @@
 
 namespace tool_dataflows\form;
 
-use tool_dataflows\dataflow;
-use tool_dataflows\manager;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Dataflow Form
@@ -90,5 +90,29 @@ EOT;
         $mform->addElement('static', 'vars_help', '', get_string('field_vars_help', 'tool_dataflows', $outputsexample));
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Extra validation.
+     *
+     * @param  \stdClass $data Data to validate.
+     * @param  array $files Array of files.
+     * @param  array $errors Currently reported errors.
+     * @return array of additional errors, or overridden errors.
+     */
+    protected function extra_validation($data, $files, array &$errors) {
+        $newerrors = [];
+
+        // Vars must be a valid YAML object.
+        try {
+            $parsed = Yaml::parse($data->vars, Yaml::PARSE_OBJECT_FOR_MAP);
+            if (!is_object($parsed)) {
+                $newerrors['vars'] = get_string('error:vars_not_object', 'tool_dataflows');
+            }
+        } catch (ParseException $e) {
+            $newerrors['vars'] = get_string('error:invalid_yaml', 'tool_dataflows', $e->getMessage());
+        }
+
+        return $newerrors;
     }
 }
