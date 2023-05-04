@@ -146,6 +146,7 @@ $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_logic_switch'] = 'Switch';
 $string['step_name_flow_noop'] = 'No-op';
 $string['step_name_flow_s3'] = 'S3 file copy';
+$string['step_name_flow_sftp'] = 'SFTP file copy';
 $string['step_name_flow_transformer_alter'] = 'Alteration transformer';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
 $string['step_name_flow_web_service'] = 'Flow web service';
