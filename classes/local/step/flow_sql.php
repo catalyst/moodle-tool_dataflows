@@ -76,18 +76,34 @@ class flow_sql extends flow_step {
         $config = $variables->get_raw('config');
         [$sql, $params] = $this->evaluate_expressions($config->sql);
 
-        // Execute the query using get_records instead of get_record.
-        // This is so we can expose the number of records returned which
-        // can then be used by the dataflow in for e.g. a switch statement.
-        $records = $DB->get_records_sql($sql, $params);
+        // Now that we have the query, we want to get info on SQL keywords to figure out where to route the request.
+        // This is not used for security, just to route the request via the correct pathway for readonly databases.
+        $pattern = '/(SELECT|UPDATE|INSERT|DELETE)/im';
+        $matches = [];
+        preg_match($pattern, $sql, $matches);
 
-        $variables->set('count', count($records));
+        // Matches[0] contains the match. Fallthrough to default on no match.
+        $token = $matches[0] ?? '';
 
-        // Only return the query data if there is exactly 1 record.
-        // If multiple records are returned, it is undefined what should happen.
-        $invalidnum = ($records === false || count($records) !== 1);
-        $data = $invalidnum ? null : array_pop($records);
-        $variables->set('data', $data);
+        switch($token) {
+            case 'SELECT':
+                // Execute the query using get_records instead of get_record.
+                // This is so we can expose the number of records returned which
+                // can then be used by the dataflow in for e.g. a switch statement.
+                $records = $DB->get_records_sql($sql, $params);
+                $variables->set('count', count($records));
+                $invalidnum = ($records === false || count($records) !== 1);
+                $data = $invalidnum ? [] : array_pop($records);
+                $variables->set('data', $data);
+                break;
+            default:
+                // Default to execute.
+                $success = $DB->execute($sql, $params);
+                // We can't really do anything with the response except check for success.
+                $variables->set('count', (int) $success);
+                $variables->set('data', []);
+                break;
+        }
 
         return $input;
     }
