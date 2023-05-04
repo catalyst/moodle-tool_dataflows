@@ -31,6 +31,12 @@ use tool_dataflows\helper;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class connector_sftp extends connector_step {
+class flow_sftp extends flow_step {
     use sftp_trait;
+
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
+
+    /** @var int[] number of output connectors (min, max) */
+    protected $outputconnectors = [0, 1];
 }

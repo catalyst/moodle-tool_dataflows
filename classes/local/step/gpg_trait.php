@@ -119,7 +119,7 @@ trait gpg_trait {
         $options = [];
         $homedir = get_config('tool_dataflows', 'gpg_key_dir');
         if ($homedir) {
-            $options[] = '--homedir ' . $homedir;
+            $options[] = '--homedir ' . escapeshellarg($homedir);
         }
 
         // The passphrase needs to be piped into the stdin of the gpg command.
@@ -133,18 +133,19 @@ trait gpg_trait {
 
         if ($config->userid) {
             if ($config->command === 'encrypt') {
-                $options[] = '-r ' . $config->userid;
+                $options[] = '-r ' . escapeshellarg($config->userid);
             } else {
-                $options[] = '-u ' . $config->userid;
+                $options[] = '-u ' . escapeshellarg($config->userid);
             }
         }
 
-        $options[] = '-o ' . $config->to;
+        $options[] = '--trust-model always';
+        $options[] = '-o ' . escapeshellarg($config->to);
 
         if ($config->command === 'encrypt') {
-            $options[] = '--encrypt ' . $config->from;
+            $options[] = '--encrypt ' . escapeshellarg($config->from);
         } else {
-            $options[] = '--decrypt ' . $config->from;
+            $options[] = '--decrypt ' . escapeshellarg($config->from);
         }
 
         $path = get_config('tool_dataflows', 'gpg_exec_path');

@@ -77,6 +77,7 @@ function tool_dataflows_step_types() {
         new step\flow_logic_switch,
         new step\flow_noop,
         new step\flow_s3,
+        new step\flow_sftp,
         new step\flow_set_variable,
         new step\flow_transformer_alter,
         new step\flow_transformer_filter,
