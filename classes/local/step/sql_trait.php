@@ -75,8 +75,8 @@ trait sql_trait {
                 [$hasexpression] = $parser->has_expression($el);
                 $max--;
             }
-            if (!is_string($el)) {
-                throw new \moodle_exception('reader_sql:finalsql_not_string', 'tool_dataflows');
+            if (!in_array(gettype($el), ['string', 'int'])) {
+                throw new \moodle_exception('sql_trait:sql_param_type_not_valid', 'tool_dataflows');
             }
             return $el;
         }, $expressions);
@@ -129,7 +129,7 @@ trait sql_trait {
                 'column' => $column,
                 'line' => $line,
             ]);
-            $message = get_string('reader_sql:variable_not_valid_in_position_replacement_text', 'tool_dataflows', $a);
+            $message = get_string('sql_trait:variable_not_valid_in_position_replacement_text', 'tool_dataflows', $a);
         }
 
         return $message;
