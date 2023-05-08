@@ -35,14 +35,29 @@ use tool_dataflows\local\variables\var_object_visible;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait set_variable_trait {
+    /**
+     * Returns whether or not the step configured, has a side effect
+     *
+     * A side effect if it modifies some state variable value(s) outside its
+     * local environment, which is to say if it has any observable effect other
+     * than its primary effect of returning a value to the invoker of the
+     * operation
+     *
+     * @return     bool whether or not this step has a side effect
+     * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+     */
+    public function has_side_effect(): bool {
+        return true;
+    }
 
     /**
-     * Executes the step, fetcing the config and actioning the step.
+     * Executes the step, fetching the config and actioning the step.
      *
      * @param mixed|null $input
      * @return mixed
      */
     public function execute($input = null) {
+
         $stepvars = $this->get_variables();
         $config = $stepvars->get('config');
         $rootvars = $this->get_variables_root();
@@ -59,6 +74,14 @@ trait set_variable_trait {
      * @param mixed $value
      */
     public function run(var_root $varobject, string $field, $value) {
+        // Set the value in the variable tree.
+        $varobject->set($field, $value);
+
+        // We do not persist the value if it is a dry run.
+        if ($this->is_dry_run()) {
+            return;
+        }
+
         // Check and persist the change if the field points to a dataflow vars.
         $levels = var_object_visible::name_to_levels($field);
         if (
@@ -68,9 +91,6 @@ trait set_variable_trait {
         ) {
             $this->persist_dataflow_vars($levels, $value);
         }
-
-        // Set the value in the variable tree.
-        $varobject->set($field, $value);
     }
 
     /**

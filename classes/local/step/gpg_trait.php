@@ -96,7 +96,7 @@ trait gpg_trait {
 
         // We do not need to go any further if it is a dry run.
         if ($this->is_dry_run() && $this->has_side_effect()) {
-            return true;
+            return $input;
         }
 
         $output = [];
