@@ -104,13 +104,15 @@ EOT;
         $newerrors = [];
 
         // Vars must be a valid YAML object.
-        try {
-            $parsed = Yaml::parse($data->vars, Yaml::PARSE_OBJECT_FOR_MAP);
-            if (!is_object($parsed)) {
-                $newerrors['vars'] = get_string('error:vars_not_object', 'tool_dataflows');
+        if (!empty(trim($data->vars))) {
+            try {
+                $parsed = Yaml::parse($data->vars, Yaml::PARSE_OBJECT_FOR_MAP);
+                if (!is_object($parsed)) {
+                    $newerrors['vars'] = get_string('error:vars_not_object', 'tool_dataflows');
+                }
+            } catch (ParseException $e) {
+                $newerrors['vars'] = get_string('error:invalid_yaml', 'tool_dataflows', $e->getMessage());
             }
-        } catch (ParseException $e) {
-            $newerrors['vars'] = get_string('error:invalid_yaml', 'tool_dataflows', $e->getMessage());
         }
 
         return $newerrors;
