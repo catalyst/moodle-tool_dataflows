@@ -17,6 +17,7 @@
 namespace tool_dataflows\local\step;
 
 use tool_dataflows\helper;
+use tool_dataflows\parser;
 
 /**
  * Copy file trait
@@ -53,6 +54,7 @@ trait copy_file_trait {
         $mform->addElement('text', 'config_from', get_string('flow_copy_file:from', 'tool_dataflows'));
         // To / Target path.
         $mform->addElement('text', 'config_to', get_string('flow_copy_file:to', 'tool_dataflows'));
+        $mform->addElement('static', 'inputexplanation', get_string('flow_copy_file:input_expl', 'tool_dataflows'));
     }
 
     /**
@@ -65,8 +67,15 @@ trait copy_file_trait {
         global $CFG;
 
         $config = $this->get_variables()->get('config');
-        $from = $this->enginestep->engine->resolve_path($config->from);
-        $to = $this->enginestep->engine->resolve_path($config->to);
+
+        $parser = parser::get_parser();
+
+        // Check for any data in input to replace.
+        $fromreplacement = $parser->evaluate($config->from, ['data' => $input]);
+        $toreplacement = $parser->evaluate($config->to, ['data' => $input]);
+
+        $from = $this->enginestep->engine->resolve_path($fromreplacement);
+        $to = $this->enginestep->engine->resolve_path($toreplacement);
 
         // Create directory if it doesn't already exist - recursively.
         $todirectory = dirname($to);

@@ -514,6 +514,7 @@ $string['flow_append_file:chopfirstline'] = 'Remove first line before appending 
 $string['flow_copy_file:from'] = 'From';
 $string['flow_copy_file:to'] = 'To';
 $string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';
+$string['flow_copy_file:input_expl'] = 'To use input data: <code> ${{data.SOMEKEY}}</code>';
 
 // Directory file count.
 $string['connector_directory_file_count:path'] = 'Path to directory';
