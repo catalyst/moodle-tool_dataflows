@@ -69,6 +69,7 @@ function tool_dataflows_step_types() {
         new step\flow_abort,
         new step\flow_append_file,
         new step\flow_copy_file,
+        new step\flow_curl,
         new step\flow_email,
         new step\flow_file_put_content,
         new step\flow_gpg,

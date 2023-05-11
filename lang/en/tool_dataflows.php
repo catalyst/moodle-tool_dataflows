@@ -137,6 +137,7 @@ $string['step_name_connector_wait'] = 'Wait';
 $string['step_name_flow_abort'] = 'Abort';
 $string['step_name_flow_append_file'] = 'Append';
 $string['step_name_flow_copy_file'] = 'Copy File';
+$string['step_name_flow_curl'] = 'Curl';
 $string['step_name_flow_email'] = 'Flow email notification';
 $string['step_name_flow_file_put_content'] = 'File put content';
 $string['step_name_flow_gpg'] = 'GPG';
