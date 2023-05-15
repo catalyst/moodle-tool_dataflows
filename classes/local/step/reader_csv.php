@@ -64,28 +64,30 @@ class reader_csv extends reader_step {
         $strheaders = $config->headers;
         $path = $this->enginestep->engine->resolve_path($config->path);
 
-        if (($handle = fopen($path, 'r')) !== false) {
-            try {
-                // Prepare and resolve headers.
-                if (empty($strheaders)) {
-                    $strheaders = fgets($handle);
-                }
+        if (($handle = @fopen($path, 'r')) === false) {
+            throw new \moodle_exception('writer_stream:failed_to_open_stream', 'tool_dataflows', '', $path);
+        }
 
-                // At this point, if headers is false, then the file is empty, and
-                // so it should continue as if the file finished.
-                if ($strheaders === false) {
-                    return;
-                }
-
-                // Convert header string to an actual headers array.
-                $headers = str_getcsv($strheaders, $config->delimiter);
-                while (($data = fgetcsv($handle, $maxlinelength, $config->delimiter)) !== false) {
-                    $record = array_combine($headers, $data);
-                    yield (object) $record;
-                }
-            } finally {
-                fclose($handle);
+        try {
+            // Prepare and resolve headers.
+            if (empty($strheaders)) {
+                $strheaders = fgets($handle);
             }
+
+            // At this point, if headers is false, then the file is empty, and
+            // so it should continue as if the file finished.
+            if ($strheaders === false) {
+                return;
+            }
+
+            // Convert header string to an actual headers array.
+            $headers = str_getcsv($strheaders, $config->delimiter);
+            while (($data = fgetcsv($handle, $maxlinelength, $config->delimiter)) !== false) {
+                $record = array_combine($headers, $data);
+                yield (object) $record;
+            }
+        } finally {
+            fclose($handle);
         }
     }
 
