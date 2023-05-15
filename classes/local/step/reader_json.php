@@ -84,6 +84,10 @@ class reader_json extends reader_step {
             ['data' => $decodedjson]
         );
 
+        if (!is_array($returnarray)) {
+            $returnarray = (object) $returnarray;
+        }
+
         if (is_null($returnarray)) {
             throw new \moodle_exception(get_string('reader_json:failed_to_fetch_array',
                 'tool_dataflows', $config->arrayexpression));

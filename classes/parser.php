@@ -19,12 +19,12 @@ namespace tool_dataflows;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
-use Symfony\Component\ExpressionLanguage\Lexer;
 use Symfony\Component\ExpressionLanguage\Node;
 use Symfony\Component\ExpressionLanguage\Token;
 use Symfony\Component\ExpressionLanguage\TokenStream;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\dataflow_lexer;
 use tool_dataflows\local\provider\expression_provider;
 
 /**
@@ -80,9 +80,9 @@ class parser {
      *
      * @return Lexer
      */
-    private function get_lexer(): Lexer {
+    private function get_lexer(): dataflow_lexer {
         if (is_null($this->lexer)) {
-            $this->lexer = new Lexer();
+            $this->lexer = new dataflow_lexer();
         }
         return $this->lexer;
     }

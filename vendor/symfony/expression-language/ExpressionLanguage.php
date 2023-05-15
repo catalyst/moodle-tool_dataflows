@@ -15,6 +15,7 @@ use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\ExpressionLanguage\ParserCache\ParserCacheAdapter;
 use Symfony\Component\ExpressionLanguage\ParserCache\ParserCacheInterface;
+use tool_dataflows\dataflow_lexer;
 
 /**
  * Allows to compile and evaluate expressions written in your own DSL.
@@ -152,7 +153,7 @@ class ExpressionLanguage
     private function getLexer()
     {
         if (null === $this->lexer) {
-            $this->lexer = new Lexer();
+            $this->lexer = new dataflow_lexer();
         }
 
         return $this->lexer;
