@@ -36,6 +36,9 @@ require_once(dirname(__FILE__) . '/../lib.php');
  */
 class tool_dataflows_reader_csv_test extends \advanced_testcase {
 
+    /** @var string|null Input path for reader to read from. */
+    protected $inputpath = null;
+
     /**
      * Set up before each test
      */
@@ -43,6 +46,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         parent::setUp();
         $this->resetAfterTest();
 
+        $this->inputpath = null;
         set_config('permitted_dirs', '/tmp', 'tool_dataflows');
     }
 
@@ -125,6 +129,31 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         // Expected output; Add a header line.
         $expected = implode(',', $headers) . PHP_EOL . $content;
         $this->assertEquals($expected, $output);
+    }
+
+    /**
+     * Tests for an invalid input stream.
+     */
+    public function test_bad_input_stream() {
+        [$dataflow, $steps] = $this->create_dataflow();
+        $path = 'path/to/nowhere';
+
+        $reader = $steps[$dataflow->steps->reader->id];
+        $reader->config = Yaml::dump([
+            'path' => $path,
+            'headers' => '',
+            'delimiter' => ',',
+        ]);
+
+        $this->expectException('\moodle_exception');
+
+        // Execute.
+        ob_start();
+        $engine = new engine($dataflow);
+        $this->expectExceptionMessage(get_string('writer_stream:failed_to_open_stream',
+            'tool_dataflows', $engine->resolve_path($path)));
+        $engine->execute();
+        ob_get_clean();
     }
 
     /**
