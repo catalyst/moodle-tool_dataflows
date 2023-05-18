@@ -149,6 +149,7 @@ $string['step_name_flow_s3'] = 'S3 file copy';
 $string['step_name_flow_sftp'] = 'SFTP file copy';
 $string['step_name_flow_transformer_alter'] = 'Alteration transformer';
 $string['step_name_flow_transformer_filter'] = 'Filter transformer';
+$string['step_name_flow_transformer_regex'] = 'Regex transformer';
 $string['step_name_flow_web_service'] = 'Flow web service';
 $string['step_name_reader_csv'] = 'CSV reader';
 $string['step_name_reader_directory_file_list'] = 'Directory file list reader';
@@ -473,6 +474,12 @@ $string['flow_transformer_alter:expressions_help'] = 'Each line represents a tra
 // Flow transformer filter.
 $string['flow_transformer_filter:filter'] = 'Filter expression';
 $string['flow_transformer_filter:filter_help'] = "This expression must evaluate to a boolean. When the expression evaluates to false, the current value for the flow will not be passed on to later steps in the flow. There is no need for '\${{' and '}}'.";
+
+// Flow tranformer regex.
+$string['flow_transformer_regex:pattern'] = 'Regex pattern';
+$string['flow_transformer_regex:pattern_help'] = "The regex pattern will be applied to a field, and the first match will be returned.";
+$string['flow_transformer_regex:field'] = 'Input field';
+$string['flow_transformer_regex:field_help'] = "This field must be a string that will be processed using the regex pattern";
 
 // Wait connector.
 $string['connector_wait:timesec'] = 'Time in seconds';

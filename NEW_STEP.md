@@ -15,6 +15,7 @@ Each new step type requires at least the following:
 - [ ] Custom form inputs method `form_add_custom_inputs` - allows you to define and customise the configuration UI as Moodle form inputs (with tooltips and help text).
 - [ ] Unit tests - e.g. demonstrating what it should be able to do.
 - [ ] Relevant lang strings added in `lang/en/tool_dataflows.php`
+- [ ] The new class added to `lib.php:tool_dataflows_step_types`
 
 #### Wiring together the action in `execute()`
 
