@@ -74,6 +74,7 @@ function tool_dataflows_step_types() {
         new step\flow_file_put_content,
         new step\flow_gpg,
         new step\flow_hash_file,
+        new step\flow_json,
         new step\flow_logic_join,
         new step\flow_logic_switch,
         new step\flow_noop,

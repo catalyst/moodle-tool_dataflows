@@ -142,6 +142,7 @@ $string['step_name_flow_email'] = 'Flow email notification';
 $string['step_name_flow_file_put_content'] = 'File put content';
 $string['step_name_flow_gpg'] = 'GPG';
 $string['step_name_flow_hash_file'] = 'Hash file';
+$string['step_name_flow_json'] = 'JSON';
 $string['step_name_flow_set_variable'] = 'Set variable';
 $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_logic_switch'] = 'Switch';
