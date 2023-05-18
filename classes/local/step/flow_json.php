@@ -14,22 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\local\step;
+
+use tool_dataflows\local\execution\iterators\dataflow_iterator;
+use tool_dataflows\local\execution\iterators\iterator;
+
 /**
- * Version
  *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
+ * JSON flow step type
+ *
+ * @package    tool_dataflows
+ * @author     Ghaly Marc-Alexandre <marc-alexandreghaly@catalyst-ca.net>
+ * @copyright  Catalyst IT, 2023
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class flow_json extends flow_step {
+    /** @var string sort order descending key */
+    const DESC = 'desc';
 
-defined('MOODLE_INTERNAL') || die();
+    /** @var string sort order ascending key */
+    const ASC = 'asc';
 
-$plugin->version = 2023051800;
-$plugin->release = 2022102600;
-$plugin->requires = 2017051500;    // Our lowest supported Moodle (3.3.0).
-$plugin->supported = [35, 401];    // Available as of Moodle 3.9.0 or later.
-// TODO $plugin->incompatible = ;  // Available as of Moodle 3.9.0 or later.
-$plugin->component = 'tool_dataflows';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->dependencies = [];
+    use json_trait;
+
+    /**
+     * Executes the step
+     *
+     * Performs a JSON Parsing.
+     *
+     * @param  mixed|null $input
+     * @return mixed
+     */
+    public function execute($input = null) {
+        return $this->parse_json();
+    }
+}
