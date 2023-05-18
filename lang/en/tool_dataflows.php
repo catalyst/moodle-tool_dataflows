@@ -129,6 +129,7 @@ $string['step_name_connector_file_put_content'] = 'File put content';
 $string['step_name_connector_gpg'] = 'GPG';
 $string['step_name_connector_hash_file'] = 'Hash file';
 $string['step_name_connector_noop'] = 'No-op';
+$string['step_name_connector_remove_file'] = 'Remove file';
 $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_set_variable'] = 'Set variable';
 $string['step_name_connector_sftp'] = 'SFTP file copy';
@@ -141,6 +142,7 @@ $string['step_name_flow_email'] = 'Flow email notification';
 $string['step_name_flow_file_put_content'] = 'File put content';
 $string['step_name_flow_gpg'] = 'GPG';
 $string['step_name_flow_hash_file'] = 'Hash file';
+$string['step_name_flow_remove_file'] = 'Remove file';
 $string['step_name_flow_set_variable'] = 'Set variable';
 $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_logic_switch'] = 'Switch';
@@ -563,3 +565,6 @@ $string['trigger_event:form:executionpolicy_help'] = 'If the dataflow does not s
 // SQL flow step.
 $string['flow_sql:sql'] = 'SQL';
 $string['flow_sql:sql_help'] = 'You may use expressions with the SQL such as variables from other steps.  Note: do not quote expressions in your SQL. Expressions are parsed as prepared statement parameters, and so are already understood by the DB engine to be literals.';
+
+// Remove file step.
+$string['remove_file:file'] = 'File path to be removed';
