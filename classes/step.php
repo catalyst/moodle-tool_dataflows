@@ -69,7 +69,9 @@ class step extends persistent {
             'description' => ['type' => PARAM_TEXT, 'default' => ''],
             'type' => ['type' => PARAM_TEXT],
             'name' => ['type' => PARAM_TEXT],
-            'config' => ['type' => PARAM_TEXT, 'default' => ''],
+            // As config contains a stringified list of the inputs defined in steps, the steps should have responsibility
+            // of defining the types per input.
+            'config' => ['type' => PARAM_RAW, 'default' => ''],
             'vars' => ['type' => PARAM_TEXT, 'default' => ''],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],

@@ -83,6 +83,7 @@ function tool_dataflows_step_types() {
         new step\flow_set_variable,
         new step\flow_transformer_alter,
         new step\flow_transformer_filter,
+        new step\flow_transformer_regex,
         new step\flow_web_service,
         new step\reader_csv,
         new step\reader_directory_file_list,
