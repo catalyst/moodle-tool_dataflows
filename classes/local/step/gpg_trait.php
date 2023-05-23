@@ -35,7 +35,7 @@ trait gpg_trait {
      */
     public function has_side_effect(): bool {
         if (isset($this->stepdef)) {
-            $config = $this->stepdef->config;
+            $config = $this->get_variables()->get('config');
             return !helper::path_is_relative($config->to);
         }
         return true;
