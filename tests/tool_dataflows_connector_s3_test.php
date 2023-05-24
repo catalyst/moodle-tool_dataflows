@@ -217,7 +217,7 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
         $dataflow->save();
         $step = new step();
         $step->name = 'name';
-        $step->type = 'tool_dataflows\local\step\connector_s3';
+        $step->type = connector_s3::class;
         $step->config = Yaml::dump($config);
         $dataflow->add_step($step);
         $steptype = $step->steptype;
@@ -232,48 +232,72 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
     }
 
     /**
+     * Tests the default for has_side_effect().
+     *
+     * @covers \tool_dataflows\local\step\connector_s3::has_side_effect()
+     */
+    public function test_has_sideeffect_default() {
+        $steptype = new connector_s3();
+        $this->assertTrue($steptype->has_side_effect());
+    }
+
+    /**
      * Tests the s3 connector reports side effects correctly.
      *
+     * @dataProvider has_side_effect_provider
      * @covers \tool_dataflows\local\step\connector_s3::has_side_effect
+     * @param string $source
+     * @param string $target
+     * @param bool $expected
      */
-    public function test_has_side_effect() {
+    public function test_has_side_effect(string $source, string $target, bool $expected) {
+        set_config(
+            'global_vars',
+            Yaml::dump([
+                'abs' => '/test/target.csv',
+                'rel' => 'test/target.csv',
+            ]),
+            'tool_dataflows'
+        );
+
         $config = [
             'bucket' => 'bucket',
             'region' => 'region',
             'key' => 'SOMEKEY',
             'secret' => 'SOMESECRET',
-            'source' => 's3://test/source.csv',
-            'target' => 's3://test/target.csv',
+            'source' => $source,
+            'target' => $target,
             'sourceremote' => true,
         ];
-
-        // Test for no configuration.
-        $steptype = new connector_s3();
-        $this->assertTrue($steptype->has_side_effect());
 
         $dataflow = new dataflow();
         $dataflow->name = 'dataflow';
         $dataflow->enabled = true;
         $dataflow->save();
 
-        // Test both source and target being outside of scratch dir.
         $step = new step();
         $step->name = 'somename';
-        $step->type = 'tool_dataflows\local\step\connector_s3';
+        $step->type = connector_s3::class;
         $step->config = Yaml::dump($config);
         $dataflow->add_step($step);
         $steptype = $step->steptype;
-        $this->assertTrue($steptype->has_side_effect());
 
-        // Test source only being outside of scratch dir.
-        $config['target'] = 'test/target.csv';
-        $step->config = Yaml::dump($config);
-        $this->assertFalse($steptype->has_side_effect());
+        $this->assertEquals($expected, $steptype->has_side_effect());
+    }
 
-        // Test target only being outside of scratch dir.
-        $config['source'] = 'test/target.csv';
-        $config['target'] = 's3://test/target.csv';
-        $step->config = Yaml::dump($config);
-        $this->assertTrue($steptype->has_side_effect());
+    /**
+     * Data provider for test_has_side_effect().
+     *
+     * @return array[]
+     */
+    public function has_side_effect_provider(): array {
+        return [
+            [ 's3://test/source.csv', 's3://test/target.csv', true],
+            [ 's3://test/source.csv', 'test/target.csv', false],
+            [ 'test/source.csv', 's3://test/target.csv', true],
+            [ 's3://test/source.csv', '${{global.vars.abs}}', true],
+            [ 's3://test/source.csv', '${{global.vars.rel}}', false],
+            [ 'test/source.csv', 's3://${{global.vars.rel}}', true],
+        ];
     }
 }

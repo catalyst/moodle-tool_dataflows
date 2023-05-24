@@ -18,6 +18,8 @@ namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
+use tool_dataflows\local\step\reader_csv;
+use tool_dataflows\local\step\flow_append_file;
 
 /**
  * Unit test for append file step.
@@ -82,6 +84,56 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
      */
     protected function tearDown(): void {
         $this->basedir = null;
+    }
+
+    /**
+     * Tests the default for has_side_effect().
+     *
+     * @covers \tool_dataflows\local\step\connector_remove_file::has_side_effect()
+     */
+    public function test_has_sideeffect_default() {
+        $steptype = new local\step\connector_remove_file();
+        $this->assertTrue($steptype->has_side_effect());
+    }
+
+    /**
+     * Tests has_side_effect() with various filenames.
+     *
+     * @dataProvider has_sideeffect_provider
+     * @covers \tool_dataflows\local\step\connector_remove_file::has_side_effect()
+     * @param string $file
+     * @param bool $expected
+     */
+    public function test_has_sideeffect(string $file, bool $expected) {
+        set_config('permitted_dirs', $this->basedir, 'tool_dataflows');
+        set_config(
+            'global_vars',
+            Yaml::dump([
+                'dir1' => 'everywhere',
+                'dir2' => '/anywhere',
+                'dir3' => 'sftp://somewhere'
+            ]),
+            'tool_dataflows'
+        );
+
+        $dataflow = $this->make_dataflow($file);
+
+        $this->assertEquals($expected, $dataflow->get_steps()->appender->has_side_effect());
+    }
+
+    /**
+     * Data provider for test_has_sideeffect().
+     *
+     * @return array[]
+     */
+    public function has_sideeffect_provider(): array {
+        return [
+            ['test.txt', false],
+            ['/test.txt', true],
+            ['${{global.vars.dir1}}/test.txt', false],
+            ['${{global.vars.dir2}}/test.txt', true],
+            ['${{global.vars.dir3}}/test.txt', true],
+        ];
     }
 
     /**
@@ -221,8 +273,6 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
      * @return dataflow
      */
     private function make_dataflow(string $to, bool $stripfirstline = false) {
-        $namespace = '\\tool_dataflows\\local\\step\\';
-
         $dataflow = new dataflow();
         $dataflow->enabled = true;
         $dataflow->name = 'dataflow';
@@ -230,7 +280,7 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
 
         $reader = new step();
         $reader->name = 'reader';
-        $reader->type = $namespace . 'reader_csv';
+        $reader->type = reader_csv::class;
         $reader->config = Yaml::dump([
             'path' => $this->basedir . self::FILE_LIST_NAME,
             'delimiter' => ',',
@@ -240,7 +290,7 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
 
         $step = new step();
         $step->name = 'appender';
-        $step->type = $namespace . 'flow_append_file';
+        $step->type = flow_append_file::class;
         $step->depends_on([$reader]);
         $step->config = Yaml::dump([
             'from' => $this->basedir . '${{record.fn}}',
