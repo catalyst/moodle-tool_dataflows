@@ -102,9 +102,18 @@ trait gpg_trait {
         $output = [];
         $result = null;
         exec($executable, $output, $result);
-        $this->enginestep->log($result === 0 ? 'Success' : 'Fail');
+        $success = $result === 0;
+        $this->enginestep->log($success
+            ? 'Success'
+            : 'Fail' . PHP_EOL . implode(PHP_EOL, $output)
+        );
 
-        $variables->set('vars.success', $result === 0);
+        // Emit in error logs.
+        if (!$success) {
+            debugging(implode(PHP_EOL, $output), DEBUG_DEVELOPER);
+        }
+
+        $variables->set('vars.success', $success);
 
         return $input;
     }
@@ -154,7 +163,10 @@ trait gpg_trait {
         // Developer note: The passphrase must NOT be included in the log.
         $this->enginestep->log("Command: '$gpgcommand'");
 
-        return $pipedpassphrase . $gpgcommand;
+        // Redirect stderr to stdout so it can be displayed in the log if there are any issues.
+        $redirectstderrtostdout = ' 2>&1';
+
+        return $pipedpassphrase . $gpgcommand . $redirectstderrtostdout;
     }
 
     /**
