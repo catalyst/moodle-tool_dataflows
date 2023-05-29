@@ -119,6 +119,7 @@ $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 $string['step_name_connector_directory_file_count'] = 'Directory file count';
 $string['step_name_connector_directory_file_list'] = 'Directory file list';
 $string['step_name_connector_abort'] = 'Abort connector';
+$string['step_name_connector_append_file'] = 'Append file';
 $string['step_name_connector_copy_file'] = 'Copy File';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debug_file_display'] = 'File contents display';
