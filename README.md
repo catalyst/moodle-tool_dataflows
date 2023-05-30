@@ -43,8 +43,8 @@ https://github.com/catalyst/moodle-tool_etl
 ### tool_trigger
 
 Trigger is focused on a very narrow use case of handling a workflow which starts with a Moodle
-event and has it's own workflow engine conceptually similar to dataflow. Dataflows will eventually
-have an 'event trigger' step and so should be a complete super set of the tool_trigger functionality.
+event and has it's own workflow engine conceptually similar to dataflow. Dataflows has an
+'event trigger' step and is super set of the tool_trigger functionality.
 
 https://github.com/catalyst/moodle-tool_trigger/
 
@@ -52,7 +52,7 @@ https://github.com/catalyst/moodle-tool_trigger/
 
 This is very similar to tool_trigger in that can only work with moodle events and the only action
 it can take is a curl call in a fairly specific shape. It does not support retries, timeouts and
-cannot do asynconous trigger so has a performance impact on pages which trigger events.
+cannot do asynchronous trigger so has a performance impact on pages which trigger events.
 
 https://github.com/valentineus/moodle-webhooks
 
