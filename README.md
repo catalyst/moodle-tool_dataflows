@@ -1,6 +1,8 @@
 # moodle-tool_dataflows
 
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/catalyst/moodle-tool_dataflows/ci/MOODLE_35_STABLE)
+<a href="https://github.com/catalyst/moodle-tool_dataflows/actions">
+<img src="https://github.com/catalyst/moodle-tool_dataflows/workflows/ci/badge.svg">
+</a>
 
 - [moodle-tool_dataflows](#moodle-tool_dataflows)
   - [What is this?](#what-is-this)
