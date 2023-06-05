@@ -126,6 +126,12 @@ trait gpg_trait {
      */
     public function get_executable($config): string {
         $options = [];
+
+        // Add default options to work around edge cases / different environments.
+        // These options must be placed before the file is specified.
+        $options[] = '--no-tty '; // See #773.
+        $options[] = '--batch ';  // See #774.
+
         $homedir = get_config('tool_dataflows', 'gpg_key_dir');
         if ($homedir) {
             $options[] = '--homedir ' . escapeshellarg($homedir);
