@@ -50,15 +50,10 @@ class process_dataflows extends \core\task\scheduled_task {
 
         $dataflowrecords = array_merge($scheduledrecords, $eventrecords);
 
-        $firstdataflowrecord = array_shift($dataflowrecords);
-        if (isset($firstdataflowrecord)) {
-            // Create ad-hoc tasks for all but the first dataflow shifted earlier.
-            foreach ($dataflowrecords as $dataflowrecord) {
-                process_dataflow_ad_hoc::execute_from_record($dataflowrecord);
-            }
-
-            // Run a single dataflow immediately.
-            self::execute_dataflow($firstdataflowrecord->dataflowid);
+        // Queue all dataflows to be run as adhoc tasks.
+        foreach ($dataflowrecords as $record) {
+            $dataflow = new dataflow($record->dataflowid);
+            process_dataflow_ad_hoc::queue_adhoctask($dataflow);
         }
     }
 

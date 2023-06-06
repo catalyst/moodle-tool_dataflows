@@ -37,29 +37,26 @@ class process_dataflow_ad_hoc extends \core\task\adhoc_task {
     }
 
     /**
-     * Create an ad-hoc task for the given dataflow record
+     * Create an ad-hoc task for the given dataflow
      * and schedules for it to be run.
      *
-     * @param object $dataflowrecord
+     * @param dataflow $dataflow
      * @return void
      */
-    public static function execute_from_record($dataflowrecord): void {
-        $dataflow = new dataflow($dataflowrecord->dataflowid);
+    public static function queue_adhoctask(dataflow $dataflow): void {
         $task = new process_dataflow_ad_hoc();
-        $task->set_custom_data($dataflowrecord);
 
-        // For concurrent tasks, queue them up as an independant adhoc task.
-        if ($dataflow->is_concurrency_enabled()) {
-            \core\task\manager::queue_adhoc_task($task);
-            return;
-        }
+        // No extra data can go in here, otherwise the de-duplication will not work.
+        $customdata = [
+            'dataflowid' => $dataflow->get('id'),
+        ];
+        $task->set_custom_data($customdata);
 
-        // Only available 3.7 onwards.
-        if (function_exists('\core\task\manager::reschedule_or_queue_adhoc_task')) {
-            \core\task\manager::reschedule_or_queue_adhoc_task($task);
-            return;
-        }
+        // We only de-duplicate existing tasks if concurrency is not enabled.
+        // If concurrency IS enabled, duplicates are allowed (so we do not check for existing).
+        // Note - the customdata only contains the dataflowid, so it should de-duplicate correctly.
+        $checkforexisting = !$dataflow->is_concurrency_enabled();
 
-        \core\task\manager::queue_adhoc_task($task);
+        \core\task\manager::queue_adhoc_task($task, $checkforexisting);
     }
 }
