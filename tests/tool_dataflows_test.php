@@ -19,6 +19,7 @@ namespace tool_dataflows;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\application_trait;
+use tool_dataflows\local\scheduler;
 use tool_dataflows\local\step;
 
 defined('MOODLE_INTERNAL') || die();
@@ -279,6 +280,34 @@ class tool_dataflows_test extends \advanced_testcase {
         $this->assertArrayHasKey($read->id, $deps);
         $deps = $write->dependencies();
         $this->assertArrayHasKey($debugging->id, $deps);
+    }
+
+    /**
+     * Test the importing a dataflow with a CRON trigger. Ensures the trigger is correctly setup.
+     *
+     * @covers \tool_dataflows\dataflow::import
+     * @covers \tool_dataflows\dataflow::steps
+     */
+    public function test_dataflows_import_cron_trigger() {
+        // Import the sample dataflow file, containing 3 steps.
+        $content = file_get_contents(dirname(__FILE__) . '/fixtures/sample-cron.yml');
+        $yaml = \Symfony\Component\Yaml\Yaml::parse($content);
+        $dataflow = new dataflow();
+        $dataflow->import($yaml);
+
+        // Ensure the steps were imported.
+        $steps = $dataflow->steps;
+        $this->assertCount(3, (array) $steps);
+
+        // Find the CRON step.
+        $cronstep = current(array_filter((array) $steps, function($step) {
+            return $step->alias == 'cron';
+        }));
+        $this->assertNotEmpty($cronstep);
+
+        // Check that it has a schedule associated.
+        $schedule = scheduler::get_scheduled_times($cronstep->get('id'));
+        $this->assertNotEmpty($schedule);
     }
 
     /**

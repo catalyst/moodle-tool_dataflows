@@ -1,0 +1,24 @@
+name: Example dataflow with Cron trigger
+
+steps:
+  cron:
+    name: cron
+    type: tool_dataflows\local\step\trigger_cron
+    config:
+      minute: '*'
+      hour: '*'
+      day: '*'
+      month: '*'
+      dayofweek: '*'
+  sql_reader:
+    name: 'SQL reader'
+    depends_on: cron
+    type: tool_dataflows\local\step\reader_sql
+    config:
+      sql: 'SELECT id FROM {user}'
+      counterfield: ''
+      countervalue: ''
+  debugging_writer:
+    name: 'Debugging writer'
+    depends_on: sql_reader
+    type: tool_dataflows\local\step\writer_debugging
