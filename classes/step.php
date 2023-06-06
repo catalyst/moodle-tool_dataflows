@@ -647,6 +647,30 @@ class step extends persistent {
     }
 
     /**
+     * Called after updating.
+     *
+     * Triggers steptype on_save callback and dataflow on_steps_save callback.
+     *
+     * @param bool $result True if the delete was successful.
+     */
+    protected function after_update($result) {
+        if ($result) {
+            $this->get_steptype()->on_save();
+            $this->get_dataflow()->on_steps_save();
+        }
+    }
+
+    /**
+     * Called after creating.
+     *
+     * Triggers steptype on_save callback and dataflow on_steps_save callback.
+     */
+    protected function after_create() {
+        $this->get_steptype()->on_save();
+        $this->get_dataflow()->on_steps_save();
+    }
+
+    /**
      * Sets the validated flag to false, such that validation can take place on
      * the persistent again.
      */
