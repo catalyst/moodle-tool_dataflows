@@ -139,19 +139,19 @@ class tool_dataflows_flow_transformer_alter_test extends \advanced_testcase {
         $dataflow->name = 'dataflow';
         $dataflow->save();
 
-        $setup = new step();
-        $setup->name = 'setup';
-        $setup->type = $namespace . 'connector_file_put_content';
-        $setup->config = Yaml::dump([
+        $setupconnector = new step();
+        $setupconnector->name = 'setup';
+        $setupconnector->type = $namespace . 'connector_file_put_content';
+        $setupconnector->config = Yaml::dump([
             'path' => $this->basedir . self::INPUT_FILE_NAME,
             'content' => json_encode($data),
         ]);
-        $dataflow->add_step($setup);
+        $dataflow->add_step($setupconnector);
 
         $reader = new step();
         $reader->name = 'reader';
         $reader->type = $namespace . 'reader_json';
-        $reader->depends_on([$setup]);
+        $reader->depends_on([$setupconnector]);
         $reader->config = Yaml::dump([
             'pathtojson' => $this->basedir . self::INPUT_FILE_NAME,
             'arrayexpression' => '',

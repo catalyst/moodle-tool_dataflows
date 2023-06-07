@@ -55,7 +55,7 @@ class tool_dataflows_test extends \advanced_testcase {
      * @covers \tool_dataflows\dataflow
      */
     public function test_creating_empty_dataflow(): void {
-        $name = 'test dataflow';
+        $name = 'test empty dataflow';
         $desc = 'some description';
         $persistent = new \tool_dataflows\dataflow();
         $persistent
@@ -89,25 +89,25 @@ class tool_dataflows_test extends \advanced_testcase {
      * @covers \tool_dataflows\dataflow::get_dotscript
      */
     public function test_dependent_steps_and_dot_script(): void {
-        $name = 'test dataflow';
+        $name = 'test dependent steps dataflow';
         $dataflow = new \tool_dataflows\dataflow();
         $dataflow
             ->set('name', $name)
             ->create();
 
         $stepone = new \tool_dataflows\step();
-        $stepone->name = 'step1';
+        $stepone->name = 'stepa';
         $stepone->type = local\execution\array_in_type::class;
         $dataflow->add_step($stepone);
 
         $steptwo = new \tool_dataflows\step();
-        $steptwo->name = 'step2';
+        $steptwo->name = 'stepb';
         $steptwo->type = step\writer_debugging::class;
         $steptwo->depends_on([$stepone]);
         $dataflow->add_step($steptwo);
 
         $stepthree = new \tool_dataflows\step();
-        $stepthree->name = 'step3';
+        $stepthree->name = 'stepc';
         $stepthree->type = step\writer_debugging::class;
         $stepthree->depends_on([$steptwo]);
         $dataflow->add_step($stepthree);
@@ -133,7 +133,7 @@ class tool_dataflows_test extends \advanced_testcase {
      * @covers \tool_dataflows\dataflow::validate_dataflow
      */
     public function test_dataflow_validation(): void {
-        $name = 'test dataflow';
+        $name = 'test dataflow validation';
         $dataflow = new \tool_dataflows\dataflow();
         $dataflow
             ->set('name', $name)
