@@ -35,7 +35,6 @@ require_once(dirname(__FILE__) . '/../lib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_json_reader_test extends \advanced_testcase {
-
     /**
      * Set up before each test
      */
@@ -116,7 +115,7 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
      * Creates the base contents of the reader file
      */
     public function set_initial_test_data() {
-        $users = [
+        $this->users = [
             (object) ['id' => '2', 'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
             (object) ['id' => '1', 'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
             (object) ['id' => '3', 'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
@@ -124,7 +123,7 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
 
         $json = json_encode((object) [
             'data' => (object) [
-                'list' => ['users' => $users],
+                'list' => ['users' => $this->users],
             ],
             'modified' => [1654058940],
             'errors' => [],
@@ -145,11 +144,7 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         [$dataflow, $reader, $writer] = [$this->dataflow, $this->reader, $this->writer];
 
         // Test unsorted array.
-        $users = [
-            (object) ['id' => '2', 'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
-            (object) ['id' => '1', 'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
-            (object) ['id' => '3', 'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
-        ];
+        $users = $this->users;
 
         $json = json_encode((object) [
             'data' => (object) [
@@ -205,9 +200,9 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         ]);
 
         $sorteduserarray = [
-            (object) ['id' => '1', 'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
-            (object) ['id' => '3', 'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
-            (object) ['id' => '2', 'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
+            $this->users[1],
+            $this->users[2],
+            $this->users[0]
         ];
 
         $writer->config = Yaml::dump([
@@ -284,9 +279,9 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         ]);
 
         $reversesorteduserarray = [
-            (object) ['id' => '2', 'userdetails' => (object) ['firstname' => 'John', 'lastname' => 'Doe', 'name' => 'Name2']],
-            (object) ['id' => '3', 'userdetails' => (object) ['firstname' => 'Foo', 'lastname' => 'Bar', 'name' => 'Name3']],
-            (object) ['id' => '1', 'userdetails' => (object) ['firstname' => 'Bob', 'lastname' => 'Smith', 'name' => 'Name1']],
+            $this->users[0],
+            $this->users[2],
+            $this->users[1]
         ];
 
         $writer->config = Yaml::dump([

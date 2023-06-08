@@ -73,22 +73,22 @@ class tool_dataflows_workflow_state_test extends \advanced_testcase {
         $dataflow->enabled = true;
         $dataflow->save();
 
-        $reader = new step();
-        $reader->name = 'reader';
-        $reader->type = 'tool_dataflows\local\step\reader_sql';
+        $sqlreader = new step();
+        $sqlreader->name = 'reader';
+        $sqlreader->type = 'tool_dataflows\local\step\reader_sql';
 
         // Set the SQL query via a YAML config string.
-        $reader->config = Yaml::dump([
+        $sqlreader->config = Yaml::dump([
             'sql' => $sql,
             'counterfield' => 'value',
             'countervalue' => '',
         ]);
-        $dataflow->add_step($reader);
+        $dataflow->add_step($sqlreader);
 
         $writer = new step();
         $writer->name = 'writer';
         $writer->type = 'tool_dataflows\local\step\writer_debugging';
-        $writer->depends_on([$reader]);
+        $writer->depends_on([$sqlreader]);
         $dataflow->add_step($writer);
 
         // Create engine.

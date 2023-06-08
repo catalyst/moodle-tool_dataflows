@@ -145,10 +145,7 @@ class event_processor {
                     self::add_triggered_event($dataflow->id, $step->id, json_encode($eventdata));
 
                     // Create adhoc task to execute.
-                    $record = (object) [
-                        'dataflowid' => $dataflow->id,
-                    ];
-                    \tool_dataflows\task\process_dataflow_ad_hoc::execute_from_record($record);
+                    \tool_dataflows\task\process_dataflow_ad_hoc::queue_adhoctask($dataflow);
 
                     break;
                 case self::EXECUTE_ADHOCQUEUED:
