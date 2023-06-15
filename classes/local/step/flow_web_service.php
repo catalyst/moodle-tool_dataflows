@@ -211,10 +211,6 @@ EOF;
         // Ensure structures are arrays for webservice.
         $replacement = json_decode(json_encode($replacement), true);
         $params = array_replace_recursive($params, $replacement);
-        // If password is need will throw exception.
-        array_walk_recursive($params, function (&$item) {
-            $item = strtolower($item);
-        });
         $failure = !isset($config->failure) ? 'abortflow' : $config->failure;
 
         if (external_api::external_function_info($config->webservice)->type === 'read') {
