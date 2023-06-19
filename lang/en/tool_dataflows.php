@@ -543,7 +543,6 @@ $string['directory_file_list:offset'] = 'Offset';
 $string['directory_file_list:pattern'] = 'File pattern';
 $string['directory_file_list:relativepath'] = 'Relative Path';
 $string['directory_file_list:returnvalue'] = 'Return Value';
-$string['directory_file_list:returnvalue'] = 'Return Value';
 $string['directory_file_list:size'] = 'Largest to smallest';
 $string['directory_file_list:size_reverse'] = 'Smallest to larget';
 $string['directory_file_list:sort'] = 'Sort';

@@ -137,11 +137,11 @@ trait directory_file_list_trait {
             $this->get_engine()->abort($error);
         }
 
-        $path = $path . DIRECTORY_SEPARATOR . $pattern;
-        $filelist = glob($path);
+        $pathpattern = $path . DIRECTORY_SEPARATOR . $pattern;
+        $filelist = glob($pathpattern, GLOB_BRACE);
 
         // Apply filter for excluding directories/folders.
-        // This is not related to recursive lookups in any way
+        // This is not related to recursive lookups in any way.
         $filelist = array_filter($filelist, function ($pathname) use ($includedir) {
             $filename = basename($pathname);
             if ($filename === '.' || $filename === '..') {
