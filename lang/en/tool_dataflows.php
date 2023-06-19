@@ -533,18 +533,23 @@ $string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';
 $string['connector_directory_file_count:path'] = 'Path to directory';
 
 // Directory file list.
-$string['directory_file_list:pattern'] = 'File pattern';
-$string['directory_file_list:sort'] = 'Sort';
-$string['directory_file_list:size'] = 'Largest to smallest';
-$string['directory_file_list:size_reverse'] = 'Smallest to larget';
-$string['directory_file_list:time'] = 'Latest to earliest';
-$string['directory_file_list:time_reverse'] = 'Earliest to latest';
-$string['directory_file_list:subdirectories'] = 'Include sub-directories?';
-$string['directory_file_list:offset'] = 'Offset';
-$string['directory_file_list:limit'] = 'Limit';
-$string['directory_file_list:filenames'] = 'List of filenames.';
+$string['directory_file_list:absolutepath'] = 'absolutepath';
 $string['directory_file_list:alpha'] = 'Alphabetical (A->Z)';
 $string['directory_file_list:alpha_reverse'] = 'Reverse alphabetical (Z->A)';
+$string['directory_file_list:basename'] = 'Base Name';
+$string['directory_file_list:filenames'] = 'List of filenames.';
+$string['directory_file_list:limit'] = 'Limit';
+$string['directory_file_list:offset'] = 'Offset';
+$string['directory_file_list:pattern'] = 'File pattern';
+$string['directory_file_list:relativepath'] = 'Relative Path';
+$string['directory_file_list:returnvalue'] = 'Return Value';
+$string['directory_file_list:returnvalue'] = 'Return Value';
+$string['directory_file_list:size'] = 'Largest to smallest';
+$string['directory_file_list:size_reverse'] = 'Smallest to larget';
+$string['directory_file_list:sort'] = 'Sort';
+$string['directory_file_list:subdirectories'] = 'Include sub-directories?';
+$string['directory_file_list:time'] = 'Latest to earliest';
+$string['directory_file_list:time_reverse'] = 'Earliest to latest';
 
 // Variables.
 $string['variables:assign_object_to_value'] = 'Attempting to assign an object to a value node for \'{$a}\'.';

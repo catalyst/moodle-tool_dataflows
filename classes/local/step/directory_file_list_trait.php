@@ -30,10 +30,15 @@ trait directory_file_list_trait {
 
     /** @var string The default pattern for matching files. */
     static protected $patterndefault = '*';
+
     /** @var int The default offset. */
     static protected $offsetdefault = 0;
+
     /** @var int The default limit (effectively infinity). */
     static protected $lmiitdefault = 0;
+
+    /** @var string The format of the return value */
+    static protected $returnvaluedefault = 'basename';
 
     /**
      * Return the definition of the fields available in this form.
@@ -44,6 +49,7 @@ trait directory_file_list_trait {
         return [
             'directory'   => ['type' => PARAM_TEXT],
             'pattern' => ['type' => PARAM_TEXT],
+            'returnvalue' => ['type' => PARAM_TEXT],
             'sort' => ['type' => PARAM_TEXT],
             'subdirectories'   => ['type' => PARAM_BOOL],
             'offset'     => ['type' => PARAM_INT],
@@ -70,6 +76,13 @@ trait directory_file_list_trait {
 
         // Include subdirectories.
         $mform->addElement('checkbox', 'config_subdirectories', get_string('directory_file_list:subdirectories', 'tool_dataflows'));
+
+        // Return value.
+        $mform->addElement('select', 'config_returnvalue', get_string('directory_file_list:returnvalue', 'tool_dataflows'), [
+            'basename' => get_string('directory_file_list:basename', 'tool_dataflows'),
+            'relativepath' => get_string('directory_file_list:relativepath', 'tool_dataflows'),
+            'absolutepath' => get_string('directory_file_list:absolutepath', 'tool_dataflows'),
+        ]);
 
         // Sort.
         $mform->addElement('select', 'config_sort', get_string('directory_file_list:sort', 'tool_dataflows'), [
@@ -105,6 +118,7 @@ trait directory_file_list_trait {
 
         $pattern  = $config->pattern ?: self::$patterndefault;
         $offset = $config->offset ?: self::$offsetdefault;
+        $returnvalue = $config->returnvalue ?? self::$returnvaluedefault;
         $limit = $config->limit ?: null;
         $includedir = isset($config->subdirectories);
 
@@ -126,7 +140,8 @@ trait directory_file_list_trait {
         $path = $path . DIRECTORY_SEPARATOR . $pattern;
         $filelist = glob($path);
 
-        // Apply filter for excluding subdirectories.
+        // Apply filter for excluding directories/folders.
+        // This is not related to recursive lookups in any way
         $filelist = array_filter($filelist, function ($pathname) use ($includedir) {
             $filename = basename($pathname);
             if ($filename === '.' || $filename === '..') {
@@ -138,10 +153,21 @@ trait directory_file_list_trait {
             return true;
         });
 
-        // Strip out the path.
-        $filelist = array_map(function ($filename) {
-            return basename($filename);
-        }, $filelist);
+        // Convert the original to return the base file name.
+        // For example, "/my/path/to/file" would return "file".
+        if ($returnvalue === 'basename') {
+            $filelist = array_map(function ($filename) {
+                return basename($filename);
+            }, $filelist);
+        }
+
+        // Convert the original to return the relative file path.
+        // For example, "/my/path/to/file" would return "to/file".
+        if ($returnvalue === 'relativepath') {
+            $filelist = array_map(function ($filename) use ($path) {
+                return str_replace($path . DIRECTORY_SEPARATOR, '', $filename);
+            }, $filelist);
+        }
 
         // Apply sorting.
         $func($filelist);
