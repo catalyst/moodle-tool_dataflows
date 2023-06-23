@@ -16,8 +16,10 @@
 
 namespace tool_dataflows\form;
 
+use moodle_exception;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\manager;
 
 /**
  * Dataflow Form
@@ -101,6 +103,11 @@ EOT;
      * @return array of additional errors, or overridden errors.
      */
     protected function extra_validation($data, $files, array &$errors) {
+        // Ensure no updates can be made for readonly mode.
+        if (manager::is_dataflows_readonly()) {
+            throw new moodle_exception('readonly_active', 'tool_dataflows');
+        }
+
         $newerrors = [];
 
         // Vars must be a valid YAML object.

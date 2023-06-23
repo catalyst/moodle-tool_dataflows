@@ -24,6 +24,7 @@
  */
 
 use tool_dataflows\dataflow;
+use tool_dataflows\manager;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 
@@ -54,7 +55,7 @@ if (manager::is_dataflows_readonly()) {
         $returnurl,
         get_string('readonly_active', 'tool_dataflows'),
         0,
-        \core\output\notification::NOTIFY_ERROR,
+        \core\output\notification::NOTIFY_ERROR
     );
 }
 
