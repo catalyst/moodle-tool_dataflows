@@ -48,6 +48,16 @@ $returnurl = $returnview
     ? new moodle_url('/admin/tool/dataflows/view.php', ['id' => $dataflow->id])
     : new moodle_url('/admin/tool/dataflows/index.php');
 
+// Ensure dataflows is not in readonly mode. If it is, display an error.
+if (manager::is_dataflows_readonly()) {
+    return redirect(
+        $returnurl,
+        get_string('readonly_active', 'tool_dataflows'),
+        0,
+        \core\output\notification::NOTIFY_ERROR,
+    );
+}
+
 $notifystring = null;
 switch ($action) {
     case 'remove':
