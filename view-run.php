@@ -99,12 +99,12 @@ $duration = number_format($run->timefinished - $run->timestarted, 4);
 $secsstr = get_string('secs');
 $data = [
     'field_timestarted' => date_format_string(
-        $run->timestarted,
+        (int) $run->timestarted,
         get_string('strftimedatetimeaccurate', 'tool_dataflows'),
         $defaulttimezone
     ),
     'field_timefinished' => date_format_string(
-        $run->timefinished,
+        (int) $run->timefinished,
         get_string('strftimedatetimeaccurate', 'tool_dataflows'),
         $defaulttimezone
     ),
