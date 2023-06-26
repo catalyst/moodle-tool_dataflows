@@ -24,6 +24,7 @@
  */
 
 use tool_dataflows\dataflows_table;
+use tool_dataflows\manager;
 use tool_dataflows\visualiser;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
@@ -59,5 +60,9 @@ $sqlwhere = '1=1';
 $sqlparams = [];
 $table->set_sql($sqlfields, $sqlfrom, $sqlwhere, $sqlparams);
 $table->make_columns();
+
+if (manager::is_dataflows_readonly()) {
+    \core\notification::warning(get_string('readonly_active', 'tool_dataflows'));
+}
 
 visualiser::display_dataflows_table($table, $url, get_string('overview', 'tool_dataflows'));

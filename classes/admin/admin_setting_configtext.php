@@ -26,6 +26,6 @@ use tool_dataflows\admin\readonly_trait;
  * @copyright Catalyst IT, 2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_configcheckbox extends \admin_setting_configcheckbox {
+class admin_setting_configtext extends \admin_setting_configtext {
     use readonly_trait;
 }

@@ -64,6 +64,10 @@ $PAGE->set_heading($pluginname . ': ' . $dataflow->name);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($pageheading);
 
+if (manager::is_dataflows_readonly()) {
+    \core\notification::warning(get_string('readonly_active', 'tool_dataflows'));
+}
+
 // New Step.
 $icon = $OUTPUT->render(new \pix_icon('t/add', get_string('import', 'tool_dataflows')));
 $steptypes = manager::get_steps_types();

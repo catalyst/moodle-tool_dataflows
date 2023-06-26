@@ -28,6 +28,9 @@ use tool_dataflows\helper;
 use tool_dataflows\admin\admin_setting_permitted_directories;
 use tool_dataflows\admin\admin_setting_yaml;
 use tool_dataflows\admin\admin_setting_configcheckbox;
+use tool_dataflows\admin\admin_setting_configtext;
+use tool_dataflows\admin\admin_setting_configexecutable;
+use tool_dataflows\manager;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,7 +45,7 @@ if ($hassiteconfig) {
         new moodle_url('/admin/tool/dataflows/index.php'));
 
     if ($ADMIN->fulltree) {
-        if (get_config('tool_dataflows', 'readonly')) {
+        if (manager::is_dataflows_readonly()) {
             $settings->add(new admin_setting_description(
                 'tool_dataflows/readonly_active',
                 '',

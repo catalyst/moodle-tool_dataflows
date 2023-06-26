@@ -18,6 +18,7 @@ namespace tool_dataflows\form;
 
 use moodle_exception;
 use tool_dataflows\manager;
+use tool_dataflows\parser;
 
 /**
  * Import dataflow form class.
@@ -38,6 +39,16 @@ class import_form extends \moodleform {
     public function definition() {
 
         $mform = $this->_form;
+
+        if (manager::is_dataflows_readonly()) {
+            $mform->addElement(
+                'html',
+                \html_writer::div(
+                    get_string( 'readonly_active', 'tool_dataflows'),
+                    'alert alert-warning'
+                )
+            );
+        }
 
         // Workflow file.
         $mform->addElement(

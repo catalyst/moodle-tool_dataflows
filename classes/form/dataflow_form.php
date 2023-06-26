@@ -16,9 +16,9 @@
 
 namespace tool_dataflows\form;
 
-use moodle_exception;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+use moodle_exception;
 use tool_dataflows\manager;
 
 /**
@@ -39,6 +39,16 @@ class dataflow_form extends \core\form\persistent {
      */
     public function definition() {
         $mform = $this->_form;
+
+        if (manager::is_dataflows_readonly()) {
+            $mform->addElement(
+                'html',
+                \html_writer::div(
+                    get_string( 'readonly_active', 'tool_dataflows'),
+                    'alert alert-warning'
+                )
+            );
+        }
 
         // User ID.
         $mform->addElement('hidden', 'userid');

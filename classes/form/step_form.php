@@ -44,6 +44,17 @@ class step_form extends \core\form\persistent {
      */
     public function definition() {
         $mform = $this->_form;
+
+        if (manager::is_dataflows_readonly()) {
+            $mform->addElement(
+                'html',
+                \html_writer::div(
+                    get_string( 'readonly_active', 'tool_dataflows'),
+                    'alert alert-warning'
+                )
+            );
+        }
+
         $dataflowid = $this->_customdata['dataflowid'];
         $type = $this->_customdata['type'];
 
