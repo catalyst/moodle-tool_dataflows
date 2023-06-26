@@ -61,4 +61,22 @@ class manager {
         array_merge($encoders, $moreencoders);
         return $encoders;
     }
+
+    /**
+     * Whether or not dataflows is readonly.
+     *
+     * By default, all settings in dataflows are editable (readonly = false).
+     * Implemented to ensure if the setting were to flip to readonly, it would
+     * at least apply all the other settings sent in the SAME REQUEST without
+     * failing validation.
+     *
+     * @return     bool true if readonly, false otherwise
+     */
+    public static function is_dataflows_readonly(): bool {
+        static $readonly = null;
+        if ($readonly === null) {
+            $readonly = get_config('tool_dataflows', 'readonly');
+        }
+        return (bool) $readonly;
+    }
 }

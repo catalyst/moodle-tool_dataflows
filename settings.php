@@ -27,7 +27,10 @@
 use tool_dataflows\helper;
 use tool_dataflows\admin\admin_setting_permitted_directories;
 use tool_dataflows\admin\admin_setting_yaml;
-use tool_dataflows\admin\admin_setting_cfg_list;
+use tool_dataflows\admin\admin_setting_configcheckbox;
+use tool_dataflows\admin\admin_setting_configtext;
+use tool_dataflows\admin\admin_setting_configexecutable;
+use tool_dataflows\manager;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -42,6 +45,17 @@ if ($hassiteconfig) {
         new moodle_url('/admin/tool/dataflows/index.php'));
 
     if ($ADMIN->fulltree) {
+        if (manager::is_dataflows_readonly()) {
+            $settings->add(new admin_setting_description(
+                'tool_dataflows/readonly_active',
+                '',
+                html_writer::div(
+                    get_string( 'readonly_active', 'tool_dataflows'),
+                    'alert alert-warning'
+                )
+            ));
+        }
+
         if (!helper::is_graphviz_dot_installed()) {
             $settings->add(new admin_setting_description(
                 'tool_dataflows/nodot',
@@ -64,6 +78,13 @@ if ($hassiteconfig) {
             'tool_dataflows/enabled',
             get_string('enabled', 'tool_dataflows'),
             get_string('enabled_help', 'tool_dataflows'),
+            '0'
+        ));
+
+        $settings->add(new admin_setting_configcheckbox(
+            'tool_dataflows/readonly',
+            get_string('readonly', 'tool_dataflows'),
+            get_string('readonly_help', 'tool_dataflows'),
             '0'
         ));
 

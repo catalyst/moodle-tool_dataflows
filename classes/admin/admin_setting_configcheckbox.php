@@ -16,31 +16,16 @@
 
 namespace tool_dataflows\admin;
 
-use Symfony\Component\Yaml\Yaml;
+use tool_dataflows\admin\readonly_trait;
 
 /**
- * A setting textarea for YAML format values.
+ * A custom class applying extra readonly checks to the base implementation.
  *
  * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2022, Catalyst IT
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright Catalyst IT, 2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_yaml extends \admin_setting_configtextarea {
+class admin_setting_configcheckbox extends \admin_setting_configcheckbox {
     use readonly_trait;
-
-    /**
-     * Validate the setting data as a YAML config block.
-     *
-     * @param string $data Data to be validated.
-     * @return true|string true for success or string:error on failure
-     */
-    public function validate($data) {
-        try {
-            Yaml::parse($data);
-            return true;
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-    }
 }

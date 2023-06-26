@@ -14,7 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows;
+namespace tool_dataflows\form;
+
+use moodle_exception;
+use tool_dataflows\manager;
+use tool_dataflows\parser;
 
 /**
  * Import dataflow form class.
@@ -35,6 +39,16 @@ class import_form extends \moodleform {
     public function definition() {
 
         $mform = $this->_form;
+
+        if (manager::is_dataflows_readonly()) {
+            $mform->addElement(
+                'html',
+                \html_writer::div(
+                    get_string( 'readonly_active', 'tool_dataflows'),
+                    'alert alert-warning'
+                )
+            );
+        }
 
         // Workflow file.
         $mform->addElement(
@@ -59,6 +73,11 @@ class import_form extends \moodleform {
      */
     public function validation($data, $files) {
         global $USER;
+
+        // Ensure no updates can be made for readonly mode.
+        if (manager::is_dataflows_readonly()) {
+            throw new moodle_exception('readonly_active', 'tool_dataflows');
+        }
 
         $validationerrors = [];
 

@@ -18,6 +18,8 @@ namespace tool_dataflows\form;
 
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
+use moodle_exception;
+use tool_dataflows\manager;
 
 /**
  * Dataflow Form
@@ -37,6 +39,16 @@ class dataflow_form extends \core\form\persistent {
      */
     public function definition() {
         $mform = $this->_form;
+
+        if (manager::is_dataflows_readonly()) {
+            $mform->addElement(
+                'html',
+                \html_writer::div(
+                    get_string( 'readonly_active', 'tool_dataflows'),
+                    'alert alert-warning'
+                )
+            );
+        }
 
         // User ID.
         $mform->addElement('hidden', 'userid');
@@ -101,6 +113,11 @@ EOT;
      * @return array of additional errors, or overridden errors.
      */
     protected function extra_validation($data, $files, array &$errors) {
+        // Ensure no updates can be made for readonly mode.
+        if (manager::is_dataflows_readonly()) {
+            throw new moodle_exception('readonly_active', 'tool_dataflows');
+        }
+
         $newerrors = [];
 
         // Vars must be a valid YAML object.

@@ -31,17 +31,8 @@ $string['pluginmanage'] = 'Manage flows';
 $string['dataflows'] = 'Dataflows';
 
 // General settings.
-$string['pluginsettings'] = 'General settings';
 $string['enabled'] = 'Enable/disable this plugin';
 $string['enabled_help'] = '';
-$string['permitted_dirs'] = 'Permitted directories';
-$string['permitted_dirs_desc'] = "List directories here to allow them to be read from/written to by dataflow steps.
-    One directory per line. Each directory must be an absolute path. You can use the place holder '{\$a}' for the
-    site's data root directory. Comments using '/* .. */' and '#' can be included. Blank lines will be ignored.\n
-    Examples.
-    /tmp
-    /home/me/mydata
-    {\$a}/somedir";
 $string['global_vars'] = 'Global variables';
 $string['global_vars_desc'] = "Global variables that can be accessed via expressions within all dataflows as \${{global.vars.&lt;name&gt;}}'.
     Values are defined in YAML format, with nested values being converted into a dot separated sequence.\n
@@ -52,6 +43,18 @@ $string['gpg_exec_path'] = 'Path to GPG executable';
 $string['gpg_exec_path_desc'] = 'Path to GPG executable';
 $string['gpg_key_dir'] = 'Path to keyring directory';
 $string['gpg_key_dir_desc'] = 'Path to keyring directory';
+$string['permitted_dirs'] = 'Permitted directories';
+$string['permitted_dirs_desc'] = "List directories here to allow them to be read from/written to by dataflow steps.
+    One directory per line. Each directory must be an absolute path. You can use the place holder '{\$a}' for the
+    site's data root directory. Comments using '/* .. */' and '#' can be included. Blank lines will be ignored.\n
+    Examples.
+    /tmp
+    /home/me/mydata
+    {\$a}/somedir";
+$string['pluginsettings'] = 'General settings';
+$string['readonly'] = 'Read Only';
+$string['readonly_active'] = '"Read Only" is currently active. You cannot modify any dataflow settings until it is disabled.';
+$string['readonly_help'] = 'When readonly is active, you cannot modify any dataflows setting from the UI. This can be unset via CLI.';
 
 // Manage flows / Overview.
 $string['overview'] = 'Overview';

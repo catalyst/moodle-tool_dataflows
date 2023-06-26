@@ -27,6 +27,7 @@ use tool_dataflows\helper;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class admin_setting_permitted_directories extends \admin_setting_configtextarea {
+    use readonly_trait;
 
     /** File scheme string. */
     protected const FILE_SCHEME = 'file://';

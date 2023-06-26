@@ -26,6 +26,7 @@
 use tool_dataflows\steps_table;
 use tool_dataflows\visualiser;
 use tool_dataflows\dataflow;
+use tool_dataflows\manager;
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
@@ -65,4 +66,9 @@ visualiser::breadcrumb_navigation([
     [get_string('pluginmanage', 'tool_dataflows'), new moodle_url('/admin/tool/dataflows/index.php')],
     [$dataflow->name, new moodle_url('/admin/tool/dataflows/view.php', ['id' => $id])],
 ]);
+
+if (manager::is_dataflows_readonly()) {
+    \core\notification::warning(get_string('readonly_active', 'tool_dataflows'));
+}
+
 visualiser::display_dataflows_view_page($id, $table, $url, get_string('steps', 'tool_dataflows'));

@@ -16,8 +16,10 @@
 
 namespace tool_dataflows\form;
 
+use moodle_exception;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
+use tool_dataflows\manager;
 use tool_dataflows\parser;
 use tool_dataflows\step;
 
@@ -42,6 +44,17 @@ class step_form extends \core\form\persistent {
      */
     public function definition() {
         $mform = $this->_form;
+
+        if (manager::is_dataflows_readonly()) {
+            $mform->addElement(
+                'html',
+                \html_writer::div(
+                    get_string( 'readonly_active', 'tool_dataflows'),
+                    'alert alert-warning'
+                )
+            );
+        }
+
         $dataflowid = $this->_customdata['dataflowid'];
         $type = $this->_customdata['type'];
 
@@ -389,6 +402,11 @@ class step_form extends \core\form\persistent {
      */
     protected function extra_validation($data, $files, array &$errors) {
         global $DB;
+
+        // Ensure no updates can be made for readonly mode.
+        if (manager::is_dataflows_readonly()) {
+            throw new moodle_exception('readonly_active', 'tool_dataflows');
+        }
 
         $errors = [];
 
