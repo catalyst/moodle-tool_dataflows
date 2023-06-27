@@ -381,7 +381,7 @@ $string['trigger_cron:next_run_time'] = 'Next run time: {$a}';
 $string['connector_email:message'] = 'Message';
 $string['connector_email:sending_message'] = 'Sending email to <{$a}>';
 $string['connector_email:subject'] = 'Subject';
-$string['connector_email:to'] = 'Recipeints email address';
+$string['connector_email:to'] = 'Recipients email address';
 $string['connector_email:name'] = 'Recipients name';
 
 // Hash file.
@@ -465,7 +465,7 @@ $string['check:dataflows_run_status'] = 'Run {$a->name} - {$a->state}';
 $string['flow_email:message'] = 'Message';
 $string['flow_email:sending_message'] = 'Sending email to <{$a}>';
 $string['flow_email:subject'] = 'Subject';
-$string['flow_email:to'] = 'Recipeints email address';
+$string['flow_email:to'] = 'Recipients email address';
 $string['flow_email:name'] = 'Recipients name';
 
 // Flow logic: Case.

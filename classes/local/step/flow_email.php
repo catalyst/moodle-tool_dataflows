@@ -41,7 +41,7 @@ class flow_email extends flow_step {
             'to'      => ['type' => PARAM_TEXT, 'required' => true],
             'name'    => ['type' => PARAM_TEXT],
             'subject' => ['type' => PARAM_TEXT, 'required' => true],
-            'message' => ['type' => PARAM_TEXT, 'required' => true],
+            'message' => ['type' => PARAM_RAW, 'required' => true],
         ];
     }
 
@@ -54,7 +54,7 @@ class flow_email extends flow_step {
         $mform->addElement('text', 'config_to', get_string('flow_email:to', 'tool_dataflows'));
         $mform->addElement('text', 'config_name', get_string('flow_email:name', 'tool_dataflows'));
         $mform->addElement('text', 'config_subject', get_string('flow_email:subject', 'tool_dataflows'), 'size=50');
-        $mform->addElement('textarea', 'config_message',
+        $mform->addElement('editor', 'config_message',
                 get_string('flow_email:message', 'tool_dataflows'), ['cols' => 50, 'rows' => 10]);
     }
 
@@ -95,15 +95,15 @@ class flow_email extends flow_step {
         $noreplyuser = \core_user::get_noreply_user();
         $subject = $config->subject;
         $message = $config->message;
-        $messagehtml = format_text($message, FORMAT_MOODLE);
+        $messagehtml = format_text($message->text, $message->format);
 
         // Send the email. We use raw email rather than a Moodle message
         // so we can easily send to users outside of Moodle.
-        email_to_user($to, $noreplyuser, $subject, $message, $messagehtml);
+        email_to_user($to, $noreplyuser, $subject, $message->text, $messagehtml);
 
         $this->enginestep->log(get_string('flow_email:sending_message', 'tool_dataflows', $toemail ));
         $this->enginestep->log($subject);
-        $this->enginestep->log($message);
+        $this->enginestep->log($message->text);
 
         return $input;
     }
