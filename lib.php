@@ -92,9 +92,10 @@ function tool_dataflows_step_types() {
         new step\reader_json,
         new step\reader_sql,
         new step\trigger_cron,
+        new step\trigger_event,
+        new step\trigger_webservice,
         new step\writer_debugging,
         new step\writer_stream,
-        new step\trigger_event,
         new step\flow_sql,
     ];
 }

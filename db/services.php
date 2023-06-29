@@ -17,10 +17,10 @@
 /**
  * Web Services.
  *
- * @package    tool_dataflows
- * @author     Kevin Pham <kevinpham@catalyst-au.net>
- * @copyright  Catalyst IT, 2023
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   tool_dataflows
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright Catalyst IT, 2023
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -40,7 +40,20 @@ $functions = [
         // Whether the service is available for use in AJAX calls from the web.
         'ajax'        => false,
 
+        // Default name per the moodle docs (backwards compatibility support).
+        'methodname' => 'execute',
+
         // An optional list of services where the function will be included.
-        'services' => []
+        'services' => ['dataflow_service'],
     ],
+];
+
+// We define the services to install as pre-build services. A pre-build service is not editable by administrator.
+$services = [
+    'Dataflow service' => [
+        'enabled' => 1,
+        'functions' => ['tool_dataflows_trigger_dataflow'],
+        'restrictedusers' => 0,
+        'shortname' => 'dataflow_service',
+    ]
 ];

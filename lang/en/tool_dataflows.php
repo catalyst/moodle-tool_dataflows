@@ -163,6 +163,7 @@ $string['step_name_reader_directory_file_list'] = 'Directory file list reader';
 $string['step_name_reader_json'] = 'JSON reader';
 $string['step_name_reader_sql'] = 'SQL reader';
 $string['step_name_trigger_cron'] = 'Cron';
+$string['step_name_trigger_webservice'] = 'Webservice';
 $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
 $string['step_name_trigger_event'] = 'Moodle event';

@@ -20,6 +20,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use tool_dataflows\dataflow;
+use tool_dataflows\local\step\trigger_webservice;
 use tool_dataflows\task\process_dataflow_ad_hoc;
 
 /**
@@ -62,10 +63,16 @@ class trigger_dataflow extends \external_api {
      * @param array $dataflow array of dataflow run information.
      * @return array of newly created groups
      */
-    public static function execute($dataflow) {
+    public static function execute($dataflow): array {
         $params = self::validate_parameters(self::execute_parameters(), ['dataflow' => $dataflow]);
 
         $dataflow = new dataflow($params['dataflow']['id']);
+
+        // Confirm the dataflow contains a webservice trigger step.
+        if (!$dataflow->has_trigger_step(trigger_webservice::class)) {
+            throw new \invalid_parameter_exception('The dataflow does not contain a webservice trigger step.');
+        }
+
         process_dataflow_ad_hoc::queue_adhoctask($dataflow);
 
         if (empty($dataflow->get('id'))) {
