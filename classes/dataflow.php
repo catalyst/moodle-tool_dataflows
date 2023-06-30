@@ -695,4 +695,20 @@ class dataflow extends persistent {
     public function escape_dot(string $stringtoescape): string {
         return addslashes($stringtoescape);
     }
+
+    /**
+     * Returns whether or not the dataflow contains a particular trigger step (by class)
+     *
+     * @param   string $classname of the matching trigger
+     * @return  bool true if the trigger is found in the dataflow
+     */
+    public function has_trigger_step(string $classname): bool {
+        $steps = $this->steps;
+        foreach ($steps as $step) {
+            if ($step->type === $classname) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
