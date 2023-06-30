@@ -62,6 +62,7 @@ class reader_csv extends reader_step {
         $maxlinelength = 1000;
         $config = $this->get_variables()->get('config');
         $strheaders = $config->headers;
+        $delimiter = $config->delimiter ?: self::DEFAULT_DELIMETER;
         $path = $this->enginestep->engine->resolve_path($config->path);
 
         if (($handle = @fopen($path, 'r')) === false) {
@@ -81,8 +82,8 @@ class reader_csv extends reader_step {
             }
 
             // Convert header string to an actual headers array.
-            $headers = str_getcsv($strheaders, $config->delimiter);
-            while (($data = fgetcsv($handle, $maxlinelength, $config->delimiter)) !== false) {
+            $headers = str_getcsv($strheaders, $delimiter);
+            while (($data = fgetcsv($handle, $maxlinelength, $delimiter)) !== false) {
                 $record = array_combine($headers, $data);
                 yield (object) $record;
             }
