@@ -225,7 +225,7 @@ class tool_dataflows_flow_sql_test extends \advanced_testcase {
 
         $variables = $engine->get_variables_root()->get();
         $lastiterationflow = $variables->steps->flow;
-        $this->assertEquals([], $lastiterationflow->data);
+        $this->assertEquals([], (array) $lastiterationflow->data);
         $this->assertEquals(0, $lastiterationflow->count);
     }
 
@@ -252,7 +252,7 @@ class tool_dataflows_flow_sql_test extends \advanced_testcase {
 
         $variables = $engine->get_variables_root()->get();
         $lastiterationflow = $variables->steps->flow;
-        $this->assertEquals([], $lastiterationflow->data);
+        $this->assertEquals([], (array) $lastiterationflow->data);
         $this->assertEquals($numcourses, $lastiterationflow->count);
     }
 

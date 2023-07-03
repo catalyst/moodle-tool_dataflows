@@ -84,6 +84,7 @@ class flow_sql extends flow_step {
 
         // Matches[0] contains the match. Fallthrough to default on no match.
         $token = $matches[0] ?? '';
+        $emptydefault = new \stdClass();
 
         switch($token) {
             case 'SELECT':
@@ -91,17 +92,19 @@ class flow_sql extends flow_step {
                 // This is so we can expose the number of records returned which
                 // can then be used by the dataflow in for e.g. a switch statement.
                 $records = $DB->get_records_sql($sql, $params);
+
                 $variables->set('count', count($records));
                 $invalidnum = ($records === false || count($records) !== 1);
-                $data = $invalidnum ? [] : array_pop($records);
+                $data = $invalidnum ? $emptydefault : array_pop($records);
                 $variables->set('data', $data);
                 break;
             default:
                 // Default to execute.
                 $success = $DB->execute($sql, $params);
+
                 // We can't really do anything with the response except check for success.
                 $variables->set('count', (int) $success);
-                $variables->set('data', []);
+                $variables->set('data', $emptydefault);
                 break;
         }
 

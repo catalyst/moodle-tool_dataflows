@@ -28,7 +28,6 @@ namespace tool_dataflows\local\step;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
 use tool_dataflows\local\execution\iterators\iterator;
-use tool_dataflows\parser;
 
 /**
  * Flow logic: switch
@@ -214,7 +213,6 @@ class flow_logic_switch extends flow_logic_step {
                     // the position of the step that is 'pulling' on this one for
                     // efficiency.
                     // See issue #347 for more details.
-                    $parser = parser::get_parser();
                     $casefailures = 0;
                     foreach ($this->cases as $caseindex => $case) {
                         $result = (bool) $this->stepvars->evaluate('${{ ' . $case . ' }}');
