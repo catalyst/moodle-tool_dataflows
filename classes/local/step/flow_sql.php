@@ -85,7 +85,7 @@ class flow_sql extends flow_step {
         // Matches[0] contains the match. Fallthrough to default on no match.
         $token = $matches[0] ?? '';
 
-        switch($token) {
+        switch(strtoupper($token)) {
             case 'SELECT':
                 // Execute the query using get_records instead of get_record.
                 // This is so we can expose the number of records returned which
