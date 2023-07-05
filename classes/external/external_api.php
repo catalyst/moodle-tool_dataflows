@@ -26,6 +26,11 @@ if (class_exists(\core_external\external_api::class) && !class_exists(\external_
 
 /**
  * Backwards compatibility class for underlying core's external_api
+ *
+ * @package    tool_dataflows
+ * @author     Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright  Catalyst IT, 2023
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class external_api extends \external_api {
 }

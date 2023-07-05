@@ -21,7 +21,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once(__DIR__ . '/application_trait.php');
 
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
@@ -35,7 +34,6 @@ use tool_dataflows\step;
  * @author    Ghaly Marc-Alexandre <marc-alexandreghaly@catalyst-ca.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @runInSeparateProcess
  */
 class tool_dataflows_web_service_flow_test extends \advanced_testcase {
     use application_trait;
