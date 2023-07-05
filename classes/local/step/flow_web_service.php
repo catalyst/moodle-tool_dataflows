@@ -16,11 +16,9 @@
 
 namespace tool_dataflows\local\step;
 
-defined('MOODLE_INTERNAL') || die();
-
 use core_user;
 use core\session\manager;
-use core_external\external_api;
+use tool_dataflows\external\external_api;
 use moodle_exception;
 use Symfony\Component\Yaml\Yaml;
 use Throwable;
