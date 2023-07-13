@@ -66,6 +66,7 @@ class expression_provider implements ExpressionFunctionProviderInterface {
             ExpressionFunction::fromPhp('date', 'date'),
             ExpressionFunction::fromPhp('get_object_vars', 'get_object_vars'),
             ExpressionFunction::fromPhp('strtotime', 'strtotime'),
+            ExpressionFunction::fromPhp('strtolower', 'strtolower'),
         ];
     }
 }
