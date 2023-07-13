@@ -152,8 +152,11 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         $engine = new engine($dataflow);
         $this->expectExceptionMessage(get_string('writer_stream:failed_to_open_stream',
             'tool_dataflows', $engine->resolve_path($path)));
-        $engine->execute();
-        ob_get_clean();
+        try {
+            $engine->execute();
+        } finally {
+            ob_get_clean();
+        }
     }
 
     /**
