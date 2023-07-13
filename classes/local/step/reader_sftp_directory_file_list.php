@@ -20,15 +20,15 @@ use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
 
 /**
- * Gets the files in a directory, and make the list a reader source.
+ * Gets the files in a remote SFTP directory, and make the list a reader source.
  *
  * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright 2023, Catalyst IT
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright Catalyst IT, 2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class reader_directory_file_list extends reader_step {
-    use directory_file_list_trait;
+class sftp_reader_directory_file_list extends reader_step {
+    use sftp_directory_file_list_trait;
 
     /**
      * Get the iterator for the step, based on configurations.
