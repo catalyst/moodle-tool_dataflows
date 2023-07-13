@@ -66,6 +66,7 @@ function tool_dataflows_step_types() {
         new step\connector_s3,
         new step\connector_set_variable,
         new step\connector_sftp,
+        new step\connector_sftp_directory_file_list,
         new step\connector_sns_notify,
         new step\connector_wait,
         new step\flow_abort,
@@ -81,8 +82,9 @@ function tool_dataflows_step_types() {
         new step\flow_noop,
         new step\flow_remove_file,
         new step\flow_s3,
-        new step\flow_sftp,
         new step\flow_set_variable,
+        new step\flow_sftp,
+        new step\flow_sql,
         new step\flow_transformer_alter,
         new step\flow_transformer_filter,
         new step\flow_transformer_regex,
@@ -96,7 +98,6 @@ function tool_dataflows_step_types() {
         new step\trigger_webservice,
         new step\writer_debugging,
         new step\writer_stream,
-        new step\flow_sql,
     ];
 }
 

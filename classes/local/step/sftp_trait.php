@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\local\step;
 
+use MoodleQuickForm;
 use phpseclib3\Crypt\Common\AsymmetricKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Net\SFTP;
@@ -56,27 +57,35 @@ trait sftp_trait {
     /**
      * Return the definition of the fields available in this form.
      *
+     * @param string $behaviour 'copy' or something else.
      * @return array
      */
-    public static function form_define_fields(): array {
-        return [
+    public static function form_define_fields($behaviour = 'copy'): array {
+        $fields = [
             'host' => ['type' => PARAM_TEXT, 'required' => true],
             'port' => ['type' => PARAM_INT, 'required' => true, 'default' => self::$defaultport],
             'hostpubkey' => ['type' => PARAM_TEXT],
             'username' => ['type' => PARAM_TEXT, 'required' => true],
             'password' => ['type' => PARAM_TEXT, 'secret' => true],
             'privkeyfile' => ['type' => PARAM_TEXT],
-            'source' => ['type' => PARAM_TEXT, 'required' => true],
-            'target' => ['type' => PARAM_TEXT, 'required' => true],
         ];
+
+        if ($behaviour === 'copy') {
+            $fields = array_merge($fields, [
+                'source' => ['type' => PARAM_TEXT, 'required' => true],
+                'target' => ['type' => PARAM_TEXT, 'required' => true],
+            ]);
+        }
+
+        return $fields;
     }
 
     /**
-     * Custom elements for editing the connector.
+     * Core fields for this step
      *
      * @param \MoodleQuickForm $mform
      */
-    public function form_add_custom_inputs(\MoodleQuickForm &$mform) {
+    public function form_add_core_inputs(\MoodleQuickForm &$mform) {
         $mform->addElement('text', 'config_host', get_string('connector_sftp:host', 'tool_dataflows'));
         $mform->addElement('static', 'config_host_desc', '',  get_string('connector_sftp:host_desc', 'tool_dataflows'));
         $mform->addElement('text', 'config_port', get_string('connector_sftp:port', 'tool_dataflows'));
@@ -93,16 +102,28 @@ trait sftp_trait {
         $mform->addElement('text', 'config_privkeyfile', get_string('connector_sftp:privkeyfile', 'tool_dataflows'));
         $mform->addElement('static', 'config_keyfile_desc', '',
             get_string('connector_sftp:keyfile_desc', 'tool_dataflows'));
+    }
 
-        $mform->addElement('text', 'config_source', get_string('connector_sftp:source', 'tool_dataflows'));
-        $mform->addElement('static', 'config_source_desc', '',  get_string('connector_sftp:source_desc', 'tool_dataflows').
-            \html_writer::nonempty_tag('pre', get_string('connector_sftp:path_example', 'tool_dataflows').
-                get_string('path_help_examples', 'tool_dataflows')));
+    /**
+     * Custom elements for editing the connector.
+     *
+     * @param \MoodleQuickForm $mform
+     * @param string $behaviour default to the step.
+     */
+    public function form_add_custom_inputs(\MoodleQuickForm &$mform, $behaviour = 'copy') {
+        $this->form_add_core_inputs($mform);
 
-        $mform->addElement('text', 'config_target', get_string('connector_sftp:target', 'tool_dataflows'));
-        $mform->addElement('static', 'config_target_desc', '',  get_string('connector_sftp:target_desc', 'tool_dataflows').
-            \html_writer::nonempty_tag('pre', get_string('connector_sftp:path_example', 'tool_dataflows').
-                get_string('path_help_examples', 'tool_dataflows')));
+        if ($behaviour === 'copy') {
+            $mform->addElement('text', 'config_source', get_string('connector_sftp:source', 'tool_dataflows'));
+            $mform->addElement('static', 'config_source_desc', '',  get_string('connector_sftp:source_desc', 'tool_dataflows').
+                \html_writer::nonempty_tag('pre', get_string('connector_sftp:path_example', 'tool_dataflows').
+                    get_string('path_help_examples', 'tool_dataflows')));
+
+            $mform->addElement('text', 'config_target', get_string('connector_sftp:target', 'tool_dataflows'));
+            $mform->addElement('static', 'config_target_desc', '',  get_string('connector_sftp:target_desc', 'tool_dataflows').
+                \html_writer::nonempty_tag('pre', get_string('connector_sftp:path_example', 'tool_dataflows').
+                    get_string('path_help_examples', 'tool_dataflows')));
+        }
     }
 
     /**
@@ -111,7 +132,7 @@ trait sftp_trait {
      * @param object $config
      * @return true|\lang_string[] true if valid, an array of errors otherwise
      */
-    public function validate_config($config) {
+    public function validate_config($config, $behaviour = 'copy') {
         $errors = [];
         if (empty($config->host)) {
             $errors['config_host'] = get_string(
@@ -141,21 +162,25 @@ trait sftp_trait {
                 true
             );
         }
-        if (empty($config->source)) {
-            $errors['config_source'] = get_string(
-                'config_field_missing',
-                'tool_dataflows',
-                get_string('connector_sftp:source', 'tool_dataflows'),
-                true
-            );
-        }
-        if (empty($config->target)) {
-            $errors['config_target'] = get_string(
-                'config_field_missing',
-                'tool_dataflows',
-                get_string('connector_sftp:target', 'tool_dataflows'),
-                true
-            );
+
+        // Copy step checks.
+        if ($behaviour === 'copy') {
+            if (empty($config->source)) {
+                $errors['config_source'] = get_string(
+                    'config_field_missing',
+                    'tool_dataflows',
+                    get_string('connector_sftp:source', 'tool_dataflows'),
+                    true
+                );
+            }
+            if (empty($config->target)) {
+                $errors['config_target'] = get_string(
+                    'config_field_missing',
+                    'tool_dataflows',
+                    get_string('connector_sftp:target', 'tool_dataflows'),
+                    true
+                );
+            }
         }
 
         $hasremote = true;
@@ -180,21 +205,22 @@ trait sftp_trait {
      *
      * @return true|array Will return true or an array of errors.
      */
-    public function validate_for_run() {
+    public function validate_for_run($behaviour = 'copy') {
         $config = $this->get_variables()->get('config');
 
         $errors = [];
 
-        $error = helper::path_validate($config->source);
-        if ($error !== true) {
-            $errors['config_source'] = $error;
-        }
+        if ($behaviour === 'copy') {
+            $error = helper::path_validate($config->source);
+            if ($error !== true) {
+                $errors['config_source'] = $error;
+            }
 
-        $error = helper::path_validate($config->target);
-        if ($error !== true) {
-            $errors['config_target'] = $error;
+            $error = helper::path_validate($config->target);
+            if ($error !== true) {
+                $errors['config_target'] = $error;
+            }
         }
-
         if (!empty($config->privkeyfile)) {
             $error = helper::path_validate($config->privkeyfile);
             if ($error !== true) {
@@ -221,20 +247,13 @@ trait sftp_trait {
 
         // At this point we need to disconnect once we are finished.
         try {
-            $sftp = new SFTP($config->host, $config->port);
-            $this->check_public_host_key($sftp, $config->hostpubkey);
-
-            $key = $this->load_key();
-            if (!$sftp->login($config->username, $key)) {
-                throw new \moodle_exception('connector_sftp:bad_auth', 'tool_dataflows');
-            }
 
             // Skip if it is a dry run.
             if ($this->is_dry_run() && $this->has_side_effect()) {
                 return $input;
             }
 
-            $sftp->enableDatePreservation();
+            $sftp = $this->init_sftp($config);
 
             $sourceisremote = helper::path_is_scheme($config->source, self::$sftpprefix);
             $targetisremote = helper::path_is_scheme($config->target, self::$sftpprefix);
@@ -348,6 +367,21 @@ trait sftp_trait {
     }
 
     /**
+     * Lists files in a directory
+     *
+     * NOTE: no support for globbing on recursive files. Potentially expensive
+     * if recursive flag is enabled all the time.
+     *
+     * @param SFTP $sftp
+     * @param string $path
+     * @param bool $recursive
+     * @return array
+     */
+    private function list(SFTP $sftp, string $path, $recursive = false): array {
+        return $sftp->nlist($path, $recursive) ?: [];
+    }
+
+    /**
      * Resolve a path for SFTP. Either a remote SFTP file name or a local path to be resolved normally.
      *
      * @param string $pathname
@@ -358,5 +392,24 @@ trait sftp_trait {
             return substr($pathname, strlen(self::$sftpprefix) + strlen('://'));
         }
         return $this->enginestep->engine->resolve_path($pathname);
+    }
+
+    /**
+     * Initialise the SFTP object and perform an initial connection test
+     *
+     * @param object $config
+     * @return SFTP
+     */
+    private function init_sftp($config): SFTP {
+        $sftp = new SFTP($config->host, $config->port);
+        $this->check_public_host_key($sftp, $config->hostpubkey);
+
+        $key = $this->load_key();
+        if (!$sftp->login($config->username, $key)) {
+            throw new \moodle_exception('connector_sftp:bad_auth', 'tool_dataflows');
+        }
+
+        $sftp->enableDatePreservation();
+        return $sftp;
     }
 }
