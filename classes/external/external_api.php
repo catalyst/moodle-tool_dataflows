@@ -20,17 +20,8 @@ namespace tool_dataflows\external;
 // required to redirect sites using older versions of Moodle to the previous
 // implementation.
 // Once the base supported version is 4.2, this is no longer required.
-if (class_exists(\core_external\external_api::class) && !class_exists(\external_api::class)) {
-    class_alias(\core_external\external_api::class, \external_api::class);
-}
-
-/**
- * Backwards compatibility class for underlying core's external_api
- *
- * @package    tool_dataflows
- * @author     Kevin Pham <kevinpham@catalyst-au.net>
- * @copyright  Catalyst IT, 2023
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class external_api extends \external_api {
+if (class_exists(\core_external\external_api::class)) {
+    \class_alias(\core_external\external_api::class, external_api::class);
+} else if (class_exists(\external_api::class)) {
+    \class_alias(\external_api::class, external_api::class);
 }
