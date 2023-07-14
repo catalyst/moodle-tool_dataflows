@@ -16,12 +16,14 @@
 
 namespace tool_dataflows\external;
 
+defined('MOODLE_INTERNAL') || die();
+
 // Moved as part of https://tracker.moodle.org/browse/MDL-78049 so this is
 // required to redirect sites using older versions of Moodle to the previous
 // implementation.
 // Once the base supported version is 4.2, this is no longer required.
 if (class_exists(\core_external\external_api::class)) {
-    \class_alias(\core_external\external_api::class, external_api::class);
+    \class_alias(\core_external\external_api::class, \tool_dataflows\external\external_api::class);
 } else if (class_exists(\external_api::class)) {
-    \class_alias(\external_api::class, external_api::class);
+    \class_alias(\external_api::class, \tool_dataflows\external\external_api::class);
 }
