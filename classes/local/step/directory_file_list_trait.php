@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\local\step;
 
-use MoodleQuickForm;
 use tool_dataflows\helper;
 
 /**
@@ -171,19 +170,21 @@ trait directory_file_list_trait {
     /**
      * Apply various constraints/transforms to the list of files
      *
-     * @param  array<string> $filelist
-     * @param  mixed         $returnvalue
-     * @param  mixed         $offset
-     * @param  mixed         $limit
+     * @param  array         $filelist
+     * @param  string        $returnvalue
+     * @param  string        $sort
+     * @param  int           $offset
+     * @param  int           $limit
      * @param  bool          $includedir
-     * @param  string        $path
+     * @param  string        $basepath
+     * @param  string        $pattern
      * @return array Will return true or an array of errors.
      */
     public function apply_list_constraints(
         array $filelist,
-        $returnvalue,
+        string $returnvalue,
         string $sort,
-        $offset,
+        int $offset,
         ?int $limit,
         bool $includedir,
         string $basepath,

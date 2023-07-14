@@ -46,7 +46,7 @@ trait sftp_directory_file_list_trait {
     public static function form_define_fields(): array {
         $fields = array_merge(
             self::sftp_form_define_fields('list'),
-            self::directory_file_list_form_define_fields(),
+            self::directory_file_list_form_define_fields()
         );
 
         return $fields;
@@ -89,7 +89,7 @@ trait sftp_directory_file_list_trait {
             $config->limit,
             isset($config->subdirectories),
             $path,
-            $config->pattern,
+            $config->pattern
         );
 
         return $filelist;

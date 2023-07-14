@@ -130,6 +130,7 @@ trait sftp_trait {
      * Validate the configuration settings.
      *
      * @param object $config
+     * @param string $behaviour
      * @return true|\lang_string[] true if valid, an array of errors otherwise
      */
     public function validate_config($config, $behaviour = 'copy') {
@@ -203,6 +204,7 @@ trait sftp_trait {
     /**
      * Perform any extra validation that is required only for runs.
      *
+     * @param string $behaviour
      * @return true|array Will return true or an array of errors.
      */
     public function validate_for_run($behaviour = 'copy') {

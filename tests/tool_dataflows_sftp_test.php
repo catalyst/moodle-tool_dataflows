@@ -30,7 +30,8 @@ use tool_dataflows\local\step\connector_sftp_directory_file_list;
  */
 class tool_dataflows_sftp_test extends \advanced_testcase {
 
-    private array $filelist = [
+    /** @var array list of realistic file paths to test. */
+    private $filelist = [
         'test.txt',
         'test.pdf',
         'test.csv',
