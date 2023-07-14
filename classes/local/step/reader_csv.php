@@ -42,6 +42,7 @@ class reader_csv extends reader_step {
         return [
             'path' => ['type' => PARAM_TEXT, 'required' => true],
             'headers' => ['type' => PARAM_TEXT],
+            'overwriteheaders' => ['type' => PARAM_BOOL],
             'delimiter' => ['type' => PARAM_TEXT],
         ];
     }
@@ -62,6 +63,7 @@ class reader_csv extends reader_step {
         $maxlinelength = 1000;
         $config = $this->get_variables()->get('config');
         $strheaders = $config->headers;
+        $overwriteheaders = !empty($config->overwriteheaders);
         $delimiter = $config->delimiter ?: self::DEFAULT_DELIMETER;
         $path = $this->enginestep->engine->resolve_path($config->path);
 
@@ -71,7 +73,7 @@ class reader_csv extends reader_step {
 
         try {
             // Prepare and resolve headers.
-            if (empty($strheaders)) {
+            if (empty($config->headers)) {
                 $strheaders = fgets($handle);
             }
 
@@ -79,6 +81,12 @@ class reader_csv extends reader_step {
             // so it should continue as if the file finished.
             if ($strheaders === false) {
                 return;
+            }
+
+            // Used the configured headers in place of the first row if overwriteheaders is true.
+            if ($overwriteheaders && $config->headers) {
+                fgets($handle); // Move the pointer past the first line.
+                $strheaders = $config->headers;
             }
 
             // Convert header string to an actual headers array.
@@ -124,6 +132,12 @@ class reader_csv extends reader_step {
         // NOTE: Does NOT resolve the edge case if you want to "override" the header keys used.
         $mform->addElement('text', 'config_headers', get_string('reader_csv:headers', 'tool_dataflows'));
         $mform->addElement('static', 'config_headers_help', '', get_string('reader_csv:headers_help', 'tool_dataflows'));
+
+        // Used when we want to replace the headers (or overwrite them) using the ones we supplied instead. Defaults to off.
+        $mform->addElement('checkbox', 'config_overwriteheaders', get_string('reader_csv:overwriteheaders', 'tool_dataflows'),
+                get_string('reader_csv:overwriteheaders_help', 'tool_dataflows'));
+        $mform->hideIf('config_overwriteheaders', 'config_headers', 'eq', '');
+        $mform->disabledIf('config_overwriteheaders', 'config_headers', 'eq', '');
 
         // Delimiter.
         $mform->addElement(
