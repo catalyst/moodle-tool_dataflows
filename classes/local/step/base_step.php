@@ -299,6 +299,18 @@ abstract class base_step {
     }
 
     /**
+     * Allow steps to setup the form depending on current values.
+     *
+     * This method is called after definition(), data submission and set_data().
+     * All form setup that is dependent on form values should go in here.
+     *
+     * @param \MoodleQuickForm $mform
+     * @param \stdClass $data
+     */
+    public function form_definition_after_data(\MoodleQuickForm &$mform, \stdClass $data) {
+    }
+
+    /**
      * Sets the default types for each input field defined
      *
      * This is mostly defined upfront and unlikely to change, and will show the following if not set:
