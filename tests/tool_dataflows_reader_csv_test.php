@@ -39,6 +39,9 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
     /** @var string|null Input path for reader to read from. */
     protected $inputpath = null;
 
+    /** @var string Temp path for test files. */
+    protected $outputpath = '';
+
     /**
      * Set up before each test
      */
@@ -160,11 +163,59 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
     }
 
     /**
+     * Test csv with custom headers configured
+     */
+    public function test_csv_with_overwrite_headers_configured() {
+        [$dataflow, $steps] = $this->create_dataflow();
+        $headers = ['first', 'second', 'third'];
+
+        $reader = $steps[$dataflow->steps->reader->id];
+        $reader->config = Yaml::dump([
+            'path' => $this->inputpath,
+            'headers' => implode(',', $headers),
+            'overwriteheaders' => '1',
+            'delimiter' => ',',
+        ]);
+
+        // Create test input file.
+        $data = [
+            ['apple', 'berry', 'cucumber'],
+            [4, 5, 6],
+            [7, 8, 9],
+        ];
+        $content = '';
+        foreach ($data as $row) {
+            $content .= implode(',', $row);
+            $content .= PHP_EOL;
+        }
+        file_put_contents($this->inputpath, $content);
+
+        // Expected content, which has headers but first line of content is removed.
+        array_shift($data);
+        $expected = implode(',', $headers) . PHP_EOL;
+        foreach ($data as $row) {
+            $expected .= implode(',', $row);
+            $expected .= PHP_EOL;
+        }
+
+        // Execute.
+        ob_start();
+        $engine = new engine($dataflow);
+        $engine->execute();
+        ob_get_clean();
+
+        $output = file_get_contents($this->outputpath);
+
+        // Expected output; Add a header line.
+        $this->assertEquals($expected, $output);
+    }
+
+    /**
      * Dataflow creation helper function
      *
      * @return  array dataflow and steps
      */
-    public function create_dataflow() {
+    public function create_dataflow(): array {
         // Create the dataflow.
         $dataflow = new dataflow();
         $dataflow->name = 'testflow';

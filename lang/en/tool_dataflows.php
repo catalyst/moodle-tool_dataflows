@@ -357,6 +357,8 @@ $string['reader_csv:path'] = 'Path to CSV file';
 $string['reader_csv:delimiter'] = 'Delimiter';
 $string['reader_csv:headers'] = 'Headers';
 $string['reader_csv:headers_help'] = 'If populated, then this will act as the header to map field to keys. If left blank, it will be populated automatically using the first read row.';
+$string['reader_csv:overwriteheaders'] = 'Overwrite existing headers';
+$string['reader_csv:overwriteheaders_help'] = 'If checked, the headers supplied above will be used instead of the ones in the file, effectively ignoring the first row.';
 
 // Reader JSON.
 $string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON. For example, {$a->expression} will return the users array from the following JSON (If empty it is assumed the starting point of the JSON file is an array):{$a->jsonexample}';
