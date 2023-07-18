@@ -121,6 +121,7 @@ $string['strftimedatetimeaccurate'] = '%d %B %Y, %I:%M:%S %p';
 // Step names.
 $string['step_name_connector_directory_file_count'] = 'Directory file count';
 $string['step_name_connector_directory_file_list'] = 'Directory file list';
+$string['step_name_connector_sftp_directory_file_list'] = 'SFTP directory file list';
 $string['step_name_connector_abort'] = 'Abort connector';
 $string['step_name_connector_append_file'] = 'Append file';
 $string['step_name_connector_copy_file'] = 'Copy File';
@@ -434,6 +435,9 @@ $string['gpg:decrypt'] = 'Decrypt';
 $string['gpg:output_success'] = 'Whether the operation was successful.';
 $string['gpg:passphrase'] = 'Passphrase';
 
+// SFTP.
+$string['sftp:header'] = 'SFTP resource';
+
 // Connector sftp.
 $string['connector_sftp:host'] = 'Host';
 $string['connector_sftp:source'] = 'Source';
@@ -536,6 +540,7 @@ $string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';
 $string['connector_directory_file_count:path'] = 'Path to directory';
 
 // Directory file list.
+$string['directory_file_list:header'] = 'Directory File List settings';
 $string['directory_file_list:absolutepath'] = 'absolutepath';
 $string['directory_file_list:alpha'] = 'Alphabetical (A->Z)';
 $string['directory_file_list:alpha_reverse'] = 'Reverse alphabetical (Z->A)';

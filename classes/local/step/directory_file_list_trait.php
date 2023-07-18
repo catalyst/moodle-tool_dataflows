@@ -28,16 +28,24 @@ use tool_dataflows\helper;
  */
 trait directory_file_list_trait {
 
-    /** @var string The default pattern for matching files. */
+    /**
+     * @var string The default pattern for matching files.
+     */
     static protected $patterndefault = '*';
 
-    /** @var int The default offset. */
+    /**
+     * @var int The default offset.
+     */
     static protected $offsetdefault = 0;
 
-    /** @var int The default limit (effectively infinity). */
+    /**
+     * @var int The default limit (effectively infinity).
+     */
     static protected $lmiitdefault = 0;
 
-    /** @var string The format of the return value */
+    /**
+     * @var string The format of the return value
+     */
     static protected $returnvaluedefault = 'basename';
 
     /**
@@ -78,17 +86,21 @@ trait directory_file_list_trait {
         $mform->addElement('checkbox', 'config_subdirectories', get_string('directory_file_list:subdirectories', 'tool_dataflows'));
 
         // Return value.
-        $mform->addElement('select', 'config_returnvalue', get_string('directory_file_list:returnvalue', 'tool_dataflows'), [
+        $mform->addElement(
+            'select', 'config_returnvalue', get_string('directory_file_list:returnvalue', 'tool_dataflows'), [
             'basename' => get_string('directory_file_list:basename', 'tool_dataflows'),
             'relativepath' => get_string('directory_file_list:relativepath', 'tool_dataflows'),
             'absolutepath' => get_string('directory_file_list:absolutepath', 'tool_dataflows'),
-        ]);
+            ]
+        );
 
         // Sort.
-        $mform->addElement('select', 'config_sort', get_string('directory_file_list:sort', 'tool_dataflows'), [
+        $mform->addElement(
+            'select', 'config_sort', get_string('directory_file_list:sort', 'tool_dataflows'), [
             'alpha' => get_string('directory_file_list:alpha', 'tool_dataflows'),
             'alpha_reverse' => get_string('directory_file_list:alpha_reverse', 'tool_dataflows'),
-        ]);
+            ]
+        );
 
         // Offset.
         $mform->addElement(
@@ -122,15 +134,6 @@ trait directory_file_list_trait {
         $limit = $config->limit ?: null;
         $includedir = isset($config->subdirectories);
 
-        switch ($config->sort) {
-            case 'alpha':
-                $func = 'asort';
-                break;
-            case 'alpha_reverse':
-                $func = 'arsort';
-                break;
-        }
-
         $path = $this->get_engine()->resolve_path($config->directory);
         $error = helper::path_validate($config->directory);
         if ($error !== true) {
@@ -138,42 +141,10 @@ trait directory_file_list_trait {
         }
 
         $pathpattern = $path . DIRECTORY_SEPARATOR . $pattern;
-        $filelist = glob($pathpattern, GLOB_BRACE);
-
-        // Apply filter for excluding directories/folders.
-        // This is not related to recursive lookups in any way.
-        $filelist = array_filter($filelist, function ($pathname) use ($includedir) {
-            $filename = basename($pathname);
-            if ($filename === '.' || $filename === '..') {
-                return false;
-            }
-            if (!$includedir && is_dir($pathname)) {
-                return false;
-            }
-            return true;
-        });
-
-        // Convert the original to return the base file name.
-        // For example, "/my/path/to/file" would return "file".
-        if ($returnvalue === 'basename') {
-            $filelist = array_map(function ($filename) {
-                return basename($filename);
-            }, $filelist);
+        $filelist = glob($pathpattern, GLOB_BRACE) || [];
+        if ($filelist !== false) {
+            $this->apply_list_constraints($filelist, $returnvalue, $config->sort, $offset, $limit, $includedir, $path);
         }
-
-        // Convert the original to return the relative file path.
-        // For example, "/my/path/to/file" would return "to/file".
-        if ($returnvalue === 'relativepath') {
-            $filelist = array_map(function ($filename) use ($path) {
-                return str_replace($path . DIRECTORY_SEPARATOR, '', $filename);
-            }, $filelist);
-        }
-
-        // Apply sorting.
-        $func($filelist);
-
-        // Apply the offset and limit.
-        $filelist = array_slice($filelist, $offset, $limit);
 
         return $filelist;
     }
@@ -194,5 +165,87 @@ trait directory_file_list_trait {
         }
 
         return empty($errors) ? true : $errors;
+    }
+
+    /**
+     * Apply various constraints/transforms to the list of files
+     *
+     * @param  array         $filelist
+     * @param  string        $returnvalue
+     * @param  string        $sort
+     * @param  int           $offset
+     * @param  int           $limit
+     * @param  bool          $includedir
+     * @param  string        $basepath
+     * @param  string        $pattern
+     * @return array Will return true or an array of errors.
+     */
+    public function apply_list_constraints(
+        array $filelist,
+        string $returnvalue,
+        string $sort,
+        int $offset,
+        ?int $limit,
+        bool $includedir,
+        string $basepath,
+        string $pattern = null
+    ): array {
+        // Apply filter for excluding directories/folders.
+        // This is not related to recursive lookups in any way.
+        $filelist = array_filter(
+            $filelist, function ($pathname) use ($includedir, $pattern) {
+                $filename = basename($pathname);
+                if ($filename === '.' || $filename === '..') {
+                    return false;
+                }
+                if (!$includedir && is_dir($pathname)) {
+                    return false;
+                }
+
+                // Allows matching on a glob-like pattern.
+                if ($pattern) {
+                    return fnmatch($pattern, $pathname);
+                }
+
+                return true;
+            }
+        );
+
+        // Convert the original to return the base file name.
+        // For example, "/my/path/to/file" would return "file".
+        if ($returnvalue === 'basename') {
+            $filelist = array_map(
+                function ($filename) {
+                    return basename($filename);
+                }, $filelist
+            );
+        }
+
+        // Convert the original to return the relative file path.
+        // For example, "/my/path/to/file" would return "to/file".
+        if ($returnvalue === 'relativepath' && !empty($basepath)) {
+            $filelist = array_map(
+                function ($filename) use ($basepath) {
+                    return str_replace($basepath . DIRECTORY_SEPARATOR, '', $filename);
+                }, $filelist
+            );
+        }
+
+        // Apply sorting.
+        switch ($sort) {
+            case 'alpha':
+                $func = 'asort';
+                break;
+            case 'alpha_reverse':
+                $func = 'arsort';
+                break;
+        }
+
+        $func($filelist);
+
+        // Apply the offset and limit.
+        $filelist = array_slice($filelist, $offset, $limit);
+
+        return $filelist;
     }
 }

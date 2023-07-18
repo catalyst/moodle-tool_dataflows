@@ -17,8 +17,8 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\connector_sftp;
+use tool_dataflows\local\step\connector_sftp_directory_file_list;
 
 /**
  * Unit test for SFTP.
@@ -29,6 +29,18 @@ use tool_dataflows\local\step\connector_sftp;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_sftp_test extends \advanced_testcase {
+
+    /** @var array list of realistic file paths to test. */
+    private $filelist = [
+        'test.txt',
+        'test.pdf',
+        'test.csv',
+        '2019-08-03-123451001.csv',
+        '2019-08-03-123451002.csv',
+        '2019-08-03-123451003.csv',
+        'output/2019-08-03-123451002-final.csv',
+    ];
+
     /**
      * Set up before each test
      */
@@ -68,6 +80,74 @@ class tool_dataflows_sftp_test extends \advanced_testcase {
         $dataflow = $this->make_dataflow($file);
 
         $this->assertEquals($expected, $dataflow->get_steps()->sftp->has_side_effect());
+    }
+
+    /**
+     * Data provider for test_has_sideeffect().
+     *
+     * @return array[]
+     */
+    public function sftp_list_constraints_provider(): array {
+        return [
+            [
+                ['relativepath', 'alpha', 0, null, false, '', '*.csv'],
+                [
+                    '2019-08-03-123451001.csv',
+                    '2019-08-03-123451002.csv',
+                    '2019-08-03-123451003.csv',
+                    'output/2019-08-03-123451002-final.csv',
+                    'test.csv',
+                ],
+            ],
+            [
+                ['relativepath', 'alpha_reverse', 0, 1, false, '', '*.csv'],
+                ['test.csv'],
+            ],
+            [
+                ['relativepath', 'alpha', 0, 1, false, '', '*.csv'],
+                ['2019-08-03-123451001.csv'],
+            ],
+            [
+                ['relativepath', 'alpha', 0, 1, false, '', '2019-08-03-*.csv'],
+                ['2019-08-03-123451001.csv'],
+            ],
+            [
+                ['relativepath', 'alpha_reverse', 0, 1, false, '', '2019-08-03-*.csv'],
+                ['2019-08-03-123451003.csv'],
+            ],
+            [
+                ['relativepath', 'alpha', 0, 1, false, '', '2019-08-03-*.csv'],
+                ['2019-08-03-123451001.csv'],
+            ],
+            [
+                ['basename', 'alpha', 0, 1, false, '', 'output/*'],
+                ['2019-08-03-123451002-final.csv'],
+            ],
+            [
+                ['relativepath', 'alpha', 0, 1, false, 'output', 'output/*'],
+                ['2019-08-03-123451002-final.csv'],
+            ],
+            [
+                ['relativepath', 'alpha', 0, 1, false, '', 'output/*'],
+                ['output/2019-08-03-123451002-final.csv'],
+            ],
+        ];
+    }
+
+    /**
+     * Tests list constraints on sftp-like resultset
+     *
+     * @dataProvider sftp_list_constraints_provider
+     * @covers \tool_dataflows\local\step\sftp_directory_file_list_trait::run()
+     * @param array $params
+     * @param array $expected
+     */
+    public function test_list_constraints_on_sftp_files($params, $expected) {
+        // Sample response from server at some directory.
+        $steptype = new connector_sftp_directory_file_list();
+        $filelist = $steptype->apply_list_constraints($this->filelist, ...$params);
+
+        $this->assertEquals($expected, $filelist);
     }
 
     /**
