@@ -57,7 +57,7 @@ class flow_sql extends flow_step {
          LIMIT 10";
         $sqlexamples = \html_writer::tag('pre', trim($sqlexample, " \t\r\0\x0B"));
         $mform->addElement('textarea', 'config_sql', get_string('flow_sql:sql', 'tool_dataflows'),
-            ['cols' => 50, 'rows' => 7, 'style' => 'font: 87.5% monospace;']);
+            ['rows' => 20, 'style' => 'font: 87.5% monospace; width: 100%; max-width: 100%']);
         $mform->addElement('static', 'config_sql_help', '', get_string('flow_sql:sql_help', 'tool_dataflows', $sqlexamples));
     }
 
