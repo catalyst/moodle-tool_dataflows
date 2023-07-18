@@ -140,6 +140,24 @@ class step_form extends \core\form\persistent {
     }
 
     /**
+     * Allow steps to setup the form depending on current values.
+     *
+     * This method is called after definition(), data submission and set_data().
+     * All form setup that is dependent on form values should go in here.
+     */
+    public function definition_after_data() {
+        $mform = $this->_form;
+        $data = $this->get_default_data();
+
+        $persistent = $this->get_persistent();
+        $type = $data->type ?? null;
+        if (isset($persistent->steptype) || (isset($type) && class_exists($type))) {
+            $steptype = $persistent->steptype ?? new $type();
+            $steptype->form_definition_after_data($mform, $data);
+        }
+    }
+
+    /**
      * Prepares and returns an array of dependson options
      *
      * @return  array of options this step could depend on

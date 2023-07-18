@@ -57,8 +57,37 @@ class flow_sql extends flow_step {
          LIMIT 10";
         $sqlexamples = \html_writer::tag('pre', trim($sqlexample, " \t\r\0\x0B"));
         $mform->addElement('textarea', 'config_sql', get_string('flow_sql:sql', 'tool_dataflows'),
-            ['rows' => 20, 'style' => 'font: 87.5% monospace; width: 100%; max-width: 100%']);
+            ['max_rows' => 40, 'rows' => 5, 'style' => 'font: 87.5% monospace; width: 100%; max-width: 100%']);
         $mform->addElement('static', 'config_sql_help', '', get_string('flow_sql:sql_help', 'tool_dataflows', $sqlexamples));
+    }
+
+    /**
+     * Allow steps to setup the form depending on current values.
+     *
+     * This method is called after definition(), data submission and set_data().
+     * All form setup that is dependent on form values should go in here.
+     *
+     * @param \MoodleQuickForm $mform
+     * @param \stdClass $data
+     */
+    public function form_definition_after_data(\MoodleQuickForm &$mform, \stdClass $data) {
+        // Validate the data.
+        $sqllinecount = count(explode(PHP_EOL, trim($data->config_sql)));
+
+        // Get the element.
+        $element = $mform->getElement('config_sql');
+
+        // Update the element height based on min/max settings, but preserve
+        // other existing rules.
+        $attributes = $element->getAttributes();
+
+        // Set the rows at a minimum to the predefined amount in
+        // form_add_custom_inputs, and expand as content grows up to a maximum.
+        $attributes['rows'] = min(
+            $attributes['max_rows'],
+            max($attributes['rows'], $sqllinecount)
+        );
+        $element->setAttributes($attributes);
     }
 
     /**
