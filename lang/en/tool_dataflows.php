@@ -285,8 +285,6 @@ $string['concurrency_enabled_disabled_desc'] = '<i>Concurrent running is not pos
  While you can still edit this setting, it\'s value will be ignored. Reasons are:</i>';
 $string['file_missing'] = 'File is missing \'{$a}\'.';
 $string['property_not_supported'] = 'Property \'{$a->property}\' not supported in \'{$a->classname}\'';
-$string['unknown_logging_context'] = 'Unknown logging context';
-
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';
