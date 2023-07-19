@@ -635,11 +635,14 @@ abstract class base_step {
      * Emits a log message
      *
      * Helper method to reduce the complexity when authoring step types.
+     * Default logging level is "INFO".
      *
      * @param string $message
+     * @param array $context
      */
-    protected function log(string $message) {
-        $this->enginestep->log->info($message);
+    protected function log(string $message, $context = []) {
+        $context['step'] = $this->stepdef->name;
+        $this->enginestep->log->info($message, $context);
     }
 
     /**

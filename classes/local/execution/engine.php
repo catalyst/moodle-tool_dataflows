@@ -171,7 +171,7 @@ class engine {
         // Ensure step names are used if supplied.
         $log->pushProcessor(function ($record) {
             if (isset($record['context']['step'])) {
-                $record['message'] = '- {step}: ' . $record['message'];
+                $record['message'] = '{step}: ' . $record['message'];
             }
             if (isset($record['context']['record'])) {
                 $record['message'] .= ' {record}';
@@ -667,7 +667,7 @@ class engine {
         if (in_array($status, self::STATUS_TERMINATORS, true)) {
             $context['data'] = $this->get_export_data();
         }
-        $this->logger->info('Dataflow is {status}', $context);
+        $this->logger->info("Dataflow is '{status}'", $context);
     }
 
     /**
