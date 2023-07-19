@@ -16,6 +16,11 @@
 
 namespace tool_dataflows\local\execution;
 
+use Monolog\Handler\BrowserConsoleHandler;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Handler\SyslogHandler;
+use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\exportable;
@@ -129,6 +134,9 @@ class engine {
     /** @var bool Has this engine been blocked by a lock. */
     protected $blocked = false;
 
+    /** @var Logger Primary logger for the current engine instance. */
+    protected $logger;
+
     /**
      * Constructs the engine.
      *
@@ -137,15 +145,55 @@ class engine {
      * @param bool $automated Execution of this run was an automated trigger.
      */
     public function __construct(dataflow $dataflow, bool $isdryrun = false, $automated = true) {
+        global $CFG;
         $this->dataflow = $dataflow;
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
+        $status = self::STATUS_NEW;
+
+        // Initalise a new run (only for non-dry runs). This should only be
+        // created when the engine is executed.
+        if (!$this->isdryrun) {
+            $this->run = new run;
+            $this->run->dataflowid = $this->dataflow->id;
+            $this->run->initialise($status, $this->export());
+        }
+
+        // Each channel represents a specific way of writing log information.
+        $channel = 'dataflow/' . $this->dataflow->id . '/' . $this->run->name;
+        $log = new Logger($channel);
+
+        // Default Moodle handler. Always on.
+        $log->pushHandler(new mtrace_handler());
+
+        // Useful for docker-dev
+        // $log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
+
+        // Doesn't seem to work
+        $log->pushHandler(new BrowserConsoleHandler(Logger::DEBUG));
+
+        // Dataflow run logger.
+        // $dataflowlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
+        //     'tool_dataflows' . DIRECTORY_SEPARATOR .
+        //     $this->dataflow->id . DIRECTORY_SEPARATOR . $this->run->name
+        //     . '.log';
+        // $max = 5;
+        // $log->pushHandler(new RotatingFileHandler($dataflowlogpath, $max, Logger::DEBUG));
+
+        // General dataflow logger.
+        $dataflowrunlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
+            'tool_dataflows' . DIRECTORY_SEPARATOR .
+            $this->dataflow->id . DIRECTORY_SEPARATOR . 'flow.log';
+
+        $log->pushHandler(new StreamHandler($dataflowrunlogpath, Logger::DEBUG));
+
+        $this->logger = $log;
 
         // Force the dataflow to create a fresh set of variables.
         $dataflow->clear_variables();
         $dataflow->get_variables_root();
 
-        $this->set_status(self::STATUS_NEW);
+        $this->set_status($status);
 
         // Refuse to run if dataflow is not enabled.
         if (!($dataflow->enabled || !$automated || $isdryrun)) {
@@ -404,14 +452,6 @@ class engine {
      * runs the dataflow, and finalises it.
      */
     public function execute() {
-        // Initalise a new run (only for non-dry runs). This should only be
-        // created when the engine is executed.
-        if (!$this->isdryrun) {
-            $this->run = new run;
-            $this->run->dataflowid = $this->dataflow->id;
-            $this->run->initialise($this->status, $this->export());
-        }
-
         $this->initialise();
         if ($this->is_blocked() || $this->status == self::STATUS_ABORTED) {
             return;
@@ -536,8 +576,8 @@ class engine {
      *
      * @param string $message
      */
-    public function log(string $message) {
-        (new logging_context($this))->log($message);
+    public function log(string $message, $context = [], $level = Logger::INFO) {
+        $this->logger->log($level, $message, $context);
     }
 
     /**

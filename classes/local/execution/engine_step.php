@@ -16,7 +16,9 @@
 
 namespace tool_dataflows\local\execution;
 
+use Symfony\Bridge\Monolog\Logger;
 use tool_dataflows\local\step\base_step;
+use tool_dataflows\local\step\flow_cap;
 use tool_dataflows\local\variables\var_root;
 use tool_dataflows\local\variables\var_step;
 use tool_dataflows\step;
@@ -211,8 +213,13 @@ abstract class engine_step {
      *
      * @param string $message
      */
-    public function log(string $message) {
-        (new logging_context($this))->log($message);
+    public function log(string $message, $context = [], $level = Logger::DEBUG) {
+        if ($this->steptype instanceof flow_cap) {
+            return;
+        }
+
+        $context['step'] = $this->name;
+        $this->engine->log($message, $context, $level);
     }
 
     /**

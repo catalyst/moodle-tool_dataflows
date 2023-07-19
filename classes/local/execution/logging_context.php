@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\local\execution;
 
+use Psr\Log\LoggerInterface;
 use tool_dataflows\local\step\flow_cap;
 
 /**
@@ -82,10 +83,14 @@ class logging_context {
 
         // Additionally write to a specific standard log file in sitedata.
         if (isset($run)) {
-
-        $fn = $CFG->mtrace_wrapper;
-            echo"<pre>";print_r($fn);die;
-        $fn($string, $eol);
+            // $this->engine->log->($logstr);
+            return;
+            // $logger = new LoggerInterface();
+            // $logger->info('I just got the logger');
+            // $logger->error('An error occurred');
+            // $fn = $CFG->mtrace_wrapper;
+            //     echo"<pre>";print_r($fn);die;
+            // $fn($string, $eol);
 
             // For example, [dataroot]/tool_dataflows/1/17.log would be the path.
             $dataflowlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
