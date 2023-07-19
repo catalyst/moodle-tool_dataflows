@@ -153,14 +153,15 @@ class engine {
 
         // Initalise a new run (only for non-dry runs). This should only be
         // created when the engine is executed.
+        $channel = 'dataflow/' . $this->dataflow->id;
         if (!$this->isdryrun) {
             $this->run = new run;
             $this->run->dataflowid = $this->dataflow->id;
             $this->run->initialise($status, $this->export());
+            $channel .= '/' . $this->run->name;
         }
 
         // Each channel represents a specific way of writing log information.
-        $channel = 'dataflow/' . $this->dataflow->id . '/' . $this->run->name;
         $log = new Logger($channel);
 
         // Default Moodle handler. Always on.
