@@ -239,7 +239,7 @@ abstract class engine_step {
         if (in_array($this->status, engine::STATUS_TERMINATORS)) {
             if ($status === engine::STATUS_ABORTED) {
                 // Don't crash if aborting, but make a note of it.
-                $this->log->info('Aborted within concluded state (' . engine::STATUS_LABELS[$this->status] . ')');
+                $this->log->notice('Aborted within concluded state (' . engine::STATUS_LABELS[$this->status] . ')', ['step' => $this->name]);
             } else {
                 throw new \moodle_exception(
                     'change_step_state_after_concluded',
@@ -255,7 +255,7 @@ abstract class engine_step {
         // Record the timestamp of the state change.
         $statusstring = engine::STATUS_LABELS[$status];
         $this->get_variables()->set("states.$statusstring", microtime(true));
-        $this->log->info('status: ' . engine::STATUS_LABELS[$status]);
+        $this->log->debug('status: ' . engine::STATUS_LABELS[$status], ['step' => $this->name]);
 
         $this->on_change_status();
     }
