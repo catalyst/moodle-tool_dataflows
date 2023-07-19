@@ -8,6 +8,7 @@
         "php": ">=7.1",
         "symfony/yaml": "^3.4",
         "symfony/expression-language": "^3.4",
-        "phpseclib/phpseclib": "~3.0"
+        "phpseclib/phpseclib": "~3.0",
+        "symfony/monolog-bundle": "^3.6"
     }
 }
