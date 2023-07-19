@@ -211,7 +211,7 @@ class dataflow_iterator implements iterator {
             if (!is_null($newvalue)) {
                 $this->value = $newvalue;
             } else {
-                $this->step->log('Step execution failed to return a value. Ignoring.');
+                $this->step->log->info('Step execution failed to return a value. Ignoring.');
             }
 
             // Log vars for this iteration.
@@ -222,9 +222,9 @@ class dataflow_iterator implements iterator {
             // Expose the number of times this step has been iterated over.
             $this->stepvars->set('iterations', $this->iterationcount);
 
-            $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
+            $this->step->log->info('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
         } catch (\Throwable $e) {
-            $this->step->log($e->getMessage());
+            $this->step->log->info($e->getMessage());
             $this->step->engine->abort();
             throw $e;
         }

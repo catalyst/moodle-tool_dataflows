@@ -149,7 +149,7 @@ class reader_sql extends reader_step {
                             $errormsg = $message;
                             throw $e;
                         } else {
-                            $this->enginestep->log($message);
+                            $this->enginestep->log->info($message);
                         }
                     }
                 );
@@ -178,7 +178,7 @@ class reader_sql extends reader_step {
             }
         } catch (\Throwable $e) {
             if (!empty($errormsg)) {
-                $this->enginestep->log($errormsg);
+                $this->enginestep->log->info($errormsg);
             }
             throw $e;
         }

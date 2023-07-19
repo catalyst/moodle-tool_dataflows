@@ -639,7 +639,25 @@ abstract class base_step {
      * @param string $message
      */
     protected function log(string $message) {
-        $this->enginestep->log($message);
+        $this->enginestep->log->info($message);
+    }
+
+    /**
+     * PHP getter.
+     *
+     * @param  string $parameter
+     */
+    public function __get($parameter) {
+        switch ($parameter) {
+            case 'log':
+                return $this->enginestep->log;
+            default:
+                throw new \moodle_exception(
+                    'bad_parameter',
+                    'tool_dataflows',
+                    '',
+                    ['parameter' => $parameter, 'classname' => self::class]);
+        }
     }
 
     /**
@@ -654,8 +672,7 @@ abstract class base_step {
             helper::YAML_DUMP_INDENT_LEVEL,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
         );
-        $this->log("Debug: current vars:\n" . trim($yaml));
-
+        $this->log->info("Debug: current vars:\n" . trim($yaml));
     }
 
     /**

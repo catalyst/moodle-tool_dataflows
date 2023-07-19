@@ -68,7 +68,7 @@ class flow_email extends flow_step {
 
         // Do not execute operations during a dry run.
         if ($this->enginestep->engine->isdryrun) {
-            $this->enginestep->log('Do not send email notification as this is a dry run.');
+            $this->enginestep->log->info('Do not send email notification as this is a dry run.');
             return true;
         }
 
@@ -101,9 +101,9 @@ class flow_email extends flow_step {
         // so we can easily send to users outside of Moodle.
         email_to_user($to, $noreplyuser, $subject, $message->text, $messagehtml);
 
-        $this->enginestep->log(get_string('flow_email:sending_message', 'tool_dataflows', $toemail ));
-        $this->enginestep->log($subject);
-        $this->enginestep->log($message->text);
+        $this->enginestep->log->info(get_string('flow_email:sending_message', 'tool_dataflows', $toemail ));
+        $this->enginestep->log->info($subject);
+        $this->enginestep->log->info($message->text);
 
         return $input;
     }

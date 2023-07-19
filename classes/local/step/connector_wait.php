@@ -63,7 +63,7 @@ class connector_wait extends connector_step {
         if (!is_int($timesec) && !(is_string($timesec) && ctype_digit($timesec))) {
             throw new \moodle_exception('connector_wait:not_integer', 'tool_dataflows', '', $timesec);
         }
-        $this->enginestep->log("Waiting for $timesec seconds.");
+        $this->enginestep->log->info("Waiting for $timesec seconds.");
         sleep($timesec);
         return true;
     }

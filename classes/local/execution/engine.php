@@ -590,6 +590,7 @@ class engine {
             case 'dataflow':
             case 'exception':
             case 'isdryrun':
+            case 'logger':
             case 'run':
             case 'status':
             case 'scratchdir':
