@@ -404,13 +404,6 @@ class engine {
      * runs the dataflow, and finalises it.
      */
     public function execute() {
-        $this->initialise();
-        if ($this->is_blocked() || $this->status == self::STATUS_ABORTED) {
-            return;
-        }
-
-        $this->status_check(self::STATUS_INITIALISED);
-
         // Initalise a new run (only for non-dry runs). This should only be
         // created when the engine is executed.
         if (!$this->isdryrun) {
@@ -418,6 +411,13 @@ class engine {
             $this->run->dataflowid = $this->dataflow->id;
             $this->run->initialise($this->status, $this->export());
         }
+
+        $this->initialise();
+        if ($this->is_blocked() || $this->status == self::STATUS_ABORTED) {
+            return;
+        }
+
+        $this->status_check(self::STATUS_INITIALISED);
 
         while ($this->status != self::STATUS_FINISHED) {
             $this->execute_step();

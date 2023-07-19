@@ -34,6 +34,9 @@ class logging_context {
     /** @var engine_step The engine step. */
     protected $enginestep = null;
 
+    /** @var resource The logfile resource. */
+    protected $logfile = null;
+
     /**
      * Create an instance of this class.
      *
@@ -57,11 +60,13 @@ class logging_context {
      * @param   string $message
      */
     public function log($message) {
+        global $CFG;
         // Do not log anything for flowcaps as they are virtual.
         if (isset($this->enginestep) && $this->enginestep->steptype instanceof flow_cap) {
             return;
         }
 
+        $run = $this->engine->run;
         $name = $this->engine->name;
         $logstr = "Engine '{$name}'";
         if (!is_null($this->enginestep)) {
@@ -71,6 +76,31 @@ class logging_context {
             $logstr .= " step {$name}{$dots}";
         }
         $logstr .= ' ' . $message;
+
+        // Save to mtrace output.
         mtrace($logstr);
+
+        // Additionally write to a specific standard log file in sitedata.
+        if (isset($run)) {
+
+        $fn = $CFG->mtrace_wrapper;
+            echo"<pre>";print_r($fn);die;
+        $fn($string, $eol);
+
+            // For example, [dataroot]/tool_dataflows/1/17.log would be the path.
+            $dataflowlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
+                'tool_dataflows' . DIRECTORY_SEPARATOR .
+                $this->engine->dataflow->id . DIRECTORY_SEPARATOR . $run->name
+                . '.log';
+
+            // Check and create the directory if it doesn't exist.
+            if (!file_exists(dirname($dataflowlogpath))) {
+                mkdir(dirname($dataflowlogpath), $CFG->directorypermissions, true);
+            }
+
+            $file = fopen($dataflowlogpath, 'a');
+            fwrite($file, $logstr . PHP_EOL);
+            fclose($file);
+        }
     }
 }
