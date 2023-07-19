@@ -34,6 +34,8 @@ class mtrace_handler extends AbstractHandler {
      * @param array $record the log record
      **/
     public function handle(array $record) {
-        mtrace($record['message']);
+        if ($this->isHandling($record)) {
+            mtrace($record['message']);
+        }
     }
 }

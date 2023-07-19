@@ -20,6 +20,7 @@ use Monolog\Handler\BrowserConsoleHandler;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogHandler;
+use Monolog\Processor\PsrLogMessageProcessor;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
@@ -164,8 +165,23 @@ class engine {
         // Each channel represents a specific way of writing log information.
         $log = new Logger($channel);
 
+        // Add a custom formatter.
+        $log->pushProcessor(new PsrLogMessageProcessor(null, true));
+
+        // Ensure step names are used if supplied.
+        $log->pushProcessor(function ($record) {
+            if (isset($record['context']['step'])) {
+                $record['message'] = '- {step}: ' . $record['message'];
+            }
+            if (isset($record['context']['record'])) {
+                $record['message'] .= ' {record}';
+                $record['context']['record'] = json_encode($record['context']['record']);
+            }
+            return $record;
+        });
+
         // Default Moodle handler. Always on.
-        $log->pushHandler(new mtrace_handler());
+        $log->pushHandler(new mtrace_handler(Logger::INFO));
 
         // Useful for docker-dev
         // $log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
@@ -623,7 +639,7 @@ class engine {
         if (in_array($this->status, self::STATUS_TERMINATORS)) {
             if ($status === self::STATUS_ABORTED) {
                 // Don't crash if aborting, but make a note of it.
-                $this->log('Aborted within concluded state (' . self::STATUS_LABELS[$this->status] . ')');
+                $this->logger->info('Aborted within concluded state (' . self::STATUS_LABELS[$this->status] . ')');
             } else {
                 throw new \moodle_exception(
                     'change_state_after_concluded',
@@ -644,14 +660,14 @@ class engine {
         $statusstring = self::STATUS_LABELS[$status];
         $this->get_variables()->set("states.$statusstring", microtime(true));
 
-        if ($status === self::STATUS_INITIALISED) {
-            $this->log('status: ' . self::STATUS_LABELS[$status] . ', config: ' . json_encode(['isdryrun' => $this->isdryrun]));
-        } else if (in_array($status, self::STATUS_TERMINATORS, true)) {
-            $this->log('status: ' . self::STATUS_LABELS[$status]);
-            $this->log("dumping state..\n" . $this->export());
-        } else {
-            $this->log('status: ' . self::STATUS_LABELS[$status]);
+        $context = [
+                'isdryrun' => $this->isdryrun,
+                'status' => get_string('engine_status:'.self::STATUS_LABELS[$this->status], 'tool_dataflows'),
+        ];
+        if (in_array($status, self::STATUS_TERMINATORS, true)) {
+            $context['data'] = $this->get_export_data();
         }
+        $this->logger->info('Dataflow is {status}', $context);
     }
 
     /**

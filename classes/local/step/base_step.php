@@ -665,14 +665,7 @@ abstract class base_step {
      */
     public function log_vars() {
         $vars = $this->get_variables()->get('vars');
-
-        $yaml = Yaml::dump(
-            (array) $vars,
-            helper::YAML_DUMP_INLINE_LEVEL,
-            helper::YAML_DUMP_INDENT_LEVEL,
-            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-        );
-        $this->log->info("Debug: current vars:\n" . trim($yaml));
+        $this->log->debug("Current vars", (array) $vars);
     }
 
     /**

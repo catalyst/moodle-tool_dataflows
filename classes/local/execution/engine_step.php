@@ -221,7 +221,7 @@ abstract class engine_step {
         }
 
         $context['step'] = $this->name;
-        $this->log->info($message, $context, $level);
+        $this->engine->logger->log($level, $message, ['context' => $context]);
     }
 
     /**
@@ -239,7 +239,7 @@ abstract class engine_step {
         if (in_array($this->status, engine::STATUS_TERMINATORS)) {
             if ($status === engine::STATUS_ABORTED) {
                 // Don't crash if aborting, but make a note of it.
-                $this->log->notice('Aborted within concluded state (' . engine::STATUS_LABELS[$this->status] . ')', ['step' => $this->name]);
+                $this->log->notice('Aborted within concluded state (' . engine::STATUS_LABELS[$this->status] . ')', ['step' => $this->name, 'status' => engine::STATUS_LABELS[$status]]);
             } else {
                 throw new \moodle_exception(
                     'change_step_state_after_concluded',
@@ -255,7 +255,13 @@ abstract class engine_step {
         // Record the timestamp of the state change.
         $statusstring = engine::STATUS_LABELS[$status];
         $this->get_variables()->set("states.$statusstring", microtime(true));
-        $this->log->debug('status: ' . engine::STATUS_LABELS[$status], ['step' => $this->name]);
+
+        // For status up to processing, log as debug, anything after is more interesting.
+        $level = Logger::INFO;
+        if ($status <= engine::STATUS_INITIALISED || $this->steptype instanceof flow_cap) {
+            $level = Logger::DEBUG;
+        }
+        $this->log->log($level, "status is '{status}'", ['step' => $this->name, 'status' => engine::STATUS_LABELS[$status]]);
 
         $this->on_change_status();
     }

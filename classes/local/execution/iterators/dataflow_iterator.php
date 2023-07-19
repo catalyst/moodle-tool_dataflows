@@ -19,6 +19,7 @@ namespace tool_dataflows\local\execution\iterators;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\step\base_step;
+use tool_dataflows\local\step\flow_cap;
 
 /**
  * A mapping iterator that takes a PHP iterator as a source.
@@ -222,9 +223,15 @@ class dataflow_iterator implements iterator {
             // Expose the number of times this step has been iterated over.
             $this->stepvars->set('iterations', $this->iterationcount);
 
-            $this->step->log->info('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
+            // Log the iteration for real steps.
+            if (!$this->steptype instanceof flow_cap) {
+                $this->step->log->info('Iteration ' . $this->iterationcount, [
+                    'record' => $newvalue,
+                    'step' => $this->step->stepdef->name,
+                ]);
+            }
         } catch (\Throwable $e) {
-            $this->step->log->info($e->getMessage());
+            $this->step->log->error($e->getMessage());
             $this->step->engine->abort();
             throw $e;
         }
