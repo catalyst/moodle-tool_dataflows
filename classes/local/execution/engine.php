@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\local\execution;
 
+use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\BrowserConsoleHandler;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Handler\StreamHandler;
@@ -24,6 +25,7 @@ use Symfony\Bridge\Monolog\Logger;
 use tool_dataflows\dataflow;
 use tool_dataflows\exportable;
 use tool_dataflows\helper;
+use tool_dataflows\local\execution\logging\log_handler;
 use tool_dataflows\local\execution\logging\mtrace_handler;
 use tool_dataflows\local\service\step_service;
 use tool_dataflows\local\step\flow_cap;
@@ -148,66 +150,19 @@ class engine {
      * @param bool $automated Execution of this run was an automated trigger.
      */
     public function __construct(dataflow $dataflow, bool $isdryrun = false, $automated = true) {
-        global $CFG;
         $this->dataflow = $dataflow;
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
         $status = self::STATUS_NEW;
 
-        // Initalise a new run (only for non-dry runs). This should only be
-        // created when the engine is executed.
-        $channel = 'dataflow/' . $this->dataflow->id;
         if (!$this->isdryrun) {
             $this->run = new run;
             $this->run->dataflowid = $this->dataflow->id;
             $this->run->initialise($status, $this->export());
-            $channel .= '/' . $this->run->name;
         }
 
-        // Each channel represents a specific way of writing log information.
-        $log = new Logger($channel);
-
-        // Add a custom formatter.
-        $log->pushProcessor(new PsrLogMessageProcessor(null, true));
-
-        // Ensure step names are used if supplied.
-        $log->pushProcessor(function ($record) {
-            if (isset($this->currentstep)) {
-                $record['context']['step'] = $this->currentstep->name;
-            }
-
-            if (isset($record['context']['step'])) {
-                $record['message'] = '{step}: ' . $record['message'];
-            }
-            if (isset($record['context']['record'])) {
-                $record['message'] .= ' {record}';
-                $record['context']['record'] = json_encode($record['context']['record']);
-            }
-            return $record;
-        });
-
-        // Default Moodle handler. Always on.
-        $log->pushHandler(new mtrace_handler(Logger::INFO));
-
-        // Log to the browser's dev console for a manual run.
-        $log->pushHandler(new BrowserConsoleHandler(Logger::DEBUG));
-
-        // Dataflow run logger.
-        // $dataflowlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
-        //     'tool_dataflows' . DIRECTORY_SEPARATOR .
-        //     $this->dataflow->id . DIRECTORY_SEPARATOR . $this->run->name
-        //     . '.log';
-        // $max = 5;
-        // $log->pushHandler(new RotatingFileHandler($dataflowlogpath, $max, Logger::DEBUG));
-
-        // General dataflow logger.
-        $dataflowrunlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
-            'tool_dataflows' . DIRECTORY_SEPARATOR .
-            $this->dataflow->id . DIRECTORY_SEPARATOR . 'flow.log';
-
-        $log->pushHandler(new StreamHandler($dataflowrunlogpath, Logger::DEBUG));
-
-        $this->logger = $log;
+        // Set up logging.
+        $this->setup_logging();
 
         // Force the dataflow to create a fresh set of variables.
         $dataflow->clear_variables();
@@ -680,7 +635,7 @@ class engine {
         $level = Logger::INFO;
         if (in_array($status, self::STATUS_TERMINATORS, true)) {
             $level = Logger::NOTICE;
-            $context['data'] = $this->get_export_data();
+            $context['export'] = $this->get_export_data();
         }
         $this->logger->log($level, "Engine: dataflow '{status}'", $context);
     }
@@ -757,5 +712,87 @@ class engine {
      */
     public function set_current_step(?engine_step $step) {
         $this->currentstep = $step;
+    }
+
+    /**
+     * Set up the logging for this engine.
+     *
+     * This will enable any adapters / handlers enabled from the dataflow configuration.
+     * The preference for applying the rules will be from most specific to more
+     * general settings.
+     */
+    private function setup_logging() {
+        global $CFG;
+        // Initalise a new run (only for non-dry runs). This should only be
+        // created when the engine is executed.
+        $channel = 'dataflow/' . $this->dataflow->id;
+        if (isset($this->run->name)) {
+            $channel .= '/' . $this->run->name;
+        }
+
+        // Each channel represents a specific way of writing log information.
+        $log = new Logger($channel);
+
+        // Add a custom formatter.
+        $log->pushProcessor(new PsrLogMessageProcessor(null, true));
+
+        // Ensure step names are used if supplied.
+        $log->pushProcessor(function ($record) {
+            if (isset($this->currentstep)) {
+                $record['context']['step'] = $this->currentstep->name;
+            }
+
+            if (isset($record['context']['step'])) {
+                $record['message'] = '{step}: ' . $record['message'];
+            }
+            if (isset($record['context']['record'])) {
+                $record['message'] .= ' {record}';
+                $record['context']['record'] = json_encode($record['context']['record']);
+            }
+            return $record;
+        });
+
+        // Tweak the default datetime output to include microseconds.
+        $lineformatter = new LineFormatter(null, 'Y-m-d H:i:s.u');
+
+        // Log handlers.
+        $loghandlers = array_flip(explode(',', get_config('tool_dataflows', 'log_handlers')));
+
+        // Default Moodle handler. Always on.
+        $mtracehandler = new mtrace_handler(Logger::DEBUG);
+        $mtracehandler->setFormatter($lineformatter);
+        $log->pushHandler($mtracehandler);
+
+        // Log to the browser's dev console for a manual run.
+        if (isset($loghandlers[log_handler::BROWSER_CONSOLE])) {
+            $log->pushHandler(new BrowserConsoleHandler(Logger::DEBUG));
+        }
+
+        // Dataflow run logger.
+        // e.g. '[dataroot]/tool_dataflows/3/21.log' as the path.
+        if (isset($loghandlers[log_handler::FILE_PER_RUN])) {
+            $dataflowrunlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
+                'tool_dataflows' . DIRECTORY_SEPARATOR .
+                $this->dataflow->id . DIRECTORY_SEPARATOR . $this->run->name
+                . '.log';
+
+            $streamhandler = new StreamHandler($dataflowrunlogpath, Logger::DEBUG);
+            $streamhandler->setFormatter($lineformatter);
+            $log->pushHandler($streamhandler);
+        }
+
+        // General dataflow logger (rotates daily to prevent big single log file).
+        // e.g. '[dataroot]/tool_dataflows/3-2006-01-02.log' as the path.
+        if (isset($loghandlers[log_handler::FILE_PER_DATAFLOW])) {
+            $dataflowlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
+                'tool_dataflows' . DIRECTORY_SEPARATOR .
+                $this->dataflow->id . '.log';
+
+            $rotatingfilehandler = new RotatingFileHandler($dataflowlogpath, 0, Logger::DEBUG);
+            $rotatingfilehandler->setFormatter($lineformatter);
+            $log->pushHandler($rotatingfilehandler);
+        }
+
+        $this->logger = $log;
     }
 }

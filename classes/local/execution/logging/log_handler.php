@@ -16,27 +16,14 @@
 
 namespace tool_dataflows\local\execution\logging;
 
-use Monolog\Handler\AbstractHandler;
+class log_handler {
 
-/**
- * An environment for logging information about dataflow execution.
- *
- * @package   tool_dataflows
- * @author    Kevin Pham <kevinpham@catalyst-au.net>
- * @copyright Catalyst IT, 2023
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class mtrace_handler extends AbstractHandler {
+    /** @var string */
+    const BROWSER_CONSOLE = 'browser_console';
 
-    /**
-     * Default handler for Moodle.
-     *
-     * @param array $record the log record
-     **/
-    public function handle(array $record) {
-        if ($this->isHandling($record)) {
-            $record['formatted'] = trim($this->getFormatter()->format($record));
-            mtrace($record['formatted']);
-        }
-    }
+    /** @var string */
+    const FILE_PER_DATAFLOW = 'file_per_dataflow';
+
+    /** @var string */
+    const FILE_PER_RUN = 'file_per_run';
 }

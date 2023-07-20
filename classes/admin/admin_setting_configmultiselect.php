@@ -14,29 +14,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace tool_dataflows\local\execution\logging;
+namespace tool_dataflows\admin;
 
-use Monolog\Handler\AbstractHandler;
+use tool_dataflows\admin\readonly_trait;
 
 /**
- * An environment for logging information about dataflow execution.
+ * A custom class applying extra readonly checks to the base implementation.
  *
  * @package   tool_dataflows
  * @author    Kevin Pham <kevinpham@catalyst-au.net>
  * @copyright Catalyst IT, 2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mtrace_handler extends AbstractHandler {
-
-    /**
-     * Default handler for Moodle.
-     *
-     * @param array $record the log record
-     **/
-    public function handle(array $record) {
-        if ($this->isHandling($record)) {
-            $record['formatted'] = trim($this->getFormatter()->format($record));
-            mtrace($record['formatted']);
-        }
-    }
+class admin_setting_configmultiselect extends \admin_setting_configmultiselect {
+    use readonly_trait;
 }

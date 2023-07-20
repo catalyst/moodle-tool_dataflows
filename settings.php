@@ -30,6 +30,8 @@ use tool_dataflows\admin\admin_setting_yaml;
 use tool_dataflows\admin\admin_setting_configcheckbox;
 use tool_dataflows\admin\admin_setting_configtext;
 use tool_dataflows\admin\admin_setting_configexecutable;
+use tool_dataflows\admin\admin_setting_configmultiselect;
+use tool_dataflows\local\execution\logging\log_handler;
 use tool_dataflows\manager;
 
 defined('MOODLE_INTERNAL') || die();
@@ -102,6 +104,19 @@ if ($hassiteconfig) {
             get_string('global_vars_desc', 'tool_dataflows'),
             '',
             PARAM_RAW
+        ));
+
+        // Multi-select element used to enable different logging handlers.
+        $settings->add(new admin_setting_configmultiselect(
+            'tool_dataflows/log_handlers',
+            get_string('log_handlers', 'tool_dataflows'),
+            get_string('log_handlers_desc', 'tool_dataflows'),
+            [],
+            [
+                log_handler::BROWSER_CONSOLE => get_string('log_handler_browser_console', 'tool_dataflows'),
+                log_handler::FILE_PER_DATAFLOW => get_string('log_handler_file_per_dataflow', 'tool_dataflows'),
+                log_handler::FILE_PER_RUN => get_string('log_handler_file_per_run', 'tool_dataflows'),
+            ]
         ));
 
         $settings->add(
