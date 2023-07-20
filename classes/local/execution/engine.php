@@ -566,6 +566,11 @@ class engine {
      * @throws \Throwable
      */
     public function abort(?\Throwable $reason = null) {
+        // If already aborted, do nothing.
+        if ($this->status === self::STATUS_ABORTED) {
+            return;
+        }
+
         $message = '';
         if (isset($reason)) {
             $message .= $reason->getMessage();
