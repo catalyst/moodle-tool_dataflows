@@ -215,7 +215,7 @@ abstract class engine_step {
      *
      * @param string $message
      */
-    public function log(string $message, $context = [], $level = Logger::DEBUG) {
+    public function log(string $message, $context = [], $level = Logger::INFO) {
         if ($this->steptype instanceof flow_cap) {
             return;
         }
@@ -257,11 +257,8 @@ abstract class engine_step {
         $this->get_variables()->set("states.$statusstring", microtime(true));
 
         // For status up to processing, log as debug, anything after is more interesting.
-        $level = Logger::INFO;
-        if ($status <= engine::STATUS_INITIALISED || $this->steptype instanceof flow_cap) {
-            $level = Logger::DEBUG;
-        }
-        $this->log->log($level, "status is '{status}'", ['step' => $this->name, 'status' => engine::STATUS_LABELS[$status]]);
+        // The engine step status change is mainly implementation details the end user typically shouldn't care about.
+        $this->log->debug("status is '{status}'", ['step' => $this->name, 'status' => engine::STATUS_LABELS[$status]]);
 
         $this->on_change_status();
     }

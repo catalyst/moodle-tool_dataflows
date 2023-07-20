@@ -56,6 +56,7 @@ class flow_engine_step extends engine_step {
      * @return int
      */
     public function go(): int {
+        $this->engine->set_current_step($this);
         switch ($this->proceed_status()) {
             case self::PROCEED_GO:
                 try {
@@ -73,6 +74,7 @@ class flow_engine_step extends engine_step {
                 $this->set_status(engine::STATUS_WAITING);
                 break;
         }
+        $this->engine->set_current_step(null);
         return $this->status;
     }
 }

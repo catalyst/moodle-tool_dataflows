@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\local\execution\iterators;
 
-use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\step\base_step;
 use tool_dataflows\local\step\flow_cap;
@@ -195,6 +194,7 @@ class dataflow_iterator implements iterator {
      * @param   \stdClass $caller The engine step that called this method, internally used to connect outputs.
      */
     public function next($caller) {
+        $this->step->engine->set_current_step($this->step);
         if (!$this->prepare_iteration()) {
             return;
         }
@@ -225,10 +225,7 @@ class dataflow_iterator implements iterator {
 
             // Log the iteration for real steps.
             if (!$this->steptype instanceof flow_cap) {
-                $this->step->log->info('Iteration ' . $this->iterationcount, [
-                    'record' => $newvalue,
-                    'step' => $this->step->stepdef->name,
-                ]);
+                $this->step->log->info('Iteration ' . $this->iterationcount, ['record' => $newvalue]);
             }
         } catch (\Throwable $e) {
             $this->step->log->error($e->getMessage());

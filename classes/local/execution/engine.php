@@ -19,13 +19,12 @@ namespace tool_dataflows\local\execution;
 use Monolog\Handler\BrowserConsoleHandler;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Handler\StreamHandler;
-use Monolog\Handler\SyslogHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Symfony\Bridge\Monolog\Logger;
-use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\exportable;
 use tool_dataflows\helper;
+use tool_dataflows\local\execution\logging\mtrace_handler;
 use tool_dataflows\local\service\step_service;
 use tool_dataflows\local\step\flow_cap;
 use tool_dataflows\local\variables\var_dataflow;
@@ -105,6 +104,9 @@ class engine {
     /** @var array The engine steps in the dataflow. */
     protected $enginesteps = [];
 
+    /** @var engine_step The current engine step running in the engine. */
+    protected $currentstep;
+
     /** @var array The steps that have no outputflows. */
     protected $sinks = [];
 
@@ -170,6 +172,10 @@ class engine {
 
         // Ensure step names are used if supplied.
         $log->pushProcessor(function ($record) {
+            if (isset($this->currentstep)) {
+                $record['context']['step'] = $this->currentstep->name;
+            }
+
             if (isset($record['context']['step'])) {
                 $record['message'] = '{step}: ' . $record['message'];
             }
@@ -183,10 +189,7 @@ class engine {
         // Default Moodle handler. Always on.
         $log->pushHandler(new mtrace_handler(Logger::INFO));
 
-        // Useful for docker-dev
-        // $log->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
-
-        // Doesn't seem to work
+        // Log to the browser's dev console for a manual run.
         $log->pushHandler(new BrowserConsoleHandler(Logger::DEBUG));
 
         // Dataflow run logger.
@@ -570,14 +573,18 @@ class engine {
                 $message .= PHP_EOL . $reason->debuginfo;
             }
         }
-        $this->log('Aborted: ' . $message);
+
+        $this->set_current_step(null);
+        $this->log('Engine: aborting steps');
         $this->exception = $reason;
         foreach ($this->enginesteps as $enginestep) {
+            $this->set_current_step($enginestep);
             $enginestep->abort();
         }
         foreach ($this->flowcaps as $enginestep) {
             $enginestep->abort();
         }
+        $this->set_current_step(null);
         $this->queue = [];
         $this->set_status(self::STATUS_ABORTED);
         $this->release_lock();
@@ -664,10 +671,13 @@ class engine {
                 'isdryrun' => $this->isdryrun,
                 'status' => get_string('engine_status:'.self::STATUS_LABELS[$this->status], 'tool_dataflows'),
         ];
+
+        $level = Logger::INFO;
         if (in_array($status, self::STATUS_TERMINATORS, true)) {
+            $level = Logger::NOTICE;
             $context['data'] = $this->get_export_data();
         }
-        $this->logger->info("Dataflow is '{status}'", $context);
+        $this->logger->log($level, "Engine: dataflow '{status}'", $context);
     }
 
     /**
@@ -733,5 +743,14 @@ class engine {
      */
     public function create_temporary_file($prefix = '____') {
         return tempnam($this->scratchdir, $prefix);
+    }
+
+    /**
+     * Sets the currently processing step for the engine.
+     *
+     * @param engine_step|null $step
+     */
+    public function set_current_step(?engine_step $step) {
+        $this->currentstep = $step;
     }
 }
