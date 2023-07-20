@@ -76,6 +76,7 @@ trait set_variable_trait {
     public function run(var_root $varobject, string $field, $value) {
         // Set the value in the variable tree.
         $varobject->set($field, $value);
+        $this->log("Set '{field}' as '{value}'", ['field' => $field, 'value' => $value]);
 
         // We do not persist the value if it is a dry run.
         if ($this->is_dry_run()) {

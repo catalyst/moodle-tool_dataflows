@@ -245,15 +245,13 @@ class flow_logic_switch extends flow_logic_step {
                     }
 
                     // Log details for when a case matches.
-                    $output = sprintf(
-                        'Matching case "%s" (position #%d) with expression: %s',
-                        $this->steptype->get_output_label($position),
-                        $position,
-                        $case
-                    );
-                    $this->step->log($output);
+                    $this->step->log('Matching case "{case}" (position #{position}) with expression: {expression}', [
+                        'case' => $this->steptype->get_output_label($position),
+                        'position' => $position,
+                        'expression' => $case,
+                    ]);
                 } catch (\Throwable $e) {
-                    $this->step->log($e->getMessage());
+                    $this->step->log->error($e->getMessage());
                     throw $e;
                 }
 
