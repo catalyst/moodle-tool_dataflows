@@ -239,7 +239,10 @@ abstract class engine_step {
         if (in_array($this->status, engine::STATUS_TERMINATORS)) {
             if ($status === engine::STATUS_ABORTED) {
                 // Don't crash if aborting, but make a note of it.
-                $this->log->notice('Aborted within concluded state (' . engine::STATUS_LABELS[$this->status] . ')', ['step' => $this->name, 'status' => engine::STATUS_LABELS[$status]]);
+                $this->log->notice(
+                    'Aborted within concluded state (' . engine::STATUS_LABELS[$this->status] . ')',
+                    ['step' => $this->name, 'status' => engine::STATUS_LABELS[$status]],
+                );
             } else {
                 throw new \moodle_exception(
                     'change_step_state_after_concluded',
