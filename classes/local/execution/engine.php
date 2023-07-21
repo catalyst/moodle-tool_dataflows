@@ -747,10 +747,6 @@ class engine {
             if (isset($record['context']['step'])) {
                 $record['message'] = '{step}: ' . $record['message'];
             }
-            if (isset($record['context']['record'])) {
-                $record['message'] .= ' {record}';
-                $record['context']['record'] = json_encode($record['context']['record']);
-            }
             return $record;
         });
 

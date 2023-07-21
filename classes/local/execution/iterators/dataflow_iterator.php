@@ -224,9 +224,7 @@ class dataflow_iterator implements iterator {
             $this->stepvars->set('iterations', $this->iterationcount);
 
             // Log the iteration for real steps.
-            if (!$this->steptype instanceof flow_cap) {
-                $this->step->log->info('Iteration ' . $this->iterationcount, ['record' => $newvalue]);
-            }
+            $this->step->log->info('Iteration ' . $this->iterationcount, (array) $newvalue);
         } catch (\Throwable $e) {
             $this->step->log->error($e->getMessage());
             $this->step->engine->abort();
