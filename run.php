@@ -142,7 +142,7 @@ try {
     $engine->execute();
 } catch (\Throwable $e) {
     if (isset($engine)) {
-        $engine->log($e);
+        $engine->logger->error($e);
     } else {
         mtrace('Engine \'' . $dataflow->name . '\': ' . $e->getMessage());
     }
