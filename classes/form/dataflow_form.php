@@ -111,7 +111,7 @@ EOT;
                 log_handler::BROWSER_CONSOLE => get_string('log_handler_browser_console', 'tool_dataflows'),
                 log_handler::FILE_PER_DATAFLOW => get_string('log_handler_file_per_dataflow', 'tool_dataflows'),
                 log_handler::FILE_PER_RUN => get_string('log_handler_file_per_run', 'tool_dataflows'),
-            ],
+            ]
         );
         $select->setMultiple(true);
         $mform->addElement('static', 'log_handlers_desc', '', get_string('log_handlers_desc', 'tool_dataflows'));
