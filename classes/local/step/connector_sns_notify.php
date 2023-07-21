@@ -80,13 +80,13 @@ class connector_sns_notify extends connector_step {
             require_once($CFG->dirroot . '/local/aws/sdk/aws-autoloader.php');
         } catch (\Exception $e) {
             // TODO specific exception.
-            $this->enginestep->log->info(get_string('local_aws_missing', 'tool_dataflows'));
+            $this->enginestep->log->error(get_string('local_aws_missing', 'tool_dataflows'));
             return false;
         }
 
         // Do not execute operations during a dry run.
         if ($this->enginestep->engine->isdryrun) {
-            $this->enginestep->log->info('Do not send SNS notification as this is a dry run.');
+            $this->enginestep->log->info('Skip SNS notification as this is a dry run.');
             return true;
         }
 
@@ -110,7 +110,7 @@ class connector_sns_notify extends connector_step {
             $snsclient = \local_aws\local\client_factory::get_client('\Aws\Sns\SnsClient', $connectionoptions);
         } catch (\Exception $e) {
             // TODO specific exception.
-            $this->enginestep->log->info(get_string('s3_configuration_error', 'tool_dataflows'));
+            $this->enginestep->log->error(get_string('s3_configuration_error', 'tool_dataflows'));
             return false;
         }
 
@@ -128,7 +128,7 @@ class connector_sns_notify extends connector_step {
                 'TopicArn' => $topic,
             ]);
         } catch (AwsException $e) {
-            $this->enginestep->log->info($e->getMessage());
+            $this->enginestep->log->error($e->getMessage());
             return false;
         }
 

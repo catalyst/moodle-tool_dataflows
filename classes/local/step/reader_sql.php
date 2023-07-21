@@ -178,7 +178,7 @@ class reader_sql extends reader_step {
             }
         } catch (\Throwable $e) {
             if (!empty($errormsg)) {
-                $this->enginestep->log->info($errormsg);
+                $this->enginestep->log->error($errormsg);
             }
             throw $e;
         }
