@@ -214,6 +214,8 @@ abstract class engine_step {
      * Emit a log message.
      *
      * @param string $message
+     * @param mixed $context
+     * @param mixed $level
      */
     public function log(string $message, $context = [], $level = Logger::INFO) {
         if ($this->steptype instanceof flow_cap) {

@@ -559,6 +559,8 @@ class engine {
      * Emit a log message.
      *
      * @param string $message
+     * @param mixed $context
+     * @param mixed $level
      */
     public function log(string $message, $context = [], $level = Logger::INFO) {
         $this->logger->log($level, $message, $context);

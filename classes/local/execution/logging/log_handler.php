@@ -16,6 +16,16 @@
 
 namespace tool_dataflows\local\execution\logging;
 
+/**
+ * Log handler class
+ *
+ * For dataflow specific log handling.
+ *
+ * @package   tool_dataflows
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright Catalyst IT, 2023
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class log_handler {
 
     /** @var string */
