@@ -755,8 +755,12 @@ class engine {
         // Tweak the default datetime output to include microseconds.
         $lineformatter = new LineFormatter(null, 'Y-m-d H:i:s.u');
 
-        // Log handlers.
+        // Log handler settings (prefer dataflow if set, otherwise site level settings).
         $loghandlers = array_flip(explode(',', get_config('tool_dataflows', 'log_handlers')));
+        $dataflowloghandlers = array_flip(explode(',', $this->dataflow->get('loghandlers')));
+        if (!empty($dataflowloghandlers)) {
+            $loghandlers = $dataflowloghandlers;
+        }
 
         // Default Moodle handler. Always on.
         $mtracehandler = new mtrace_handler(Logger::DEBUG);

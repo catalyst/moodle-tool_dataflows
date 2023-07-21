@@ -272,5 +272,21 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023050100, 'tool', 'dataflows');
     }
 
+
+    if ($oldversion < 2023072100) {
+
+        // Define field loghandlers to be added to tool_dataflows.
+        $table = new xmldb_table('tool_dataflows');
+        $field = new xmldb_field('loghandlers', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'vars');
+
+        // Conditionally launch add field loghandlers.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2023072100, 'tool', 'dataflows');
+    }
+
     return true;
 }
