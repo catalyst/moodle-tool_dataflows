@@ -277,7 +277,9 @@ trait sftp_trait {
             // Upload to remote.
             $this->upload($sftp, $sourcepath, $targetpath);
         } finally {
-            $sftp->disconnect();
+            if (isset($sftp)) {
+                $sftp->disconnect();
+            }
         }
 
         return $input;
