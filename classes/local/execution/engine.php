@@ -755,7 +755,7 @@ class engine {
 
         // Log handler settings (prefer dataflow if set, otherwise site level settings).
         $loghandlers = array_flip(explode(',', get_config('tool_dataflows', 'log_handlers')));
-        $dataflowloghandlers = array_flip(explode(',', $this->dataflow->get('loghandlers')));
+        $dataflowloghandlers = array_flip(array_filter(explode(',', $this->dataflow->get('loghandlers'))));
         if (!empty($dataflowloghandlers)) {
             $loghandlers = $dataflowloghandlers;
         }
