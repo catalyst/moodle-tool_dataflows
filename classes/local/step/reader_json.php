@@ -109,7 +109,7 @@ class reader_json extends reader_step {
     protected function get_json_string(string $path): string {
         $jsonstring = file_get_contents($this->enginestep->engine->resolve_path($path));
         if ($jsonstring === false) {
-            $this->enginestep->log(error_get_last()['message']);
+            $this->enginestep->log->error(error_get_last()['message']);
             throw new \moodle_exception(get_string('reader_json:failed_to_open_file', 'tool_dataflows', $path));
         }
 

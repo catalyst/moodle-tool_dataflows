@@ -19,6 +19,7 @@ namespace tool_dataflows\form;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 use moodle_exception;
+use tool_dataflows\local\execution\logging\log_handler;
 use tool_dataflows\manager;
 
 /**
@@ -100,6 +101,20 @@ data:
 EOT;
         $outputsexample['example'] = \html_writer::tag('pre', $examplestring);
         $mform->addElement('static', 'vars_help', '', get_string('field_vars_help', 'tool_dataflows', $outputsexample));
+
+        // Multi-select element used to enable different logging handlers.
+        $select = $mform->addElement(
+            'select',
+            'loghandlers',
+            get_string('log_handlers', 'tool_dataflows'),
+            [
+                log_handler::BROWSER_CONSOLE => get_string('log_handler_browser_console', 'tool_dataflows'),
+                log_handler::FILE_PER_DATAFLOW => get_string('log_handler_file_per_dataflow', 'tool_dataflows'),
+                log_handler::FILE_PER_RUN => get_string('log_handler_file_per_run', 'tool_dataflows'),
+            ]
+        );
+        $select->setMultiple(true);
+        $mform->addElement('static', 'log_handlers_desc', '', get_string('log_handlers_desc', 'tool_dataflows'));
 
         $this->add_action_buttons();
     }

@@ -16,7 +16,9 @@
 
 namespace tool_dataflows\local\execution;
 
+use Symfony\Bridge\Monolog\Logger;
 use tool_dataflows\local\step\base_step;
+use tool_dataflows\local\step\flow_cap;
 use tool_dataflows\local\variables\var_root;
 use tool_dataflows\local\variables\var_step;
 use tool_dataflows\step;
@@ -166,6 +168,8 @@ abstract class engine_step {
             case 'exception':
             case 'iterator':
                 return $this->$parameter;
+            case 'log':
+                return $this->engine->logger;
             case 'name':
                 return $this->stepdef->name;
             default:
@@ -210,9 +214,16 @@ abstract class engine_step {
      * Emit a log message.
      *
      * @param string $message
+     * @param mixed $context
+     * @param mixed $level
      */
-    public function log(string $message) {
-        (new logging_context($this))->log($message);
+    public function log(string $message, $context = [], $level = Logger::INFO) {
+        if ($this->steptype instanceof flow_cap) {
+            return;
+        }
+
+        $context['step'] = $this->name;
+        $this->engine->logger->log($level, $message, ['context' => $context]);
     }
 
     /**
@@ -230,7 +241,10 @@ abstract class engine_step {
         if (in_array($this->status, engine::STATUS_TERMINATORS)) {
             if ($status === engine::STATUS_ABORTED) {
                 // Don't crash if aborting, but make a note of it.
-                $this->log('Aborted within concluded state (' . engine::STATUS_LABELS[$this->status] . ')');
+                $this->log->notice(
+                    'Aborted within concluded state (' . engine::STATUS_LABELS[$this->status] . ')',
+                    ['step' => $this->name, 'status' => engine::STATUS_LABELS[$status]]
+                );
             } else {
                 throw new \moodle_exception(
                     'change_step_state_after_concluded',
@@ -246,7 +260,10 @@ abstract class engine_step {
         // Record the timestamp of the state change.
         $statusstring = engine::STATUS_LABELS[$status];
         $this->get_variables()->set("states.$statusstring", microtime(true));
-        $this->log('status: ' . engine::STATUS_LABELS[$status]);
+
+        // For status up to processing, log as debug, anything after is more interesting.
+        // The engine step status change is mainly implementation details the end user typically shouldn't care about.
+        $this->log->debug("status is '{status}'", ['step' => $this->name, 'status' => engine::STATUS_LABELS[$status]]);
 
         $this->on_change_status();
     }

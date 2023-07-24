@@ -41,6 +41,7 @@ class connector_engine_step extends engine_step {
      * @return int
      */
     public function go(): int {
+        $this->engine->set_current_step($this);
         switch ($this->proceed_status()) {
             case self::PROCEED_GO:
                 try {
@@ -52,6 +53,8 @@ class connector_engine_step extends engine_step {
                         $this->set_status(engine::STATUS_CANCELLED);
                     }
                 } catch (\Throwable $thrown) {
+                    $this->log->error($thrown->getMessage());
+                    $this->engine->set_current_step(null);
                     $this->exception = $thrown;
                     $this->engine->abort($thrown);
                 }
@@ -63,6 +66,8 @@ class connector_engine_step extends engine_step {
                 $this->set_status(engine::STATUS_BLOCKED);
                 break;
         }
+
+        $this->engine->set_current_step(null);
         return $this->status;
     }
 }

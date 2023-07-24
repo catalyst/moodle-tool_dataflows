@@ -55,6 +55,7 @@ class engine_flow_cap extends flow_engine_step {
 
                     $this->set_status(engine::STATUS_FINISHED);
                 } catch (\Throwable $thrown) {
+                    $this->log->error($thrown->getMessage());
                     $this->exception = $thrown;
                     $this->engine->abort($thrown);
                 }

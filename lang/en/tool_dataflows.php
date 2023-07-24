@@ -43,6 +43,11 @@ $string['gpg_exec_path'] = 'Path to GPG executable';
 $string['gpg_exec_path_desc'] = 'Path to GPG executable';
 $string['gpg_key_dir'] = 'Path to keyring directory';
 $string['gpg_key_dir_desc'] = 'Path to keyring directory';
+$string['log_handlers'] = 'Log handlers';
+$string['log_handlers_desc'] = 'Additional log handlers to output dataflow logs to more destinations. The handler for mtrace is always active and cannot be disabled. Applying the settings at the dataflow level will override settings applied at the site admin level.';
+$string['log_handler_file_per_dataflow'] = 'File per dataflow - [dataroot]/tool_dataflows/{id}-Y-m-d.log';
+$string['log_handler_file_per_run'] = 'File per run - [dataroot]/tool_dataflows/{dataflowid}/{id}.log';
+$string['log_handler_browser_console'] = 'Browser Console';
 $string['permitted_dirs'] = 'Permitted directories';
 $string['permitted_dirs_desc'] = "List directories here to allow them to be read from/written to by dataflow steps.
     One directory per line. Each directory must be an absolute path. You can use the place holder '{\$a}' for the
@@ -285,8 +290,6 @@ $string['concurrency_enabled_disabled_desc'] = '<i>Concurrent running is not pos
  While you can still edit this setting, it\'s value will be ignored. Reasons are:</i>';
 $string['file_missing'] = 'File is missing \'{$a}\'.';
 $string['property_not_supported'] = 'Property \'{$a->property}\' not supported in \'{$a->classname}\'';
-$string['unknown_logging_context'] = 'Unknown logging context';
-
 
 // JSON errors.
 $string['reader_json:failed_to_decode_json'] = 'Invalid JSON, failed to decode JSON file "{$a}".';

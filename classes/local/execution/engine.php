@@ -16,10 +16,17 @@
 
 namespace tool_dataflows\local\execution;
 
-use Symfony\Component\Yaml\Yaml;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\BrowserConsoleHandler;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Processor\PsrLogMessageProcessor;
+use Symfony\Bridge\Monolog\Logger;
 use tool_dataflows\dataflow;
 use tool_dataflows\exportable;
 use tool_dataflows\helper;
+use tool_dataflows\local\execution\logging\log_handler;
+use tool_dataflows\local\execution\logging\mtrace_handler;
 use tool_dataflows\local\service\step_service;
 use tool_dataflows\local\step\flow_cap;
 use tool_dataflows\local\variables\var_dataflow;
@@ -99,6 +106,9 @@ class engine {
     /** @var array The engine steps in the dataflow. */
     protected $enginesteps = [];
 
+    /** @var engine_step The current engine step running in the engine. */
+    protected $currentstep;
+
     /** @var array The steps that have no outputflows. */
     protected $sinks = [];
 
@@ -129,6 +139,9 @@ class engine {
     /** @var bool Has this engine been blocked by a lock. */
     protected $blocked = false;
 
+    /** @var Logger Primary logger for the current engine instance. */
+    protected $logger;
+
     /**
      * Constructs the engine.
      *
@@ -140,12 +153,22 @@ class engine {
         $this->dataflow = $dataflow;
         $this->isdryrun = $isdryrun;
         $this->automated = $automated;
+        $status = self::STATUS_NEW;
+
+        if (!$this->isdryrun) {
+            $this->run = new run;
+            $this->run->dataflowid = $this->dataflow->id;
+            $this->run->initialise($status, $this->export());
+        }
+
+        // Set up logging.
+        $this->setup_logging();
 
         // Force the dataflow to create a fresh set of variables.
         $dataflow->clear_variables();
         $dataflow->get_variables_root();
 
-        $this->set_status(self::STATUS_NEW);
+        $this->set_status($status);
 
         // Refuse to run if dataflow is not enabled.
         if (!($dataflow->enabled || !$automated || $isdryrun)) {
@@ -411,14 +434,6 @@ class engine {
 
         $this->status_check(self::STATUS_INITIALISED);
 
-        // Initalise a new run (only for non-dry runs). This should only be
-        // created when the engine is executed.
-        if (!$this->isdryrun) {
-            $this->run = new run;
-            $this->run->dataflowid = $this->dataflow->id;
-            $this->run->initialise($this->status, $this->export());
-        }
-
         while ($this->status != self::STATUS_FINISHED) {
             $this->execute_step();
 
@@ -506,6 +521,11 @@ class engine {
      * @throws \Throwable
      */
     public function abort(?\Throwable $reason = null) {
+        // If already aborted, do nothing.
+        if ($this->status === self::STATUS_ABORTED) {
+            return;
+        }
+
         $message = '';
         if (isset($reason)) {
             $message .= $reason->getMessage();
@@ -513,14 +533,18 @@ class engine {
                 $message .= PHP_EOL . $reason->debuginfo;
             }
         }
-        $this->log('Aborted: ' . $message);
+
+        $this->set_current_step(null);
+        $this->log('Engine: aborting steps');
         $this->exception = $reason;
         foreach ($this->enginesteps as $enginestep) {
+            $this->set_current_step($enginestep);
             $enginestep->abort();
         }
         foreach ($this->flowcaps as $enginestep) {
             $enginestep->abort();
         }
+        $this->set_current_step(null);
         $this->queue = [];
         $this->set_status(self::STATUS_ABORTED);
         $this->release_lock();
@@ -535,9 +559,11 @@ class engine {
      * Emit a log message.
      *
      * @param string $message
+     * @param mixed $context
+     * @param mixed $level
      */
-    public function log(string $message) {
-        (new logging_context($this))->log($message);
+    public function log(string $message, $context = [], $level = Logger::INFO) {
+        $this->logger->log($level, $message, $context);
     }
 
     /**
@@ -550,6 +576,7 @@ class engine {
             case 'dataflow':
             case 'exception':
             case 'isdryrun':
+            case 'logger':
             case 'run':
             case 'status':
             case 'scratchdir':
@@ -581,7 +608,7 @@ class engine {
         if (in_array($this->status, self::STATUS_TERMINATORS)) {
             if ($status === self::STATUS_ABORTED) {
                 // Don't crash if aborting, but make a note of it.
-                $this->log('Aborted within concluded state (' . self::STATUS_LABELS[$this->status] . ')');
+                $this->logger->info('Aborted within concluded state (' . self::STATUS_LABELS[$this->status] . ')');
             } else {
                 throw new \moodle_exception(
                     'change_state_after_concluded',
@@ -602,14 +629,17 @@ class engine {
         $statusstring = self::STATUS_LABELS[$status];
         $this->get_variables()->set("states.$statusstring", microtime(true));
 
-        if ($status === self::STATUS_INITIALISED) {
-            $this->log('status: ' . self::STATUS_LABELS[$status] . ', config: ' . json_encode(['isdryrun' => $this->isdryrun]));
-        } else if (in_array($status, self::STATUS_TERMINATORS, true)) {
-            $this->log('status: ' . self::STATUS_LABELS[$status]);
-            $this->log("dumping state..\n" . $this->export());
-        } else {
-            $this->log('status: ' . self::STATUS_LABELS[$status]);
+        $context = [
+                'isdryrun' => $this->isdryrun,
+                'status' => get_string('engine_status:'.self::STATUS_LABELS[$this->status], 'tool_dataflows'),
+        ];
+
+        $level = Logger::INFO;
+        if (in_array($status, self::STATUS_TERMINATORS, true)) {
+            $level = Logger::NOTICE;
+            $context['export'] = $this->get_export_data();
         }
+        $this->logger->log($level, "Engine: dataflow '{status}'", $context);
     }
 
     /**
@@ -675,5 +705,96 @@ class engine {
      */
     public function create_temporary_file($prefix = '____') {
         return tempnam($this->scratchdir, $prefix);
+    }
+
+    /**
+     * Sets the currently processing step for the engine.
+     *
+     * @param engine_step|null $step
+     */
+    public function set_current_step(?engine_step $step) {
+        $this->currentstep = $step;
+    }
+
+    /**
+     * Set up the logging for this engine.
+     *
+     * This will enable any adapters / handlers enabled from the dataflow configuration.
+     * The preference for applying the rules will be from most specific to more
+     * general settings.
+     */
+    private function setup_logging() {
+        global $CFG;
+        // Initalise a new run (only for non-dry runs). This should only be
+        // created when the engine is executed.
+        $channel = 'dataflow/' . $this->dataflow->id;
+        if (isset($this->run->name)) {
+            $channel .= '/' . $this->run->name;
+        }
+
+        // Each channel represents a specific way of writing log information.
+        $log = new Logger($channel);
+
+        // Add a custom formatter.
+        $log->pushProcessor(new PsrLogMessageProcessor(null, true));
+
+        // Ensure step names are used if supplied.
+        $log->pushProcessor(function ($record) {
+            if (isset($this->currentstep)) {
+                $record['context']['step'] = $this->currentstep->name;
+            }
+
+            if (isset($record['context']['step'])) {
+                $record['message'] = '{step}: ' . $record['message'];
+            }
+            return $record;
+        });
+
+        // Tweak the default datetime output to include microseconds.
+        $lineformatter = new LineFormatter(null, 'Y-m-d H:i:s.u');
+
+        // Log handler settings (prefer dataflow if set, otherwise site level settings).
+        $loghandlers = array_flip(explode(',', get_config('tool_dataflows', 'log_handlers')));
+        $dataflowloghandlers = array_flip(array_filter(explode(',', $this->dataflow->get('loghandlers'))));
+        if (!empty($dataflowloghandlers)) {
+            $loghandlers = $dataflowloghandlers;
+        }
+
+        // Default Moodle handler. Always on.
+        $mtracehandler = new mtrace_handler(Logger::DEBUG);
+        $mtracehandler->setFormatter($lineformatter);
+        $log->pushHandler($mtracehandler);
+
+        // Log to the browser's dev console for a manual run.
+        if (isset($loghandlers[log_handler::BROWSER_CONSOLE])) {
+            $log->pushHandler(new BrowserConsoleHandler(Logger::DEBUG));
+        }
+
+        // Dataflow run logger.
+        // e.g. '[dataroot]/tool_dataflows/3/21.log' as the path.
+        if (isset($loghandlers[log_handler::FILE_PER_RUN])) {
+            $dataflowrunlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
+                'tool_dataflows' . DIRECTORY_SEPARATOR .
+                $this->dataflow->id . DIRECTORY_SEPARATOR . $this->run->name
+                . '.log';
+
+            $streamhandler = new StreamHandler($dataflowrunlogpath, Logger::DEBUG);
+            $streamhandler->setFormatter($lineformatter);
+            $log->pushHandler($streamhandler);
+        }
+
+        // General dataflow logger (rotates daily to prevent big single log file).
+        // e.g. '[dataroot]/tool_dataflows/3-2006-01-02.log' as the path.
+        if (isset($loghandlers[log_handler::FILE_PER_DATAFLOW])) {
+            $dataflowlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
+                'tool_dataflows' . DIRECTORY_SEPARATOR .
+                $this->dataflow->id . '.log';
+
+            $rotatingfilehandler = new RotatingFileHandler($dataflowlogpath, 0, Logger::DEBUG);
+            $rotatingfilehandler->setFormatter($lineformatter);
+            $log->pushHandler($rotatingfilehandler);
+        }
+
+        $this->logger = $log;
     }
 }

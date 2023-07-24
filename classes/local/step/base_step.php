@@ -635,11 +635,32 @@ abstract class base_step {
      * Emits a log message
      *
      * Helper method to reduce the complexity when authoring step types.
+     * Default logging level is "INFO".
      *
      * @param string $message
+     * @param array $context
      */
-    protected function log(string $message) {
-        $this->enginestep->log($message);
+    protected function log(string $message, $context = []) {
+        $context['step'] = $this->stepdef->name;
+        $this->enginestep->log->info($message, $context);
+    }
+
+    /**
+     * PHP getter.
+     *
+     * @param  string $parameter
+     */
+    public function __get($parameter) {
+        switch ($parameter) {
+            case 'log':
+                return $this->enginestep->log;
+            default:
+                throw new \moodle_exception(
+                    'bad_parameter',
+                    'tool_dataflows',
+                    '',
+                    ['parameter' => $parameter, 'classname' => self::class]);
+        }
     }
 
     /**
@@ -647,15 +668,7 @@ abstract class base_step {
      */
     public function log_vars() {
         $vars = $this->get_variables()->get('vars');
-
-        $yaml = Yaml::dump(
-            (array) $vars,
-            helper::YAML_DUMP_INLINE_LEVEL,
-            helper::YAML_DUMP_INDENT_LEVEL,
-            Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK
-        );
-        $this->log("Debug: current vars:\n" . trim($yaml));
-
+        $this->log->debug("Current vars", (array) $vars);
     }
 
     /**

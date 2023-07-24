@@ -57,6 +57,7 @@ class dataflow extends persistent {
             'enabled' => ['type' => PARAM_BOOL, 'default' => false],
             'concurrencyenabled' => ['type' => PARAM_BOOL, 'default' => false],
             'vars' => ['type' => PARAM_TEXT, 'default' => ''],
+            'loghandlers' => ['type' => PARAM_TEXT, 'default' => ''],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
@@ -647,7 +648,7 @@ class dataflow extends persistent {
         }
 
         // Add settings (except name) under 'config'.
-        $configfields = ['enabled', 'concurrencyenabled'];
+        $configfields = ['enabled', 'concurrencyenabled', 'loghandlers'];
         $yaml['config'] = new \stdClass();
         foreach ($configfields as $field) {
             $yaml['config']->$field = $this->raw_get($field);
@@ -710,5 +711,18 @@ class dataflow extends persistent {
             }
         }
         return false;
+    }
+
+    /**
+     * Hook to execute before the persistent validation.
+     *
+     * e.g. loghandlers are set as a multiselect (array), and stored as a CSV string.
+     */
+    protected function before_validate() {
+        // Get the loghandlers value and convert the raw value to a CSV as required.
+        $loghandlers = $this->raw_get('loghandlers');
+        if (is_array($loghandlers)) {
+            $this->raw_set('loghandlers', implode(',', $loghandlers));
+        }
     }
 }

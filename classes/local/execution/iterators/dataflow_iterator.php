@@ -16,9 +16,9 @@
 
 namespace tool_dataflows\local\execution\iterators;
 
-use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\step\base_step;
+use tool_dataflows\local\step\flow_cap;
 
 /**
  * A mapping iterator that takes a PHP iterator as a source.
@@ -194,6 +194,7 @@ class dataflow_iterator implements iterator {
      * @param   \stdClass $caller The engine step that called this method, internally used to connect outputs.
      */
     public function next($caller) {
+        $this->step->engine->set_current_step($this->step);
         if (!$this->prepare_iteration()) {
             return;
         }
@@ -211,7 +212,7 @@ class dataflow_iterator implements iterator {
             if (!is_null($newvalue)) {
                 $this->value = $newvalue;
             } else {
-                $this->step->log('Step execution failed to return a value. Ignoring.');
+                $this->step->log->info('Step execution failed to return a value. Ignoring.');
             }
 
             // Log vars for this iteration.
@@ -222,9 +223,10 @@ class dataflow_iterator implements iterator {
             // Expose the number of times this step has been iterated over.
             $this->stepvars->set('iterations', $this->iterationcount);
 
-            $this->step->log('Iteration ' . $this->iterationcount . ': ' . json_encode($newvalue));
+            // Log the iteration for real steps.
+            $this->step->log->info('Iteration ' . $this->iterationcount, (array) $newvalue);
         } catch (\Throwable $e) {
-            $this->step->log($e->getMessage());
+            $this->step->log->error($e->getMessage());
             $this->step->engine->abort();
             throw $e;
         }

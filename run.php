@@ -38,12 +38,7 @@ require_once(dirname(__FILE__) . '/../../../config.php');
  * @param string $eol End of line character
  */
 function tool_dataflows_mtrace_wrapper($message, $eol) {
-    $time = microtime(true);
-    $parts = sscanf($time, '%d%f');
-    $display = userdate($time, '%Y %b %e, %H:%M:%S');
-    $micro = substr(sprintf('%0.3f', $parts[1]), 1);
     $class = '';
-
     $message = str_replace("\n", "\n    ", $message);
 
     // Mark up errors..
@@ -52,7 +47,7 @@ function tool_dataflows_mtrace_wrapper($message, $eol) {
     } else if (preg_match('/warn/im', $message)) {
         $class = 'bg-warning';
     }
-    echo html_writer::tag('div', sprintf('%s%s %s %s', $display, $micro, s($message), $eol), ['class' => $class]);
+    echo html_writer::tag('div', sprintf('%s %s', s($message), $eol), ['class' => $class]);
 }
 
 // Allow execution of single dataflow. This requires login and has different rules.
@@ -147,7 +142,7 @@ try {
     $engine->execute();
 } catch (\Throwable $e) {
     if (isset($engine)) {
-        $engine->log($e);
+        $engine->logger->error($e);
     } else {
         mtrace('Engine \'' . $dataflow->name . '\': ' . $e->getMessage());
     }
