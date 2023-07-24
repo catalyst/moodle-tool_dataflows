@@ -721,7 +721,7 @@ class dataflow extends persistent {
     protected function before_validate() {
         // Get the loghandlers value and convert the raw value to a CSV as required.
         $loghandlers = $this->raw_get('loghandlers');
-        if (!empty($loghandlers) && is_array($loghandlers)) {
+        if (is_array($loghandlers)) {
             $this->raw_set('loghandlers', implode(',', $loghandlers));
         }
     }
