@@ -648,7 +648,7 @@ class dataflow extends persistent {
         }
 
         // Add settings (except name) under 'config'.
-        $configfields = ['enabled', 'concurrencyenabled'];
+        $configfields = ['enabled', 'concurrencyenabled', 'loghandlers'];
         $yaml['config'] = new \stdClass();
         foreach ($configfields as $field) {
             $yaml['config']->$field = $this->raw_get($field);

@@ -2,6 +2,7 @@ name: 'Example Dataflow'
 config:
   enabled: '0'
   concurrencyenabled: '0'
+  loghandlers: ''
 steps:
   read:
     name: read
