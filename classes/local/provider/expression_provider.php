@@ -18,6 +18,7 @@ namespace tool_dataflows\local\provider;
 
 use Symfony\Component\ExpressionLanguage\ExpressionFunction;
 use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
+use tool_dataflows\parser;
 
 /**
  * Expression Provider
@@ -55,9 +56,23 @@ class expression_provider implements ExpressionFunctionProviderInterface {
             return isset($var);
         });
 
+        // Get variable (to handle dynamic variable names).
+        $getvar = new ExpressionFunction('get_var', function ($str)
+        {
+            return sprintf('get_var(%1$s)', $str);
+        }, function ($arguments, $var)
+        {
+            if (isset($arguments['root'])) {
+                $result = $arguments['root']->get($var);
+                return $result;
+            }
+            return $var;
+        });
+
         return [
             $fromjson,
             $isset,
+            $getvar,
             ExpressionFunction::fromPhp('count', 'count'),
             ExpressionFunction::fromPhp('format_time', 'format_time'),
             ExpressionFunction::fromPhp('round', 'round'),
