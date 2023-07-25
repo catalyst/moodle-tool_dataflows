@@ -140,11 +140,16 @@ trait directory_file_list_trait {
             $this->get_engine()->abort($error);
         }
 
+        // Get the list of files.
         $pathpattern = $path . DIRECTORY_SEPARATOR . $pattern;
-        $filelist = glob($pathpattern, GLOB_BRACE) || [];
-        if ($filelist !== false) {
-            $this->apply_list_constraints($filelist, $returnvalue, $config->sort, $offset, $limit, $includedir, $path);
+        $filelist = glob($pathpattern, GLOB_BRACE);
+        if (empty($filelist)) {
+            $this->log->notice("No files returned", ['pattern' => $pathpattern]);
+            return [];
         }
+
+        // Apply constraints.
+        $filelist = $this->apply_list_constraints($filelist, $returnvalue, $config->sort, $offset, $limit, $includedir, $path);
 
         return $filelist;
     }
@@ -178,7 +183,7 @@ trait directory_file_list_trait {
      * @param  bool          $includedir
      * @param  string        $basepath
      * @param  string        $pattern
-     * @return array Will return true or an array of errors.
+     * @return array new file list
      */
     public function apply_list_constraints(
         array $filelist,
