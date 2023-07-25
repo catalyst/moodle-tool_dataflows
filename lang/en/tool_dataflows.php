@@ -549,6 +549,7 @@ $string['directory_file_list:header'] = 'Directory File List settings';
 $string['directory_file_list:absolutepath'] = 'absolutepath';
 $string['directory_file_list:alpha'] = 'Alphabetical (A->Z)';
 $string['directory_file_list:alpha_reverse'] = 'Reverse alphabetical (Z->A)';
+$string['directory_file_list:natural'] = 'Natural (img1, img2, img10, img12)';
 $string['directory_file_list:basename'] = 'Base Name';
 $string['directory_file_list:filenames'] = 'List of filenames.';
 $string['directory_file_list:limit'] = 'Limit';

@@ -99,6 +99,7 @@ trait directory_file_list_trait {
             'select', 'config_sort', get_string('directory_file_list:sort', 'tool_dataflows'), [
             'alpha' => get_string('directory_file_list:alpha', 'tool_dataflows'),
             'alpha_reverse' => get_string('directory_file_list:alpha_reverse', 'tool_dataflows'),
+            'natural' => get_string('directory_file_list:natural', 'tool_dataflows'),
             ]
         );
 
@@ -243,6 +244,9 @@ trait directory_file_list_trait {
                 break;
             case 'alpha_reverse':
                 $func = 'arsort';
+                break;
+            case 'natural':
+                $func = 'natsort';
                 break;
         }
 
