@@ -79,6 +79,26 @@ https://graphviz.org/documentation/
 
 ## Configuration
 
+There are a few concepts to understand how the dataflows plugins works:
+
+1) Dataflows, are a collections of Steps which perform a series of actions
+2) There are 3 classes of steps 'Connector steps', 'Flow steps' and 'Trigger steps'
+3) There are many types of steps in each class, eg curl connector, copy connector, directory read connector
+4) A flow can have 0 or 1 Trigger step, and this is what starts the dataflow execution. eg you might have a 'Cron trigger', or an 'Event trigger'. If a dataflow does not have a Trigger step then it can only ever be run manually.
+5) A Connector Step only ever runs once, for example a step which copies a file from A to B
+6) A flow step is a step which runs in a loop over a stream of data. So you could have a flow step which make a curl call for every row in a csv file
+7) Each type of step defines what inputs it accepts and what outputs it creates. It may have a 'connector' input, and a 'flow' output. For instance the various 'reader' steps are connectors that have an output of a 'flow', eg 'CSV reader', 'JSON reader', 'SQL reader'
+8) Some triggers are also a flow step combined, for instance the event trigger can listen for events and buffer them and then trigger the flow to execute a series of events as a batch (it can also operate one at a time as well).
+9) Almost all steps require configuration, such as the name of a file to read, or the url to curl
+10) When authoring a dataflow you assemble all the steps together and link them into a graph of the execution order. Some steps can have multiple outputs like a unix 'tee' and some steps can have conditional multiple outputs like an 'if' or 'case' statement.
+11) Each step can expose different variables when it executes and these are stored in its own step namespace so they don't clash.
+12) When wiring steps together you can use any variable in expression written in the symphony expression language. For instance you could read a csv file which populates a flow record, and then use these values in a curl call to an api. Each step dynamically documents what variables it exposes.
+13) The dataflow engine validates that the steps are all wired together in a way that makes sense, and you cannot run a dataflow if it is in an invalid state. But invalid states are allowed to ease the authoring process.
+14) Dataflows can be enabled and disabled, and can be exported and imported and also locked after authoring so they cannot be tampered with.
+
+The best way is to see some example flows in action. TBA add some fixture flows to repo
+
+
 ### Best practices for workflows
 
 ## Guides
