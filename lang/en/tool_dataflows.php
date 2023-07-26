@@ -496,7 +496,7 @@ $string['flow_transformer_filter:filter_help'] = "This expression must evaluate 
 
 // Flow tranformer regex.
 $string['flow_transformer_regex:pattern'] = 'Regex pattern';
-$string['flow_transformer_regex:pattern_help'] = "The regex pattern will be applied to a field, and the first match will be returned.";
+$string['flow_transformer_regex:pattern_help'] = "Checked against the input field. The first match will be set on the record using this step's alias as the key. Named capture groups are used instead, if set.";
 $string['flow_transformer_regex:field'] = 'Input field';
 $string['flow_transformer_regex:field_help'] = "This field must be a string that will be processed using the regex pattern";
 

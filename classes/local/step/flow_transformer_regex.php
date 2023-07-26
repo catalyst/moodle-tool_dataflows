@@ -96,9 +96,25 @@ class flow_transformer_regex extends flow_transformer_step {
         $haystack = $variables->evaluate($field);
         $matches = [];
         preg_match($pattern, $haystack, $matches);
-        // Capture the first matched string as a variable.
-        $uniquekey = $variables->get('alias');
-        $input->$uniquekey = $matches[0] ?? null;
+
+        // Support named capture groups.
+        $hasnamedcapturegroups = false;
+        foreach ($matches as $key => $value) {
+            if (is_int($key)) {
+                continue;
+            }
+
+            $hasnamedcapturegroups = true;
+            $input->$key = $value;
+        }
+
+        // Otherwise set the first match (or null) to the field named as the step alias.
+        if (!$hasnamedcapturegroups) {
+            // Capture the first matched string as a variable.
+            $uniquekey = $variables->get('alias');
+            $input->$uniquekey = $matches[0] ?? null;
+        }
+
         return $input;
     }
 }
