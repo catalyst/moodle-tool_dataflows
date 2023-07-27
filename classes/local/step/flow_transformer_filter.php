@@ -16,10 +16,6 @@
 
 namespace tool_dataflows\local\step;
 
-use tool_dataflows\local\execution\flow_engine_step;
-use tool_dataflows\local\execution\iterators\dataflow_iterator;
-use tool_dataflows\local\execution\iterators\iterator;
-
 /**
  * Flow filter (transformer step) class
  *
@@ -80,10 +76,12 @@ class flow_transformer_filter extends flow_transformer_step {
      */
     public function execute($input = null) {
         $expr = $this->stepdef->config->filter;
+
         $result = (bool) $this->get_variables()->evaluate('${{ ' . $expr . ' }}');
         if (!$result) {
             return false;
         };
+
         return $input;
     }
 }

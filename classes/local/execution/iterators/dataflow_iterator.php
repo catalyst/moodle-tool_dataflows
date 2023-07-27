@@ -194,10 +194,11 @@ class dataflow_iterator implements iterator {
      * @param   \stdClass $caller The engine step that called this method, internally used to connect outputs.
      */
     public function next($caller) {
-        $this->step->engine->set_current_step($this->step);
         if (!$this->prepare_iteration()) {
+            $this->step->engine->set_current_step(null);
             return;
         }
+        $this->step->engine->set_current_step($this->step);
 
         try {
             // Do the actions defined for the particular step.

@@ -150,6 +150,7 @@ class var_value extends var_node {
      */
     public function evaluate(?callable $errorhandler = null) {
         $tree = $this->make_reference_tree();
+        $tree->root = $this->root;
         if (is_null($errorhandler)) {
             $this->resolved = parser::get_parser()->evaluate($this->raw, (array) $tree);
         } else {
@@ -191,7 +192,7 @@ class var_value extends var_node {
         foreach ($this->references as $name => $obj) {
             $value = $obj->get_resolved(false);
 
-            // Do not add the value if it is not set. This shoudl result in the expression remaining unresolved in the evalutaion.
+            // Do not add the value if it is not set. This should result in the expression remaining unresolved in the evalutaion.
             if (is_null($value)) {
                 continue;
             }

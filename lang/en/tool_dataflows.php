@@ -492,7 +492,7 @@ $string['flow_transformer_alter:expressions_help'] = 'Each line represents a tra
 
 // Flow transformer filter.
 $string['flow_transformer_filter:filter'] = 'Filter expression';
-$string['flow_transformer_filter:filter_help'] = "This expression must evaluate to a boolean. When the expression evaluates to false, the current value for the flow will not be passed on to later steps in the flow. There is no need for '\${{' and '}}'.";
+$string['flow_transformer_filter:filter_help'] = "This expression must evaluate to a boolean. When false, the current value will not be passed on to later flow steps. There is no need for '\${{' and '}}'.";
 
 // Flow tranformer regex.
 $string['flow_transformer_regex:pattern'] = 'Regex pattern';
@@ -549,6 +549,7 @@ $string['directory_file_list:header'] = 'Directory File List settings';
 $string['directory_file_list:absolutepath'] = 'absolutepath';
 $string['directory_file_list:alpha'] = 'Alphabetical (A->Z)';
 $string['directory_file_list:alpha_reverse'] = 'Reverse alphabetical (Z->A)';
+$string['directory_file_list:natural'] = 'Natural (img1, img2, img10, img12)';
 $string['directory_file_list:basename'] = 'Base Name';
 $string['directory_file_list:filenames'] = 'List of filenames.';
 $string['directory_file_list:limit'] = 'Limit';
