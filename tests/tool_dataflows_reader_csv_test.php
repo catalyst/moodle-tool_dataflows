@@ -36,20 +36,12 @@ require_once(dirname(__FILE__) . '/../lib.php');
  */
 class tool_dataflows_reader_csv_test extends \advanced_testcase {
 
-    /** @var string|null Input path for reader to read from. */
-    protected $inputpath = null;
-
-    /** @var string Temp path for test files. */
-    protected $outputpath = '';
-
     /**
      * Set up before each test
      */
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
-
-        $this->inputpath = null;
         set_config('permitted_dirs', '/tmp', 'tool_dataflows');
     }
 
@@ -57,12 +49,12 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
      * Test csv with headers included in the file contents
      */
     public function test_csv_with_headers_included_in_the_file_contents() {
-        [$dataflow, $steps] = $this->create_dataflow();
+        [$dataflow, $steps, $inputpath, $outputpath] = $this->create_dataflow();
 
         $reader = $steps[$dataflow->steps->reader->id];
         $reader->vars = Yaml::dump(['testapple' => '${{ record.apple }}']);
         $reader->config = Yaml::dump([
-            'path' => $this->inputpath,
+            'path' => $inputpath,
             'headers' => '',
             'delimiter' => ',',
         ]);
@@ -78,7 +70,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
             $content .= implode(',', $row);
             $content .= PHP_EOL;
         }
-        file_put_contents($this->inputpath, $content);
+        file_put_contents($inputpath, $content);
 
         // Execute.
         ob_start();
@@ -86,7 +78,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $output = file_get_contents($this->outputpath);
+        $output = file_get_contents($outputpath);
         $this->assertEquals(7, $engine->get_variables_root()->get('steps.reader.vars.testapple'));
 
         $this->assertEquals($content, $output);
@@ -96,13 +88,13 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
      * Test csv with custom headers configured
      */
     public function test_csv_with_custom_headers_configured() {
-        [$dataflow, $steps] = $this->create_dataflow();
+        [$dataflow, $steps, $inputpath, $outputpath] = $this->create_dataflow();
         $headers = ['first', 'second', 'third'];
 
         $reader = $steps[$dataflow->steps->reader->id];
         $reader->vars = Yaml::dump(['testsecond' => '${{ record.second }}']);
         $reader->config = Yaml::dump([
-            'path' => $this->inputpath,
+            'path' => $inputpath,
             'headers' => implode(',', $headers),
             'delimiter' => ',',
         ]);
@@ -118,7 +110,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
             $content .= implode(',', $row);
             $content .= PHP_EOL;
         }
-        file_put_contents($this->inputpath, $content);
+        file_put_contents($inputpath, $content);
 
         // Execute.
         ob_start();
@@ -126,7 +118,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $output = file_get_contents($this->outputpath);
+        $output = file_get_contents($outputpath);
         $this->assertEquals(8, $engine->get_variables_root()->get('steps.reader.vars.testsecond'));
 
         // Expected output; Add a header line.
@@ -138,7 +130,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
      * Tests for an invalid input stream.
      */
     public function test_bad_input_stream() {
-        [$dataflow, $steps] = $this->create_dataflow();
+        [$dataflow, $steps, $inputpath, $outputpath] = $this->create_dataflow();
         $path = 'path/to/nowhere';
 
         $reader = $steps[$dataflow->steps->reader->id];
@@ -166,12 +158,12 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
      * Test csv with custom headers configured
      */
     public function test_csv_with_overwrite_headers_configured() {
-        [$dataflow, $steps] = $this->create_dataflow();
+        [$dataflow, $steps, $inputpath, $outputpath] = $this->create_dataflow();
         $headers = ['first', 'second', 'third'];
 
         $reader = $steps[$dataflow->steps->reader->id];
         $reader->config = Yaml::dump([
-            'path' => $this->inputpath,
+            'path' => $inputpath,
             'headers' => implode(',', $headers),
             'overwriteheaders' => '1',
             'delimiter' => ',',
@@ -188,7 +180,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
             $content .= implode(',', $row);
             $content .= PHP_EOL;
         }
-        file_put_contents($this->inputpath, $content);
+        file_put_contents($inputpath, $content);
 
         // Expected content, which has headers but first line of content is removed.
         array_shift($data);
@@ -204,7 +196,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         $engine->execute();
         ob_get_clean();
 
-        $output = file_get_contents($this->outputpath);
+        $output = file_get_contents($outputpath);
 
         // Expected output; Add a header line.
         $this->assertEquals($expected, $output);
@@ -224,25 +216,25 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
 
         $steps = [];
 
-        $this->inputpath = tempnam('', 'tool_dataflows');
+        $inputpath = tempnam('', 'tool_dataflows');
         $reader = new step();
         $reader->name = 'reader';
         $reader->type = reader_csv::class;
         $reader->config = Yaml::dump([
-            'path' => $this->inputpath,
+            'path' => $inputpath,
             'headers' => '',
             'delimiter' => ',',
         ]);
         $dataflow->add_step($reader);
         $steps[$reader->id] = $reader;
 
-        $this->outputpath = tempnam('', 'tool_dataflows');
+        $outputpath = tempnam('', 'tool_dataflows');
         $writer = new step();
         $writer->name = 'stream-writer';
         $writer->type = 'tool_dataflows\local\step\writer_stream';
         $writer->config = Yaml::dump([
             'format' => 'csv',
-            'streamname' => $this->outputpath,
+            'streamname' => $outputpath,
         ]);
         $writer->depends_on([$reader]);
         $dataflow->add_step($writer);
@@ -250,6 +242,6 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
         $this->reader = $reader;
         $this->writer = $writer;
 
-        return [$dataflow, $steps];
+        return [$dataflow, $steps, $inputpath, $outputpath];
     }
 }
