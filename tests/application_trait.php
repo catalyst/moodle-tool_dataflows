@@ -44,7 +44,7 @@ trait application_trait {
      * @return  string mock url to use
      */
     public function get_mock_url(string $path): string {
-        return 'http://download.moodle.org/unittest'.$path;
+        return 'https://download.moodle.org/unittest'.$path;
     }
 
     // @codingStandardsIgnoreStart
