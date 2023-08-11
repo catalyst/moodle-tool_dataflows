@@ -27,7 +27,7 @@ use tool_dataflows\local\execution\iterators\dataflow_iterator;
  * @copyright Catalyst IT, 2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sftp_reader_directory_file_list extends reader_step {
+class reader_sftp_directory_file_list extends reader_step {
     use sftp_directory_file_list_trait;
 
     /**
@@ -50,5 +50,25 @@ class sftp_reader_directory_file_list extends reader_step {
         foreach ($list as $filename) {
             yield (object) ['filename' => $filename];
         }
+    }
+
+    /**
+     * Step callback handler
+     *
+     * @param mixed|null $input
+     * @return mixed The altered value to be passed to the next step(s) in the flow, or false to skip the rest of this iteration.
+     */
+    public function execute($input = null) {
+        return $input;
+    }
+
+    /**
+     * Returns whether or not the step configured, has a side effect.
+     *
+     * @return     bool whether or not this step has a side effect
+     * @link https://en.wikipedia.org/wiki/Side_effect_(computer_science)
+     */
+    public function has_side_effect(): bool {
+        return false;
     }
 }
