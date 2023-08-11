@@ -100,6 +100,16 @@ class tool_dataflows_sftp_test extends \advanced_testcase {
                 ],
             ],
             [
+                ['relativepath', 'alpha', 0, 0, false, '', '*.csv'],
+                [
+                    '2019-08-03-123451001.csv',
+                    '2019-08-03-123451002.csv',
+                    '2019-08-03-123451003.csv',
+                    'output/2019-08-03-123451002-final.csv',
+                    'test.csv',
+                ],
+            ],
+            [
                 ['relativepath', 'alpha_reverse', 0, 1, false, '', '*.csv'],
                 ['test.csv'],
             ],

@@ -252,6 +252,7 @@ trait directory_file_list_trait {
 
         $func($filelist);
 
+        $limit = empty($limit) ? null : $limit;
         // Apply the offset and limit.
         $filelist = array_slice($filelist, $offset, $limit);
 
