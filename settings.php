@@ -129,6 +129,15 @@ if ($hassiteconfig) {
         );
 
         $settings->add(
+            new admin_setting_configexecutable(
+                'tool_dataflows/gzip_exec_path',
+                get_string('gzip_exec_path', 'tool_dataflows'),
+                get_string('gzip_exec_path_desc', 'tool_dataflows'),
+                '/usr/bin/gzip'
+            )
+        );
+
+        $settings->add(
             new admin_setting_configtext(
                 'tool_dataflows/gpg_key_dir',
                 get_string('gpg_key_dir', 'tool_dataflows'),
