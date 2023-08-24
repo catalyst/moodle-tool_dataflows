@@ -57,7 +57,7 @@ class dataflow extends persistent {
             'enabled' => ['type' => PARAM_BOOL, 'default' => false],
             'concurrencyenabled' => ['type' => PARAM_BOOL, 'default' => false],
             'vars' => ['type' => PARAM_TEXT, 'default' => ''],
-            'loghandlers' => ['type' => PARAM_TEXT, 'default' => ''],
+            'loghandlers' => ['type' => PARAM_TEXT, 'default' => '', 'null' => NULL_ALLOWED],
             'timecreated' => ['type' => PARAM_INT, 'default' => 0],
             'userid' => ['type' => PARAM_INT, 'default' => 0],
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
