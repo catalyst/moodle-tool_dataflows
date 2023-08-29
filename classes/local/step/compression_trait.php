@@ -100,7 +100,7 @@ trait compression_trait {
 
         // Check that the from path exists.
         if (!is_file($config->from)) {
-            $this->enginestep->log($config->from . ' file does not exist');
+            $this->log->error($config->from . ' file does not exist');
             $variables->set('vars.success', false);
             return $input;
         }
@@ -114,7 +114,7 @@ trait compression_trait {
 
         if ($result !== true) {
             // Log the error.
-            $this->enginestep->log($result);
+            $this->log->error($result);
         }
 
         $variables->set('vars.success', $result === true);
@@ -247,18 +247,13 @@ trait compression_trait {
         // -k: keep input file
         // 2>&1: pipe stderror to stdout.
         $gzipcommand = "{$gzip} -f -v -k {$compressionmode} {$from} 2>&1 && mv {$movefilename} {$to}";
-        $this->enginestep->log("Command: " . $gzipcommand);
+        $this->log->debug("Command: " . $gzipcommand);
 
         // Execute the gzip command.
         $output = [];
         $result = null;
         exec($gzipcommand, $output, $result);
         $success = $result === 0;
-        $this->enginestep->log(
-            $success
-                ? 'Success'
-                : 'Fail' . PHP_EOL . implode(PHP_EOL, $output)
-        );
 
         // Emit in error logs.
         if (!$success) {
