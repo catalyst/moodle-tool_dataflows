@@ -41,6 +41,8 @@ $string['global_vars_desc'] = "Global variables that can be accessed via express
       def: 12  # Accessed as \${{global.vars.abc.def}}";
 $string['gpg_exec_path'] = 'Path to GPG executable';
 $string['gpg_exec_path_desc'] = 'Path to GPG executable';
+$string['gzip_exec_path'] = 'Path to gzip executable';
+$string['gzip_exec_path_desc'] = 'Path to gzip executable';
 $string['gpg_key_dir'] = 'Path to keyring directory';
 $string['gpg_key_dir_desc'] = 'Path to keyring directory';
 $string['log_handlers'] = 'Log handlers';
@@ -129,6 +131,7 @@ $string['step_name_connector_directory_file_list'] = 'Directory file list';
 $string['step_name_connector_sftp_directory_file_list'] = 'SFTP directory file list';
 $string['step_name_connector_abort'] = 'Abort connector';
 $string['step_name_connector_append_file'] = 'Append file';
+$string['step_name_connector_compression'] = 'Compression/Decompression';
 $string['step_name_connector_copy_file'] = 'Copy File';
 $string['step_name_connector_curl'] = 'Curl connector';
 $string['step_name_connector_debug_file_display'] = 'File contents display';
@@ -147,6 +150,7 @@ $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
 $string['step_name_flow_abort'] = 'Abort';
 $string['step_name_flow_append_file'] = 'Append';
+$string['step_name_flow_compression'] = 'Compression/decompression';
 $string['step_name_flow_copy_file'] = 'Copy File';
 $string['step_name_flow_curl'] = 'Curl';
 $string['step_name_flow_email'] = 'Flow email notification';
@@ -599,3 +603,14 @@ $string['flow_sql:sql_help'] = 'You may use expressions with the SQL such as var
 
 // Remove file step.
 $string['remove_file:file'] = 'File path to be removed';
+
+// Compression step.
+$string['compression:compress'] = 'Compress';
+$string['compression:decompress'] = 'Decompress';
+$string['compression:command'] = 'Command';
+$string['compression:method'] = 'Method';
+$string['compression:method:gzip'] = 'gzip';
+$string['compression:from'] = 'Source';
+$string['compression:to'] = 'Destination';
+$string['compression:output_success'] = 'Success';
+$string['compression:error:invalidexecutable'] = '{$a->path} is not executable';
