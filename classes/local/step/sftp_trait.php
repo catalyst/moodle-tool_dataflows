@@ -293,13 +293,22 @@ trait sftp_trait {
      * @return AsymmetricKey|string
      */
     private function load_key() {
-        // Because variables use redacted values by default, we evaluate the secret explicitly.
-        $password = $this->get_variables()->evaluate($this->stepdef->config->password);
+        $password = false;
+        $config = $this->stepdef->get('config');
+
+        if (empty($config)) {
+            return $password;
+        }
+
+        if (!empty($config->password)) {
+            // Because variables use redacted values by default, we evaluate the secret explicitly.
+            $password = $this->get_variables()->evaluate($config->password);
+        }
 
         // Use key authorisation if privkeyfile is set.
         if (!empty($config->privkeyfile)) {
             $privkeycontents = file_get_contents($this->resolve_path($config->privkeyfile));
-            $privkeypassphrase = $config->password ?: false;
+            $privkeypassphrase = $password ?: false;
             return PublicKeyLoader::load($privkeycontents, $privkeypassphrase);
         }
 
