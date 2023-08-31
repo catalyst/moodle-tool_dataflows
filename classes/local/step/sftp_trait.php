@@ -296,10 +296,11 @@ trait sftp_trait {
         // Because variables use redacted values by default, we evaluate the secret explicitly.
         $password = $this->get_variables()->evaluate($this->stepdef->config->password);
 
+        $config = $this->stepdef->config;
         // Use key authorisation if privkeyfile is set.
         if (!empty($config->privkeyfile)) {
             $privkeycontents = file_get_contents($this->resolve_path($config->privkeyfile));
-            $privkeypassphrase = $config->password ?: false;
+            $privkeypassphrase = $password ?: false;
             return PublicKeyLoader::load($privkeycontents, $privkeypassphrase);
         }
 
