@@ -312,7 +312,7 @@ class helper {
             if (trim($line) === '') {
                 return false; // Cannot have empty lines.
             }
-            if (ctype_space(ord($line))) {
+            if (ctype_space(chr(ord($line)))) {
                 $current .= $line;
             } else {
                 if (!is_null($current)) {
