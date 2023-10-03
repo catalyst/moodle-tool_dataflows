@@ -667,8 +667,11 @@ abstract class base_step {
      * Log the current state of 'vars'.
      */
     public function log_vars() {
-        $vars = $this->get_variables()->get('vars');
-        $this->log->debug("Current vars", (array) $vars);
+        $vars = (array) $this->get_variables()->get('vars');
+        // Dump the vars if there are values to show - otherwise, it only serves as noise.
+        if (!empty($vars)) {
+            $this->log->debug("Current vars", $vars);
+        }
     }
 
     /**
