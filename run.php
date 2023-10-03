@@ -46,6 +46,8 @@ function tool_dataflows_mtrace_wrapper($message, $eol) {
         $class = 'bg-danger text-white';
     } else if (preg_match('/warn/im', $message)) {
         $class = 'bg-warning';
+    } else if (preg_match('/notice/im', $message)) {
+        $class = 'bold';
     }
     echo html_writer::tag('div', sprintf('%s %s', s($message), $eol), ['class' => $class]);
 }

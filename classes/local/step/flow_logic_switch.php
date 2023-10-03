@@ -245,7 +245,8 @@ class flow_logic_switch extends flow_logic_step {
                     }
 
                     // Log details for when a case matches.
-                    $this->step->log('Matching case "{case}" (position #{position}) with expression: {expression}', [
+                    $this->step->log->debug('Case #{position} "{case}" with expression: {expression}', [
+                        'step' => $this->step->name,
                         'case' => $this->steptype->get_output_label($position),
                         'position' => $position,
                         'expression' => $case,

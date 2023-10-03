@@ -614,3 +614,10 @@ $string['compression:from'] = 'Source';
 $string['compression:to'] = 'Destination';
 $string['compression:output_success'] = 'Success';
 $string['compression:error:invalidexecutable'] = '{$a->path} is not executable';
+
+// Log step.
+$string['step_name_connector_log'] = 'Log';
+$string['step_name_flow_log'] = 'Log';
+$string['log:level'] = 'Log Level';
+$string['log:level_help'] = 'Choose between 8 logging levels. Each level conveys a different meaning, and it is best practice to choose the most appropriate one for the log message.';
+$string['log:message'] = 'Message';
