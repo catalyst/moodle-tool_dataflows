@@ -538,11 +538,18 @@ class engine {
         $this->log('Engine: aborting steps');
         $this->exception = $reason;
         foreach ($this->enginesteps as $enginestep) {
-            $this->set_current_step($enginestep);
-            $enginestep->abort();
+            $status = $enginestep->status;
+            if ($status !== self::STATUS_FINISHED && !in_array($status, self::STATUS_TERMINATORS)) {
+                $this->set_current_step($enginestep);
+                $enginestep->abort();
+            }
         }
         foreach ($this->flowcaps as $enginestep) {
-            $enginestep->abort();
+            $status = $enginestep->status;
+            if ($status !== self::STATUS_FINISHED && !in_array($status, self::STATUS_TERMINATORS)) {
+                $this->set_current_step($enginestep);
+                $enginestep->abort();
+            }
         }
         $this->set_current_step(null);
         $this->queue = [];

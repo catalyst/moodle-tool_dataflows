@@ -47,10 +47,12 @@ class connector_engine_step extends engine_step {
                 try {
                     $result = $this->steptype->execute(new \stdClass);
                     $this->steptype->log_vars();
-                    if ($result !== false) {
-                        $this->set_status(engine::STATUS_FINISHED);
-                    } else {
-                        $this->set_status(engine::STATUS_CANCELLED);
+                    if (!in_array($this->status, engine::STATUS_TERMINATORS)) {
+                        if ($result !== false) {
+                            $this->set_status(engine::STATUS_FINISHED);
+                        } else {
+                            $this->set_status(engine::STATUS_CANCELLED);
+                        }
                     }
                 } catch (\Throwable $thrown) {
                     $this->log->error($thrown->getMessage());
