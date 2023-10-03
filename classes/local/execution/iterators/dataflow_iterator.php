@@ -152,6 +152,9 @@ class dataflow_iterator implements iterator {
         $now = microtime(true);
         $this->stepvars->set('timeentered', $now);
 
+        // Ensure iterations is always available.
+        $this->stepvars->set('iterations', $this->iterationcount);
+
         if ($this->finished) {
             return false;
         }
