@@ -535,7 +535,7 @@ class engine {
         }
 
         $this->set_current_step(null);
-        $this->log('Engine: aborting steps');
+        $this->log('Engine: aborting steps', $message ? ['reason' => $message] : [], Logger::NOTICE);
         $this->exception = $reason;
         foreach ($this->enginesteps as $enginestep) {
             $status = $enginestep->status;

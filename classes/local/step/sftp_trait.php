@@ -247,7 +247,7 @@ trait sftp_trait {
         $stepvars = $this->get_variables();
         $config = $stepvars->get('config');
 
-        $this->log("Connecting to {$config->host}:{$config->port}");
+        $this->log->debug("Connecting to {$config->host}:{$config->port}");
 
         // At this point we need to disconnect once we are finished.
         try {
