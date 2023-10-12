@@ -42,10 +42,14 @@ function tool_dataflows_mtrace_wrapper($message, $eol) {
     $message = str_replace("\n", "\n    ", $message);
 
     // Mark up errors..
-    if (preg_match('/error/im', $message)) {
+    if (preg_match('/error:/im', $message)) {
         $class = 'bg-danger text-white';
-    } else if (preg_match('/warn/im', $message)) {
+    } else if (preg_match('/warn:/im', $message)) {
         $class = 'bg-warning';
+    } else if (preg_match('/notice:/im', $message)) {
+        $class = 'bold text-primary';
+    } else if (preg_match('/info:/im', $message)) {
+        $class = 'bold';
     }
     echo html_writer::tag('div', sprintf('%s %s', s($message), $eol), ['class' => $class]);
 }

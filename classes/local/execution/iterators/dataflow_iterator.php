@@ -152,6 +152,9 @@ class dataflow_iterator implements iterator {
         $now = microtime(true);
         $this->stepvars->set('timeentered', $now);
 
+        // Ensure iterations is always available.
+        $this->stepvars->set('iterations', $this->iterationcount);
+
         if ($this->finished) {
             return false;
         }
@@ -225,7 +228,7 @@ class dataflow_iterator implements iterator {
             $this->stepvars->set('iterations', $this->iterationcount);
 
             // Log the iteration for real steps.
-            $this->step->log->info('Iteration ' . $this->iterationcount, (array) $newvalue);
+            $this->step->log->debug('Iteration ' . $this->iterationcount, (array) $newvalue);
         } catch (\Throwable $e) {
             $this->step->log->error($e->getMessage());
             $this->step->engine->abort();
