@@ -45,19 +45,19 @@ $PAGE->set_url($url);
 // Check for caps.
 require_capability('tool/dataflows:managedataflows', $context);
 
+$namefields = core_user\fields::get_name_fields();
+foreach ($namefields as $key => $userfield) {
+  $namefields[$key] = 'usr.' . $userfield;
+}
+$namefields = implode(',', $namefields);
+
 // Configure any table specifics.
 $table = new runs_table('dataflow_runs_table');
 $sqlfields = 'run.id,'
             // Cast the name as a real number so it can be correctly sorted.
             . $DB->sql_cast_char2real('run.name') . ' as name,'
             // Fetch user name fields (for display purposes).
-            . get_all_user_name_fields(
-                $returnsql = true,
-                $tableprefix = 'usr',
-                $prefix = null,
-                $fieldprefix = null,
-                $order = false
-            ) . ',
+            . $namefields . ',
               run.dataflowid,
               run.userid,
               run.status,
