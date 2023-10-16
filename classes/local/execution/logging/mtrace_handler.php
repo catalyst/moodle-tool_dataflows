@@ -43,6 +43,10 @@ class mtrace_handler extends AbstractProcessingHandler {
         return $this->handler->handle($record);
     }
 
+    /**
+     * @param array $record
+     * @return void
+     */
     protected function write(array $record): void {
         // TODO: Implement write() method.
     }
