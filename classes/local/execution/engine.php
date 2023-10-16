@@ -535,7 +535,14 @@ class engine {
         }
 
         $this->set_current_step(null);
-        $this->log('Engine: aborting steps', $message ? ['reason' => $message] : [], Logger::NOTICE);
+        $context = [];
+        if (!empty($reason->debuginfo)) {
+            $context = (array) json_decode($reason->debuginfo);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $context = [];
+            }
+        }
+        $this->log('Engine: aborting steps', $message ? array_merge(['reason' => $message], $context) : [], Logger::NOTICE);
         $this->exception = $reason;
         foreach ($this->enginesteps as $enginestep) {
             $status = $enginestep->status;
