@@ -74,9 +74,15 @@ trait set_variable_trait {
      * @param mixed $value
      */
     public function run(var_root $varobject, string $field, $value) {
+        // Do nothing if the value has not changed.
+        $currentvalue = $varobject->get($field);
+        if ($currentvalue === $value) {
+            return;
+        }
+
         // Set the value in the variable tree.
         $varobject->set($field, $value);
-        $this->log("Set '{field}' as '{value}'", ['field' => $field, 'value' => $value]);
+        $this->log->info("Set '{field}' as '{value}'", ['field' => $field, 'value' => $value]);
 
         // We do not persist the value if it is a dry run.
         if ($this->is_dry_run()) {
