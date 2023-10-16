@@ -134,23 +134,9 @@
     <licenseversion></licenseversion>
   </library>
   <library>
-    <location>vendor/psr/simple-cache</location>
-    <name>Common interfaces for simple caching</name>
-    <version>1.0.1</version>
-    <license>MIT</license>
-    <licenseversion></licenseversion>
-  </library>
-  <library>
     <location>vendor/symfony/cache</location>
     <name>Provides extended PSR-6, PSR-16 (and tags) implementations</name>
     <version>3.4.47</version>
-    <license>MIT</license>
-    <licenseversion></licenseversion>
-  </library>
-  <library>
-    <location>vendor/symfony/polyfill-apcu</location>
-    <name>Symfony polyfill backporting apcu_* functions to lower PHP versions</name>
-    <version>1.26.0</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
