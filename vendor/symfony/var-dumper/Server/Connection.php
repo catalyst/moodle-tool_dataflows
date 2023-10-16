@@ -23,10 +23,6 @@ class Connection
 {
     private $host;
     private $contextProviders;
-
-    /**
-     * @var resource|null
-     */
     private $socket;
 
     /**
@@ -91,7 +87,7 @@ class Connection
     {
         set_error_handler([self::class, 'nullErrorHandler']);
         try {
-            return stream_socket_client($this->host, $errno, $errstr, 3);
+            return stream_socket_client($this->host, $errno, $errstr, 3, \STREAM_CLIENT_CONNECT | \STREAM_CLIENT_ASYNC_CONNECT);
         } finally {
             restore_error_handler();
         }

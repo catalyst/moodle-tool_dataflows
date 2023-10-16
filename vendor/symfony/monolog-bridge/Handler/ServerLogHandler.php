@@ -12,43 +12,14 @@
 namespace Symfony\Bridge\Monolog\Handler;
 
 use Monolog\Formatter\FormatterInterface;
-use Monolog\Handler\AbstractProcessingHandler;
-use Monolog\Handler\FormattableHandlerTrait;
+use Monolog\Handler\AbstractHandler;
 use Monolog\Logger;
 use Symfony\Bridge\Monolog\Formatter\VarDumperFormatter;
-
-if (trait_exists(FormattableHandlerTrait::class)) {
-    class ServerLogHandler extends AbstractProcessingHandler
-    {
-        use ServerLogHandlerTrait;
-
-        /**
-         * {@inheritdoc}
-         */
-        protected function getDefaultFormatter(): FormatterInterface
-        {
-            return new VarDumperFormatter();
-        }
-    }
-} else {
-    class ServerLogHandler extends AbstractProcessingHandler
-    {
-        use ServerLogHandlerTrait;
-
-        /**
-         * {@inheritdoc}
-         */
-        protected function getDefaultFormatter()
-        {
-            return new VarDumperFormatter();
-        }
-    }
-}
 
 /**
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
  */
-trait ServerLogHandlerTrait
+class ServerLogHandler extends AbstractHandler
 {
     private $host;
     private $context;
@@ -71,8 +42,10 @@ trait ServerLogHandlerTrait
 
     /**
      * {@inheritdoc}
+     *
+     * @return bool
      */
-    public function handle(array $record): bool
+    public function handle(array $record)
     {
         if (!$this->isHandling($record)) {
             return false;
@@ -88,11 +61,6 @@ trait ServerLogHandlerTrait
             restore_error_handler();
         }
 
-        return parent::handle($record);
-    }
-
-    protected function write(array $record): void
-    {
         $recordFormatted = $this->formatRecord($record);
 
         set_error_handler(self::class.'::nullErrorHandler');
@@ -109,12 +77,16 @@ trait ServerLogHandlerTrait
         } finally {
             restore_error_handler();
         }
+
+        return false === $this->bubble;
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return FormatterInterface
      */
-    protected function getDefaultFormatter(): FormatterInterface
+    protected function getDefaultFormatter()
     {
         return new VarDumperFormatter();
     }
@@ -136,7 +108,13 @@ trait ServerLogHandlerTrait
 
     private function formatRecord(array $record): string
     {
-        $recordFormatted = $record['formatted'];
+        if ($this->processors) {
+            foreach ($this->processors as $processor) {
+                $record = $processor($record);
+            }
+        }
+
+        $recordFormatted = $this->getFormatter()->format($record);
 
         foreach (['log_uuid', 'uuid', 'uid'] as $key) {
             if (isset($record['extra'][$key])) {

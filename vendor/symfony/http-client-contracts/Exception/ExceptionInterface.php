@@ -15,6 +15,8 @@ namespace Symfony\Contracts\HttpClient\Exception;
  * The base interface for all exceptions in the contract.
  *
  * @author Nicolas Grekas <p@tchwork.com>
+ *
+ * @experimental in 1.1
  */
 interface ExceptionInterface extends \Throwable
 {

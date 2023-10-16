@@ -12,12 +12,10 @@
 namespace Symfony\Component\VarDumper\Caster;
 
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Uid\Ulid;
-use Symfony\Component\Uid\Uuid;
 use Symfony\Component\VarDumper\Cloner\Stub;
 
 /**
- * @final
+ * @final since Symfony 4.4
  */
 class SymfonyCaster
 {
@@ -30,7 +28,7 @@ class SymfonyCaster
         'format' => 'getRequestFormat',
     ];
 
-    public static function castRequest(Request $request, array $a, Stub $stub, bool $isNested)
+    public static function castRequest(Request $request, array $a, Stub $stub, $isNested)
     {
         $clone = null;
 
@@ -47,7 +45,7 @@ class SymfonyCaster
         return $a;
     }
 
-    public static function castHttpClient($client, array $a, Stub $stub, bool $isNested)
+    public static function castHttpClient($client, array $a, Stub $stub, $isNested)
     {
         $multiKey = sprintf("\0%s\0multi", \get_class($client));
         if (isset($a[$multiKey])) {
@@ -57,39 +55,13 @@ class SymfonyCaster
         return $a;
     }
 
-    public static function castHttpClientResponse($response, array $a, Stub $stub, bool $isNested)
+    public static function castHttpClientResponse($response, array $a, Stub $stub, $isNested)
     {
         $stub->cut += \count($a);
         $a = [];
 
         foreach ($response->getInfo() as $k => $v) {
             $a[Caster::PREFIX_VIRTUAL.$k] = $v;
-        }
-
-        return $a;
-    }
-
-    public static function castUuid(Uuid $uuid, array $a, Stub $stub, bool $isNested)
-    {
-        $a[Caster::PREFIX_VIRTUAL.'toBase58'] = $uuid->toBase58();
-        $a[Caster::PREFIX_VIRTUAL.'toBase32'] = $uuid->toBase32();
-
-        // symfony/uid >= 5.3
-        if (method_exists($uuid, 'getDateTime')) {
-            $a[Caster::PREFIX_VIRTUAL.'time'] = $uuid->getDateTime()->format('Y-m-d H:i:s.u \U\T\C');
-        }
-
-        return $a;
-    }
-
-    public static function castUlid(Ulid $ulid, array $a, Stub $stub, bool $isNested)
-    {
-        $a[Caster::PREFIX_VIRTUAL.'toBase58'] = $ulid->toBase58();
-        $a[Caster::PREFIX_VIRTUAL.'toRfc4122'] = $ulid->toRfc4122();
-
-        // symfony/uid >= 5.3
-        if (method_exists($ulid, 'getDateTime')) {
-            $a[Caster::PREFIX_VIRTUAL.'time'] = $ulid->getDateTime()->format('Y-m-d H:i:s.v \U\T\C');
         }
 
         return $a;

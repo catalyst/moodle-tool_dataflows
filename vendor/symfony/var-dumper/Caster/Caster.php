@@ -40,14 +40,17 @@ class Caster
     /**
      * Casts objects to arrays and adds the dynamic property prefix.
      *
-     * @param bool $hasDebugInfo Whether the __debugInfo method exists on $obj or not
+     * @param object $obj          The object to cast
+     * @param bool   $hasDebugInfo Whether the __debugInfo method exists on $obj or not
+     *
+     * @return array The array-cast of the object, with prefixed dynamic properties
      */
-    public static function castObject(object $obj, string $class, bool $hasDebugInfo = false, string $debugClass = null): array
+    public static function castObject($obj, string $class, bool $hasDebugInfo = false, string $debugClass = null): array
     {
         if ($hasDebugInfo) {
             try {
                 $debugInfo = $obj->__debugInfo();
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 // ignore failing __debugInfo()
                 $hasDebugInfo = false;
             }
@@ -66,7 +69,7 @@ class Caster
             $i = 0;
             $prefixedKeys = [];
             foreach ($a as $k => $v) {
-                if ("\0" !== ($k[0] ?? '')) {
+                if (isset($k[0]) ? "\0" !== $k[0] : \PHP_VERSION_ID >= 70200) {
                     if (!isset($publicProperties[$class])) {
                         foreach ((new \ReflectionClass($class))->getProperties(\ReflectionProperty::IS_PUBLIC) as $prop) {
                             $publicProperties[$class][$prop->name] = true;
@@ -115,7 +118,9 @@ class Caster
      * @param array    $a                The array containing the properties to filter
      * @param int      $filter           A bit field of Caster::EXCLUDE_* constants specifying which properties to filter out
      * @param string[] $listedProperties List of properties to exclude when Caster::EXCLUDE_VERBOSE is set, and to preserve when Caster::EXCLUDE_NOT_IMPORTANT is set
-     * @param int|null &$count           Set to the number of removed properties
+     * @param int      &$count           Set to the number of removed properties
+     *
+     * @return array The filtered array
      */
     public static function filter(array $a, int $filter, array $listedProperties = [], ?int &$count = 0): array
     {

@@ -34,7 +34,7 @@ class BinaryFileResponse extends Response
     protected $offset = 0;
     protected $maxlen = -1;
     protected $deleteFileAfterSend = false;
-    protected $chunkSize = 16 * 1024;
+    protected $chunkSize = 8 * 1024;
 
     /**
      * @param \SplFileInfo|string $file               The file to stream
@@ -66,26 +66,25 @@ class BinaryFileResponse extends Response
      * @param bool                $autoLastModified   Whether the Last-Modified header should be automatically set
      *
      * @return static
-     *
-     * @deprecated since Symfony 5.2, use __construct() instead.
      */
-    public static function create($file = null, int $status = 200, array $headers = [], bool $public = true, string $contentDisposition = null, bool $autoEtag = false, bool $autoLastModified = true)
+    public static function create($file = null, $status = 200, $headers = [], $public = true, $contentDisposition = null, $autoEtag = false, $autoLastModified = true)
     {
-        trigger_deprecation('symfony/http-foundation', '5.2', 'The "%s()" method is deprecated, use "new %s()" instead.', __METHOD__, static::class);
-
         return new static($file, $status, $headers, $public, $contentDisposition, $autoEtag, $autoLastModified);
     }
 
     /**
      * Sets the file to stream.
      *
-     * @param \SplFileInfo|string $file The file to stream
+     * @param \SplFileInfo|string $file               The file to stream
+     * @param string              $contentDisposition
+     * @param bool                $autoEtag
+     * @param bool                $autoLastModified
      *
      * @return $this
      *
      * @throws FileException
      */
-    public function setFile($file, string $contentDisposition = null, bool $autoEtag = false, bool $autoLastModified = true)
+    public function setFile($file, $contentDisposition = null, $autoEtag = false, $autoLastModified = true)
     {
         if (!$file instanceof File) {
             if ($file instanceof \SplFileInfo) {
@@ -119,7 +118,7 @@ class BinaryFileResponse extends Response
     /**
      * Gets the file.
      *
-     * @return File
+     * @return File The file to stream
      */
     public function getFile()
     {
@@ -144,8 +143,6 @@ class BinaryFileResponse extends Response
 
     /**
      * Automatically sets the Last-Modified header according the file modification date.
-     *
-     * @return $this
      */
     public function setAutoLastModified()
     {
@@ -156,8 +153,6 @@ class BinaryFileResponse extends Response
 
     /**
      * Automatically sets the ETag header according to the checksum of the file.
-     *
-     * @return $this
      */
     public function setAutoEtag()
     {
@@ -175,7 +170,7 @@ class BinaryFileResponse extends Response
      *
      * @return $this
      */
-    public function setContentDisposition(string $disposition, string $filename = '', string $filenameFallback = '')
+    public function setContentDisposition($disposition, $filename = '', $filenameFallback = '')
     {
         if ('' === $filename) {
             $filename = $this->file->getFilename();
@@ -267,7 +262,7 @@ class BinaryFileResponse extends Response
                 $range = $request->headers->get('Range');
 
                 if (str_starts_with($range, 'bytes=')) {
-                    [$start, $end] = explode('-', substr($range, 6), 2) + [1 => 0];
+                    [$start, $end] = explode('-', substr($range, 6), 2) + [0];
 
                     $end = ('' === $end) ? $fileSize - 1 : (int) $end;
 
@@ -317,6 +312,8 @@ class BinaryFileResponse extends Response
     }
 
     /**
+     * Sends the file.
+     *
      * {@inheritdoc}
      */
     public function sendContent()
@@ -341,27 +338,20 @@ class BinaryFileResponse extends Response
 
             $length = $this->maxlen;
             while ($length && !feof($file)) {
-                $read = $length > $this->chunkSize || 0 > $length ? $this->chunkSize : $length;
+                $read = ($length > $this->chunkSize) ? $this->chunkSize : $length;
+                $length -= $read;
 
-                if (false === $data = fread($file, $read)) {
+                stream_copy_to_stream($file, $out, $read);
+
+                if (connection_aborted()) {
                     break;
-                }
-                while ('' !== $data) {
-                    $read = fwrite($out, $data);
-                    if (false === $read || connection_aborted()) {
-                        break 2;
-                    }
-                    if (0 < $length) {
-                        $length -= $read;
-                    }
-                    $data = substr($data, $read);
                 }
             }
 
             fclose($out);
             fclose($file);
         } finally {
-            if ($this->deleteFileAfterSend && is_file($this->file->getPathname())) {
+            if ($this->deleteFileAfterSend && file_exists($this->file->getPathname())) {
                 unlink($this->file->getPathname());
             }
         }
@@ -374,7 +364,7 @@ class BinaryFileResponse extends Response
      *
      * @throws \LogicException when the content is not null
      */
-    public function setContent(?string $content)
+    public function setContent($content)
     {
         if (null !== $content) {
             throw new \LogicException('The content cannot be set on a BinaryFileResponse instance.');
@@ -403,9 +393,11 @@ class BinaryFileResponse extends Response
      * If this is set to true, the file will be unlinked after the request is sent
      * Note: If the X-Sendfile header is used, the deleteFileAfterSend setting will not be used.
      *
+     * @param bool $shouldDelete
+     *
      * @return $this
      */
-    public function deleteFileAfterSend(bool $shouldDelete = true)
+    public function deleteFileAfterSend($shouldDelete = true)
     {
         $this->deleteFileAfterSend = $shouldDelete;
 

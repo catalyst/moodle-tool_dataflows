@@ -18,7 +18,7 @@ use Symfony\Component\VarDumper\Cloner\Stub;
  *
  * @author Nicolas Grekas <p@tchwork.com>
  *
- * @final
+ * @final since Symfony 4.4
  */
 class SplCaster
 {
@@ -29,17 +29,17 @@ class SplCaster
         \SplFileObject::READ_CSV => 'READ_CSV',
     ];
 
-    public static function castArrayObject(\ArrayObject $c, array $a, Stub $stub, bool $isNested)
+    public static function castArrayObject(\ArrayObject $c, array $a, Stub $stub, $isNested)
     {
         return self::castSplArray($c, $a, $stub, $isNested);
     }
 
-    public static function castArrayIterator(\ArrayIterator $c, array $a, Stub $stub, bool $isNested)
+    public static function castArrayIterator(\ArrayIterator $c, array $a, Stub $stub, $isNested)
     {
         return self::castSplArray($c, $a, $stub, $isNested);
     }
 
-    public static function castHeap(\Iterator $c, array $a, Stub $stub, bool $isNested)
+    public static function castHeap(\Iterator $c, array $a, Stub $stub, $isNested)
     {
         $a += [
             Caster::PREFIX_VIRTUAL.'heap' => iterator_to_array(clone $c),
@@ -48,7 +48,7 @@ class SplCaster
         return $a;
     }
 
-    public static function castDoublyLinkedList(\SplDoublyLinkedList $c, array $a, Stub $stub, bool $isNested)
+    public static function castDoublyLinkedList(\SplDoublyLinkedList $c, array $a, Stub $stub, $isNested)
     {
         $prefix = Caster::PREFIX_VIRTUAL;
         $mode = $c->getIteratorMode();
@@ -63,7 +63,7 @@ class SplCaster
         return $a;
     }
 
-    public static function castFileInfo(\SplFileInfo $c, array $a, Stub $stub, bool $isNested)
+    public static function castFileInfo(\SplFileInfo $c, array $a, Stub $stub, $isNested)
     {
         static $map = [
             'path' => 'getPath',
@@ -147,7 +147,7 @@ class SplCaster
         return $a;
     }
 
-    public static function castFileObject(\SplFileObject $c, array $a, Stub $stub, bool $isNested)
+    public static function castFileObject(\SplFileObject $c, array $a, Stub $stub, $isNested)
     {
         static $map = [
             'csvControl' => 'getCsvControl',
@@ -184,7 +184,7 @@ class SplCaster
         return $a;
     }
 
-    public static function castObjectStorage(\SplObjectStorage $c, array $a, Stub $stub, bool $isNested)
+    public static function castObjectStorage(\SplObjectStorage $c, array $a, Stub $stub, $isNested)
     {
         $storage = [];
         unset($a[Caster::PREFIX_DYNAMIC."\0gcdata"]); // Don't hit https://bugs.php.net/65967
@@ -205,14 +205,14 @@ class SplCaster
         return $a;
     }
 
-    public static function castOuterIterator(\OuterIterator $c, array $a, Stub $stub, bool $isNested)
+    public static function castOuterIterator(\OuterIterator $c, array $a, Stub $stub, $isNested)
     {
         $a[Caster::PREFIX_VIRTUAL.'innerIterator'] = $c->getInnerIterator();
 
         return $a;
     }
 
-    public static function castWeakReference(\WeakReference $c, array $a, Stub $stub, bool $isNested)
+    public static function castWeakReference(\WeakReference $c, array $a, Stub $stub, $isNested)
     {
         $a[Caster::PREFIX_VIRTUAL.'object'] = $c->get();
 
@@ -229,11 +229,10 @@ class SplCaster
             $a = Caster::castObject($c, \get_class($c), method_exists($c, '__debugInfo'), $stub->class);
             $c->setFlags($flags);
         }
-
-        unset($a["\0ArrayObject\0storage"], $a["\0ArrayIterator\0storage"]);
-
+        if (\PHP_VERSION_ID < 70400) {
+            $a[$prefix.'storage'] = $c->getArrayCopy();
+        }
         $a += [
-            $prefix.'storage' => $c->getArrayCopy(),
             $prefix.'flag::STD_PROP_LIST' => (bool) ($flags & \ArrayObject::STD_PROP_LIST),
             $prefix.'flag::ARRAY_AS_PROPS' => (bool) ($flags & \ArrayObject::ARRAY_AS_PROPS),
         ];

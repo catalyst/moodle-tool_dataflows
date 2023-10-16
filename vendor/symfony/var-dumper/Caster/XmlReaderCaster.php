@@ -18,7 +18,7 @@ use Symfony\Component\VarDumper\Cloner\Stub;
  *
  * @author Baptiste Clavié <clavie.b@gmail.com>
  *
- * @final
+ * @final since Symfony 4.4
  */
 class XmlReaderCaster
 {
@@ -43,7 +43,7 @@ class XmlReaderCaster
         \XMLReader::XML_DECLARATION => 'XML_DECLARATION',
     ];
 
-    public static function castXmlReader(\XMLReader $reader, array $a, Stub $stub, bool $isNested)
+    public static function castXmlReader(\XMLReader $reader, array $a, Stub $stub, $isNested)
     {
         try {
             $properties = [

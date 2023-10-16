@@ -11,29 +11,39 @@
 
 namespace Symfony\Bridge\Monolog\Processor;
 
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Adds the current security token to the log entry.
  *
  * @author Dany Maillard <danymaillard93b@gmail.com>
- * @author Igor Timoshenko <igor.timoshenko@i.ua>
  */
-class TokenProcessor extends AbstractTokenProcessor
+class TokenProcessor
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function getKey(): string
+    private $tokenStorage;
+
+    public function __construct(TokenStorageInterface $tokenStorage)
     {
-        return 'token';
+        $this->tokenStorage = $tokenStorage;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getToken(): ?TokenInterface
+    public function __invoke(array $records)
     {
-        return $this->tokenStorage->getToken();
+        $records['extra']['token'] = null;
+        if (null !== $token = $this->tokenStorage->getToken()) {
+            if (method_exists($token, 'getRoleNames')) {
+                $roles = $token->getRoleNames();
+            } else {
+                $roles = array_map(function ($role) { return $role->getRole(); }, $token->getRoles(false));
+            }
+
+            $records['extra']['token'] = [
+                'username' => $token->getUsername(),
+                'authenticated' => $token->isAuthenticated(),
+                'roles' => $roles,
+            ];
+        }
+
+        return $records;
     }
 }
