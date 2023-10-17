@@ -155,6 +155,13 @@
     <licenseversion></licenseversion>
   </library>
   <library>
+    <location>vendor/symfony/deprecation-contracts</location>
+    <name>error-handler</name>
+    <version>v2.5.2</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
     <location>vendor/symfony/polyfill-php80</location>
     <name>provides features added to PHP 8.0 core</name>
     <version>v1.28.0</version>
