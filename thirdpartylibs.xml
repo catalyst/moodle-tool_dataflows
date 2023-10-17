@@ -155,7 +155,6 @@
     <licenseversion></licenseversion>
   </library>
   <library>
-  <library>
     <location>vendor/symfony/polyfill-php80</location>
     <name>provides features added to PHP 8.0 core</name>
     <version>v1.28.0</version>
