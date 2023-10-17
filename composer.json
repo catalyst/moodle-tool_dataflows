@@ -1,11 +1,11 @@
 {
     "config": {
         "platform": {
-            "php": "7.1"
+            "php": "7.2.5"
         }
     },
     "require": {
-        "php": ">=7.1",
+        "php": ">=7.2.5",
         "symfony/yaml": "^3.4",
         "symfony/expression-language": "^3.4",
         "phpseclib/phpseclib": "~3.0",

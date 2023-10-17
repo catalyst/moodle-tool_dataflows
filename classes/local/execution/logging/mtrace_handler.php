@@ -33,10 +33,22 @@ class mtrace_handler extends AbstractHandler {
      *
      * @param array $record the log record
      **/
-    public function handle(array $record) {
+    public function handle(array $record): bool {
         if ($this->isHandling($record)) {
             $record['formatted'] = trim($this->getFormatter()->format($record));
-            mtrace($record['formatted']);
+            $this->write($record);
+            return true;
         }
+        return $this->handler->handle($record);
+    }
+
+    /**
+     * Writes the record down to the log of the implementing handler
+     *
+     * @param  array $record
+     * @return void
+     */
+    protected function write(array $record): void {
+        mtrace($record['formatted']);
     }
 }
