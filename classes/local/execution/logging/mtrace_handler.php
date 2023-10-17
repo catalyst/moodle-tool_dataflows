@@ -17,6 +17,7 @@
 namespace tool_dataflows\local\execution\logging;
 
 use Monolog\Handler\AbstractHandler;
+use Monolog\Handler\AbstractProcessingHandler;
 
 /**
  * An environment for logging information about dataflow execution.
@@ -26,7 +27,7 @@ use Monolog\Handler\AbstractHandler;
  * @copyright Catalyst IT, 2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mtrace_handler extends AbstractHandler {
+class mtrace_handler extends AbstractProcessingHandler {
 
     /**
      * Default handler for Moodle.
