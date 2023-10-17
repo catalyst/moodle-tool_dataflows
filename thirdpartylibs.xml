@@ -3,14 +3,14 @@
   <library>
     <location>vendor/symfony/http-foundation</location>
     <name>http-foundation</name>
-    <version>v4.4.49</version>
+    <version>v5.4.28</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/filesystem</location>
     <name>filesystem</name>
-    <version>v4.4.42</version>
+    <version>v5.4.25</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
@@ -43,16 +43,9 @@
     <licenseversion></licenseversion>
   </library>
   <library>
-    <location>vendor/symfony/polyfill-intl-normalizer</location>
-    <name>polyfill-mbstring</name>
-    <version>v1.28.0</version>
-    <license>MIT</license>
-    <licenseversion></licenseversion>
-  </library>
-  <library>
     <location>vendor/symfony/monolog-bridge</location>
     <name>monolog-bridge</name>
-    <version>v4.4.43</version>
+    <version>v5.2.12</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
@@ -66,7 +59,7 @@
   <library>
     <location>vendor/symfony/http-client-contracts</location>
     <name>http-client-contracts</name>
-    <version>v1.1.13</version>
+    <version>v2.5.2</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
@@ -87,7 +80,7 @@
   <library>
     <location>vendor/monolog/monolog</location>
     <name>monolog</name>
-    <version>1.27.1</version>
+    <version>2.9.1</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
@@ -162,12 +155,6 @@
     <licenseversion></licenseversion>
   </library>
   <library>
-    <location>vendor/symfony/mime</location>
-    <name> allows manipulating MIME messages</name>
-    <version>v4.4.47</version>
-    <license>MIT</license>
-    <licenseversion></licenseversion>
-  </library>
   <library>
     <location>vendor/symfony/polyfill-php80</location>
     <name>provides features added to PHP 8.0 core</name>
@@ -178,13 +165,6 @@
   <library>
     <location>vendor/symfony/polyfill-php81</location>
     <name>provides features added to PHP 8.1 core</name>
-    <version>v1.28.0</version>
-    <license>MIT</license>
-    <licenseversion></licenseversion>
-  </library>
-  <library>
-    <location>vendor/symfony/polyfill-php72</location>
-    <name>provides features added to PHP 7.2 core</name>
     <version>v1.28.0</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
@@ -204,30 +184,23 @@
     <licenseversion></licenseversion>
   </library>
   <library>
-    <location>vendor/symfony/polyfill-intl-idn</location>
-    <name>provides idn_to_ascii and idn_to_utf8 functions to users</name>
-    <version>v1.28.0'</version>
-    <license>MIT</license>
-    <licenseversion></licenseversion>
-  </library>
-  <library>
     <location>vendor/symfony/service-contracts</location>
     <name>A set of abstractions extracted out of the Symfony components.</name>
-    <version>v1.1.13</version>
+    <version>v2.5.2</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/var-dumper</location>
     <name>provides mechanisms for walking through any arbitrary PHP variable</name>
-    <version>v4.4.47</version>
+    <version>v5.4.29</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/var-exporter</location>
     <name>var-exporter</name>
-    <version>v4.4.43</version>
+    <version>v5.4.26</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
