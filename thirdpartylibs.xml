@@ -31,7 +31,7 @@
   <library>
     <location>vendor/psr/container</location>
     <name>container</name>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
