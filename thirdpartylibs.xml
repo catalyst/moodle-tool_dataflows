@@ -3,105 +3,112 @@
   <library>
     <location>vendor/symfony/http-foundation</location>
     <name>http-foundation</name>
-    <version>v3.4.47</version>
+    <version>v5.4.28</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/filesystem</location>
     <name>filesystem</name>
-    <version>v3.4.47</version>
+    <version>v5.4.25</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/event-dispatcher</location>
     <name>event-dispatcher</name>
-    <version>v3.4.47</version>
+    <version>v4.4.44</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/debug</location>
     <name>debug</name>
-    <version>v3.4.47</version>
+    <version>v4.4.44</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/psr/container</location>
     <name>container</name>
-    <version>1.0.0</version>
+    <version>1.1.2</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/polyfill-mbstring</location>
     <name>polyfill-mbstring</name>
-    <version>v1.27.0</version>
+    <version>v1.28.0</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/monolog-bridge</location>
     <name>monolog-bridge</name>
-    <version>v3.4.47</version>
+    <version>v5.2.12</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/monolog-bundle</location>
     <name>monolog-bundle</name>
-    <version>v3.6.0</version>
+    <version>v3.8.0</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/http-client-contracts</location>
+    <name>http-client-contracts</name>
+    <version>v2.5.2</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/http-kernel</location>
     <name>http-kernel</name>
-    <version>v3.4.49</version>
+    <version>v4.4.50</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/dependency-injection</location>
     <name>dependency-injection</name>
-    <version>v3.4.47</version>
+    <version>v4.4.37</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/monolog/monolog</location>
     <name>monolog</name>
-    <version>1.27.1</version>
+    <version>2.9.1</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/config</location>
     <name>config</name>
-    <version>v3.4.47</version>
+    <version>v4.4.44</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/expression-language</location>
     <name>expression-language</name>
-    <version>v3.4</version>
+    <version>v3.4.47</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/yaml</location>
     <name>yaml</name>
-    <version>v3.4</version>
+    <version>v3.4.47</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/phpseclib/phpseclib</location>
     <name>PHP Secure Communications Library</name>
-    <version>3.0</version>
+    <version>3.0.23</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
@@ -134,30 +141,72 @@
     <licenseversion></licenseversion>
   </library>
   <library>
-    <location>vendor/psr/simple-cache</location>
-    <name>Common interfaces for simple caching</name>
-    <version>1.0.1</version>
-    <license>MIT</license>
-    <licenseversion></licenseversion>
-  </library>
-  <library>
     <location>vendor/symfony/cache</location>
     <name>Provides extended PSR-6, PSR-16 (and tags) implementations</name>
-    <version>3.4.47</version>
+    <version>v4.4.48</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
-    <location>vendor/symfony/polyfill-apcu</location>
-    <name>Symfony polyfill backporting apcu_* functions to lower PHP versions</name>
-    <version>1.26.0</version>
+    <location>vendor/symfony/error-handler</location>
+    <name>error-handler</name>
+    <version>v4.4.44</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/deprecation-contracts</location>
+    <name>error-handler</name>
+    <version>v2.5.2</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/polyfill-php80</location>
+    <name>provides features added to PHP 8.0 core</name>
+    <version>v1.28.0</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/polyfill-php81</location>
+    <name>provides features added to PHP 8.1 core</name>
+    <version>v1.28.0</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/polyfill-php73</location>
+    <name>provides features added to PHP 7.3 core</name>
+    <version>v1.28.0</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
   <library>
     <location>vendor/symfony/polyfill-ctype</location>
     <name>Symfony polyfill for ctype functions</name>
-    <version>1.26.0</version>
+    <version>1.28.0</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/service-contracts</location>
+    <name>A set of abstractions extracted out of the Symfony components.</name>
+    <version>v2.5.2</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/var-dumper</location>
+    <name>provides mechanisms for walking through any arbitrary PHP variable</name>
+    <version>v5.4.29</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/var-exporter</location>
+    <name>var-exporter</name>
+    <version>v5.4.26</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
