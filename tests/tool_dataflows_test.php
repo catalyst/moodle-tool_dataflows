@@ -170,6 +170,7 @@ class tool_dataflows_test extends \advanced_testcase {
     /**
      * Test custom step type based on the callback defined in the manager.
      *
+     * @runInSeparateProcess
      * @covers \tool_dataflows\dataflow\manager::get_steps_types
      */
     public function test_local_aws_custom_step() {
