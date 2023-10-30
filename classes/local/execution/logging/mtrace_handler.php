@@ -33,6 +33,7 @@ class mtrace_handler extends AbstractProcessingHandler {
      * Default handler for Moodle.
      *
      * @param array $record the log record
+     * @return bool
      **/
     public function handle(array $record): bool {
         if ($this->isHandling($record)) {
