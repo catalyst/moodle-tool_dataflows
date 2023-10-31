@@ -12,29 +12,45 @@
 namespace Symfony\Bridge\Monolog\Processor;
 
 use Monolog\Logger;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Log\DebugLoggerInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class DebugProcessor implements DebugLoggerInterface
+class DebugProcessor implements DebugLoggerInterface, ResetInterface
 {
     private $records = [];
-    private $errorCount = 0;
+    private $errorCount = [];
+    private $requestStack;
+
+    public function __construct(RequestStack $requestStack = null)
+    {
+        $this->requestStack = $requestStack;
+    }
 
     public function __invoke(array $record)
     {
-        $this->records[] = [
+        $hash = $this->requestStack && ($request = $this->requestStack->getCurrentRequest()) ? spl_object_hash($request) : '';
+
+        $this->records[$hash][] = [
             'timestamp' => $record['datetime'] instanceof \DateTimeInterface ? $record['datetime']->getTimestamp() : strtotime($record['datetime']),
             'message' => $record['message'],
             'priority' => $record['level'],
             'priorityName' => $record['level_name'],
             'context' => $record['context'],
-            'channel' => isset($record['channel']) ? $record['channel'] : '',
+            'channel' => $record['channel'] ?? '',
         ];
+
+        if (!isset($this->errorCount[$hash])) {
+            $this->errorCount[$hash] = 0;
+        }
+
         switch ($record['level']) {
             case Logger::ERROR:
             case Logger::CRITICAL:
             case Logger::ALERT:
             case Logger::EMERGENCY:
-                ++$this->errorCount;
+                ++$this->errorCount[$hash];
         }
 
         return $record;
@@ -43,17 +59,29 @@ class DebugProcessor implements DebugLoggerInterface
     /**
      * {@inheritdoc}
      */
-    public function getLogs()
+    public function getLogs(Request $request = null)
     {
-        return $this->records;
+        if (null !== $request) {
+            return $this->records[spl_object_hash($request)] ?? [];
+        }
+
+        if (0 === \count($this->records)) {
+            return [];
+        }
+
+        return array_merge(...array_values($this->records));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function countErrors()
+    public function countErrors(Request $request = null)
     {
-        return $this->errorCount;
+        if (null !== $request) {
+            return $this->errorCount[spl_object_hash($request)] ?? 0;
+        }
+
+        return array_sum($this->errorCount);
     }
 
     /**
@@ -62,6 +90,14 @@ class DebugProcessor implements DebugLoggerInterface
     public function clear()
     {
         $this->records = [];
-        $this->errorCount = 0;
+        $this->errorCount = [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reset()
+    {
+        $this->clear();
     }
 }

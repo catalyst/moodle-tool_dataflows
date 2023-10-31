@@ -18,8 +18,6 @@ namespace tool_dataflows;
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
-require_once($CFG->libdir.'/externallib.php');
 require_once(__DIR__ . '/application_trait.php');
 
 
@@ -54,10 +52,12 @@ class tool_dataflows_web_service_flow_test extends \advanced_testcase {
     /**
      * Tests the execute() function.
      *
+     * @runInSeparateProcess
      * @covers \tool_dataflows\local\step\flow_web_service::execute
      */
     public function test_execute() {
-        global $DB;
+        global $DB, $CFG;
+        require_once($CFG->libdir.'/externallib.php');
         $originalusercount = $DB->count_records('user');
 
         $dataflow = new dataflow();
@@ -202,10 +202,13 @@ EOF;
     /**
      * Test validate_config().
      *
+     * @runInSeparateProcess
      * @covers \tool_dataflows\local\step\flow_web_service::validate_config
      * @throws \coding_exception
      */
     public function test_validate_config() {
+        global $CFG;
+        require_once($CFG->libdir.'/externallib.php');
         $user = $this->getDataGenerator()->create_user(['deleted' => 1]);
         $this->setUser($user);
 
