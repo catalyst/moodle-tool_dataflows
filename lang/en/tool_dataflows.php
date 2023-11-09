@@ -634,3 +634,11 @@ $string['step_name_flow_log'] = 'Log';
 $string['log:level'] = 'Log Level';
 $string['log:level_help'] = 'Choose between 8 logging levels. Each level conveys a different meaning, and it is best practice to choose the most appropriate one for the log message.';
 $string['log:message'] = 'Message';
+
+// Find step.
+$string['step_name_connector_find'] = 'Find';
+$string['find:collection'] = 'Collection';
+$string['find:collection_help'] = 'A reference to a collection of items.';
+$string['find:condition'] = 'Condition';
+$string['find:condition_help'] = 'The expression checked against each item in the referenced collection. For each item in the collection, it can be referenced as "item.field"';
+
