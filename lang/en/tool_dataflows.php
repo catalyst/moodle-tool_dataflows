@@ -622,3 +622,18 @@ $string['step_name_flow_log'] = 'Log';
 $string['log:level'] = 'Log Level';
 $string['log:level_help'] = 'Choose between 8 logging levels. Each level conveys a different meaning, and it is best practice to choose the most appropriate one for the log message.';
 $string['log:message'] = 'Message';
+
+// Find step.
+$string['step_name_connector_find'] = 'Find';
+$string['find:collection'] = 'Collection';
+$string['find:collection_help'] = 'A reference to a collection of items.';
+$string['find:condition'] = 'Condition';
+$string['find:condition_help'] = 'The expression checked against each item in the referenced collection. For each item in the collection, it can be referenced as "item.field"';
+
+// Update user step.
+$string['step_name_connector_update_user'] = 'Update user';
+$string['step_name_flow_update_user'] = 'Update user';
+$string['update_user:userid'] = 'User ID';
+$string['update_user:userid_help'] = 'The internal ID for this user.';
+$string['update_user:fields'] = 'Fields';
+$string['update_user:fields_help'] = 'Fields set here correspond to the fields available in the underlying user table. Custom user profile fields, must be prefixed with "profile_field_" followed by the shortname. Not all fields can be updated, such as password and auth';
