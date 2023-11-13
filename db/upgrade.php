@@ -287,5 +287,49 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023072100, 'tool', 'dataflows');
     }
 
+    // Move log files that exist across to new format. Breaking change if any
+    // dataflows implement logic based on these files based on filename format.
+    if ($oldversion < 2023110901) {
+        $path = '*.log';
+        $pattern = '/(\d+)-(\d{4})-(\d{2})-(\d{2})/m';
+        $replace = '$2$3$4_$1';
+        xmldb_tool_dataflows_logfile_rename_helper($path, $pattern, $replace);
+
+        $path = '*/*.log';
+        $pattern = '/(\d+)\/(\d+)(_)*.*\.log/m';
+        $replace = '$1/{modifiedtime}_$2.log';
+        xmldb_tool_dataflows_logfile_rename_helper($path, $pattern, $replace, true);
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2023110901, 'tool', 'dataflows');
+    }
+
     return true;
+}
+
+/**
+ * Log file helper function
+ *
+ * @param string $path
+ * @param string $pattern
+ * @param string $replace
+ * @param bool $modifiedtimeprefix whether or not to add a datetime prefix to the new log file
+ * @return bool result
+ */
+function xmldb_tool_dataflows_logfile_rename_helper(string $path, string $pattern, string $replace, $modifiedtimeprefix = false) {
+    global $CFG;
+
+    $plugindatadir = $CFG->dataroot . DIRECTORY_SEPARATOR . 'tool_dataflows';
+    $files = glob($plugindatadir . DIRECTORY_SEPARATOR . $path);
+    foreach ($files as $file) {
+        $strreplace = $replace;
+        if ($modifiedtimeprefix) {
+            $newprefix = date('Ymd_His000', filemtime($file));
+            $strreplace = str_replace('{modifiedtime}', $newprefix, $replace);
+        }
+        $newlocation = preg_replace($pattern, $strreplace, $file);
+        if ($newlocation) {
+            rename($file, $newlocation);
+        }
+    }
 }

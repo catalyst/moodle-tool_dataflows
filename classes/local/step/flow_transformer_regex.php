@@ -62,6 +62,7 @@ class flow_transformer_regex extends flow_transformer_step {
             get_string('flow_transformer_regex:pattern', 'tool_dataflows'),
             [
                 'placeholder' => "/[abc]/",
+                'size' => '60',
             ]
         );
         $mform->addElement(
