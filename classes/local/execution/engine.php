@@ -746,6 +746,12 @@ class engine {
             $channel .= '/' . $this->run->name;
         }
 
+        // Set the starting time as 'now'.
+        $now = microtime(true);
+        [, $decimal] = explode('.', $now);
+        $decimal = substr($decimal, 0, 3); // Only use the first 3 digits after the decimal point.
+        $rundateformat = date("Ymd_His$decimal", $now);
+
         // Each channel represents a specific way of writing log information.
         $log = new Logger($channel);
 
@@ -785,12 +791,13 @@ class engine {
         }
 
         // Dataflow run logger.
-        // e.g. '[dataroot]/tool_dataflows/3/21.log' as the path.
+        // Type: FILE_PER_RUN
+        // e.g. '[dataroot]/tool_dataflows/3/20060102150405-21.log' as the path.
         if (isset($loghandlers[log_handler::FILE_PER_RUN])) {
             $dataflowrunlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
                 'tool_dataflows' . DIRECTORY_SEPARATOR .
-                $this->dataflow->id . DIRECTORY_SEPARATOR . $this->run->name
-                . '.log';
+                $this->dataflow->id . DIRECTORY_SEPARATOR .
+                $rundateformat . '_' . $this->run->name . '.log';
 
             $streamhandler = new StreamHandler($dataflowrunlogpath, Logger::DEBUG);
             $streamhandler->setFormatter($lineformatter);
@@ -798,13 +805,18 @@ class engine {
         }
 
         // General dataflow logger (rotates daily to prevent big single log file).
-        // e.g. '[dataroot]/tool_dataflows/3-2006-01-02.log' as the path.
+        // Type: FILE_PER_DATAFLOW
+        // e.g. '[dataroot]/tool_dataflows/20060102-3.log' as the path.
         if (isset($loghandlers[log_handler::FILE_PER_DATAFLOW])) {
             $dataflowlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
                 'tool_dataflows' . DIRECTORY_SEPARATOR .
                 $this->dataflow->id . '.log';
 
             $rotatingfilehandler = new RotatingFileHandler($dataflowlogpath, 0, Logger::DEBUG);
+            $dateformat = 'Ymd';
+            $filenameformat = '{date}_{filename}';
+            $rotatingfilehandler->setFilenameFormat($filenameformat, $dateformat);
+
             $rotatingfilehandler->setFormatter($lineformatter);
             $log->pushHandler($rotatingfilehandler);
         }
