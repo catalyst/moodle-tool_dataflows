@@ -76,22 +76,26 @@ trait copy_file_trait {
         }
 
         // Attempt to copy the file to the destination.
-        // If $to is not a directory, then it should not glob anything and copy as-is.
-        if (!is_dir($to)) {
+        // If $to is not a directory and $from exists as a file, then it should not glob anything and copy as-is.
+        if (!is_dir($to) && file_exists($from)) {
             $this->copy($from, $to);
             return $input;
         }
 
-        // Otherwise, it is probably multiple files, and should be globbed.
+        // Otherwise, it is probably multiple files or a file to be renamed, and should be globbed.
         $files = glob($from);
         if (empty($files)) {
             return $input;
         }
 
         $this->log('Copying ' . count($files) . ' files');
+        // Copy all files direct to the endpoint specified, either a direct target or in directory.
+        $targetdir = is_dir($to);
         foreach ($files as $file) {
             if (!is_dir($file) && is_readable($file)) {
-                $dest = realpath($to . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . basename($file);
+                $dest = $targetdir
+                    ? realpath($to . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . basename($file)
+                    : $to;
                 $this->copy($file, $dest);
             }
         }
