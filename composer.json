@@ -6,7 +6,7 @@
     },
     "require": {
         "php": ">=7.4",
-        "symfony/yaml": "^3.4",
+        "symfony/yaml": "^4.0",
         "symfony/expression-language": "^3.4",
         "phpseclib/phpseclib": "~3.0",
         "symfony/monolog-bundle": "^3.6"
