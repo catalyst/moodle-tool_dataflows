@@ -107,11 +107,22 @@ class step_form extends \core\form\persistent {
         $select->setMultiple(true);
 
         $dataflow = new dataflow($dataflowid);
-        $varroot = $dataflow->get_variables_root();
 
-        // List all the available fields available for configuration, in dot syntax.
-        $mform->addElement('static', 'fields', get_string('available_fields', 'tool_dataflows'),
-            $this->prepare_available_fields($varroot->get()));
+        try {
+            $varroot = $dataflow->get_variables_root();
+
+            // List all the available fields available for configuration, in dot syntax.
+            $mform->addElement(
+                'static',
+                'fields',
+                get_string('available_fields', 'tool_dataflows'),
+                $this->prepare_available_fields($varroot->get())
+            );
+        } catch (\Throwable $e) {
+            global $OUTPUT;
+            $errtext  = $OUTPUT->notification($e->getMessage());
+            $mform->addElement('static', 'vars_error', get_string('available_fields', 'tool_dataflows'), $errtext);
+        }
 
         // Check and set custom form inputs if required. Defaulting to a
         // textarea config input for those not yet configured.
