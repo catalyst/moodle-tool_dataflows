@@ -179,6 +179,7 @@ $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
 $string['step_name_trigger_event'] = 'Moodle event';
 $string['step_name_flow_sql'] = 'SQL';
+$string['step_name_connector_sql'] = 'SQL';
 
 // Step (type) groups.
 $string['stepgrouptriggers'] = 'Triggers';
