@@ -105,6 +105,8 @@ function tool_dataflows_step_types() {
         new step\trigger_webservice,
         new step\writer_debugging,
         new step\writer_stream,
+        new step\connector_set_multiple_variables,
+        new step\flow_set_multiple_variables,
     ];
 }
 
