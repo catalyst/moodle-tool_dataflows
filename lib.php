@@ -69,6 +69,7 @@ function tool_dataflows_step_types() {
         new step\connector_s3,
         new step\connector_set_variable,
         new step\connector_sftp,
+        new step\connector_sql,
         new step\connector_update_user,
         new step\connector_sftp_directory_file_list,
         new step\connector_sns_notify,
