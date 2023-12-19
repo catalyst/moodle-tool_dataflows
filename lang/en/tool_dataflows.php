@@ -145,6 +145,7 @@ $string['step_name_connector_noop'] = 'No-op';
 $string['step_name_connector_remove_file'] = 'Remove file';
 $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_set_variable'] = 'Set variable';
+$string['step_name_connector_set_multiple_variables'] = 'Set multiple variables';
 $string['step_name_connector_sftp'] = 'SFTP file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
@@ -159,6 +160,7 @@ $string['step_name_flow_gpg'] = 'GPG';
 $string['step_name_flow_hash_file'] = 'Hash file';
 $string['step_name_flow_remove_file'] = 'Remove file';
 $string['step_name_flow_set_variable'] = 'Set variable';
+$string['step_name_flow_set_multiple_variables'] = 'Set multiple variables';
 $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_logic_switch'] = 'Switch';
 $string['step_name_flow_noop'] = 'No-op';
@@ -588,6 +590,12 @@ $string['set_variable:field'] = 'Field';
 $string['set_variable:field_help'] = 'Defines the path to the field you would like to set the value. For example: <code>dataflow.vars.counter</code>.';
 $string['set_variable:value'] = 'Value';
 $string['set_variable:value_help'] = 'The value could be a number, text, or an expression. For example: <code>${{ record.id }}</code>.';
+
+// Set multiple variables step.
+$string['set_multiple_variables:field'] = 'Field';
+$string['set_multiple_variables:field_help'] = 'Defines the path to the field you would like to set the value(s). For example: <code>dataflow.vars.counter</code>.';
+$string['set_multiple_variables:values'] = 'Values';
+$string['set_multiple_variables:values_help'] = 'A list of fields/keys and values, in YAML format.';
 
 // Event trigger.
 $string['trigger_event:policy:immediate'] = 'Run immediately';
