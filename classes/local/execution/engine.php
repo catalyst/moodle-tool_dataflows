@@ -211,6 +211,13 @@ class engine {
 
         // Find the flow blocks.
         $this->create_flow_caps();
+
+        // Make the runid available to the flow.
+        if (!$this->isdryrun) {
+            $variables = $this->get_variables();
+            $variables->set('run.name', $this->run->name);
+            $variables->set('run.id', $this->run->id);
+        }
     }
 
     /**
@@ -785,7 +792,8 @@ class engine {
         }
 
         // Dataflow run logger.
-        // e.g. '[dataroot]/tool_dataflows/3/21.log' as the path.
+        // Type: FILE_PER_RUN
+        // e.g. '[dataroot]/tool_dataflows/3/Ymd_His.uuu_21.log' as the path.
         if (isset($loghandlers[log_handler::FILE_PER_RUN])) {
             $dataflowrunlogpath = $CFG->dataroot . DIRECTORY_SEPARATOR .
                 'tool_dataflows' . DIRECTORY_SEPARATOR .
