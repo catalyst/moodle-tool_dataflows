@@ -92,12 +92,15 @@ class reader_csv extends reader_step {
             // Convert header string to an actual headers array.
             $headers = str_getcsv($strheaders, $delimiter);
             $numheaders = count($headers);
+            $rownumber = 1; // First row is always headers.
             while (($data = fgetcsv($handle, $maxlinelength, $delimiter)) !== false) {
+                $rownumber++;
                 $numfields = count($data);
                 if ($numfields !== $numheaders) {
                     throw new \moodle_exception('reader_csv:header_field_count_mismatch', 'tool_dataflows', '', (object) [
                         'numfields' => $numfields,
                         'numheaders' => $numheaders,
+                        'rownumber' => $rownumber,
                     ], json_encode([
                         'fields' => $data,
                         'headers' => $headers,
