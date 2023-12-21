@@ -75,8 +75,8 @@ trait sql_trait {
                 [$hasexpression] = $parser->has_expression($el);
                 $max--;
             }
-            if (!in_array(gettype($el), ['string', 'int'])) {
-                throw new \moodle_exception('sql_trait:sql_param_type_not_valid', 'tool_dataflows');
+            if (!in_array(gettype($el), ['string', 'int', 'integer'])) {
+                throw new \moodle_exception('sql_trait:sql_param_type_not_valid', 'tool_dataflows', '', gettype($el));
             }
             return $el;
         }, $expressions);

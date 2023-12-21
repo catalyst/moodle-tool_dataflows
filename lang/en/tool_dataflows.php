@@ -353,7 +353,7 @@ $string['writer_stream:prettyprint_help'] = 'Format the output to be human reada
 $string['writer_csv:fail_to_encode'] = 'Failed to encode CSV.';
 
 // SQL trait.
-$string['sql_trait:sql_param_type_not_valid'] = 'The SQL parameter must be a valid type (string or int).';
+$string['sql_trait:sql_param_type_not_valid'] = 'The SQL parameter must be a valid type (string or int), found {$a}';
 $string['sql_trait:variable_not_valid_in_position_replacement_text'] = "Invalid expression \${{ {\$a->expression} }} as `{\$a->expressionpath}` could not be resolved at line {\$a->line} character {\$a->column} in:\n{\$a->sql}"; // phpcs:disable moodle.Strings.ForbiddenStrings.Found
 
 // Reader SQL.
