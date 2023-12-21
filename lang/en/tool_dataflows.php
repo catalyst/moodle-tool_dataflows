@@ -373,6 +373,8 @@ $string['reader_csv:headers'] = 'Headers';
 $string['reader_csv:headers_help'] = 'If populated, then this will act as the header to map field to keys. If left blank, it will be populated automatically using the first read row.';
 $string['reader_csv:overwriteheaders'] = 'Overwrite existing headers';
 $string['reader_csv:overwriteheaders_help'] = 'If checked, the headers supplied above will be used instead of the ones in the file, effectively ignoring the first row.';
+$string['reader_csv:continueonerror'] = 'Continue on parsing errors';
+$string['reader_csv:continueonerror_help'] = 'If checked, the step will continue reading the next row of data if there are parsing errors on the current.';
 $string['reader_csv:header_field_count_mismatch'] = 'Row #{$a->rownumber}: Number of fields ({$a->numfields}) should match number of headers ({$a->numheaders})';
 
 // Reader JSON.
