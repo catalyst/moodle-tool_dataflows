@@ -72,7 +72,9 @@ trait copy_file_trait {
         $todirectory = dirname($to);
         if (!file_exists($todirectory)) {
             $this->log("Creating a directory at {$todirectory}");
-            mkdir($todirectory, $CFG->directorypermissions, true);
+            if (!mkdir($todirectory, $CFG->directorypermissions, true)) {
+                throw new \moodle_exception('flow_copy_file:mkdir_failed', 'tool_dataflows', '', $todirectory);
+            }
         }
 
         // Attempt to copy the file to the destination.
@@ -112,10 +114,12 @@ trait copy_file_trait {
     private function copy(string $from, string $to) {
         $this->log("Copying $from to $to");
         if (!copy($from, $to)) {
-            throw new \moodle_exception('flow_copy_file:copy_failed', 'tool_dataflows', (object) [
-                'from' => $from,
-                'to' => $to,
-            ]);
+            throw new \moodle_exception(
+                'flow_copy_file:copy_failed',
+                'tool_dataflows',
+                '',
+                (object) ['from' => $from, 'to' => $to]
+            );
         }
     }
 

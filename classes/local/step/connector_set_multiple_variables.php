@@ -17,14 +17,19 @@
 namespace tool_dataflows\local\step;
 
 /**
- * SQL flow step
+ * Set multiple variables connector step
  *
  * @package   tool_dataflows
- * @author    Matthew Hilton <matthewhilton@catalyst-au.net>
- * @copyright 2022, Catalyst IT
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright Catalyst IT, 2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class flow_sql extends flow_step {
-    use sql_trait;
+class connector_set_multiple_variables extends connector_step {
+    use set_multiple_variables_trait;
 
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
+
+    /** @var int[] number of output connectors (min, max). */
+    protected $outputconnectors = [0, 1];
 }

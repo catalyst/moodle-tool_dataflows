@@ -145,6 +145,7 @@ $string['step_name_connector_noop'] = 'No-op';
 $string['step_name_connector_remove_file'] = 'Remove file';
 $string['step_name_connector_s3'] = 'S3 file copy';
 $string['step_name_connector_set_variable'] = 'Set variable';
+$string['step_name_connector_set_multiple_variables'] = 'Set multiple variables';
 $string['step_name_connector_sftp'] = 'SFTP file copy';
 $string['step_name_connector_sns_notify'] = 'AWS-SNS Notification';
 $string['step_name_connector_wait'] = 'Wait';
@@ -159,6 +160,7 @@ $string['step_name_flow_gpg'] = 'GPG';
 $string['step_name_flow_hash_file'] = 'Hash file';
 $string['step_name_flow_remove_file'] = 'Remove file';
 $string['step_name_flow_set_variable'] = 'Set variable';
+$string['step_name_flow_set_multiple_variables'] = 'Set multiple variables';
 $string['step_name_flow_logic_join'] = 'Join';
 $string['step_name_flow_logic_switch'] = 'Switch';
 $string['step_name_flow_noop'] = 'No-op';
@@ -179,6 +181,7 @@ $string['step_name_writer_debugging'] = 'Debugging writer';
 $string['step_name_writer_stream'] = 'Stream writer';
 $string['step_name_trigger_event'] = 'Moodle event';
 $string['step_name_flow_sql'] = 'SQL';
+$string['step_name_connector_sql'] = 'SQL';
 
 // Step (type) groups.
 $string['stepgrouptriggers'] = 'Triggers';
@@ -350,7 +353,7 @@ $string['writer_stream:prettyprint_help'] = 'Format the output to be human reada
 $string['writer_csv:fail_to_encode'] = 'Failed to encode CSV.';
 
 // SQL trait.
-$string['sql_trait:sql_param_type_not_valid'] = 'The SQL parameter must be a valid type (string or int).';
+$string['sql_trait:sql_param_type_not_valid'] = 'The SQL parameter must be a valid type (string or int), found {$a}';
 $string['sql_trait:variable_not_valid_in_position_replacement_text'] = "Invalid expression \${{ {\$a->expression} }} as `{\$a->expressionpath}` could not be resolved at line {\$a->line} character {\$a->column} in:\n{\$a->sql}"; // phpcs:disable moodle.Strings.ForbiddenStrings.Found
 
 // Reader SQL.
@@ -370,7 +373,9 @@ $string['reader_csv:headers'] = 'Headers';
 $string['reader_csv:headers_help'] = 'If populated, then this will act as the header to map field to keys. If left blank, it will be populated automatically using the first read row.';
 $string['reader_csv:overwriteheaders'] = 'Overwrite existing headers';
 $string['reader_csv:overwriteheaders_help'] = 'If checked, the headers supplied above will be used instead of the ones in the file, effectively ignoring the first row.';
-$string['reader_csv:header_field_count_mismatch'] = 'Number of headers ({$a->numheaders}) should match number of fields ({$a->numfields})';
+$string['reader_csv:continueonerror'] = 'Continue on parsing errors';
+$string['reader_csv:continueonerror_help'] = 'If checked, the step will continue reading the next row of data if there are parsing errors on the current.';
+$string['reader_csv:header_field_count_mismatch'] = 'Row #{$a->rownumber}: Number of fields ({$a->numfields}) should match number of headers ({$a->numheaders})';
 
 // Reader JSON.
 $string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON. For example, {$a->expression} will return the users array from the following JSON (If empty it is assumed the starting point of the JSON file is an array):{$a->jsonexample}';
@@ -546,6 +551,7 @@ $string['flow_append_file:chopfirstline'] = 'Remove first line before appending 
 $string['flow_copy_file:from'] = 'From';
 $string['flow_copy_file:to'] = 'To';
 $string['flow_copy_file:copy_failed'] = 'Failed to copy {$a->from} to {$a->to}';
+$string['flow_copy_file:mkdir_failed'] = 'Failed to create directory at {$a}. Please check permissions and try again.';
 
 // Directory file count.
 $string['connector_directory_file_count:path'] = 'Path to directory';
@@ -587,6 +593,12 @@ $string['set_variable:field'] = 'Field';
 $string['set_variable:field_help'] = 'Defines the path to the field you would like to set the value. For example: <code>dataflow.vars.counter</code>.';
 $string['set_variable:value'] = 'Value';
 $string['set_variable:value_help'] = 'The value could be a number, text, or an expression. For example: <code>${{ record.id }}</code>.';
+
+// Set multiple variables step.
+$string['set_multiple_variables:field'] = 'Field';
+$string['set_multiple_variables:field_help'] = 'Defines the path to the field you would like to set the value(s). For example: <code>dataflow.vars.counter</code>.';
+$string['set_multiple_variables:values'] = 'Values';
+$string['set_multiple_variables:values_help'] = 'A list of fields/keys and values, in YAML format.';
 
 // Event trigger.
 $string['trigger_event:policy:immediate'] = 'Run immediately';

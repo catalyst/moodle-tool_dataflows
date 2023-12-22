@@ -17,14 +17,13 @@
 namespace tool_dataflows\local\step;
 
 /**
- * SQL flow step
+ * SQL connector step
  *
  * @package   tool_dataflows
- * @author    Matthew Hilton <matthewhilton@catalyst-au.net>
- * @copyright 2022, Catalyst IT
+ * @author    Kevin Pham <kevinpham@catalyst-au.net>
+ * @copyright Catalyst IT, 2023
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class flow_sql extends flow_step {
+class connector_sql extends connector_step {
     use sql_trait;
-
 }
