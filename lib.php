@@ -60,6 +60,7 @@ function tool_dataflows_step_types() {
         new step\connector_email,
         new step\connector_file_exists,
         new step\connector_file_put_content,
+        new step\connector_find,
         new step\connector_gpg,
         new step\connector_hash_file,
         new step\connector_log,
@@ -68,6 +69,8 @@ function tool_dataflows_step_types() {
         new step\connector_s3,
         new step\connector_set_variable,
         new step\connector_sftp,
+        new step\connector_sql,
+        new step\connector_update_user,
         new step\connector_sftp_directory_file_list,
         new step\connector_sns_notify,
         new step\connector_wait,
@@ -92,6 +95,7 @@ function tool_dataflows_step_types() {
         new step\flow_transformer_alter,
         new step\flow_transformer_filter,
         new step\flow_transformer_regex,
+        new step\flow_update_user,
         new step\flow_web_service,
         new step\reader_csv,
         new step\reader_directory_file_list,
@@ -103,6 +107,8 @@ function tool_dataflows_step_types() {
         new step\trigger_webservice,
         new step\writer_debugging,
         new step\writer_stream,
+        new step\connector_set_multiple_variables,
+        new step\flow_set_multiple_variables,
     ];
 }
 

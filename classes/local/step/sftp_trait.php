@@ -35,10 +35,13 @@ use tool_dataflows\helper;
 trait sftp_trait {
 
     /** Shorthand sftp scheme for use in config. */
-    static protected $sftpprefix = 'sftp';
+    protected static $sftpprefix = 'sftp';
 
     /** Default port to connect to. */
-    static protected $defaultport = 22;
+    protected static $defaultport = 22;
+
+    /** Array of SFTP objects to use for performance reasons. */
+    protected $sftp = [];
 
     /**
      * Returns whether or not the step configured, has a side effect.
@@ -93,17 +96,14 @@ trait sftp_trait {
         $mform->addElement('text', 'config_port', get_string('connector_sftp:port', 'tool_dataflows'));
         $mform->setDefault('config_port', self::$defaultport);
         $mform->addElement('text', 'config_hostpubkey', get_string('connector_sftp:hostpubkey', 'tool_dataflows'));
-        $mform->addElement('static', 'config_hostpubkey_desc', '',
-            get_string('connector_sftp:hostpubkey_desc', 'tool_dataflows'));
+        $mform->addElement('static', 'config_hostpubkey_desc', '', get_string('connector_sftp:hostpubkey_desc', 'tool_dataflows'));
 
         $mform->addElement('text', 'config_username', get_string('username'));
         $mform->addElement('passwordunmask', 'config_password', get_string('password'));
-        $mform->addElement('static', 'config_password_desc', '',
-            get_string('connector_sftp:password_desc', 'tool_dataflows'));
+        $mform->addElement('static', 'config_password_desc', '', get_string('connector_sftp:password_desc', 'tool_dataflows'));
 
         $mform->addElement('text', 'config_privkeyfile', get_string('connector_sftp:privkeyfile', 'tool_dataflows'));
-        $mform->addElement('static', 'config_keyfile_desc', '',
-            get_string('connector_sftp:keyfile_desc', 'tool_dataflows'));
+        $mform->addElement('static', 'config_keyfile_desc', '', get_string('connector_sftp:keyfile_desc', 'tool_dataflows'));
     }
 
     /**
@@ -118,13 +118,19 @@ trait sftp_trait {
         if ($behaviour === 'copy') {
             $mform->addElement('text', 'config_source', get_string('connector_sftp:source', 'tool_dataflows'));
             $mform->addElement('static', 'config_source_desc', '',  get_string('connector_sftp:source_desc', 'tool_dataflows').
-                \html_writer::nonempty_tag('pre', get_string('connector_sftp:path_example', 'tool_dataflows').
-                    get_string('path_help_examples', 'tool_dataflows')));
+                \html_writer::nonempty_tag(
+                    'pre',
+                    get_string('connector_sftp:path_example', 'tool_dataflows'). get_string('path_help_examples', 'tool_dataflows')
+                )
+            );
 
             $mform->addElement('text', 'config_target', get_string('connector_sftp:target', 'tool_dataflows'));
             $mform->addElement('static', 'config_target_desc', '',  get_string('connector_sftp:target_desc', 'tool_dataflows').
-                \html_writer::nonempty_tag('pre', get_string('connector_sftp:path_example', 'tool_dataflows').
-                    get_string('path_help_examples', 'tool_dataflows')));
+                \html_writer::nonempty_tag(
+                    'pre',
+                    get_string('connector_sftp:path_example', 'tool_dataflows'). get_string('path_help_examples', 'tool_dataflows')
+                )
+            );
         }
     }
 
@@ -247,11 +253,8 @@ trait sftp_trait {
         $stepvars = $this->get_variables();
         $config = $stepvars->get('config');
 
-        $this->log->debug("Connecting to {$config->host}:{$config->port}");
-
         // At this point we need to disconnect once we are finished.
         try {
-
             // Skip if it is a dry run.
             if ($this->is_dry_run() && $this->has_side_effect()) {
                 return $input;
@@ -278,13 +281,35 @@ trait sftp_trait {
 
             // Upload to remote.
             $this->upload($sftp, $sourcepath, $targetpath);
-        } finally {
+        } catch (\Throwable $e) {
             if (isset($sftp)) {
                 $sftp->disconnect();
             }
         }
 
         return $input;
+    }
+
+    /**
+     * Hook function that gets called when an engine step has been aborted.
+     */
+    public function on_abort() {
+        if (isset($this->sftp)) {
+            foreach ($this->sftp as $s) {
+                $s->disconnect();
+            }
+        }
+    }
+
+    /**
+     * Hook function that gets called when an engine step has been finalised.
+     */
+    public function on_finalise() {
+        if (isset($this->sftp)) {
+            foreach ($this->sftp as $s) {
+                $s->disconnect();
+            }
+        }
     }
 
     /**
@@ -408,6 +433,14 @@ trait sftp_trait {
      * @return SFTP
      */
     private function init_sftp($config): SFTP {
+        // Use existing cached SFTP object if available.
+        $cachekey = implode('|', [$config->host, $config->port, $config->username]);
+        if (isset($this->sftp[$cachekey])) {
+            return $this->sftp[$cachekey];
+        }
+
+        // Create and connect to SFTP.
+        $this->log->debug("Connecting to {$config->host}:{$config->port}");
         $sftp = new SFTP($config->host, $config->port);
         $this->check_public_host_key($sftp, $config->hostpubkey);
 
@@ -417,6 +450,10 @@ trait sftp_trait {
         }
 
         $sftp->enableDatePreservation();
+
+        // Cache sftp since it takes a while to attempt initial connection.
+        $this->sftp[$cachekey] = $sftp;
+
         return $sftp;
     }
 }

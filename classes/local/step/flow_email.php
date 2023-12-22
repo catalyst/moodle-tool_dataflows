@@ -28,6 +28,12 @@ use tool_dataflows\parser;
  */
 class flow_email extends flow_step {
 
+    /** @var int[] number of output flows (min, max). */
+    protected $outputflows = [0, 1];
+
+    /** @var int[] number of output connectors (min, max) */
+    protected $outputconnectors = [0, 1];
+
     /** @var bool whether or not this step type (potentially) contains a side effect or not */
     protected $hassideeffect = true;
 

@@ -43,6 +43,7 @@ class reader_csv extends reader_step {
             'path' => ['type' => PARAM_TEXT, 'required' => true],
             'headers' => ['type' => PARAM_TEXT],
             'overwriteheaders' => ['type' => PARAM_BOOL],
+            'continueonerror' => ['type' => PARAM_BOOL],
             'delimiter' => ['type' => PARAM_TEXT],
         ];
     }
@@ -61,9 +62,11 @@ class reader_csv extends reader_step {
      */
     public function csv_contents_generator() {
         $maxlinelength = 1000;
-        $config = $this->get_variables()->get('config');
+        $variables = $this->get_variables();
+        $config = $variables->get('config');
         $strheaders = $config->headers;
         $overwriteheaders = !empty($config->overwriteheaders);
+        $continueonerror = !empty($config->continueonerror);
         $delimiter = $config->delimiter ?: self::DEFAULT_DELIMETER;
         $path = $this->enginestep->engine->resolve_path($config->path);
 
@@ -92,12 +95,35 @@ class reader_csv extends reader_step {
             // Convert header string to an actual headers array.
             $headers = str_getcsv($strheaders, $delimiter);
             $numheaders = count($headers);
+            $rownumber = 1; // First row is always headers.
+            $errors = ['header_field_count_mismatch' => 0];
             while (($data = fgetcsv($handle, $maxlinelength, $delimiter)) !== false) {
+                $rownumber++;
                 $numfields = count($data);
                 if ($numfields !== $numheaders) {
+                    // Continue on (parse) error.
+                    if ($continueonerror) {
+                        $errors['header_field_count_mismatch'] += 1;
+                        $this->log->error(
+                            get_string('reader_csv:header_field_count_mismatch', 'tool_dataflows', (object) [
+                                'numfields' => $numfields,
+                                'numheaders' => $numheaders,
+                                'rownumber' => $rownumber,
+                            ]),
+                            [
+                                'fields' => $data,
+                                'headers' => $headers,
+                            ]
+                        );
+
+                        continue;
+                    }
+
+                    // Throw exception on error.
                     throw new \moodle_exception('reader_csv:header_field_count_mismatch', 'tool_dataflows', '', (object) [
                         'numfields' => $numfields,
                         'numheaders' => $numheaders,
+                        'rownumber' => $rownumber,
                     ], json_encode([
                         'fields' => $data,
                         'headers' => $headers,
@@ -109,6 +135,8 @@ class reader_csv extends reader_step {
         } finally {
             fclose($handle);
         }
+
+        $variables->set('errors', (object) $errors);
     }
 
     /**
@@ -149,6 +177,10 @@ class reader_csv extends reader_step {
                 get_string('reader_csv:overwriteheaders_help', 'tool_dataflows'));
         $mform->hideIf('config_overwriteheaders', 'config_headers', 'eq', '');
         $mform->disabledIf('config_overwriteheaders', 'config_headers', 'eq', '');
+
+        // Used when we want to replace the headers (or overwrite them) using the ones we supplied instead. Defaults to off.
+        $mform->addElement('checkbox', 'config_continueonerror', get_string('reader_csv:continueonerror', 'tool_dataflows'),
+                get_string('reader_csv:continueonerror_help', 'tool_dataflows'));
 
         // Delimiter.
         $mform->addElement(
