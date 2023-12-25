@@ -48,6 +48,9 @@ class step extends persistent {
     /** Characters to strip out when converting a name. Taken from PARAM_ALPHANUMEXT. */
     const NOT_ALPHANUMEXT = '/[^a-zA-Z0-9_-]+/';
 
+    /** @var dataflow */
+    private $dataflow;
+
     /** @var array */
     private $dependson = [];
 
