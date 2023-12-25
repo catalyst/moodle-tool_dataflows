@@ -289,7 +289,7 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
 
     // Move log files that exist across to new format. Breaking change if any
     // dataflows implement logic based on these files based on filename format.
-    if ($oldversion < 2023110901) {
+    if ($oldversion < 2023122201) {
         $path = '*.log';
         $pattern = '/(\d+)-(\d{4})-(\d{2})-(\d{2})/m';
         $replace = '$2$3$4_$1';
@@ -301,7 +301,7 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         xmldb_tool_dataflows_logfile_rename_helper($path, $pattern, $replace, true);
 
         // Dataflows savepoint reached.
-        upgrade_plugin_savepoint(true, 2023110901, 'tool', 'dataflows');
+        upgrade_plugin_savepoint(true, 2023122201, 'tool', 'dataflows');
     }
 
     return true;
