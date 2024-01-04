@@ -757,7 +757,7 @@ class engine {
         $now = microtime(true);
         [, $decimal] = explode('.', $now);
         $decimal = substr($decimal, 0, 3); // Only use the first 3 digits after the decimal point.
-        $rundateformat = date("Ymd_His$decimal", $now);
+        $rundateformat = date("Ymd_His$decimal", (int) $now);
 
         // Each channel represents a specific way of writing log information.
         $log = new Logger($channel);

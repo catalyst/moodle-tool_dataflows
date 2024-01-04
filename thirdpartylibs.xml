@@ -101,7 +101,7 @@
   <library>
     <location>vendor/symfony/yaml</location>
     <name>yaml</name>
-    <version>v3.4.47</version>
+    <version>v4.4.45</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
