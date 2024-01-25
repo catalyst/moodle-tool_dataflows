@@ -102,7 +102,7 @@ require_sesskey();
 \core\session\manager::write_close();
 
 raise_memory_limit(MEMORY_HUGE);
-core_php_time_limit::raise(300);
+core_php_time_limit::raise();
 
 // Re-run the specified flow (this will output an error if it doesn't exist).
 echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'), 'post', ['class' => 'mb-3']);
