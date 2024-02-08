@@ -16,6 +16,11 @@
 
 namespace tool_dataflows\local\step;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/user/lib.php');
+require_once($CFG->dirroot . '/user/profile/lib.php');
+
 /**
  * Update user using core api
  *
@@ -85,8 +90,8 @@ trait update_user_trait {
         unset($userobject->auth);
 
         // Update user fields using core api.
-        user_update_user($userobject, false, false);
-        profile_save_data($userobject);
+        \user_update_user($userobject, false, false);
+        \profile_save_data($userobject);
 
         return $input;
     }
