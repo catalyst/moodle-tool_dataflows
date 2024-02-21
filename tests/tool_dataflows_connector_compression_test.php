@@ -45,6 +45,10 @@ class tool_dataflows_connector_compression_test extends \advanced_testcase {
         set_config('gzip_exec_path', '/usr/bin/gzip', 'tool_dataflows');
     }
 
+    protected function tearDown(): void {
+        $this->basedir = null;
+    }
+
     /**
      * Creates a test dataflow
      *
