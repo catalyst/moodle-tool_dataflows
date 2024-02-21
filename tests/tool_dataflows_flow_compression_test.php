@@ -58,6 +58,11 @@ class tool_dataflows_flow_compression_test extends \advanced_testcase {
         set_config('permitted_dirs', $basedir, 'tool_dataflows');
     }
 
+    protected function tearDown(): void {
+        $this->readdir = null;
+        $this->outdir = null;
+    }
+
     /**
      * Creates a test dataflow
      *
