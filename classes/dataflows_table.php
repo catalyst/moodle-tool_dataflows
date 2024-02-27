@@ -203,9 +203,9 @@ class dataflows_table extends sql_table {
                     . get_string('runningfor', 'tool_dataflows', format_time($delta, 0)) . '</span>';
             }
             if ($delta > 10) {
-                return format_time(number_format($delta, 0));
+                return format_time($delta);
             }
-            return format_time(number_format($delta, 1));
+            return format_time((float) number_format($delta, 1));
         }
         return '';
     }
