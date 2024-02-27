@@ -349,10 +349,25 @@ class engine {
         } catch (\Throwable $thrown) {
             $this->abort($thrown);
         }
+
+        // Register signal handler - if a signal caused the dataflow to stop.
+        \core_shutdown_manager::register_signal_handler(function ($signo){
+            $error = error_get_last();
+            $this->logger->log(Logger::NOTICE, 'Engine: shutdown signal ({signo}) received', [
+                'signo' => $signo,
+                'lasterror' => $error,
+            ]);
+            return \core\local\cli\shutdown::signal_handler($signo);
+        });
+
         // Register shutdown handler - if request is ended by client, abort and finalise flow.
         \core_shutdown_manager::register_function(function (){
+            $this->logger->log(Logger::DEBUG, 'Engine: shutdown handler was called');
+
             // If the script has stopped and flow is not finalised then abort.
             if (!in_array($this->status, [self::STATUS_FINALISED, self::STATUS_ABORTED])) {
+                $error = error_get_last();
+                $this->logger->log(Logger::ERROR, 'Engine: shutdown happened abruptly', ['lasterror' => $error]);
                 $this->set_status(self::STATUS_ABORTED);
                 $this->run->finalise($this->status, $this->export());
             }
