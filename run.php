@@ -107,6 +107,7 @@ require_sesskey();
 
 raise_memory_limit(MEMORY_HUGE);
 core_php_time_limit::raise();
+ignore_user_abort(true);
 
 // Re-run the specified flow (this will output an error if it doesn't exist).
 echo $OUTPUT->single_button($runnowurl, get_string('run_again', 'tool_dataflows'), 'post', ['class' => 'mb-3']);
