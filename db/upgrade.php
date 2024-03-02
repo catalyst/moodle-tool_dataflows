@@ -304,6 +304,21 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023110901, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2024030200) {
+
+        // Define field loghandlers to be added to tool_dataflows.
+        $table = new xmldb_table('tool_dataflows');
+        $field = new xmldb_field('notifyonabort', XMLDB_TYPE_CHAR, '255', null, null, null, '', 'confighash');
+
+        // Conditionally launch add field loghandlers.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2024030200, 'tool', 'dataflows');
+    }
+
     return true;
 }
 

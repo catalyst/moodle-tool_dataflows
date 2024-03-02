@@ -63,6 +63,7 @@ class dataflow extends persistent {
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
             'usermodified' => ['type' => PARAM_INT, 'default' => 0],
             'confighash' => ['type' => PARAM_TEXT, 'default' => ''],
+            'notifyonabort' => ['type' => PARAM_TEXT, 'default' => '']
         ];
     }
 
