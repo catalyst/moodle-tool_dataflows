@@ -369,6 +369,10 @@ class engine {
                 $error = error_get_last();
                 $this->logger->log(Logger::ERROR, 'Engine: shutdown happened abruptly', ['lasterror' => $error]);
                 $this->set_status(self::STATUS_ABORTED);
+
+                $notifyreason = new \Exception('Shutdown handler triggered abort. Last error: ' . $error);
+                $this->notify_on_abort($notifyreason);
+
                 $this->run->finalise($this->status, $this->export());
             }
         });
@@ -584,6 +588,9 @@ class engine {
         $this->queue = [];
         $this->set_status(self::STATUS_ABORTED);
         $this->release_lock();
+
+        // If configured to send email, attempt to notify of the abort reason.
+        $this->notify_on_abort($reason);
 
         // TODO: We may want to make this the responsibility of the caller.
         if (isset($reason)) {
@@ -844,5 +851,43 @@ class engine {
         }
 
         $this->logger = $log;
+    }
+
+    /**
+     * Send a notification email for abort if required.
+     *
+     * @param \Throwable $reason A throwable representing the reason for abort.
+     */
+    public function notify_on_abort(?\Throwable $reason) {
+        // If configured to send email, attempt to notify of the abort reason.
+        $notifyemail = $this->dataflow->get('notifyonabort');
+        if (empty($notifyemail)) {
+            return;
+        }
+
+        $this->log('Sending abort notification email.', [], Logger::NOTICE);
+        $context = [
+            'flowname' => $this->dataflow->get('name'),
+            'run' => $this->run->get('id'),
+            'reason' => isset($reason) ? $reason->getMessage() : ''
+        ];
+        $message = get_string('notifyonabort_message', 'tool_dataflows', $context);
+
+        // First try to match the email with a Moodle user.
+        $to = \core_user::get_user_by_email($notifyemail);
+
+        // Otherwise send it with a dummy account.
+        if (!$to) {
+            $to = \core_user::get_noreply_user();
+            $to->email = $notifyemail;
+            $to->firstname = $this->dataflow->get('name');
+            $to->emailstop = 0;
+            $to->maildisplay = true;
+            $to->mailformat = 1;
+        }
+        $from = \core_user::get_noreply_user();
+        $subject = get_string('notifyonabort_subject', 'tool_dataflows', $this->dataflow->get('name'));
+
+        email_to_user($to, $from, $subject, $message);
     }
 }

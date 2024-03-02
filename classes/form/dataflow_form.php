@@ -116,6 +116,9 @@ EOT;
         $select->setMultiple(true);
         $mform->addElement('static', 'log_handlers_desc', '', get_string('log_handlers_desc', 'tool_dataflows'));
 
+        $mform->addElement('text', 'notifyonabort', get_string('notifyonabort', 'tool_dataflows'));
+        $mform->addElement('static', 'notifyonabort_desc', '', get_string('notifyonabort_desc', 'tool_dataflows'));
+
         $this->add_action_buttons();
     }
 
