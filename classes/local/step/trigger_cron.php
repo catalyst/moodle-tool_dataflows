@@ -62,8 +62,8 @@ class trigger_cron extends trigger_step {
                 $data->{"config_$field"} = '*';
             }
         }
-        $data->config_retryinterval = $data->config_retryinterval ?? 0;
-        $data->config_retrycount = $data->config_retrycount ?? 0;
+        $data->config_retryinterval ??= 0;
+        $data->config_retrycount ??= 0;
 
         return $data;
     }

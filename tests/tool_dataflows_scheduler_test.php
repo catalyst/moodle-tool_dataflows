@@ -16,7 +16,7 @@
 
 namespace tool_dataflows;
 
-use Aws\Arn\Arn;
+use coding_exception;
 use tool_dataflows\local\scheduler;
 
 /**
@@ -71,12 +71,27 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
         $this->assertEquals((object) ['lastruntime' => 160, 'nextruntime' => 220], scheduler::get_scheduled_times(12));
     }
 
+    /**
+     * Tests the scheduling of retry run on an invalid dataflow.
+     *
+     * @covers \tool_dataflows\local\scheduler::set_scheduled_retry
+     */
+    public function test_set_scheduled_retry_invalid() {
+        // Retry cannot be called for a run that hasn't been regularly scheduled.
+        $this->expectException(coding_exception::class);
+        $this->expectExceptionMessage(
+            'Coding error detected, it must be fixed by a programmer: Dataflow retry attempted on a trigger with no step.'
+        );
+        scheduler::set_scheduled_retry(1, 1, 1, 1, 1);
+    }
+
+    /**
+     * Tests the scheduling of retry runs.
+     *
+     * @covers \tool_dataflows\local\scheduler::set_scheduled_retry
+     */
     public function test_set_scheduled_retry() {
         global $DB;
-
-        // Retry cannot be called for a run that hasn't been regularly scheduled.
-        scheduler::set_scheduled_retry(1, 1, 1, 1, 1);
-        $this->assertFalse(scheduler::get_scheduled_times(1));
 
         // Default 0.
         scheduler::set_scheduled_times(1, 1, 123, 1);
