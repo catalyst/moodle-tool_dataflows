@@ -287,6 +287,21 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023072100, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2024030201) {
+
+        // Define field retrycount to be added to tool_dataflows_schedule.
+        $table = new xmldb_table('tool_dataflows_schedule');
+        $field = new xmldb_field('retrycount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'nextruntime');
+
+        // Conditionally launch add field retrycount.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2024030201, 'tool', 'dataflows');
+    }
+
     // Move log files that exist across to new format. Breaking change if any
     // dataflows implement logic based on these files based on filename format.
     if ($oldversion < 2023122201) {

@@ -16,6 +16,7 @@
 
 namespace tool_dataflows;
 
+use Aws\Arn\Arn;
 use tool_dataflows\local\scheduler;
 
 /**
@@ -68,6 +69,45 @@ class tool_dataflows_scheduler_test extends \advanced_testcase {
         scheduler::set_scheduled_times(33, 12, 220, 160);
         $this->assertEquals((object) ['lastruntime' => 120, 'nextruntime' => 180], scheduler::get_scheduled_times(11));
         $this->assertEquals((object) ['lastruntime' => 160, 'nextruntime' => 220], scheduler::get_scheduled_times(12));
+    }
+
+    public function test_set_scheduled_retry() {
+        global $DB;
+
+        // Retry cannot be called for a run that hasn't been regularly scheduled.
+        scheduler::set_scheduled_retry(1, 1, 1, 1, 1);
+        $this->assertFalse(scheduler::get_scheduled_times(1));
+
+        // Default 0.
+        scheduler::set_scheduled_times(1, 1, 123, 1);
+        $this->assertEquals(0, $DB->get_field(scheduler::TABLE, 'retrycount', ['stepid' => 1]));
+
+        // Schedule a retry when none are allowed.
+        $regulartime = 555;
+        $retrytime = 444;
+        scheduler::set_scheduled_retry(1, 1, $retrytime, $regulartime, 0);
+        $this->assertEquals((object) ['lastruntime' => 1, 'nextruntime' => $regulartime], scheduler::get_scheduled_times(1));
+
+        // Schedule a retry when retries are permitted.
+        scheduler::set_scheduled_retry(1, 1, $retrytime, $regulartime, 2);
+        $this->assertEquals((object) ['lastruntime' => 1, 'nextruntime' => $retrytime], scheduler::get_scheduled_times(1));
+
+        // Now run again and confirm counter has been incremented twice.
+        scheduler::set_scheduled_retry(1, 1, $retrytime, $regulartime, 2);
+        $this->assertEquals((object) ['lastruntime' => 1, 'nextruntime' => $retrytime], scheduler::get_scheduled_times(1));
+        $this->assertEquals(2, $DB->get_field(scheduler::TABLE, 'retrycount', ['stepid' => 1]));
+
+        // Now attempt to schedule another retry. The counter should reset and go to regular time.
+        scheduler::set_scheduled_retry(1, 1, $retrytime, $regulartime, 2);
+        $this->assertEquals((object) ['lastruntime' => 1, 'nextruntime' => $regulartime], scheduler::get_scheduled_times(1));
+        $this->assertEquals(0, $DB->get_field(scheduler::TABLE, 'retrycount', ['stepid' => 1]));
+
+        // Now confirm that if a successful run is registered while there are still retries left, the counter is reset.
+        scheduler::set_scheduled_retry(1, 1, $retrytime, $regulartime, 2);
+        $this->assertEquals((object) ['lastruntime' => 1, 'nextruntime' => $retrytime], scheduler::get_scheduled_times(1));
+        $this->assertEquals(1, $DB->get_field(scheduler::TABLE, 'retrycount', ['stepid' => 1]));
+        scheduler::set_scheduled_times(1, 1, $regulartime);
+        $this->assertEquals(0, $DB->get_field(scheduler::TABLE, 'retrycount', ['stepid' => 1]));
     }
 
     /**

@@ -54,7 +54,7 @@ class scheduler {
     public static function set_scheduled_times(int $dataflowid, int $stepid, int $newtime, ?int $oldtime = null) {
         global $DB;
 
-        $obj = (object) ['nextruntime' => $newtime, 'dataflowid' => $dataflowid, 'stepid' => $stepid];
+        $obj = (object) ['nextruntime' => $newtime, 'dataflowid' => $dataflowid, 'stepid' => $stepid, 'retrycount' => 0];
         if (!is_null($oldtime)) {
             $obj->lastruntime = $oldtime;
         }
@@ -65,6 +65,39 @@ class scheduler {
             $obj->id = $id;
             $DB->update_record(self::TABLE, $obj);
         }
+    }
+
+    /**
+     * Schedule a retry run. If the maximum retry count is reached, set to regular scheduled time and no retry count.
+     *
+     * @param int $dataflowid the flow id.
+     * @param int $stepid the step trigger id.
+     * @param int $retrytime when to run next on a retry.
+     * @param int $scheduledtime when to run next if allowed retries are exhausted.
+     * @param int $retriesallowed the amount of retries allowed before resuming regular schedule.
+     */
+    public static function set_scheduled_retry(int $dataflowid, int $stepid, int $retrytime, int $scheduledtime, int $retriesallowed) {
+        global $DB;
+
+        $schedule = $DB->get_record(self::TABLE, ['dataflowid' => $dataflowid, 'stepid' => $stepid]);
+
+        if (!$schedule) {
+            // This method has been called incorrectly for a schedule that has never run or doesn't exist.
+            // Just return early.
+            return;
+        }
+
+        if ($schedule->retrycount >= $retriesallowed) {
+            // Allowed retries are exhausted. Set to regular schedule and no retries.
+            $schedule->retrycount = 0;
+            $schedule->nextruntime = $scheduledtime;
+        } else {
+            // Increment retry counter, and schedule the retry time.
+            $schedule->retrycount = $schedule->retrycount + 1;
+            $schedule->nextruntime = $retrytime;
+        }
+
+        $DB->update_record(self::TABLE, $schedule);
     }
 
     /**
