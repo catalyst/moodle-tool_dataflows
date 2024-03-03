@@ -145,6 +145,13 @@ abstract class engine_step {
     }
 
     /**
+     * Signal handler for a full dataflow abort.
+     */
+    public function dataflow_abort() {
+        $this->steptype->on_dataflow_abort();
+    }
+
+    /**
      * Attempt to execute the step.
      *
      * @return int

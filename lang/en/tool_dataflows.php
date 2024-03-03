@@ -404,6 +404,10 @@ $string['trigger_cron:crontab'] = 'Schedule in cron tab format';
 $string['trigger_cron:crontab_desc'] = 'The schedule is edited as five values: minute, hour, day, month and day of month, in that order. The values are in crontab format.';
 $string['trigger_cron:strftime_datetime'] = '%d %b %Y, %H:%M';
 $string['trigger_cron:next_run_time'] = 'Next run time: {$a}';
+$string['trigger_cron:retryinterval'] = 'Retry interval';
+$string['trigger_cron:retrycount'] = 'Number of retries';
+$string['trigger_cron:positive_retrycount'] = 'Number of retries must be positive or 0';
+$string['trigger_cron:positive_retryinterval'] = 'Retry interval must be positive or 0';
 
 // Email notification.
 $string['connector_email:message'] = 'Message';
