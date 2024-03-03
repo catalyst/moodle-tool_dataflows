@@ -76,15 +76,19 @@ class scheduler {
      * @param int $scheduledtime when to run next if allowed retries are exhausted.
      * @param int $retriesallowed the amount of retries allowed before resuming regular schedule.
      */
-    public static function set_scheduled_retry(int $dataflowid, int $stepid, int $retrytime, int $scheduledtime, int $retriesallowed) {
-        global $DB;
+    public static function set_scheduled_retry(
+        int $dataflowid,
+        int $stepid,
+        int $retrytime,
+        int $scheduledtime,
+        int $retriesallowed) {
 
+        global $DB;
         $schedule = $DB->get_record(self::TABLE, ['dataflowid' => $dataflowid, 'stepid' => $stepid]);
 
         if (!$schedule) {
             // This method has been called incorrectly for a schedule that has never run or doesn't exist.
-            // Just return early.
-            return;
+            throw new \coding_exception("Dataflow retry attempted on a trigger with no step.");
         }
 
         if ($schedule->retrycount >= $retriesallowed) {
@@ -93,7 +97,7 @@ class scheduler {
             $schedule->nextruntime = $scheduledtime;
         } else {
             // Increment retry counter, and schedule the retry time.
-            $schedule->retrycount = $schedule->retrycount + 1;
+            $schedule->retrycount += 1;
             $schedule->nextruntime = $retrytime;
         }
 
