@@ -18,6 +18,7 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was modified."/>
         <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Who last modified this record?"/>
         <FIELD NAME="confighash" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false" COMMENT="The config hash of the most recent run"/>
+        <FIELD NAME="notifyonabort" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Email address to notify aborted runs to."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
