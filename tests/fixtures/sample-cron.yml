@@ -10,6 +10,8 @@ steps:
       day: '*'
       month: '*'
       dayofweek: '*'
+      retryinterval: 0
+      retrycount: 0
   sql_reader:
     name: 'SQL reader'
     depends_on: cron

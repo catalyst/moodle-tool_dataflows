@@ -588,6 +588,12 @@ abstract class base_step {
     }
 
     /**
+     * Hook function that gets called when a dataflow has been aborted, at conclusion.
+     */
+    public function on_dataflow_abort() {
+    }
+
+    /**
      * Hook function that gets called when an engine step has been finalised.
      */
     public function on_finalise() {

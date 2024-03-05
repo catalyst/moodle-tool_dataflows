@@ -575,6 +575,12 @@ class engine {
             if ($status !== self::STATUS_FINISHED && !in_array($status, self::STATUS_TERMINATORS)) {
                 $this->set_current_step($enginestep);
                 $enginestep->abort();
+            } else {
+                // We need to signal to finished steps that the dataflow is aborted.
+                // This may require handling seperate to the step abort.
+                // This is done seperate to the finalise hook so that concerns are seperated for finalised vs aborted runs.
+                $this->set_current_step($enginestep);
+                $enginestep->dataflow_abort();
             }
         }
         foreach ($this->flowcaps as $enginestep) {
