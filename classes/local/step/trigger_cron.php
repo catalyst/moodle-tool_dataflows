@@ -42,6 +42,8 @@ class trigger_cron extends trigger_step {
             'day' => ['type' => PARAM_TEXT],
             'month' => ['type' => PARAM_TEXT],
             'dayofweek' => ['type' => PARAM_TEXT],
+            'retryinterval' => ['type' => PARAM_INT],
+            'retrycount' => ['type' => PARAM_INT],
             'disabled' => ['type' => PARAM_TEXT],
         ];
     }
@@ -60,6 +62,9 @@ class trigger_cron extends trigger_step {
                 $data->{"config_$field"} = '*';
             }
         }
+        $data->config_retryinterval ??= 0;
+        $data->config_retrycount ??= 0;
+
         return $data;
     }
 
@@ -128,6 +133,13 @@ class trigger_cron extends trigger_step {
 
         $mform->addGroup($crontab, 'crontab', get_string('trigger_cron:crontab', 'tool_dataflows'), '&nbsp;', false);
         $mform->addElement('static', 'crontab_desc', '', get_string('trigger_cron:crontab_desc', 'tool_dataflows'));
+
+        // Retry configurations.
+        $mform->addElement('duration', 'config_retryinterval', get_string('trigger_cron:retryinterval', 'tool_dataflows'));
+        $mform->setType('retryinterval', PARAM_INT);
+        $mform->addElement('text', 'config_retrycount', get_string('trigger_cron:retrycount', 'tool_dataflows'));
+        $mform->setType('retrycount', PARAM_INT);
+        $mform->setDefault('retrycount', 0);
     }
 
     /**
@@ -143,6 +155,13 @@ class trigger_cron extends trigger_step {
                 return ['crontab' => get_string('trigger_cron:invalid', 'tool_dataflows', '', true)];
             }
         }
+        if ($config->retryinterval < 0) {
+            return ['config_retryinterval' => get_string('trigger_cron:positive_retryinterval', 'tool_dataflows', null, true)];
+        }
+        if ($config->retrycount < 0) {
+            return ['config_retrycount' => get_string('trigger_cron:positive_retryinterval', 'tool_dataflows', null, true)];
+        }
+
         return true;
     }
 
@@ -276,8 +295,18 @@ class trigger_cron extends trigger_step {
      */
     public function on_abort() {
         if (!$this->stepdef->dataflow->is_concurrency_enabled()) {
-            // Reschedule on aborts.
-            $this->reschedule();
+            // Reschedule a retry on aborts.
+            $this->reschedule_retry();
+        }
+    }
+
+    /**
+     * Hook function that gets called when When the dataflow engine is aborting.
+     */
+    public function on_dataflow_abort() {
+        if (!$this->stepdef->dataflow->is_concurrency_enabled()) {
+            // Reschedule a retry on aborts.
+            $this->reschedule_retry();
         }
     }
 
@@ -295,6 +324,26 @@ class trigger_cron extends trigger_step {
                 $newtime,
                 $config->nextruntime ?? null
             );
+            $this->log("Rescheduling dataflow to configured schedule.");
         }
+    }
+
+    /**
+     * Schedule a retry for this flow. If the maximum retries are reached, the regular schedule will be used.
+     */
+    public function reschedule_retry() {
+        $config = $this->get_variables()->get('config');
+        $scheduledtime = $this->get_next_scheduled_time($config);
+        $retrytime  = time() + $config->retryinterval;
+
+        scheduler::set_scheduled_retry(
+            $this->stepdef->dataflowid,
+            $this->stepdef->id,
+            $retrytime,
+            $scheduledtime,
+            $config->retrycount
+        );
+
+        $this->log("Rescheduling dataflow to retry.");
     }
 }

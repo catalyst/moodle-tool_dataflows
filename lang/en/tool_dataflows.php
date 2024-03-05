@@ -101,6 +101,14 @@ $string['field_vars_help'] = 'Dataflow variables that can be accessed via expres
   Example:{$a->example} Note: If you use \'[dataroot]\', make sure to quote the value or it will be interpreted as an array.';
 $string['error:vars_not_object'] = 'Vars must form a YAML object (Define each var as &lt;var&gt;: &lt;value&gt;)';
 $string['error:invalid_yaml'] = 'Invalid YAML (Try quoting your value(s)): {$a}';
+$string['notifyonabort'] = 'Notify on abort';
+$string['notifyonabort_desc'] = 'Enter an email address to be notified on for dataflow aborts.';
+$string['notifyonabort_message'] = 'The dataflow {$a->flowname} was aborted on run {$a->run}.
+
+Reason: {$a->reason}
+
+See the run logs for further details.';
+$string['notifyonabort_subject'] = 'Dataflow run aborted: {$a}';
 
 // Dataflow import form.
 $string['dataflow_file'] = 'Dataflow file';
@@ -396,6 +404,10 @@ $string['trigger_cron:crontab'] = 'Schedule in cron tab format';
 $string['trigger_cron:crontab_desc'] = 'The schedule is edited as five values: minute, hour, day, month and day of month, in that order. The values are in crontab format.';
 $string['trigger_cron:strftime_datetime'] = '%d %b %Y, %H:%M';
 $string['trigger_cron:next_run_time'] = 'Next run time: {$a}';
+$string['trigger_cron:retryinterval'] = 'Retry interval';
+$string['trigger_cron:retrycount'] = 'Number of retries';
+$string['trigger_cron:positive_retrycount'] = 'Number of retries must be positive or 0';
+$string['trigger_cron:positive_retryinterval'] = 'Retry interval must be positive or 0';
 
 // Email notification.
 $string['connector_email:message'] = 'Message';

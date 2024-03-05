@@ -18,6 +18,7 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time this record was modified."/>
         <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Who last modified this record?"/>
         <FIELD NAME="confighash" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false" COMMENT="The config hash of the most recent run"/>
+        <FIELD NAME="notifyonabort" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Email address to notify aborted runs to."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -67,6 +68,7 @@
         <FIELD NAME="stepid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="lastruntime" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time the dataflow was last scheduled to be run"/>
         <FIELD NAME="nextruntime" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The time the dataflow is next scheduled to be run"/>
+        <FIELD NAME="retrycount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Count of attempted retries on the current dataflow. Reset on scheduling a fresh run."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

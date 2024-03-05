@@ -95,7 +95,7 @@ class tool_dataflows_ad_hoc_task_test extends \advanced_testcase {
         $cron = new step();
         $cron->name = 'cron';
         $cron->type = 'tool_dataflows\local\step\trigger_cron';
-        $cron->config = "minute: '*'\nhour: '*'\nday: '*'\nmonth: '*'\ndayofweek: '*'";
+        $cron->config = "minute: '*'\nhour: '*'\nday: '*'\nmonth: '*'\ndayofweek: '*'\nretryinterval: 0\nretrycount: 0";
         $dataflow->add_step($cron);
 
         $reader = new step();

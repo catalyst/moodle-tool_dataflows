@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use Symfony\Component\Yaml\Yaml;
+
 /**
  * Function to upgrade tool_dataflows.
  *
@@ -304,6 +306,41 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023110901, 'tool', 'dataflows');
     }
 
+    if ($oldversion < 2023110903) {
+        // Define field notifyonabort to be added to tool_dataflows.
+        $table = new xmldb_table('tool_dataflows');
+        $field = new xmldb_field('notifyonabort', XMLDB_TYPE_CHAR, '255', null, null, null, '', 'confighash');
+
+        // Conditionally launch add field notifyonabort.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2023110903, 'tool', 'dataflows');
+    }
+
+    if ($oldversion < 2023110904) {
+        // Define field retrycount to be added to tool_dataflows_schedule.
+        $table = new xmldb_table('tool_dataflows_schedule');
+        $field = new xmldb_field('retrycount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'nextruntime');
+
+        // Conditionally launch add field retrycount.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Also upgrade any cron_trigger step.
+        $type = \tool_dataflows\local\step\trigger_cron::class;
+        $newfields = [
+            'retryinterval' => 0,
+            'retrycount' => 0
+        ];
+        xmldb_tool_dataflows_step_config_helper($type, $newfields);
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2023110904, 'tool', 'dataflows');
+    }
+
     return true;
 }
 
@@ -333,3 +370,24 @@ function xmldb_tool_dataflows_logfile_rename_helper(string $path, string $patter
         }
     }
 }
+
+/**
+ * Upgrade step helper function. Appends fields into existing configuration.
+ *
+ * @param string $type the classname of the step to upgrade.
+ * @param array $newfields new fields to append into the configuration array. String => primitive scalar.
+ */
+function xmldb_tool_dataflows_step_config_helper(string $type, array $newfields) {
+    global $DB;
+
+    $steps = $DB->get_records('tool_dataflows_steps', ['type' => $type]);
+    $transaction = $DB->start_delegated_transaction();
+    foreach ($steps as $step) {
+        $config = Yaml::parse($step->config);
+        $updatedconf = array_merge($config, $newfields);
+        $step->config = Yaml::dump($updatedconf);
+        $DB->update_record('tool_dataflows_steps', $step);
+    }
+    $transaction->allow_commit();
+}
+
