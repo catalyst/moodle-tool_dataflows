@@ -14,22 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Version
- *
- * @package   tool_dataflows
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace tool_dataflows\external;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023110904;
-$plugin->release = 2023110904;
-$plugin->requires = 2017051500;    // Our lowest supported Moodle (3.3.0).
-$plugin->supported = [35, 402];    // Available as of Moodle 3.9.0 or later.
-// TODO $plugin->incompatible = ;  // Available as of Moodle 3.9.0 or later.
-$plugin->component = 'tool_dataflows';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->dependencies = [];
+// Moved as part of https://tracker.moodle.org/browse/MDL-78049 so this is
+// required to redirect sites using older versions of Moodle to the previous
+// implementation.
+// Once the base supported version is 4.2, this is no longer required.
+if (class_exists(\core_external\external_api::class)) {
+    \class_alias(\core_external\external_api::class, \tool_dataflows\external\external_api::class);
+} else if (class_exists(\external_api::class)) {
+    \class_alias(\external_api::class, \tool_dataflows\external\external_api::class);
+}

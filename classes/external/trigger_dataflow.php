@@ -31,7 +31,7 @@ use tool_dataflows\task\process_dataflow_ad_hoc;
  * @copyright  Catalyst IT, 2023
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class trigger_dataflow extends \external_api {
+class trigger_dataflow extends external_api {
 
     /**
      * Returns description of method parameters

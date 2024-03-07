@@ -19,12 +19,8 @@ namespace tool_dataflows;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->libdir.'/externallib.php');
 require_once(__DIR__ . '/application_trait.php');
 
-
-
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
