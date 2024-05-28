@@ -18,13 +18,10 @@ namespace tool_dataflows\local\step;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir . '/externallib.php');
-
 use core_user;
 use core\session\manager;
-use external_api;
+use core_external\external_api;
 use moodle_exception;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
 use Throwable;
 use tool_dataflows\parser;
