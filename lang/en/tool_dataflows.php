@@ -102,7 +102,7 @@ $string['field_vars_help'] = 'Dataflow variables that can be accessed via expres
 $string['error:vars_not_object'] = 'Vars must form a YAML object (Define each var as &lt;var&gt;: &lt;value&gt;)';
 $string['error:invalid_yaml'] = 'Invalid YAML (Try quoting your value(s)): {$a}';
 $string['notifyonabort'] = 'Notify on abort';
-$string['notifyonabort_desc'] = 'Enter an email address to be notified on for dataflow aborts.';
+$string['notifyonabort_desc'] = 'Enter a list of email addresses separated by comma to be notified on for dataflow aborts.';
 $string['notifyonabort_message'] = 'The dataflow {$a->flowname} was aborted on run {$a->run}.
 
 Reason: {$a->reason}

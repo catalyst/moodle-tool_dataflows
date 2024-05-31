@@ -866,34 +866,39 @@ class engine {
      */
     public function notify_on_abort(?\Throwable $reason) {
         // If configured to send email, attempt to notify of the abort reason.
-        $notifyemail = $this->dataflow->get('notifyonabort');
-        if (empty($notifyemail)) {
-            return;
+        $notifyemails = $this->dataflow->get('notifyonabort');
+
+        foreach (explode(',', $notifyemails) as $notifyemail) {
+            $email = trim($notifyemail);
+
+            if (empty($email)) {
+                continue;
+            }
+
+            $this->log('Sending abort notification email.', [], Logger::NOTICE);
+            $context = [
+                'flowname' => $this->dataflow->get('name'),
+                'run' => $this->run->get('id'),
+                'reason' => isset($reason) ? $reason->getMessage() : '',
+            ];
+            $message = get_string('notifyonabort_message', 'tool_dataflows', $context);
+
+            // First try to match the email with a Moodle user.
+            $to = \core_user::get_user_by_email($email);
+
+            // Otherwise send it with a dummy account.
+            if (!$to) {
+                $to = \core_user::get_noreply_user();
+                $to->email = $email;
+                $to->firstname = $this->dataflow->get('name');
+                $to->emailstop = 0;
+                $to->maildisplay = true;
+                $to->mailformat = 1;
+            }
+            $from = \core_user::get_noreply_user();
+            $subject = get_string('notifyonabort_subject', 'tool_dataflows', $this->dataflow->get('name'));
+
+            email_to_user($to, $from, $subject, $message);
         }
-
-        $this->log('Sending abort notification email.', [], Logger::NOTICE);
-        $context = [
-            'flowname' => $this->dataflow->get('name'),
-            'run' => $this->run->get('id'),
-            'reason' => isset($reason) ? $reason->getMessage() : ''
-        ];
-        $message = get_string('notifyonabort_message', 'tool_dataflows', $context);
-
-        // First try to match the email with a Moodle user.
-        $to = \core_user::get_user_by_email($notifyemail);
-
-        // Otherwise send it with a dummy account.
-        if (!$to) {
-            $to = \core_user::get_noreply_user();
-            $to->email = $notifyemail;
-            $to->firstname = $this->dataflow->get('name');
-            $to->emailstop = 0;
-            $to->maildisplay = true;
-            $to->mailformat = 1;
-        }
-        $from = \core_user::get_noreply_user();
-        $subject = get_string('notifyonabort_subject', 'tool_dataflows', $this->dataflow->get('name'));
-
-        email_to_user($to, $from, $subject, $message);
     }
 }
