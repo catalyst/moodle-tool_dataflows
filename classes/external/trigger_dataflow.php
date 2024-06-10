@@ -16,6 +16,10 @@
 
 namespace tool_dataflows\external;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->libdir . '/externallib.php');
+
 use external_function_parameters;
 use external_single_structure;
 use external_value;
