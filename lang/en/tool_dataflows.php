@@ -660,4 +660,4 @@ $string['step_name_flow_update_user'] = 'Update user';
 $string['update_user:userid'] = 'User ID';
 $string['update_user:userid_help'] = 'The internal ID for this user.';
 $string['update_user:fields'] = 'Fields';
-$string['update_user:fields_help'] = 'Fields set here correspond to the fields available in the underlying user table. Custom user profile fields, must be prefixed with "profile_field_" followed by the shortname. Not all fields can be updated, such as password and auth';
+$string['update_user:fields_help'] = 'Fields set here correspond to the fields available in the underlying user table. Custom user profile fields, must be prefixed with "profile_field_" followed by the shortname';

@@ -85,10 +85,6 @@ trait update_user_trait {
             (array) $config->fields
         );
 
-        // Some fields will not be updatable (intentionally).
-        unset($userobject->password);
-        unset($userobject->auth);
-
         // Update user fields using core api.
         \user_update_user($userobject, false, false);
         \profile_save_data($userobject);
