@@ -57,6 +57,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
             'path' => $inputpath,
             'headers' => '',
             'delimiter' => ',',
+            'maxlinelength' => '1000',
         ]);
 
         // Create test input file.
@@ -97,6 +98,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
             'path' => $inputpath,
             'headers' => implode(',', $headers),
             'delimiter' => ',',
+            'maxlinelength' => '1000',
         ]);
 
         // Create test input file.
@@ -138,6 +140,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
             'path' => $path,
             'headers' => '',
             'delimiter' => ',',
+            'maxlinelength' => '1000',
         ]);
 
         $this->expectException('\moodle_exception');
@@ -167,6 +170,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
             'headers' => implode(',', $headers),
             'overwriteheaders' => '1',
             'delimiter' => ',',
+            'maxlinelength' => '1000',
         ]);
 
         // Create test input file.
@@ -224,6 +228,7 @@ class tool_dataflows_reader_csv_test extends \advanced_testcase {
             'path' => $inputpath,
             'headers' => '',
             'delimiter' => ',',
+            'maxlinelength' => '1000',
         ]);
         $dataflow->add_step($reader);
         $steps[$reader->id] = $reader;

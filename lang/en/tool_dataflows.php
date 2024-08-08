@@ -384,6 +384,7 @@ $string['reader_csv:overwriteheaders_help'] = 'If checked, the headers supplied 
 $string['reader_csv:continueonerror'] = 'Continue on parsing errors';
 $string['reader_csv:continueonerror_help'] = 'If checked, the step will continue reading the next row of data if there are parsing errors on the current.';
 $string['reader_csv:header_field_count_mismatch'] = 'Row #{$a->rownumber}: Number of fields ({$a->numfields}) should match number of headers ({$a->numheaders})';
+$string['reader_csv:maxlinelength'] = 'Max Line Length';
 
 // Reader JSON.
 $string['reader_json:arrayexpression_help'] = 'Nested array to extract from JSON. For example, {$a->expression} will return the users array from the following JSON (If empty it is assumed the starting point of the JSON file is an array):{$a->jsonexample}';
