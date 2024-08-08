@@ -33,6 +33,10 @@ class reader_csv extends reader_step {
     /** @var string */
     const DEFAULT_DELIMETER = ',';
 
+    /** @var int */
+    const DEFAULT_MAXLINELENGTH = 1000;
+
+
     /**
      * Return the definition of the fields available in this form.
      *
@@ -45,6 +49,7 @@ class reader_csv extends reader_step {
             'overwriteheaders' => ['type' => PARAM_BOOL],
             'continueonerror' => ['type' => PARAM_BOOL],
             'delimiter' => ['type' => PARAM_TEXT],
+            'maxlinelength' => ['type' => PARAM_INT],
         ];
     }
 
@@ -68,6 +73,7 @@ class reader_csv extends reader_step {
         $overwriteheaders = !empty($config->overwriteheaders);
         $continueonerror = !empty($config->continueonerror);
         $delimiter = $config->delimiter ?: self::DEFAULT_DELIMETER;
+        $maxlinelength = $config->maxlinelength ?: self::DEFAULT_MAXLINELENGTH;
         $path = $this->enginestep->engine->resolve_path($config->path);
 
         if (($handle = @fopen($path, 'r')) === false) {
@@ -190,5 +196,16 @@ class reader_csv extends reader_step {
             ['placeholder' => self::DEFAULT_DELIMETER],
             self::DEFAULT_DELIMETER
         );
+        // Max line length.
+        $mform->addElement(
+            'text',
+            'config_maxlinelength',
+            get_string('reader_csv:maxlinelength', 'tool_dataflows'),
+            ['placeholder' => self::DEFAULT_MAXLINELENGTH],
+            self::DEFAULT_MAXLINELENGTH
+        );
+        $mform->setType('config_maxlinelength', PARAM_INT);
+        $mform->addRule('config_maxlinelength', null, 'numeric', null, 'client');
+
     }
 }
