@@ -6,9 +6,8 @@ on: [push, pull_request]
 jobs:
   ci:
     uses: catalyst/catalyst-moodle-workflows/.github/workflows/ci.yml@main
-    #secrets:
-      # Required if you plan to publish (uncomment the below)
-      # moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}
+    secrets:
+      moodle_org_token: ${{ secrets.MOODLE_ORG_TOKEN }}
     with:
       codechecker_max_warnings: 0 # CI should now fail on phpcs / code checker warnings.
       disable_behat: true
