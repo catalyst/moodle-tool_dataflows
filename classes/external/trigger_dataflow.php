@@ -70,6 +70,10 @@ class trigger_dataflow extends \external_api {
     public static function execute($dataflow): array {
         $params = self::validate_parameters(self::execute_parameters(), ['dataflow' => $dataflow]);
 
+        $context = \context_system::instance();
+        self::validate_context($context);
+        require_capability('tool/dataflows:managedataflows', $context);
+
         $dataflow = new dataflow($params['dataflow']['id']);
 
         // Confirm the dataflow contains a webservice trigger step.
