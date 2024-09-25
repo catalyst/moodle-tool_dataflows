@@ -15,9 +15,23 @@
     <licenseversion></licenseversion>
   </library>
   <library>
+    <location>vendor/symfony/cache-contracts</location>
+    <name>cache-contracts</name>
+    <version>v2.5.2</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
     <location>vendor/symfony/event-dispatcher</location>
     <name>event-dispatcher</name>
     <version>v4.4.44</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/event-dispatcher-contracts</location>
+    <name>event-dispatcher-contracts</name>
+    <version>v1.1.13</version>
     <license>MIT</license>
     <licenseversion></licenseversion>
   </library>
