@@ -59,43 +59,45 @@
 }
 
 
-/* Dataflow 'run' table */
-.table-run td {
-    padding: 4px 6px;
-}
+.path-admin-tool-dataflows {
+    /* Dataflow 'run' table */
+    .table-run td {
+        padding: 4px 6px;
+    }
 
-tr:where(.field_timestarted, .field_timefinished) {
-    text-align: right;
-}
+    tr:where(.field_timestarted, .field_timefinished) {
+        text-align: right;
+    }
 
-/* Dataflow run button color based on states */
-.btn-run-default.run-state-new { background-color: var(--dataflow-state-new); }
-.btn-run-default.run-state-initialised { background-color: var(--dataflow-state-initialised); }
-.btn-run-default.run-state-blocked { background-color: var(--dataflow-state-blocked); }
-.btn-run-default.run-state-waiting { background-color: var(--dataflow-state-waiting); }
-.btn-run-default.run-state-processing { background-color: var(--dataflow-state-processing); }
-.btn-run-default.run-state-flowing { background-color: var(--dataflow-state-flowing); }
-.btn-run-default.run-state-finished { background-color: var(--dataflow-state-finished); }
-.btn-run-default.run-state-cancelled { color: var(--dataflow-state-cancelled); background-color: var(--dataflow-state-new); }
-.btn-run-default.run-state-aborted { background-color: var(--dataflow-state-aborted); }
-.btn-run-default.run-state-finalised { background-color: var(--dataflow-state-finalised); }
+    /* Dataflow run button color based on states */
+    .btn-run-default.run-state-new { background-color: var(--dataflow-state-new); }
+    .btn-run-default.run-state-initialised { background-color: var(--dataflow-state-initialised); }
+    .btn-run-default.run-state-blocked { background-color: var(--dataflow-state-blocked); }
+    .btn-run-default.run-state-waiting { background-color: var(--dataflow-state-waiting); }
+    .btn-run-default.run-state-processing { background-color: var(--dataflow-state-processing); }
+    .btn-run-default.run-state-flowing { background-color: var(--dataflow-state-flowing); }
+    .btn-run-default.run-state-finished { background-color: var(--dataflow-state-finished); }
+    .btn-run-default.run-state-cancelled { color: var(--dataflow-state-cancelled); background-color: var(--dataflow-state-new); }
+    .btn-run-default.run-state-aborted { background-color: var(--dataflow-state-aborted); }
+    .btn-run-default.run-state-finalised { background-color: var(--dataflow-state-finalised); }
 
-/* Group of run statuses considered to be 'running' */
-/* Animation adapted from concourse-ci */
-:where(.btn-run-default.run-state-processing, .btn-run-default.run-state-flowing) {
-    --color-stripe-1: rgb(247, 216, 89);
-    --color-stripe-2: rgb(242, 198, 21);
-    position: relative;
-    background-image: repeating-linear-gradient(
-        -115deg,
-        var(--color-stripe-1) 0px,
-        var(--color-stripe-2) 1px,
-        var(--color-stripe-2) 10px,
-        var(--color-stripe-1) 11px,
-        var(--color-stripe-1) 16px
-    );
-    background-size: 106px 114px;
-    animation: 3s linear 0s infinite normal none running dataflow-running;
+    /* Group of run statuses considered to be 'running' */
+    /* Animation adapted from concourse-ci */
+    :where(.btn-run-default.run-state-processing, .btn-run-default.run-state-flowing) {
+        --color-stripe-1: rgb(247, 216, 89);
+        --color-stripe-2: rgb(242, 198, 21);
+        position: relative;
+        background-image: repeating-linear-gradient(
+            -115deg,
+            var(--color-stripe-1) 0px,
+            var(--color-stripe-2) 1px,
+            var(--color-stripe-2) 10px,
+            var(--color-stripe-1) 11px,
+            var(--color-stripe-1) 16px
+        );
+        background-size: 106px 114px;
+        animation: 3s linear 0s infinite normal none running dataflow-running;
+    }
 }
 
 @keyframes dataflow-running {
