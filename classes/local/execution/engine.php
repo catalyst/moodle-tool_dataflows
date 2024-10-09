@@ -815,14 +815,17 @@ class engine {
             $loghandlers = $dataflowloghandlers;
         }
 
+        // Minimum logging levels - will display this level and above.
+        $minloglevel = $this->dataflow->get('minloglevel');
+
         // Default Moodle handler. Always on.
-        $mtracehandler = new mtrace_handler(Logger::DEBUG);
+        $mtracehandler = new mtrace_handler($minloglevel);
         $mtracehandler->setFormatter($lineformatter);
         $log->pushHandler($mtracehandler);
 
         // Log to the browser's dev console for a manual run.
         if (isset($loghandlers[log_handler::BROWSER_CONSOLE])) {
-            $log->pushHandler(new BrowserConsoleHandler(Logger::DEBUG));
+            $log->pushHandler(new BrowserConsoleHandler($minloglevel));
         }
 
         // Dataflow run logger.
@@ -834,7 +837,7 @@ class engine {
                 $this->dataflow->id . DIRECTORY_SEPARATOR .
                 $rundateformat . '_' . $this->run->name . '.log';
 
-            $streamhandler = new StreamHandler($dataflowrunlogpath, Logger::DEBUG);
+            $streamhandler = new StreamHandler($dataflowrunlogpath, $minloglevel);
             $streamhandler->setFormatter($lineformatter);
             $log->pushHandler($streamhandler);
         }
@@ -847,7 +850,7 @@ class engine {
                 'tool_dataflows' . DIRECTORY_SEPARATOR .
                 $this->dataflow->id . '.log';
 
-            $rotatingfilehandler = new RotatingFileHandler($dataflowlogpath, 0, Logger::DEBUG);
+            $rotatingfilehandler = new RotatingFileHandler($dataflowlogpath, 0, $minloglevel);
             $dateformat = 'Ymd';
             $filenameformat = '{date}_{filename}';
             $rotatingfilehandler->setFilenameFormat($filenameformat, $dateformat);

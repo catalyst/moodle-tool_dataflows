@@ -16,6 +16,7 @@
 
 namespace tool_dataflows\form;
 
+use Monolog\Logger;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 use moodle_exception;
@@ -118,6 +119,18 @@ EOT;
 
         $mform->addElement('text', 'notifyonabort', get_string('notifyonabort', 'tool_dataflows'));
         $mform->addElement('static', 'notifyonabort_desc', '', get_string('notifyonabort_desc', 'tool_dataflows'));
+
+        $mform->addElement('select', 'minloglevel', get_string('minloglevel', 'tool_dataflows'), [
+            Logger::DEBUG     => 'DEBUG',
+            Logger::INFO      => 'INFO',
+            Logger::NOTICE    => 'NOTICE',
+            Logger::WARNING   => 'WARNING',
+            Logger::ERROR     => 'ERROR',
+            Logger::CRITICAL  => 'CRITICAL',
+            Logger::ALERT     => 'ALERT',
+            Logger::EMERGENCY => 'EMERGENCY',
+        ]);
+        $mform->addElement('static', 'minloglevel_desc', '', get_string('minloglevel_desc', 'tool_dataflows'));
 
         $this->add_action_buttons();
     }

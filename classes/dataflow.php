@@ -16,6 +16,7 @@
 
 namespace tool_dataflows;
 
+use Monolog\Logger;
 use core\persistent;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\step\flow_step;
@@ -63,7 +64,8 @@ class dataflow extends persistent {
             'timemodified' => ['type' => PARAM_INT, 'default' => 0],
             'usermodified' => ['type' => PARAM_INT, 'default' => 0],
             'confighash' => ['type' => PARAM_TEXT, 'default' => ''],
-            'notifyonabort' => ['type' => PARAM_TEXT, 'default' => '']
+            'notifyonabort' => ['type' => PARAM_TEXT, 'default' => ''],
+            'minloglevel' => ['type' => PARAM_INT, 'default' => Logger::DEBUG],
         ];
     }
 
