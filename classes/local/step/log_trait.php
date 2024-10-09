@@ -98,7 +98,7 @@ trait log_trait {
 
         // Call the log method with the relevant levels, if a message is supplied.
         if ($message !== '') {
-            $this->log->log($config->level, $message);
+            $this->log->log($config->level, $message, (array) $input);
         }
 
         return $input;
