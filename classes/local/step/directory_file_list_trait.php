@@ -88,18 +88,18 @@ trait directory_file_list_trait {
         // Return value.
         $mform->addElement(
             'select', 'config_returnvalue', get_string('directory_file_list:returnvalue', 'tool_dataflows'), [
-            'basename' => get_string('directory_file_list:basename', 'tool_dataflows'),
-            'relativepath' => get_string('directory_file_list:relativepath', 'tool_dataflows'),
-            'absolutepath' => get_string('directory_file_list:absolutepath', 'tool_dataflows'),
+                'basename' => get_string('directory_file_list:basename', 'tool_dataflows'),
+                'relativepath' => get_string('directory_file_list:relativepath', 'tool_dataflows'),
+                'absolutepath' => get_string('directory_file_list:absolutepath', 'tool_dataflows'),
             ]
         );
 
         // Sort.
         $mform->addElement(
             'select', 'config_sort', get_string('directory_file_list:sort', 'tool_dataflows'), [
-            'alpha' => get_string('directory_file_list:alpha', 'tool_dataflows'),
-            'alpha_reverse' => get_string('directory_file_list:alpha_reverse', 'tool_dataflows'),
-            'natural' => get_string('directory_file_list:natural', 'tool_dataflows'),
+                'alpha' => get_string('directory_file_list:alpha', 'tool_dataflows'),
+                'alpha_reverse' => get_string('directory_file_list:alpha_reverse', 'tool_dataflows'),
+                'natural' => get_string('directory_file_list:natural', 'tool_dataflows'),
             ]
         );
 
@@ -176,15 +176,15 @@ trait directory_file_list_trait {
     /**
      * Apply various constraints/transforms to the list of files
      *
-     * @param  array         $filelist
-     * @param  string        $returnvalue
-     * @param  string        $sort
-     * @param  int           $offset
-     * @param  int           $limit
-     * @param  bool          $includedir
-     * @param  string        $basepath
-     * @param  string        $pattern
-     * @return array new file list
+     * @param  array        $filelist
+     * @param  string       $returnvalue
+     * @param  string       $sort
+     * @param  int          $offset
+     * @param  int|null     $limit
+     * @param  bool         $includedir
+     * @param  string       $basepath
+     * @param  string|null  $pattern
+     * @return array  new file list
      */
     public function apply_list_constraints(
         array $filelist,
@@ -194,7 +194,7 @@ trait directory_file_list_trait {
         ?int $limit,
         bool $includedir,
         string $basepath,
-        string $pattern = null
+        ?string $pattern = null
     ): array {
         // Apply filter for excluding directories/folders.
         // This is not related to recursive lookups in any way.

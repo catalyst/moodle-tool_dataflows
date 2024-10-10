@@ -17,7 +17,6 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\connector_gpg;
 
 /**
@@ -29,6 +28,7 @@ use tool_dataflows\local\step\connector_gpg;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_gpg_test extends \advanced_testcase {
+
     /**
      * Set up before each test
      */
@@ -61,7 +61,7 @@ class tool_dataflows_gpg_test extends \advanced_testcase {
             Yaml::dump([
                 'dir1' => 'everywhere',
                 'dir2' => '/anywhere',
-                'dir3' => 'sftp://somewhere'
+                'dir3' => 'sftp://somewhere',
             ]),
             'tool_dataflows'
         );
@@ -76,7 +76,7 @@ class tool_dataflows_gpg_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function has_sideeffect_provider(): array {
+    public static function has_sideeffect_provider(): array {
         return [
             ['test.txt', false],
             ['/test.txt', true],

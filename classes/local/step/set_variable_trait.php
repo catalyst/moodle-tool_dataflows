@@ -35,6 +35,7 @@ use tool_dataflows\local\variables\var_object_visible;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait set_variable_trait {
+
     /**
      * Returns whether or not the step configured, has a side effect
      *

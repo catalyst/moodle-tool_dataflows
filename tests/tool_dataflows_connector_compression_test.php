@@ -30,7 +30,7 @@ use tool_dataflows\local\step\connector_compression;
  * @covers    \tool_dataflows\local\step\connector_compression
  */
 class tool_dataflows_connector_compression_test extends \advanced_testcase {
-    /** @var string $basedir base test directory for files **/
+    /** @var string base test directory for files * */
     private $basedir;
 
     /**
@@ -67,7 +67,7 @@ class tool_dataflows_connector_compression_test extends \advanced_testcase {
             'from' => $from,
             'to' => $tocompressed,
             'method' => $method,
-            'command' => 'compress'
+            'command' => 'compress',
         ]);
 
         $compress->name = 'compress';
@@ -80,7 +80,7 @@ class tool_dataflows_connector_compression_test extends \advanced_testcase {
             'from' => $tocompressed,
             'to' => $todecompressed,
             'method' => $method,
-            'command' => 'decompress'
+            'command' => 'decompress',
         ]);
 
         $decompress->depends_on([$compress]);

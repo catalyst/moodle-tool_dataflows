@@ -17,8 +17,6 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\local\execution\engine;
-use tool_dataflows\local\step\reader_json;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -48,7 +46,7 @@ class tool_dataflows_dot_escape_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function escape_dot_dataprovider() {
+    public static function escape_dot_dataprovider(): array {
 
         $sqlinput = <<<'INPUT'
 '  "  \ / \\ SQL

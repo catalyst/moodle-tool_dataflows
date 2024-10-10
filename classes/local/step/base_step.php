@@ -22,7 +22,6 @@ use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\engine_step;
 use tool_dataflows\local\variables\var_root;
 use tool_dataflows\local\variables\var_step;
-use tool_dataflows\parser;
 use tool_dataflows\step;
 
 /**

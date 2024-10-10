@@ -18,7 +18,6 @@ namespace tool_dataflows\local\provider;
 
 use Symfony\Component\ExpressionLanguage\ExpressionFunction;
 use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
-use tool_dataflows\parser;
 
 /**
  * Expression Provider

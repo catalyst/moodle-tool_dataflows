@@ -97,7 +97,6 @@ $PAGE->set_pagelayout('admin');
 $PAGE->set_heading($dataflow->name . ': ' . $pageheading);
 echo $output->header();
 
-
 // No hide/show links under each column.
 $table->attributes['class'] = 'table-sm w-auto';
 $table->build();

@@ -17,9 +17,7 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
-use tool_dataflows\step;
 use tool_dataflows\local\step\reader_sql;
 
 defined('MOODLE_INTERNAL') || die();

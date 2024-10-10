@@ -81,7 +81,6 @@ switch ($action) {
         break;
 }
 
-
 // Redirect to the dataflows details page.
 if ($notifystring !== null) {
     redirect($returnurl, get_string($action.'_dataflow_successful', 'tool_dataflows', $dataflow->name),

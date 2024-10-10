@@ -119,7 +119,7 @@ class run extends persistent {
      * Sets the snapshot of the current state of the run
      *
      * @param  string $status the engine's status
-     * @param  string $currentstate the yaml string representation of the state of the dataflow
+     * @param  string|null $currentstate the yaml string representation of the state of the dataflow
      */
     public function snapshot(string $status, ?string $currentstate = null) {
         $this->status = $status;

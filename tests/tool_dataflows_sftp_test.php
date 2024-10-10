@@ -87,7 +87,7 @@ class tool_dataflows_sftp_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function sftp_list_constraints_provider(): array {
+    public static function sftp_list_constraints_provider(): array {
         return [
             [
                 ['relativepath', 'alpha', 0, null, false, '', '*.csv'],
@@ -165,7 +165,7 @@ class tool_dataflows_sftp_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function has_sideeffect_provider(): array {
+    public static function has_sideeffect_provider(): array {
         return [
             ['test.txt', false],
             ['/test.txt', true],

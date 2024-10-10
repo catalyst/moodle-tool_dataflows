@@ -20,8 +20,6 @@ use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\step\connector_curl;
 use tool_dataflows\local\execution\engine;
-use tool_dataflows\step;
-use tool_dataflows\dataflow;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -324,7 +322,7 @@ class tool_dataflows_connector_curl_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function has_side_effect_provider(): array {
+    public static function has_side_effect_provider(): array {
         return [
             ['my/in.txt', 'get', false, false],
             ['my/in.txt', 'head', false, false],

@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\admin;
 
-use tool_dataflows\admin\readonly_trait;
 
 /**
  * A custom class applying extra readonly checks to the base implementation.

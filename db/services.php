@@ -55,5 +55,5 @@ $services = [
         'functions' => ['tool_dataflows_trigger_dataflow'],
         'restrictedusers' => 0,
         'shortname' => 'dataflow_service',
-    ]
+    ],
 ];

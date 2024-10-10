@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\local\execution\logging;
 
-use Monolog\Handler\AbstractHandler;
 use Monolog\Handler\AbstractProcessingHandler;
 
 /**
@@ -48,7 +47,6 @@ class mtrace_handler extends AbstractProcessingHandler {
      * Writes the record down to the log of the implementing handler
      *
      * @param  array $record
-     * @return void
      */
     protected function write(array $record): void {
         mtrace($record['formatted']);

@@ -144,7 +144,7 @@ class tool_dataflows_engine_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function dataflow_provider(): array {
+    public static function dataflow_provider(): array {
         $dataflow = new dataflow();
         $dataflow->name = 'two-step';
         $dataflow->enabled = true;
@@ -241,7 +241,7 @@ class tool_dataflows_engine_test extends \advanced_testcase {
                     'tool_dataflows',
                     [
                         'to' => engine::STATUS_LABELS[engine::STATUS_INITIALISED],
-                        'from' => engine::STATUS_LABELS[engine::STATUS_FINALISED]
+                        'from' => engine::STATUS_LABELS[engine::STATUS_FINALISED],
                     ]
                 ));
             $engine->set_status(engine::STATUS_INITIALISED);

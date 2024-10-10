@@ -333,7 +333,7 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         $type = \tool_dataflows\local\step\trigger_cron::class;
         $newfields = [
             'retryinterval' => 0,
-            'retrycount' => 0
+            'retrycount' => 0,
         ];
         xmldb_tool_dataflows_step_config_helper($type, $newfields);
 

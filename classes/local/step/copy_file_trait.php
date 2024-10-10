@@ -27,6 +27,7 @@ use tool_dataflows\helper;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait copy_file_trait {
+
     /**
      * Return the definition of the fields available in this form.
      *

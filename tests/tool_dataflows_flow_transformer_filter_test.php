@@ -30,12 +30,12 @@ use tool_dataflows\local\execution\engine;
 class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
     /** Test data. */
     const TEST_DATA = [
-        [ 'a' => '1', 'b' => 'a_1_b' ],
-        [ 'a' => '5', 'b' => 'a_9_b' ],
-        [ 'a' => 'x', 'b' => 'a_3_b' ],
-        [ 'a' => '0', 'b' => 'a_2_b' ],
-        [ 'a' => '0', 'b' => 'a_1_b' ],
-        [ 'a' => '0', 'b' => 'a_6_b' ],
+        ['a' => '1', 'b' => 'a_1_b'],
+        ['a' => '5', 'b' => 'a_9_b'],
+        ['a' => 'x', 'b' => 'a_3_b'],
+        ['a' => '0', 'b' => 'a_2_b'],
+        ['a' => '0', 'b' => 'a_1_b'],
+        ['a' => '0', 'b' => 'a_6_b'],
     ];
 
     /** Input file name. */
@@ -44,7 +44,7 @@ class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
     /** Output file name. */
     const OUTPUT_FILE_NAME = 'output.json';
 
-    /** @var string  Base directory. */
+    /** @var string Base directory. */
     private $basedir;
 
     /**
@@ -69,7 +69,6 @@ class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
     protected function tearDown(): void {
         $this->basedir = null;
     }
-
 
     /**
      * Tests appending to many files, declared 1:1.
@@ -100,21 +99,27 @@ class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function filter_provider() {
+    public static function filter_provider(): array {
         return [
-            [ 'record.a == 1', [
-                [ 'a' => '1', 'b' => 'a_1_b' ],
-            ]],
-            [ "record.a == '0'", [
-                [ 'a' => '0', 'b' => 'a_2_b' ],
-                [ 'a' => '0', 'b' => 'a_1_b' ],
-                [ 'a' => '0', 'b' => 'a_6_b' ],
-            ]],
-            [ "record.b >= 'a_3_b'", [
-                [ 'a' => '5', 'b' => 'a_9_b' ],
-                [ 'a' => 'x', 'b' => 'a_3_b' ],
-                [ 'a' => '0', 'b' => 'a_6_b' ],
-            ]],
+            [
+                'record.a == 1', [
+                    ['a' => '1', 'b' => 'a_1_b'],
+                ],
+            ],
+            [
+                "record.a == '0'", [
+                    ['a' => '0', 'b' => 'a_2_b'],
+                    ['a' => '0', 'b' => 'a_1_b'],
+                    ['a' => '0', 'b' => 'a_6_b'],
+                ],
+            ],
+            [
+                "record.b >= 'a_3_b'", [
+                    ['a' => '5', 'b' => 'a_9_b'],
+                    ['a' => 'x', 'b' => 'a_3_b'],
+                    ['a' => '0', 'b' => 'a_6_b'],
+                ],
+            ],
         ];
     }
 
@@ -157,9 +162,7 @@ class tool_dataflows_flow_transformer_filter_test extends \advanced_testcase {
         $filter->name = 'filter';
         $filter->type = $namespace . 'flow_transformer_filter';
         $filter->depends_on([$reader]);
-        $filter->config = Yaml::dump([
-            'filter' => $expr
-        ]);
+        $filter->config = Yaml::dump(['filter' => $expr]);
         $dataflow->add_step($filter);
 
         $writer = new step();

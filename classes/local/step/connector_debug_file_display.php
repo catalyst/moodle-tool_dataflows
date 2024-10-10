@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_dataflows\local\step;
-use tool_dataflows\local\execution\engine_step;
 use tool_dataflows\helper;
 
 /**
@@ -93,5 +92,4 @@ class connector_debug_file_display extends connector_step {
             \html_writer::nonempty_tag('pre', get_string('path_help_examples', 'tool_dataflows')));
     }
 }
-
 

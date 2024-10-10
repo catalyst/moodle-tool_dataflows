@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace tool_dataflows\local\step;
-use tool_dataflows\local\execution\engine_step;
 
 /**
  * Debugging connector step type

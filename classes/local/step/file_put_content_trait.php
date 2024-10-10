@@ -27,6 +27,7 @@ use tool_dataflows\helper;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait file_put_content_trait {
+
     /**
      * Return the definition of the fields available in this form.
      *
@@ -100,7 +101,6 @@ trait file_put_content_trait {
 
         return $errors ?: true;
     }
-
 
     /**
      * Executes the step

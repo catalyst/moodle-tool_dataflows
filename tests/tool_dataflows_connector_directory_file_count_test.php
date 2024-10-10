@@ -87,7 +87,7 @@ class tool_dataflows_connector_directory_file_count_test extends \advanced_testc
      *
      * @return  array of expected counts
      */
-    public function count_provider(): array {
+    public static function count_provider(): array {
         return [
             [0],
             [10],

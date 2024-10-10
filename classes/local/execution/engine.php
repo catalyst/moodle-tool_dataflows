@@ -679,8 +679,8 @@ class engine {
         $this->get_variables()->set("states.$statusstring", microtime(true));
 
         $context = [
-                'isdryrun' => $this->isdryrun,
-                'status' => get_string('engine_status:'.self::STATUS_LABELS[$this->status], 'tool_dataflows'),
+            'isdryrun' => $this->isdryrun,
+            'status' => get_string('engine_status:'.self::STATUS_LABELS[$this->status], 'tool_dataflows'),
         ];
 
         $level = Logger::INFO;
@@ -865,7 +865,7 @@ class engine {
     /**
      * Send a notification email for abort if required.
      *
-     * @param \Throwable $reason A throwable representing the reason for abort.
+     * @param ?\Throwable $reason A throwable representing the reason for abort.
      */
     public function notify_on_abort(?\Throwable $reason) {
         // If configured to send email, attempt to notify of the abort reason.

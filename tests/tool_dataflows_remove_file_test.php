@@ -65,7 +65,7 @@ class tool_dataflows_remove_file_test extends \advanced_testcase {
             Yaml::dump([
                 'dir1' => 'everywhere',
                 'dir2' => '/anywhere',
-                'dir3' => 'sftp://somewhere'
+                'dir3' => 'sftp://somewhere',
             ]),
             'tool_dataflows'
         );
@@ -80,7 +80,7 @@ class tool_dataflows_remove_file_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function has_sideeffect_provider(): array {
+    public static function has_sideeffect_provider(): array {
         return [
             ['test.txt', false],
             ['/test.txt', true],
@@ -138,9 +138,7 @@ class tool_dataflows_remove_file_test extends \advanced_testcase {
         $step = new step();
         $step->name = 'hoover';
         $step->type = connector_remove_file::class;
-        $step->config = Yaml::dump([
-            'file' => $file,
-        ]);
+        $step->config = Yaml::dump(['file' => $file]);
         $dataflow->add_step($step);
 
         return $dataflow;

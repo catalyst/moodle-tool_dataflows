@@ -17,7 +17,6 @@
 namespace tool_dataflows\local\step;
 
 use tool_dataflows\local\variables\var_root;
-use tool_dataflows\local\variables\var_object_visible;
 
 /**
  * Set multiple variables trait

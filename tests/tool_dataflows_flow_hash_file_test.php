@@ -70,7 +70,7 @@ class tool_dataflows_flow_hash_file_test extends \advanced_testcase {
      *
      * @return  array
      */
-    public function hash_file_provider() {
+    public static function hash_file_provider(): array {
         $combinations = [];
         $content = 'Hello World';
 

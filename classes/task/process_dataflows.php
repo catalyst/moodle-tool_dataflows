@@ -20,7 +20,6 @@ use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\scheduler;
 use tool_dataflows\local\event_processor;
-use tool_dataflows\task\process_dataflow_ad_hoc;
 
 /**
  * Process queued dataflows.

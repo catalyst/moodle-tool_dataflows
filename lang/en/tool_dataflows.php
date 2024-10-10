@@ -110,7 +110,7 @@ Reason: {$a->reason}
 See the run logs for further details.';
 $string['notifyonabort_subject'] = 'Dataflow run aborted: {$a}';
 $string['minloglevel'] = 'Minimum Log level';
-$string['minloglevel_desc'] = 'This defines the minimum level to log. For example, if set at WARNING, it will only log WARNING messages and above, like ERROR, CRITICAL, ALERT, and EMERGENCY';
+$string['minloglevel_desc'] = 'This defines the minimum level to log. For example, if set at WARNING, it will only log WARNING messages and above, like ERROR, CRITICAL, ALERT, and EMERGENCY.';
 
 // Dataflow import form.
 $string['dataflow_file'] = 'Dataflow file';

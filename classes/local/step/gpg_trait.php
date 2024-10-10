@@ -27,6 +27,7 @@ use tool_dataflows\helper;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait gpg_trait {
+
     /**
      * Returns whether or not the step configured, has a side effect.
      *

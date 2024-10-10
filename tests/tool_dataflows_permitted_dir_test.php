@@ -59,7 +59,7 @@ class tool_dataflows_permitted_dir_test extends \advanced_testcase {
      *
      * @return \string[][]
      */
-    public function valid_data_provider(): array {
+    public static function valid_data_provider(): array {
         return [
             [''],
             ['/* A comment */'],
@@ -91,7 +91,7 @@ class tool_dataflows_permitted_dir_test extends \advanced_testcase {
      *
      * @return \string[][]
      */
-    public function invalid_data_provider(): array {
+    public static function invalid_data_provider(): array {
         return [
             ['/tmp/* A comment', 'path_invalid'],
             ['http://tmp', 'path_invalid'],

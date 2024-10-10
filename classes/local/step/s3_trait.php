@@ -14,6 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\local\step;
+
+use tool_dataflows\helper;
+
 /**
  * S3 copy step ..trait
  *
@@ -23,11 +27,6 @@
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace tool_dataflows\local\step;
-
-use tool_dataflows\helper;
-
 trait s3_trait {
 
     /**

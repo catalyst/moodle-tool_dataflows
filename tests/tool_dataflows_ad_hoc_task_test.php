@@ -67,7 +67,7 @@ class tool_dataflows_ad_hoc_task_test extends \advanced_testcase {
      */
     public function test_cron_adhoc_task_creation() {
         // Create three CRON triggered dataflows.
-        array_map(function($i) {
+        array_map(function ($i) {
             return $this->create_dataflow();
         }, range(0, 2));
 

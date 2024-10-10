@@ -20,7 +20,6 @@ use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\ExpressionLanguage\Lexer;
-use Symfony\Component\ExpressionLanguage\Node;
 use Symfony\Component\ExpressionLanguage\Token;
 use Symfony\Component\ExpressionLanguage\TokenStream;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -242,9 +241,9 @@ class parser {
     /**
      * Evalulates the expression provided and on fail will throw an exception.
      *
-     * @param   string $expression
-     * @param   array $variables containing anything relevant to the evaluation of the result
-     * @param   callable $failcallback containing anything relevant to the evaluation of the result
+     * @param   string         $expression
+     * @param   array          $variables containing anything relevant to the evaluation of the result
+     * @param   callable|null  $failcallback containing anything relevant to the evaluation of the result
      * @return  mixed
      */
     public function evaluate_or_fail(string $expression, array $variables, ?callable $failcallback = null) {
@@ -267,7 +266,7 @@ class parser {
      *
      * @param   string $string
      * @param   array $variables containing anything relevant to the evaluation of the result
-     * @param   callable $failcallback containing anything relevant to the evaluation of the result
+     * @param   callable|null $failcallback containing anything relevant to the evaluation of the result
      * @return  mixed
      */
     private function internal_evaluator(string $string, array $variables, ?callable $failcallback) {

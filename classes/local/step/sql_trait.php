@@ -57,7 +57,7 @@ trait sql_trait {
         $sql = preg_replace($pattern, '?', $sql);
 
         // Now we can map all the variables to their real values.
-        $vars = array_map(function($el) use ($variables, $parser) {
+        $vars = array_map(function ($el) use ($variables, $parser) {
             $hasexpression = true;
             $max = 5;
             while ($hasexpression && $max) {
@@ -88,7 +88,7 @@ trait sql_trait {
      * Returns a clarified error message if applicable.
      *
      * @param   string $message
-     * @param   string $sql replacement for the expression held by default.
+     * @param   string|null $sql replacement for the expression held by default.
      * @return  string clarified message if applicable
      */
     private function clarify_parser_error(string $message, ?string $sql = null): string {
@@ -256,7 +256,7 @@ trait sql_trait {
         $token = $matches[0] ?? '';
         $emptydefault = new \stdClass();
 
-        switch(strtoupper($token)) {
+        switch (strtoupper($token)) {
             case 'SELECT':
                 // Execute the query using get_records instead of get_record.
                 // This is so we can expose the number of records returned which

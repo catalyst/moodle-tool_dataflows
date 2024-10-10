@@ -16,7 +16,6 @@
 
 namespace tool_dataflows;
 
-use tool_dataflows\local\variables\var_value;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -245,7 +244,7 @@ class tool_dataflows_variables_new_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function types_provider() {
+    public static function types_provider(): array {
         $vars = new var_object_for_testing('one');
         $vars->set('d', '${{a}}');
         return [

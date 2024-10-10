@@ -17,9 +17,7 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
-use tool_dataflows\step;
 use tool_dataflows\local\step\flow_sql;
 
 defined('MOODLE_INTERNAL') || die();
@@ -155,9 +153,7 @@ class tool_dataflows_flow_sql_test extends \advanced_testcase {
         ]);
         $this->dataflow->save();
 
-        $this->flow->config = Yaml::dump([
-            'sql' => 'SELECT * FROM {course} WHERE id = ${{dataflow.vars.courseid}}',
-        ]);
+        $this->flow->config = Yaml::dump(['sql' => 'SELECT * FROM {course} WHERE id = ${{dataflow.vars.courseid}}']);
         $this->flow->save();
 
         ob_start();
@@ -186,9 +182,7 @@ class tool_dataflows_flow_sql_test extends \advanced_testcase {
 
         // Execute a query where the sql is not well formed.
         // This should return null and a count of 0.
-        $this->flow->config = Yaml::dump([
-            'sql' => 'SELECT *',
-        ]);
+        $this->flow->config = Yaml::dump(['sql' => 'SELECT *']);
         $this->flow->save();
 
         ob_start();
@@ -213,9 +207,7 @@ class tool_dataflows_flow_sql_test extends \advanced_testcase {
 
         // Execute a query where no records are returned.
         // This should return null and a count of 0.
-        $this->flow->config = Yaml::dump([
-            'sql' => 'SELECT * FROM {course} WHERE id = -1',
-        ]);
+        $this->flow->config = Yaml::dump(['sql' => 'SELECT * FROM {course} WHERE id = -1']);
         $this->flow->save();
 
         ob_start();
