@@ -63,20 +63,20 @@
         <div class="col-sm">
             <h6 class="text-center">{{#str}} inputs, tool_dataflows {{/str}}</h6>
             {{#inputlist}}
-                <a href="{{{href}}}">{{label}}</a><br/>
+                <a href="{{{href}}}">{{label}}</a><br>
             {{/inputlist}}
             {{^inputlist}}
                 <p>{{#str}} no_inputs, tool_dataflows {{/str}}</p>
             {{/inputlist}}
         </div>
         <div class="col-sm text-center border-right border-left">
-            {{{dotimage}}}<br/>
-            {{typename}}<br/>
+            {{{dotimage}}}<br>
+            {{typename}}<br>
         </div>
         <div class="col-sm">
             <h6 class="text-center">{{#str}} outputs, tool_dataflows {{/str}}</h6>
             {{#outputlist}}
-                <a href="{{{href}}}">{{label}}</a><br/>
+                <a href="{{{href}}}">{{label}}</a><br>
             {{/outputlist}}
             {{^outputlist}}
                 <p>{{#str}} no_outputs, tool_dataflows {{/str}}</p>
@@ -84,7 +84,7 @@
         </div>
     </div>
     <div class="card-body">
-        {{inputrequirements}}<br/>
+        {{inputrequirements}}<br>
         {{outputrequirements}}
     </div>
 </div>
