@@ -18,7 +18,6 @@ namespace tool_dataflows\local\execution\iterators;
 
 use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\step\base_step;
-use tool_dataflows\local\step\flow_cap;
 
 /**
  * A mapping iterator that takes a PHP iterator as a source.

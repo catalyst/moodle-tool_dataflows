@@ -44,7 +44,7 @@ class import_form extends \moodleform {
             $mform->addElement(
                 'html',
                 \html_writer::div(
-                    get_string( 'readonly_active', 'tool_dataflows'),
+                    get_string('readonly_active', 'tool_dataflows'),
                     'alert alert-warning'
                 )
             );

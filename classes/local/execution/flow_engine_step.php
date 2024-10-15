@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\local\execution;
 
-use tool_dataflows\parser;
 
 /**
  * Manages the execution of a flow step.

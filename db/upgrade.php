@@ -333,12 +333,27 @@ function xmldb_tool_dataflows_upgrade($oldversion) {
         $type = \tool_dataflows\local\step\trigger_cron::class;
         $newfields = [
             'retryinterval' => 0,
-            'retrycount' => 0
+            'retrycount' => 0,
         ];
         xmldb_tool_dataflows_step_config_helper($type, $newfields);
 
         // Dataflows savepoint reached.
         upgrade_plugin_savepoint(true, 2024030201, 'tool', 'dataflows');
+    }
+
+    if ($oldversion < 2024101000) {
+
+        // Define field minloglevel to be added to tool_dataflows.
+        $table = new xmldb_table('tool_dataflows');
+        $field = new xmldb_field('minloglevel', XMLDB_TYPE_INTEGER, '2', null, null, null, '100', 'notifyonabort');
+
+        // Conditionally launch add field minloglevel.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Dataflows savepoint reached.
+        upgrade_plugin_savepoint(true, 2024101000, 'tool', 'dataflows');
     }
 
     return true;
@@ -390,4 +405,3 @@ function xmldb_tool_dataflows_step_config_helper(string $type, array $newfields)
     }
     $transaction->allow_commit();
 }
-

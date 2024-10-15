@@ -16,9 +16,7 @@
 
 namespace tool_dataflows\local\variables;
 
-use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\dataflow;
-use tool_dataflows\helper;
 use tool_dataflows\local\execution\engine;
 
 /**

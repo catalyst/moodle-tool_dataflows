@@ -16,10 +16,7 @@
 
 namespace tool_dataflows\local\step;
 
-use phpseclib3\Crypt\Common\AsymmetricKey;
-use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Net\SFTP;
-use tool_dataflows\helper;
 
 /**
  * SFTP connector step type.

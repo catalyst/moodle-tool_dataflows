@@ -18,7 +18,6 @@ namespace tool_dataflows;
 
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\application_trait;
 use tool_dataflows\local\scheduler;
 use tool_dataflows\local\step;
 
@@ -301,7 +300,7 @@ class tool_dataflows_test extends \advanced_testcase {
         $this->assertCount(3, (array) $steps);
 
         // Find the CRON step.
-        $cronstep = current(array_filter((array) $steps, function($step) {
+        $cronstep = current(array_filter((array) $steps, function ($step) {
             return $step->alias == 'cron';
         }));
         $this->assertNotEmpty($cronstep);

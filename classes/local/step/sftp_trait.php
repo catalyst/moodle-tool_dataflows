@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\local\step;
 
-use MoodleQuickForm;
 use phpseclib3\Crypt\Common\AsymmetricKey;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Net\SFTP;
@@ -34,13 +33,13 @@ use tool_dataflows\helper;
  */
 trait sftp_trait {
 
-    /** Shorthand sftp scheme for use in config. */
+    /** @var string Shorthand sftp scheme for use in config. */
     protected static $sftpprefix = 'sftp';
 
-    /** Default port to connect to. */
+    /** @var int Default port to connect to. */
     protected static $defaultport = 22;
 
-    /** Array of SFTP objects to use for performance reasons. */
+    /** @var array SFTP objects to use for performance reasons. */
     protected $sftp = [];
 
     /**

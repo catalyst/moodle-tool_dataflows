@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_dataflows\local\step;
+
 /**
  * Abort Step ..Trait
  *
@@ -27,9 +29,6 @@
  * @copyright  Catalyst IT, 2022
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace tool_dataflows\local\step;
-
 trait abort_trait {
 
     /**

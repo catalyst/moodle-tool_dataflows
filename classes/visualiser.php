@@ -66,7 +66,7 @@ class visualiser {
      * generated image content.
      *
      * @param  string $dotscript the script for DOT to generate the image.
-     * @param  string $type supported image types: jpg, gif, png, svg, ps.
+     * @param  string|null $type supported image types: jpg, gif, png, svg, ps.
      * @return binary|string content of the generated image on success, empty string on failure.
      *
      * @author     cjiang

@@ -24,9 +24,7 @@ use core_user;
 use core\session\manager;
 use external_api;
 use moodle_exception;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
-use Throwable;
 use tool_dataflows\parser;
 
 /**
@@ -325,7 +323,7 @@ EOF;
 
             $response['error'] = false;
             $response['data'] = $result;
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $exception = get_exception_info($e);
             unset($exception->a);
             $exception->backtrace = format_backtrace($exception->backtrace, true);

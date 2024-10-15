@@ -17,8 +17,6 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\step;
-use tool_dataflows\dataflow;
 
 /**
  * tests some of the code around concurrency.

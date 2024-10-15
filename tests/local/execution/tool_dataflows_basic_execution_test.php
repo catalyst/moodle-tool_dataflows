@@ -17,7 +17,6 @@
 namespace tool_dataflows\local\execution;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\local\execution\engine;
 use tool_dataflows\dataflow;
 use tool_dataflows\step;
 use tool_dataflows\test_dataflows;

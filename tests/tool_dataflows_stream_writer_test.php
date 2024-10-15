@@ -17,10 +17,8 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\writer_stream;
-use tool_dataflows\step;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -106,7 +104,7 @@ class tool_dataflows_stream_writer_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function data_provider(): array {
+    public static function data_provider(): array {
         return [
             [[['a' => 1, 'b' => 2, 'c' => 3], ['a' => 4, 'b' => 5, 'c' => 6]], false, true],
             [[['a' => 1], ['b' => 5], ['c' => 6]], true, false],

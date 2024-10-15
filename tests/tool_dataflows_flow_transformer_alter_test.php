@@ -29,15 +29,14 @@ use tool_dataflows\local\execution\engine;
  */
 class tool_dataflows_flow_transformer_alter_test extends \advanced_testcase {
 
-
     /** Test data. */
     const TEST_DATA1 = [
-        [ 'a' => '1', 'b' => '1' ],
-        [ 'a' => '5', 'b' => '9' ],
-        [ 'a' => '8', 'b' => '3' ],
-        [ 'a' => '0', 'b' => '2' ],
-        [ 'a' => '0', 'b' => '1' ],
-        [ 'a' => '0', 'b' => '6' ],
+        ['a' => '1', 'b' => '1'],
+        ['a' => '5', 'b' => '9'],
+        ['a' => '8', 'b' => '3'],
+        ['a' => '0', 'b' => '2'],
+        ['a' => '0', 'b' => '1'],
+        ['a' => '0', 'b' => '6'],
     ];
 
     /** Expression config */
@@ -49,12 +48,12 @@ class tool_dataflows_flow_transformer_alter_test extends \advanced_testcase {
 
     /** To be expected. */
     const EXPECTED1 = [
-        [ 'a' => 'o', 'b' => '1', 'c' => '1 1', 'd' => 2 ],
-        [ 'a' => 'o', 'b' => '9', 'c' => '5 9', 'd' => 14 ],
-        [ 'a' => 'o', 'b' => '3', 'c' => '8 3', 'd' => 11 ],
-        [ 'a' => 'o', 'b' => '2', 'c' => '0 2', 'd' => 2 ],
-        [ 'a' => 'o', 'b' => '1', 'c' => '0 1', 'd' => 1 ],
-        [ 'a' => 'o', 'b' => '6', 'c' => '0 6', 'd' => 6 ],
+        ['a' => 'o', 'b' => '1', 'c' => '1 1', 'd' => 2],
+        ['a' => 'o', 'b' => '9', 'c' => '5 9', 'd' => 14],
+        ['a' => 'o', 'b' => '3', 'c' => '8 3', 'd' => 11],
+        ['a' => 'o', 'b' => '2', 'c' => '0 2', 'd' => 2],
+        ['a' => 'o', 'b' => '1', 'c' => '0 1', 'd' => 1],
+        ['a' => 'o', 'b' => '6', 'c' => '0 6', 'd' => 6],
     ];
 
     /** Input file name. */
@@ -63,7 +62,7 @@ class tool_dataflows_flow_transformer_alter_test extends \advanced_testcase {
     /** Output file name. */
     const OUTPUT_FILE_NAME = 'output.json';
 
-    /** @var string  Base directory. */
+    /** @var string Base directory. */
     private $basedir;
 
     /**
@@ -118,9 +117,9 @@ class tool_dataflows_flow_transformer_alter_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function alter_provider(): array {
+    public static function alter_provider(): array {
         return [
-            [ self::TEST_DATA1, self::EXPRESSIONS1, self::EXPECTED1 ],
+            [self::TEST_DATA1, self::EXPRESSIONS1, self::EXPECTED1],
         ];
     }
 
@@ -164,9 +163,7 @@ class tool_dataflows_flow_transformer_alter_test extends \advanced_testcase {
         $alter->name = 'filter';
         $alter->type = $namespace . 'flow_transformer_alter';
         $alter->depends_on([$reader]);
-        $alter->config = Yaml::dump([
-            'expressions' => $exprs
-        ]);
+        $alter->config = Yaml::dump(['expressions' => $exprs]);
         $dataflow->add_step($alter);
 
         $writer = new step();

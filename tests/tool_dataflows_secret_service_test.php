@@ -26,11 +26,9 @@
 namespace tool_dataflows;
 
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\application_trait;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\service\secret_service;
 use tool_dataflows\local\step\connector_s3;
-use tool_dataflows\step;
 
 defined('MOODLE_INTERNAL') || die();
 

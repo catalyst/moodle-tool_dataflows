@@ -140,7 +140,7 @@ class dataflows_table extends sql_table {
                 $content[] = $extrainfo;
             }
         }
-        $html .= implode('<br/>', $content);
+        $html .= implode('<br>', $content);
         return $html;
     }
 

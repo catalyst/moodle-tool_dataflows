@@ -16,10 +16,8 @@
 
 namespace tool_dataflows\local\execution;
 
-use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\iterators\iterator;
 use tool_dataflows\local\execution\iterators\dataflow_iterator;
-use tool_dataflows\local\execution\flow_engine_step;
 use tool_dataflows\local\step\reader_step;
 
 /**

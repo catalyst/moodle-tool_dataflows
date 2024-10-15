@@ -35,6 +35,7 @@ require_once(dirname(__FILE__) . '/../lib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_dataflows_json_reader_test extends \advanced_testcase {
+
     /**
      * Set up before each test
      */
@@ -202,7 +203,7 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         $sorteduserarray = [
             $this->users[1],
             $this->users[2],
-            $this->users[0]
+            $this->users[0],
         ];
 
         $writer->config = Yaml::dump([
@@ -281,7 +282,7 @@ class tool_dataflows_json_reader_test extends \advanced_testcase {
         $reversesorteduserarray = [
             $this->users[0],
             $this->users[2],
-            $this->users[1]
+            $this->users[1],
         ];
 
         $writer->config = Yaml::dump([

@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\local\step;
 
-use tool_dataflows\helper;
 
 /**
  * Copy file connector step

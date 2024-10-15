@@ -20,14 +20,9 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/application_trait.php');
 
-
-
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
 use Symfony\Component\Yaml\Yaml;
-use tool_dataflows\dataflow;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\flow_web_service;
-use tool_dataflows\step;
 
 /**
  * Unit test for the web service flow step.

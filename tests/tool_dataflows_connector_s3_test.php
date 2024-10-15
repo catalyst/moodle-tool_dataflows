@@ -56,7 +56,7 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function path_in_s3_data_provider(): array {
+    public static function path_in_s3_data_provider(): array {
         return [
             ['s3://path/to/file', true],
             ['s3://path/to/', true],
@@ -131,7 +131,7 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function path_input_and_expected_data_provider(): array {
+    public static function path_input_and_expected_data_provider(): array {
         return [
             ['s3://path/to/file', 'path/to/file'],
             ['s3://path/to/', 'path/to/'],
@@ -181,7 +181,7 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function validate_for_run_provider(): array {
+    public static function validate_for_run_provider(): array {
         $s3file = 's3://test/source.csv';
         $relativefile = 'test/source.csv';
         $absolutefile = '/var/source.csv';
@@ -290,14 +290,14 @@ class tool_dataflows_connector_s3_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function has_side_effect_provider(): array {
+    public static function has_side_effect_provider(): array {
         return [
-            [ 's3://test/source.csv', 's3://test/target.csv', true],
-            [ 's3://test/source.csv', 'test/target.csv', false],
-            [ 'test/source.csv', 's3://test/target.csv', true],
-            [ 's3://test/source.csv', '${{global.vars.abs}}', true],
-            [ 's3://test/source.csv', '${{global.vars.rel}}', false],
-            [ 'test/source.csv', 's3://${{global.vars.rel}}', true],
+            ['s3://test/source.csv', 's3://test/target.csv', true],
+            ['s3://test/source.csv', 'test/target.csv', false],
+            ['test/source.csv', 's3://test/target.csv', true],
+            ['s3://test/source.csv', '${{global.vars.abs}}', true],
+            ['s3://test/source.csv', '${{global.vars.rel}}', false],
+            ['test/source.csv', 's3://${{global.vars.rel}}', true],
         ];
     }
 }

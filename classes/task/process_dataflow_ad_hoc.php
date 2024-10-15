@@ -41,9 +41,8 @@ class process_dataflow_ad_hoc extends \core\task\adhoc_task {
      * and schedules for it to be run.
      *
      * @param dataflow $dataflow
-     * @return void
      */
-    public static function queue_adhoctask(dataflow $dataflow): void {
+    public static function queue_adhoctask(dataflow $dataflow) {
         $task = new process_dataflow_ad_hoc();
 
         // No extra data can go in here, otherwise the de-duplication will not work.

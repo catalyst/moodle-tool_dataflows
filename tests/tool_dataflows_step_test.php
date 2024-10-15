@@ -65,7 +65,7 @@ class tool_dataflows_step_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function alias_validation_provider(): array {
+    public static function alias_validation_provider(): array {
         return [
             ['simplename', true],
             ['snake_name', true],
@@ -117,7 +117,7 @@ class tool_dataflows_step_test extends \advanced_testcase {
      *
      * @return \string[][]
      */
-    public function set_name_effects_alias_provider(): array {
+    public static function set_name_effects_alias_provider(): array {
         return [
             ['simplename', 'simplename'],
             ['snake_name', 'snake_name'],

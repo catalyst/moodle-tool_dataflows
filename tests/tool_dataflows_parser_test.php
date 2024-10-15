@@ -16,7 +16,6 @@
 
 namespace tool_dataflows;
 
-
 /**
  * Tests the parser.
  *
@@ -46,7 +45,7 @@ class tool_dataflows_parser_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function find_variable_names_provider(): array {
+    public static function find_variable_names_provider(): array {
         return [
             ['', []],
             ['${{a}}', ['a']],
@@ -79,7 +78,7 @@ class tool_dataflows_parser_test extends \advanced_testcase {
      *
      * @return array of data
      */
-    public function parser_functions_data_provider() {
+    public static function parser_functions_data_provider(): array {
         $example = [
             'a' => [
                 'b' => null,

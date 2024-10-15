@@ -29,12 +29,11 @@ use tool_dataflows\local\execution\engine;
  */
 class tool_dataflows_flow_transformer_regex_test extends \advanced_testcase {
 
-
     /** Test data. */
     const TEST_DATA = [
-        [ 'test' => 'hello world' ],
-        [ 'test' => 'hello earth' ],
-        [ 'test' => '' ],
+        ['test' => 'hello world'],
+        ['test' => 'hello earth'],
+        ['test' => ''],
     ];
 
     /** Expression config */
@@ -45,9 +44,9 @@ class tool_dataflows_flow_transformer_regex_test extends \advanced_testcase {
 
     /** To be expected. */
     const EXPECTED = [
-        [ 'test' => 'hello world', 'regex' => 'world' ],
-        [ 'test' => 'hello earth', 'regex' => null ],
-        [ 'test' => '', 'regex' => null ],
+        ['test' => 'hello world', 'regex' => 'world'],
+        ['test' => 'hello earth', 'regex' => null],
+        ['test' => '', 'regex' => null],
     ];
 
     /** Input file name. */
@@ -56,7 +55,7 @@ class tool_dataflows_flow_transformer_regex_test extends \advanced_testcase {
     /** Output file name. */
     const OUTPUT_FILE_NAME = 'output.json';
 
-    /** @var string  Base directory. */
+    /** @var string Base directory. */
     private $basedir;
 
     /**
@@ -111,9 +110,9 @@ class tool_dataflows_flow_transformer_regex_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function regex_provider(): array {
+    public static function regex_provider(): array {
         return [
-            [ self::TEST_DATA, self::CONFIG, self::EXPECTED ],
+            [self::TEST_DATA, self::CONFIG, self::EXPECTED],
             [
                 [['test' => '1,2,3,4,5,6,7,8,9']],
                 [

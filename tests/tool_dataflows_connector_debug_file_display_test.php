@@ -20,7 +20,6 @@ use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\execution\direct_in_type;
 use tool_dataflows\local\step\connector_debug_file_display;
-use tool_dataflows\local\step\writer_stream;
 
 defined('MOODLE_INTERNAL') || die();
 

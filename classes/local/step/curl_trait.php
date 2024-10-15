@@ -16,7 +16,6 @@
 
 namespace tool_dataflows\local\step;
 
-use Symfony\Component\Yaml\Yaml;
 use tool_dataflows\helper;
 
 defined('MOODLE_INTERNAL') || die();

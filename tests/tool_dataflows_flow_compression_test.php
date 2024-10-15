@@ -31,10 +31,10 @@ use tool_dataflows\local\step\reader_directory_file_list;
  * @covers    \tool_dataflows\local\step\connector_compression
  */
 class tool_dataflows_flow_compression_test extends \advanced_testcase {
-    /** @var string $readdir directory with files in it to read from for flow step */
+    /** @var string directory with files in it to read from for flow step */
     private $readdir;
 
-    /** @var string $outdir directory where the compressed/decompressed files are outputted to */
+    /** @var string directory where the compressed/decompressed files are outputted to */
     private $outdir;
 
     /**
@@ -80,7 +80,7 @@ class tool_dataflows_flow_compression_test extends \advanced_testcase {
             'returnvalue' => 'basename',
             'sort' => 'alpha',
             'offset' => '0',
-            'limit' => '0'
+            'limit' => '0',
         ]);
         $reader->name = 'reader';
         $reader->type = reader_directory_file_list::class;
@@ -91,7 +91,7 @@ class tool_dataflows_flow_compression_test extends \advanced_testcase {
             'from' => $this->readdir . '/${{record.filename}}',
             'to' => $this->outdir . '/${{record.filename}}-out.gz',
             'method' => $method,
-            'command' => 'compress'
+            'command' => 'compress',
         ]);
         $compress->depends_on([$reader]);
         $compress->name = 'compress';
@@ -103,7 +103,7 @@ class tool_dataflows_flow_compression_test extends \advanced_testcase {
             'from' => $this->outdir . '/${{record.filename}}-out.gz',
             'to' => $this->outdir . '/${{record.filename}}-out-decompressed.txt',
             'method' => $method,
-            'command' => 'decompress'
+            'command' => 'decompress',
         ]);
         $decompress->depends_on([$compress]);
         $decompress->name = 'decompress';
@@ -136,16 +136,16 @@ class tool_dataflows_flow_compression_test extends \advanced_testcase {
         // Check the files were outputted correctly.
         // Note we check the mime type rather than the file extension
         // since the extension may be misleading.
-        $outdircontenttypes = array_map(function($filename) {
+        $outdircontenttypes = array_map(function ($filename) {
             $fullpath = $this->outdir . '/' . $filename;
             return mime_content_type($fullpath);
         }, scandir($this->outdir));
 
-        $this->assertCount(2, array_filter($outdircontenttypes, function($type) {
+        $this->assertCount(2, array_filter($outdircontenttypes, function ($type) {
             return $type == 'application/gzip' || $type == 'application/x-gzip';
         }));
 
-        $this->assertCount(2, array_filter($outdircontenttypes, function($type) {
+        $this->assertCount(2, array_filter($outdircontenttypes, function ($type) {
             return $type == 'text/plain';
         }));
     }

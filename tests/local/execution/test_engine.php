@@ -16,8 +16,6 @@
 
 namespace tool_dataflows\local\execution;
 
-use tool_dataflows\dataflow;
-use tool_dataflows\step;
 
 /**
  * A engine subclass used for testing

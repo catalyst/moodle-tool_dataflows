@@ -71,7 +71,6 @@ try {
     redirect($overviewurl);
 }
 
-
 // Set the PAGE URL (and mandatory context). Note the ID being recorded, this is important.
 $PAGE->set_context($context);
 $PAGE->set_url($url);

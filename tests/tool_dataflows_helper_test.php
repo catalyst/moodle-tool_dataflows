@@ -51,7 +51,7 @@ class tool_dataflows_helper_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function is_relative_provider(): array {
+    public static function is_relative_provider(): array {
         global $CFG;
         return [
             ['one/path', true],
@@ -81,7 +81,7 @@ class tool_dataflows_helper_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function is_scheme_provider(): array {
+    public static function is_scheme_provider(): array {
         return [
             ['file', 'one/path', false],
             ['file', '/one/path', false],
@@ -113,7 +113,7 @@ class tool_dataflows_helper_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function dir_provider(): array {
+    public static function dir_provider(): array {
         global $CFG;
         return [
             ['', []],
@@ -157,7 +157,7 @@ class tool_dataflows_helper_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function path_validate_provider(): array {
+    public static function path_validate_provider(): array {
         return [
             ['one/path', true],
             ['/one/path', false],
@@ -185,7 +185,7 @@ class tool_dataflows_helper_test extends \advanced_testcase {
      *
      * @return \string[][]
      */
-    public function bash_escape_provider(): array {
+    public static function bash_escape_provider(): array {
         return [
             ['', "''"],
             ['something with a space', "'something with a space'"],
@@ -210,7 +210,7 @@ class tool_dataflows_helper_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function extract_http_headers_provider(): array {
+    public static function extract_http_headers_provider(): array {
         return [
             ['', []],
             ['0', false],

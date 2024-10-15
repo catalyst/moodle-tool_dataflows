@@ -45,7 +45,7 @@ class trigger_dataflow extends \external_api {
         return new external_function_parameters([
             'dataflow' => new external_single_structure([
                 'id' => new external_value(PARAM_INT, 'dataflow record id'),
-            ])
+            ]),
         ]);
     }
 

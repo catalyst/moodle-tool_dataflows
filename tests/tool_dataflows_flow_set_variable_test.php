@@ -22,7 +22,6 @@ use tool_dataflows\local\execution\array_out_type;
 use tool_dataflows\local\execution\engine;
 use tool_dataflows\local\step\flow_abort;
 use tool_dataflows\local\step\flow_set_variable;
-use tool_dataflows\test_dataflows;
 
 defined('MOODLE_INTERNAL') || die();
 

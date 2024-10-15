@@ -54,7 +54,7 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
     /** File list name. */
     const FILE_LIST_NAME = 'files.csv';
 
-    /** @var string  Base directory. */
+    /** @var string Base directory. */
     private $basedir;
 
     /**
@@ -111,7 +111,7 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
             Yaml::dump([
                 'dir1' => 'everywhere',
                 'dir2' => '/anywhere',
-                'dir3' => 'sftp://somewhere'
+                'dir3' => 'sftp://somewhere',
             ]),
             'tool_dataflows'
         );
@@ -126,7 +126,7 @@ class tool_dataflows_append_file_step_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function has_sideeffect_provider(): array {
+    public static function has_sideeffect_provider(): array {
         return [
             ['test.txt', false],
             ['/test.txt', true],

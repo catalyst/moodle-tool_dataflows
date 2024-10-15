@@ -29,6 +29,7 @@ use tool_dataflows\helper;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait compression_trait {
+
     /**
      * Returns whether or not the step configured, has a side effect.
      *
@@ -188,10 +189,10 @@ trait compression_trait {
         return [
             'gzip' => (object) [
                 'name' => get_string('compression:method:gzip', 'tool_dataflows'),
-                'isexecutable' => function() {
+                'isexecutable' => function () {
                     return self::validate_executable(get_config('tool_dataflows', 'gzip_exec_path'));
-                }
-            ]
+                },
+            ],
         ];
     }
 
@@ -203,9 +204,7 @@ trait compression_trait {
      */
     private static function validate_executable(string $path) {
         if (!is_executable($path)) {
-            return get_string('compression:error:invalidexecutable', 'tool_dataflows', [
-                'path' => $path
-            ]);
+            return get_string('compression:error:invalidexecutable', 'tool_dataflows', ['path' => $path]);
         }
 
         return true;
